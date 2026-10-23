@@ -1,0 +1,1174 @@
+captured_at,game_date,matchup,event_id,market,side,entity,line,book,american,opposite_american,source
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_ml,MIN,,,fanduel,-106,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_ml,ORL,,,fanduel,-110,-106,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_ats,MIN,,1.5,fanduel,-115,-105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_ats,ORL,,-1.5,fanduel,-105,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_total,over,,233.5,fanduel,-118,-104,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_total,under,,233.5,fanduel,-104,-118,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,h1_ml,MIN,,,fanduel,-108,-112,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,h1_ml,ORL,,,fanduel,-112,-108,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Jaden McDaniels,2.5,fanduel,134,-172,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Jaden McDaniels,2.5,fanduel,-172,134,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,LaMelo Ball,7.5,fanduel,112,-142,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,LaMelo Ball,7.5,fanduel,-142,112,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Desmond Bane,3.5,fanduel,112,-142,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Desmond Bane,3.5,fanduel,-142,112,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Ayo Dosunmu,3.5,fanduel,108,-138,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Ayo Dosunmu,3.5,fanduel,-138,108,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Jalen Suggs,4.5,fanduel,-113,-113,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Jalen Suggs,4.5,fanduel,-113,-113,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Franz Wagner,4.5,fanduel,-156,122,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Franz Wagner,4.5,fanduel,122,-156,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Anthony Edwards,3.5,fanduel,122,-156,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Anthony Edwards,3.5,fanduel,-156,122,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Paolo Banchero,5.5,fanduel,100,-128,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Paolo Banchero,5.5,fanduel,-128,100,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Jaden McDaniels,14.5,fanduel,-104,-122,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Jaden McDaniels,14.5,fanduel,-122,-104,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Rudy Gobert,9.5,fanduel,-111,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Rudy Gobert,9.5,fanduel,-115,-111,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Tristan da Silva,9.5,fanduel,-118,-108,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Tristan da Silva,9.5,fanduel,-108,-118,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Terrence Shannon Jr.,7.5,fanduel,-113,-113,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Terrence Shannon Jr.,7.5,fanduel,-113,-113,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Desmond Bane,18.5,fanduel,-118,-108,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Desmond Bane,18.5,fanduel,-108,-118,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Jonathan Kuminga,12.5,fanduel,-104,-122,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Jonathan Kuminga,12.5,fanduel,-122,-104,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Franz Wagner,20.5,fanduel,-120,-106,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Franz Wagner,20.5,fanduel,-106,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Jalen Suggs,12.5,fanduel,-102,-125,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Jalen Suggs,12.5,fanduel,-125,-102,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Paolo Banchero,22.5,fanduel,-130,102,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Paolo Banchero,22.5,fanduel,102,-130,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Wendell Carter Jr,9.5,fanduel,-128,100,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Wendell Carter Jr,9.5,fanduel,100,-128,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Ayo Dosunmu,12.5,fanduel,-111,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Ayo Dosunmu,12.5,fanduel,-115,-111,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,LaMelo Ball,19.5,fanduel,-115,-111,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,LaMelo Ball,19.5,fanduel,-111,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Anthony Edwards,28.5,fanduel,-113,-113,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Anthony Edwards,28.5,fanduel,-113,-113,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Jaden McDaniels,21.5,fanduel,-118,-108,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Jaden McDaniels,21.5,fanduel,-108,-118,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Desmond Bane,26.5,fanduel,-111,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Desmond Bane,26.5,fanduel,-115,-111,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Anthony Edwards,37.5,fanduel,-106,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Anthony Edwards,37.5,fanduel,-120,-106,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Franz Wagner,31.5,fanduel,-104,-122,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Franz Wagner,31.5,fanduel,-122,-104,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Ayo Dosunmu,19.5,fanduel,-111,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Ayo Dosunmu,19.5,fanduel,-115,-111,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Jalen Suggs,20.5,fanduel,-120,-106,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Jalen Suggs,20.5,fanduel,-106,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Paolo Banchero,37.5,fanduel,-113,-113,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Paolo Banchero,37.5,fanduel,-113,-113,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,LaMelo Ball,32.5,fanduel,-108,-118,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,LaMelo Ball,32.5,fanduel,-118,-108,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Jonathan Kuminga,5.5,fanduel,112,-140,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Jonathan Kuminga,5.5,fanduel,-140,112,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Desmond Bane,4.5,fanduel,134,-172,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Desmond Bane,4.5,fanduel,-172,134,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Jaden McDaniels,4.5,fanduel,-156,122,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Jaden McDaniels,4.5,fanduel,122,-156,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Wendell Carter Jr,7.5,fanduel,114,-146,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Wendell Carter Jr,7.5,fanduel,-146,114,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Ayo Dosunmu,3.5,fanduel,102,-130,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Ayo Dosunmu,3.5,fanduel,-130,102,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Rudy Gobert,11.5,fanduel,-102,-125,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Rudy Gobert,11.5,fanduel,-125,-102,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Jalen Suggs,3.5,fanduel,-125,-102,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Jalen Suggs,3.5,fanduel,-102,-125,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,LaMelo Ball,4.5,fanduel,-154,120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,LaMelo Ball,4.5,fanduel,120,-154,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Franz Wagner,5.5,fanduel,120,-154,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Franz Wagner,5.5,fanduel,-154,120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Anthony Edwards,4.5,fanduel,-164,128,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Anthony Edwards,4.5,fanduel,128,-164,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Paolo Banchero,8.5,fanduel,-113,-113,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Paolo Banchero,8.5,fanduel,-113,-113,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Jaden McDaniels,1.5,fanduel,112,-142,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Jaden McDaniels,1.5,fanduel,-142,112,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Jonathan Kuminga,1.5,fanduel,158,-205,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Jonathan Kuminga,1.5,fanduel,-205,158,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Desmond Bane,2.5,fanduel,118,-150,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Desmond Bane,2.5,fanduel,-150,118,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Ayo Dosunmu,1.5,fanduel,124,-158,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Ayo Dosunmu,1.5,fanduel,-158,124,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Jalen Suggs,2.5,fanduel,132,-170,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Jalen Suggs,2.5,fanduel,-170,132,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Paolo Banchero,1.5,fanduel,128,-164,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Paolo Banchero,1.5,fanduel,-164,128,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Anthony Edwards,3.5,fanduel,-113,-113,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Anthony Edwards,3.5,fanduel,-113,-113,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,LaMelo Ball,3.5,fanduel,100,-128,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,LaMelo Ball,3.5,fanduel,-128,100,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Franz Wagner,1.5,fanduel,110,-140,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Franz Wagner,1.5,fanduel,-140,110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,h1_ats,MIN,,0.5,fanduel,-115,-105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,h1_ats,ORL,,-0.5,fanduel,-105,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,h1_total,over,,114.5,fanduel,-106,-114,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,h1_total,under,,114.5,fanduel,-114,-106,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_ml,MIN,,,fanatics,100,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_ml,ORL,,,fanatics,-120,100,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_ats,MIN,,1.5,fanatics,-110,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_ats,ORL,,-1.5,fanatics,-110,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_total,over,,234.5,fanatics,-110,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_total,under,,234.5,fanatics,-110,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,h1_ml,MIN,,,fanatics,-110,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,h1_ml,ORL,,,fanatics,-120,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Desmond Bane,3.5,fanatics,105,-140,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Desmond Bane,3.5,fanatics,-140,105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Jaden McDaniels,14.5,fanatics,-110,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Jaden McDaniels,14.5,fanatics,-120,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Tristan da Silva,15.5,fanatics,-105,-125,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Tristan da Silva,15.5,fanatics,-125,-105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Rudy Gobert,11.5,fanatics,-115,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Rudy Gobert,11.5,fanatics,-115,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Paolo Banchero,1.5,fanatics,130,-190,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Paolo Banchero,1.5,fanatics,-190,130,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_ml,MIN,,,draftkings,102,-122,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_ml,ORL,,,draftkings,-122,102,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_ats,MIN,,1.5,draftkings,-110,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_ats,ORL,,-1.5,draftkings,-110,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_total,over,,234.5,draftkings,-108,-112,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_total,under,,234.5,draftkings,-112,-108,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,h1_ml,MIN,,,draftkings,-102,-118,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,h1_ml,ORL,,,draftkings,-118,-102,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,LaMelo Ball,7.5,draftkings,-127,-103,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,LaMelo Ball,7.5,draftkings,-103,-127,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Paolo Banchero,5.5,draftkings,100,-132,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Paolo Banchero,5.5,draftkings,-132,100,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Franz Wagner,4.5,draftkings,-156,118,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Franz Wagner,4.5,draftkings,118,-156,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Jalen Suggs,4.5,draftkings,-119,-111,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Jalen Suggs,4.5,draftkings,-111,-119,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Ayo Dosunmu,3.5,draftkings,111,-146,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Ayo Dosunmu,3.5,draftkings,-146,111,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Desmond Bane,3.5,draftkings,111,-147,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Desmond Bane,3.5,draftkings,-147,111,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Anthony Edwards,3.5,draftkings,121,-160,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Anthony Edwards,3.5,draftkings,-160,121,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Jaden McDaniels,2.5,draftkings,130,-172,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Jaden McDaniels,2.5,draftkings,-172,130,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Jonathan Kuminga,1.5,draftkings,-191,144,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Jonathan Kuminga,1.5,draftkings,144,-191,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Anthony Edwards,29.5,draftkings,-110,-116,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Anthony Edwards,29.5,draftkings,-116,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Paolo Banchero,22.5,draftkings,-108,-118,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Paolo Banchero,22.5,draftkings,-118,-108,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Franz Wagner,21.5,draftkings,-107,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Franz Wagner,21.5,draftkings,-120,-107,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,LaMelo Ball,19.5,draftkings,-106,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,LaMelo Ball,19.5,draftkings,-120,-106,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Desmond Bane,18.5,draftkings,-116,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Desmond Bane,18.5,draftkings,-110,-116,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Jaden McDaniels,14.5,draftkings,-107,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Jaden McDaniels,14.5,draftkings,-120,-107,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Jalen Suggs,12.5,draftkings,-115,-111,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Jalen Suggs,12.5,draftkings,-111,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Ayo Dosunmu,12.5,draftkings,-108,-118,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Ayo Dosunmu,12.5,draftkings,-118,-108,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Jonathan Kuminga,12.5,draftkings,-108,-118,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Jonathan Kuminga,12.5,draftkings,-118,-108,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Wendell Carter Jr,10.5,draftkings,-101,-126,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Wendell Carter Jr,10.5,draftkings,-126,-101,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Tristan da Silva,9.5,draftkings,-116,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Tristan da Silva,9.5,draftkings,-110,-116,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Rudy Gobert,9.5,draftkings,-109,-117,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Rudy Gobert,9.5,draftkings,-117,-109,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Terrence Shannon Jr.,7.5,draftkings,-126,-101,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Terrence Shannon Jr.,7.5,draftkings,-101,-126,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Anthony Edwards,38.5,draftkings,-110,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Anthony Edwards,38.5,draftkings,-120,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Paolo Banchero,36.5,draftkings,-122,-107,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Paolo Banchero,36.5,draftkings,-107,-122,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,LaMelo Ball,33.5,draftkings,-109,-121,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,LaMelo Ball,33.5,draftkings,-121,-109,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Franz Wagner,32.5,draftkings,-110,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Franz Wagner,32.5,draftkings,-120,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Desmond Bane,26.5,draftkings,-113,-116,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Desmond Bane,26.5,draftkings,-116,-113,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Rudy Gobert,23.5,draftkings,-106,-124,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Rudy Gobert,23.5,draftkings,-124,-106,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Jaden McDaniels,21.5,draftkings,-125,-105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Jaden McDaniels,21.5,draftkings,-105,-125,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Jalen Suggs,21.5,draftkings,-116,-113,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Jalen Suggs,21.5,draftkings,-113,-116,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Jonathan Kuminga,20.5,draftkings,-107,-123,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Jonathan Kuminga,20.5,draftkings,-123,-107,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Ayo Dosunmu,19.5,draftkings,-113,-116,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Ayo Dosunmu,19.5,draftkings,-116,-113,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Tristan da Silva,15.5,draftkings,-103,-128,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Tristan da Silva,15.5,draftkings,-128,-103,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Rudy Gobert,11.5,draftkings,-126,-105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Rudy Gobert,11.5,draftkings,-105,-126,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Paolo Banchero,8.5,draftkings,-120,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Paolo Banchero,8.5,draftkings,-110,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Wendell Carter Jr,7.5,draftkings,105,-138,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Wendell Carter Jr,7.5,draftkings,-138,105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Franz Wagner,5.5,draftkings,102,-135,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Franz Wagner,5.5,draftkings,-135,102,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Jonathan Kuminga,5.5,draftkings,103,-135,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Jonathan Kuminga,5.5,draftkings,-135,103,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Anthony Edwards,5.5,draftkings,104,-136,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Anthony Edwards,5.5,draftkings,-136,104,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,LaMelo Ball,5.5,draftkings,106,-140,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,LaMelo Ball,5.5,draftkings,-140,106,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Jaden McDaniels,5.5,draftkings,115,-152,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Jaden McDaniels,5.5,draftkings,-152,115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Desmond Bane,4.5,draftkings,113,-150,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Desmond Bane,4.5,draftkings,-150,113,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Jalen Suggs,3.5,draftkings,-139,105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Jalen Suggs,3.5,draftkings,105,-139,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Ayo Dosunmu,3.5,draftkings,-106,-125,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Ayo Dosunmu,3.5,draftkings,-125,-106,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Tristan da Silva,3.5,draftkings,127,-168,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Tristan da Silva,3.5,draftkings,-168,127,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Anthony Edwards,3.5,draftkings,-138,105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Anthony Edwards,3.5,draftkings,105,-138,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,LaMelo Ball,3.5,draftkings,-117,-112,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,LaMelo Ball,3.5,draftkings,-112,-117,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Desmond Bane,2.5,draftkings,104,-136,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Desmond Bane,2.5,draftkings,-136,104,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Jalen Suggs,2.5,draftkings,132,-175,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Jalen Suggs,2.5,draftkings,-175,132,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Tristan da Silva,1.5,draftkings,-166,125,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Tristan da Silva,1.5,draftkings,125,-166,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Franz Wagner,1.5,draftkings,108,-142,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Franz Wagner,1.5,draftkings,-142,108,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Jaden McDaniels,1.5,draftkings,110,-145,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Jaden McDaniels,1.5,draftkings,-145,110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Ayo Dosunmu,1.5,draftkings,118,-156,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Ayo Dosunmu,1.5,draftkings,-156,118,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Paolo Banchero,1.5,draftkings,123,-163,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Paolo Banchero,1.5,draftkings,-163,123,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Jonathan Kuminga,1.5,draftkings,140,-185,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Jonathan Kuminga,1.5,draftkings,-185,140,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Terrence Shannon Jr.,0.5,draftkings,-206,155,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Terrence Shannon Jr.,0.5,draftkings,155,-206,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,h1_ats,MIN,,0.5,draftkings,-110,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,h1_ats,ORL,,-0.5,draftkings,-110,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,h1_total,over,,114.5,draftkings,-105,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,h1_total,under,,114.5,draftkings,-115,-105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_ml,MIN,,,williamhill_us,100,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_ml,ORL,,,williamhill_us,-120,100,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_ats,MIN,,1.5,williamhill_us,-110,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_ats,ORL,,-1.5,williamhill_us,-110,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_total,over,,235,williamhill_us,-105,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_total,under,,235,williamhill_us,-115,-105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Jalen Suggs,4.5,williamhill_us,-121,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Jalen Suggs,4.5,williamhill_us,-110,-121,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Anthony Edwards,3.5,williamhill_us,116,-154,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Anthony Edwards,3.5,williamhill_us,-154,116,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,LaMelo Ball,7.5,williamhill_us,105,-140,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,LaMelo Ball,7.5,williamhill_us,-140,105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Paolo Banchero,5.5,williamhill_us,-104,-130,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Paolo Banchero,5.5,williamhill_us,-130,-104,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Ayo Dosunmu,3.5,williamhill_us,104,-137,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Ayo Dosunmu,3.5,williamhill_us,-137,104,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Desmond Bane,3.5,williamhill_us,107,-140,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Desmond Bane,3.5,williamhill_us,-140,107,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Franz Wagner,4.5,williamhill_us,-159,119,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Franz Wagner,4.5,williamhill_us,119,-159,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,LaMelo Ball,19.5,williamhill_us,-115,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,LaMelo Ball,19.5,williamhill_us,-115,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Desmond Bane,18.5,williamhill_us,-118,-113,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Desmond Bane,18.5,williamhill_us,-113,-118,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Jonathan Kuminga,12.5,williamhill_us,-107,-125,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Jonathan Kuminga,12.5,williamhill_us,-125,-107,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Jalen Suggs,12.5,williamhill_us,-118,-113,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Jalen Suggs,12.5,williamhill_us,-113,-118,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Paolo Banchero,22.5,williamhill_us,-118,-113,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Paolo Banchero,22.5,williamhill_us,-113,-118,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Rudy Gobert,9.5,williamhill_us,-113,-118,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Rudy Gobert,9.5,williamhill_us,-118,-113,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Franz Wagner,21.5,williamhill_us,-108,-124,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Franz Wagner,21.5,williamhill_us,-124,-108,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Jaden McDaniels,14.5,williamhill_us,-109,-122,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Jaden McDaniels,14.5,williamhill_us,-122,-109,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Ayo Dosunmu,12.5,williamhill_us,-112,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Ayo Dosunmu,12.5,williamhill_us,-120,-112,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Wendell Carter Jr,9.5,williamhill_us,-128,-107,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Wendell Carter Jr,9.5,williamhill_us,-107,-128,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Tristan da Silva,9.5,williamhill_us,-127,-106,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Tristan da Silva,9.5,williamhill_us,-106,-127,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Anthony Edwards,29.5,williamhill_us,-115,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Anthony Edwards,29.5,williamhill_us,-115,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Terrence Shannon Jr.,7.5,williamhill_us,-122,-109,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Terrence Shannon Jr.,7.5,williamhill_us,-109,-122,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Ayo Dosunmu,3.5,williamhill_us,104,-139,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Ayo Dosunmu,3.5,williamhill_us,-139,104,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Jonathan Kuminga,5.5,williamhill_us,111,-160,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Jonathan Kuminga,5.5,williamhill_us,-160,111,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Franz Wagner,5.5,williamhill_us,107,-143,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Franz Wagner,5.5,williamhill_us,-143,107,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Jaden McDaniels,5.5,williamhill_us,117,-157,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Jaden McDaniels,5.5,williamhill_us,-157,117,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Tristan da Silva,3.5,williamhill_us,122,-164,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Tristan da Silva,3.5,williamhill_us,-164,122,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Desmond Bane,4.5,williamhill_us,124,-170,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Desmond Bane,4.5,williamhill_us,-170,124,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Anthony Edwards,5.5,williamhill_us,109,-145,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Anthony Edwards,5.5,williamhill_us,-145,109,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Jalen Suggs,3.5,williamhill_us,-130,-104,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Jalen Suggs,3.5,williamhill_us,-104,-130,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Rudy Gobert,11.5,williamhill_us,-120,-112,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Rudy Gobert,11.5,williamhill_us,-112,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Wendell Carter Jr,7.5,williamhill_us,100,-134,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Wendell Carter Jr,7.5,williamhill_us,-134,100,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Paolo Banchero,8.5,williamhill_us,-117,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Paolo Banchero,8.5,williamhill_us,-115,-117,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,LaMelo Ball,5.5,williamhill_us,117,-157,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,LaMelo Ball,5.5,williamhill_us,-157,117,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Jonathan Kuminga,1.5,williamhill_us,141,-190,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Jonathan Kuminga,1.5,williamhill_us,-190,141,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Jaden McDaniels,1.5,williamhill_us,108,-143,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Jaden McDaniels,1.5,williamhill_us,-143,108,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Paolo Banchero,1.5,williamhill_us,122,-164,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Paolo Banchero,1.5,williamhill_us,-164,122,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Desmond Bane,2.5,williamhill_us,107,-143,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Desmond Bane,2.5,williamhill_us,-143,107,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Jalen Suggs,2.5,williamhill_us,134,-179,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Jalen Suggs,2.5,williamhill_us,-179,134,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,LaMelo Ball,3.5,williamhill_us,-114,-117,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,LaMelo Ball,3.5,williamhill_us,-117,-114,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Anthony Edwards,3.5,williamhill_us,-127,-108,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Anthony Edwards,3.5,williamhill_us,-108,-127,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Ayo Dosunmu,1.5,williamhill_us,120,-159,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Ayo Dosunmu,1.5,williamhill_us,-159,120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Franz Wagner,1.5,williamhill_us,111,-148,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Franz Wagner,1.5,williamhill_us,-148,111,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Tristan da Silva,1.5,williamhill_us,-170,127,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Tristan da Silva,1.5,williamhill_us,127,-170,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_ml,MIN,,,betrivers,-105,-117,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_ml,ORL,,,betrivers,-117,-105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_ats,MIN,,-0.5,betrivers,-105,-117,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_ats,ORL,,0.5,betrivers,-117,-105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_total,over,,234.5,betrivers,-114,-107,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_total,under,,234.5,betrivers,-107,-114,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,h1_ml,MIN,,,betrivers,-117,-114,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,h1_ml,ORL,,,betrivers,-114,-117,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Franz Wagner,4.5,betrivers,-152,110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Franz Wagner,4.5,betrivers,110,-152,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Ayo Dosunmu,3.5,betrivers,106,-143,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Ayo Dosunmu,3.5,betrivers,-143,106,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Jalen Suggs,4.5,betrivers,-118,-114,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Jalen Suggs,4.5,betrivers,-114,-118,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Desmond Bane,3.5,betrivers,100,-136,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Desmond Bane,3.5,betrivers,-136,100,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Anthony Edwards,3.5,betrivers,125,-175,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Anthony Edwards,3.5,betrivers,-175,125,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Jaden McDaniels,2.5,betrivers,123,-167,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Jaden McDaniels,2.5,betrivers,-167,123,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Jonathan Kuminga,1.5,betrivers,-175,128,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Jonathan Kuminga,1.5,betrivers,128,-175,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Paolo Banchero,5.5,betrivers,112,-152,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Paolo Banchero,5.5,betrivers,-152,112,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,LaMelo Ball,7.5,betrivers,-115,-118,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,LaMelo Ball,7.5,betrivers,-118,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,LaMelo Ball,18.5,betrivers,-124,-109,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,LaMelo Ball,18.5,betrivers,-109,-124,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Tristan da Silva,9.5,betrivers,-115,-118,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Tristan da Silva,9.5,betrivers,-118,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Ayo Dosunmu,12.5,betrivers,-115,-118,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Ayo Dosunmu,12.5,betrivers,-118,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Terrence Shannon Jr.,7.5,betrivers,-124,-109,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Terrence Shannon Jr.,7.5,betrivers,-109,-124,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Wendell Carter Jr,10.5,betrivers,-104,-132,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Wendell Carter Jr,10.5,betrivers,-132,-104,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Jaden McDaniels,14.5,betrivers,-110,-122,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Jaden McDaniels,14.5,betrivers,-122,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Anthony Edwards,28.5,betrivers,-112,-122,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Anthony Edwards,28.5,betrivers,-122,-112,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Rudy Gobert,8.5,betrivers,-124,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Rudy Gobert,8.5,betrivers,-110,-124,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Jalen Suggs,12.5,betrivers,-125,-109,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Jalen Suggs,12.5,betrivers,-109,-125,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Jonathan Kuminga,11.5,betrivers,-132,-104,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Jonathan Kuminga,11.5,betrivers,-104,-132,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Desmond Bane,18.5,betrivers,-110,-124,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Desmond Bane,18.5,betrivers,-124,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Paolo Banchero,22.5,betrivers,-106,-129,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Paolo Banchero,22.5,betrivers,-129,-106,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Franz Wagner,20.5,betrivers,-125,-109,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Franz Wagner,20.5,betrivers,-109,-125,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Desmond Bane,26.5,betrivers,-109,-124,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Desmond Bane,26.5,betrivers,-124,-109,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Jonathan Kuminga,19.5,betrivers,-114,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Jonathan Kuminga,19.5,betrivers,-120,-114,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Jaden McDaniels,22.5,betrivers,-103,-132,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Jaden McDaniels,22.5,betrivers,-132,-103,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Jalen Suggs,21.5,betrivers,-118,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Jalen Suggs,21.5,betrivers,-115,-118,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,LaMelo Ball,32.5,betrivers,-107,-127,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,LaMelo Ball,32.5,betrivers,-127,-107,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Anthony Edwards,37.5,betrivers,-106,-129,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Anthony Edwards,37.5,betrivers,-129,-106,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Paolo Banchero,36.5,betrivers,-114,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Paolo Banchero,36.5,betrivers,-120,-114,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Franz Wagner,31.5,betrivers,-114,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Franz Wagner,31.5,betrivers,-120,-114,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Ayo Dosunmu,19.5,betrivers,-115,-118,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Ayo Dosunmu,19.5,betrivers,-118,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Jaden McDaniels,4.5,betrivers,-150,110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Jaden McDaniels,4.5,betrivers,110,-150,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Jonathan Kuminga,5.5,betrivers,114,-157,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Jonathan Kuminga,5.5,betrivers,-157,114,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Desmond Bane,4.5,betrivers,118,-159,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Desmond Bane,4.5,betrivers,-159,118,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Ayo Dosunmu,3.5,betrivers,107,-148,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Ayo Dosunmu,3.5,betrivers,-148,107,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,LaMelo Ball,5.5,betrivers,120,-162,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,LaMelo Ball,5.5,betrivers,-162,120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Anthony Edwards,5.5,betrivers,112,-155,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Anthony Edwards,5.5,betrivers,-155,112,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Tristan da Silva,3.5,betrivers,105,-143,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Tristan da Silva,3.5,betrivers,-143,105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Wendell Carter Jr,7.5,betrivers,-105,-129,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Wendell Carter Jr,7.5,betrivers,-129,-105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Paolo Banchero,8.5,betrivers,-121,-113,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Paolo Banchero,8.5,betrivers,-113,-121,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Jalen Suggs,3.5,betrivers,-130,-105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Jalen Suggs,3.5,betrivers,-105,-130,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Rudy Gobert,11.5,betrivers,-122,-112,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Rudy Gobert,11.5,betrivers,-112,-122,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Franz Wagner,5.5,betrivers,112,-152,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Franz Wagner,5.5,betrivers,-152,112,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Terrence Shannon Jr.,1.5,betrivers,-175,125,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Terrence Shannon Jr.,1.5,betrivers,125,-175,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Anthony Edwards,3.5,betrivers,-124,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Anthony Edwards,3.5,betrivers,-110,-124,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Jonathan Kuminga,1.5,betrivers,145,-200,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Jonathan Kuminga,1.5,betrivers,-200,145,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Terrence Shannon Jr.,0.5,betrivers,-200,145,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Terrence Shannon Jr.,0.5,betrivers,145,-200,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Desmond Bane,2.5,betrivers,120,-165,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Desmond Bane,2.5,betrivers,-165,120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,LaMelo Ball,3.5,betrivers,102,-137,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,LaMelo Ball,3.5,betrivers,-137,102,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Ayo Dosunmu,1.5,betrivers,118,-159,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Ayo Dosunmu,1.5,betrivers,-159,118,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Jalen Suggs,2.5,betrivers,128,-180,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Jalen Suggs,2.5,betrivers,-180,128,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Tristan da Silva,1.5,betrivers,-159,117,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Tristan da Silva,1.5,betrivers,117,-159,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Franz Wagner,1.5,betrivers,110,-150,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Franz Wagner,1.5,betrivers,-150,110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Jaden McDaniels,1.5,betrivers,112,-152,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Jaden McDaniels,1.5,betrivers,-152,112,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Paolo Banchero,1.5,betrivers,130,-180,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Paolo Banchero,1.5,betrivers,-180,130,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,h1_ats,MIN,,0.5,betrivers,-127,-107,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,h1_ats,ORL,,-0.5,betrivers,-107,-127,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,h1_total,over,,113.5,betrivers,-148,106,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,h1_total,under,,113.5,betrivers,106,-148,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_ml,MIN,,,bovada,105,-125,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_ml,ORL,,,bovada,-125,105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_ats,MIN,,1.5,bovada,-115,-105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_ats,ORL,,-1.5,bovada,-105,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_total,over,,234.5,bovada,-110,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_total,under,,234.5,bovada,-110,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,h1_ml,MIN,,,bovada,-105,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,h1_ml,ORL,,,bovada,-115,-105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Anthony Edwards,2.5,bovada,-200,150,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Anthony Edwards,2.5,bovada,150,-200,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Anthony Edwards,3.5,bovada,120,-160,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Anthony Edwards,3.5,bovada,-160,120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Ayo Dosunmu,2.5,bovada,-220,165,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Ayo Dosunmu,2.5,bovada,165,-220,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Ayo Dosunmu,3.5,bovada,110,-145,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Ayo Dosunmu,3.5,bovada,-145,110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Desmond Bane,2.5,bovada,-220,165,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Desmond Bane,2.5,bovada,165,-220,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Desmond Bane,3.5,bovada,110,-145,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Desmond Bane,3.5,bovada,-145,110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Franz Wagner,4.5,bovada,-160,120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Franz Wagner,4.5,bovada,120,-160,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Franz Wagner,5.5,bovada,125,-165,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Franz Wagner,5.5,bovada,-165,125,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Jaden McDaniels,1.5,bovada,-230,170,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Jaden McDaniels,1.5,bovada,170,-230,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Jaden McDaniels,2.5,bovada,130,-170,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Jaden McDaniels,2.5,bovada,-170,130,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Jalen Suggs,3.5,bovada,-260,190,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Jalen Suggs,3.5,bovada,190,-260,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Jalen Suggs,4.5,bovada,-120,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Jalen Suggs,4.5,bovada,-110,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Jalen Suggs,5.5,bovada,165,-220,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Jalen Suggs,5.5,bovada,-220,165,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Jonathan Kuminga,1.5,bovada,-190,145,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Jonathan Kuminga,1.5,bovada,145,-190,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Jonathan Kuminga,2.5,bovada,150,-200,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Jonathan Kuminga,2.5,bovada,-200,150,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,LaMelo Ball,6.5,bovada,-230,170,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,LaMelo Ball,6.5,bovada,170,-230,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,LaMelo Ball,7.5,bovada,-125,-105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,LaMelo Ball,7.5,bovada,-105,-125,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,LaMelo Ball,8.5,bovada,140,-185,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,LaMelo Ball,8.5,bovada,-185,140,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Paolo Banchero,4.5,bovada,-200,150,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Paolo Banchero,4.5,bovada,150,-200,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Paolo Banchero,5.5,bovada,100,-130,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Paolo Banchero,5.5,bovada,-130,100,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Paolo Banchero,6.5,bovada,190,-260,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Paolo Banchero,6.5,bovada,-260,190,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Anthony Edwards,25.5,bovada,-240,175,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Anthony Edwards,25.5,bovada,175,-240,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Anthony Edwards,26.5,bovada,-190,145,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Anthony Edwards,26.5,bovada,145,-190,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Anthony Edwards,27.5,bovada,-160,120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Anthony Edwards,27.5,bovada,120,-160,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Anthony Edwards,28.5,bovada,-130,100,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Anthony Edwards,28.5,bovada,100,-130,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Anthony Edwards,29.5,bovada,-110,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Anthony Edwards,29.5,bovada,-120,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Anthony Edwards,30.5,bovada,110,-145,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Anthony Edwards,30.5,bovada,-145,110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Anthony Edwards,31.5,bovada,130,-170,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Anthony Edwards,31.5,bovada,-170,130,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Anthony Edwards,32.5,bovada,155,-210,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Anthony Edwards,32.5,bovada,-210,155,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Anthony Edwards,33.5,bovada,185,-250,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Anthony Edwards,33.5,bovada,-250,185,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Ayo Dosunmu,9.5,bovada,-280,205,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Ayo Dosunmu,9.5,bovada,205,-280,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Ayo Dosunmu,10.5,bovada,-200,150,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Ayo Dosunmu,10.5,bovada,150,-200,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Ayo Dosunmu,11.5,bovada,-145,110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Ayo Dosunmu,11.5,bovada,110,-145,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Ayo Dosunmu,12.5,bovada,-110,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Ayo Dosunmu,12.5,bovada,-120,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Ayo Dosunmu,13.5,bovada,120,-160,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Ayo Dosunmu,13.5,bovada,-160,120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Ayo Dosunmu,14.5,bovada,155,-210,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Ayo Dosunmu,14.5,bovada,-210,155,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Ayo Dosunmu,15.5,bovada,200,-275,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Ayo Dosunmu,15.5,bovada,-275,200,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Desmond Bane,15.5,bovada,-250,185,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Desmond Bane,15.5,bovada,185,-250,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Desmond Bane,16.5,bovada,-190,145,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Desmond Bane,16.5,bovada,145,-190,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Desmond Bane,17.5,bovada,-150,115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Desmond Bane,17.5,bovada,115,-150,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Desmond Bane,18.5,bovada,-120,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Desmond Bane,18.5,bovada,-110,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Desmond Bane,19.5,bovada,105,-135,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Desmond Bane,19.5,bovada,-135,105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Desmond Bane,20.5,bovada,130,-170,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Desmond Bane,20.5,bovada,-170,130,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Desmond Bane,21.5,bovada,160,-215,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Desmond Bane,21.5,bovada,-215,160,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Desmond Bane,22.5,bovada,200,-275,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Desmond Bane,22.5,bovada,-275,200,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Franz Wagner,17.5,bovada,-280,205,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Franz Wagner,17.5,bovada,205,-280,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Franz Wagner,18.5,bovada,-215,160,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Franz Wagner,18.5,bovada,160,-215,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Franz Wagner,19.5,bovada,-170,130,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Franz Wagner,19.5,bovada,130,-170,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Franz Wagner,20.5,bovada,-135,105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Franz Wagner,20.5,bovada,105,-135,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Franz Wagner,21.5,bovada,-110,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Franz Wagner,21.5,bovada,-120,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Franz Wagner,22.5,bovada,115,-150,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Franz Wagner,22.5,bovada,-150,115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Franz Wagner,23.5,bovada,140,-185,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Franz Wagner,23.5,bovada,-185,140,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Franz Wagner,24.5,bovada,170,-230,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Franz Wagner,24.5,bovada,-230,170,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Franz Wagner,25.5,bovada,205,-280,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Franz Wagner,25.5,bovada,-280,205,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Jaden McDaniels,11.5,bovada,-260,190,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Jaden McDaniels,11.5,bovada,190,-260,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Jaden McDaniels,12.5,bovada,-190,145,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Jaden McDaniels,12.5,bovada,145,-190,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Jaden McDaniels,13.5,bovada,-145,110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Jaden McDaniels,13.5,bovada,110,-145,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Jaden McDaniels,14.5,bovada,-110,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Jaden McDaniels,14.5,bovada,-120,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Jaden McDaniels,15.5,bovada,115,-150,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Jaden McDaniels,15.5,bovada,-150,115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Jaden McDaniels,16.5,bovada,150,-200,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Jaden McDaniels,16.5,bovada,-200,150,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Jaden McDaniels,17.5,bovada,185,-250,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Jaden McDaniels,17.5,bovada,-250,185,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Jalen Suggs,10.5,bovada,-220,165,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Jalen Suggs,10.5,bovada,165,-220,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Jalen Suggs,11.5,bovada,-160,120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Jalen Suggs,11.5,bovada,120,-160,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Jalen Suggs,12.5,bovada,-120,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Jalen Suggs,12.5,bovada,-110,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Jalen Suggs,13.5,bovada,110,-145,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Jalen Suggs,13.5,bovada,-145,110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Jalen Suggs,14.5,bovada,140,-185,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Jalen Suggs,14.5,bovada,-185,140,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Jalen Suggs,15.5,bovada,180,-245,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Jalen Suggs,15.5,bovada,-245,180,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Jonathan Kuminga,9.5,bovada,-280,205,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Jonathan Kuminga,9.5,bovada,205,-280,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Jonathan Kuminga,10.5,bovada,-200,150,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Jonathan Kuminga,10.5,bovada,150,-200,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Jonathan Kuminga,11.5,bovada,-145,110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Jonathan Kuminga,11.5,bovada,110,-145,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Jonathan Kuminga,12.5,bovada,-110,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Jonathan Kuminga,12.5,bovada,-120,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Jonathan Kuminga,13.5,bovada,120,-160,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Jonathan Kuminga,13.5,bovada,-160,120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Jonathan Kuminga,14.5,bovada,155,-210,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Jonathan Kuminga,14.5,bovada,-210,155,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Jonathan Kuminga,15.5,bovada,200,-275,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Jonathan Kuminga,15.5,bovada,-275,200,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,LaMelo Ball,16.5,bovada,-230,170,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,LaMelo Ball,16.5,bovada,170,-230,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,LaMelo Ball,17.5,bovada,-180,135,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,LaMelo Ball,17.5,bovada,135,-180,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,LaMelo Ball,18.5,bovada,-135,105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,LaMelo Ball,18.5,bovada,105,-135,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,LaMelo Ball,19.5,bovada,-110,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,LaMelo Ball,19.5,bovada,-120,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,LaMelo Ball,20.5,bovada,115,-150,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,LaMelo Ball,20.5,bovada,-150,115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,LaMelo Ball,21.5,bovada,140,-185,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,LaMelo Ball,21.5,bovada,-185,140,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,LaMelo Ball,22.5,bovada,170,-230,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,LaMelo Ball,22.5,bovada,-230,170,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,LaMelo Ball,23.5,bovada,210,-290,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,LaMelo Ball,23.5,bovada,-290,210,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Paolo Banchero,18.5,bovada,-275,200,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Paolo Banchero,18.5,bovada,200,-275,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Paolo Banchero,19.5,bovada,-215,160,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Paolo Banchero,19.5,bovada,160,-215,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Paolo Banchero,20.5,bovada,-170,130,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Paolo Banchero,20.5,bovada,130,-170,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Paolo Banchero,21.5,bovada,-135,105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Paolo Banchero,21.5,bovada,105,-135,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Paolo Banchero,22.5,bovada,-110,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Paolo Banchero,22.5,bovada,-120,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Paolo Banchero,23.5,bovada,110,-145,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Paolo Banchero,23.5,bovada,-145,110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Paolo Banchero,24.5,bovada,135,-180,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Paolo Banchero,24.5,bovada,-180,135,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Paolo Banchero,25.5,bovada,165,-220,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Paolo Banchero,25.5,bovada,-220,165,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Paolo Banchero,26.5,bovada,200,-275,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Paolo Banchero,26.5,bovada,-275,200,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Rudy Gobert,7.5,bovada,-220,165,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Rudy Gobert,7.5,bovada,165,-220,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Rudy Gobert,8.5,bovada,-150,115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Rudy Gobert,8.5,bovada,115,-150,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Rudy Gobert,9.5,bovada,-110,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Rudy Gobert,9.5,bovada,-120,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Rudy Gobert,10.5,bovada,125,-165,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Rudy Gobert,10.5,bovada,-165,125,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Rudy Gobert,11.5,bovada,165,-220,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Rudy Gobert,11.5,bovada,-220,165,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Rudy Gobert,12.5,bovada,205,-280,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Rudy Gobert,12.5,bovada,-280,205,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Terrence Shannon Jr.,5.5,bovada,-300,215,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Terrence Shannon Jr.,5.5,bovada,215,-300,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Terrence Shannon Jr.,6.5,bovada,-190,145,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Terrence Shannon Jr.,6.5,bovada,145,-190,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Terrence Shannon Jr.,7.5,bovada,-130,100,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Terrence Shannon Jr.,7.5,bovada,100,-130,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Terrence Shannon Jr.,8.5,bovada,110,-145,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Terrence Shannon Jr.,8.5,bovada,-145,110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Terrence Shannon Jr.,9.5,bovada,145,-190,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Terrence Shannon Jr.,9.5,bovada,-190,145,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Terrence Shannon Jr.,10.5,bovada,200,-275,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Terrence Shannon Jr.,10.5,bovada,-275,200,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Tristan da Silva,7.5,bovada,-240,175,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Tristan da Silva,7.5,bovada,175,-240,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Tristan da Silva,8.5,bovada,-165,125,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Tristan da Silva,8.5,bovada,125,-165,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Tristan da Silva,9.5,bovada,-120,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Tristan da Silva,9.5,bovada,-110,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Tristan da Silva,10.5,bovada,115,-150,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Tristan da Silva,10.5,bovada,-150,115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Tristan da Silva,11.5,bovada,150,-200,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Tristan da Silva,11.5,bovada,-200,150,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Tristan da Silva,12.5,bovada,200,-275,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Tristan da Silva,12.5,bovada,-275,200,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Wendell Carter Jr,7.5,bovada,-280,205,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Wendell Carter Jr,7.5,bovada,205,-280,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Wendell Carter Jr,8.5,bovada,-190,145,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Wendell Carter Jr,8.5,bovada,145,-190,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Wendell Carter Jr,9.5,bovada,-135,105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Wendell Carter Jr,9.5,bovada,105,-135,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Wendell Carter Jr,10.5,bovada,100,-130,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Wendell Carter Jr,10.5,bovada,-130,100,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Wendell Carter Jr,11.5,bovada,130,-170,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Wendell Carter Jr,11.5,bovada,-170,130,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Wendell Carter Jr,12.5,bovada,175,-240,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Wendell Carter Jr,12.5,bovada,-240,175,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Anthony Edwards,35.5,bovada,-180,135,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Anthony Edwards,35.5,bovada,135,-180,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Anthony Edwards,36.5,bovada,-150,115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Anthony Edwards,36.5,bovada,115,-150,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Anthony Edwards,37.5,bovada,-130,100,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Anthony Edwards,37.5,bovada,100,-130,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Anthony Edwards,38.5,bovada,-110,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Anthony Edwards,38.5,bovada,-120,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Anthony Edwards,39.5,bovada,105,-135,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Anthony Edwards,39.5,bovada,-135,105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Ayo Dosunmu,17.5,bovada,-185,140,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Ayo Dosunmu,17.5,bovada,140,-185,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Ayo Dosunmu,18.5,bovada,-145,110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Ayo Dosunmu,18.5,bovada,110,-145,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Ayo Dosunmu,19.5,bovada,-115,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Ayo Dosunmu,19.5,bovada,-115,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Ayo Dosunmu,20.5,bovada,105,-135,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Ayo Dosunmu,20.5,bovada,-135,105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Ayo Dosunmu,21.5,bovada,130,-170,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Ayo Dosunmu,21.5,bovada,-170,130,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Desmond Bane,24.5,bovada,-170,130,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Desmond Bane,24.5,bovada,130,-170,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Desmond Bane,25.5,bovada,-145,110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Desmond Bane,25.5,bovada,110,-145,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Desmond Bane,26.5,bovada,-115,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Desmond Bane,26.5,bovada,-115,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Desmond Bane,27.5,bovada,105,-135,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Desmond Bane,27.5,bovada,-135,105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Desmond Bane,28.5,bovada,125,-165,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Desmond Bane,28.5,bovada,-165,125,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Franz Wagner,29.5,bovada,-185,140,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Franz Wagner,29.5,bovada,140,-185,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Franz Wagner,30.5,bovada,-160,120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Franz Wagner,30.5,bovada,120,-160,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Franz Wagner,31.5,bovada,-130,100,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Franz Wagner,31.5,bovada,100,-130,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Franz Wagner,32.5,bovada,-110,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Franz Wagner,32.5,bovada,-120,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Franz Wagner,33.5,bovada,110,-145,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Franz Wagner,33.5,bovada,-145,110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Jaden McDaniels,19.5,bovada,-190,145,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Jaden McDaniels,19.5,bovada,145,-190,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Jaden McDaniels,20.5,bovada,-160,120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Jaden McDaniels,20.5,bovada,120,-160,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Jaden McDaniels,21.5,bovada,-125,-105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Jaden McDaniels,21.5,bovada,-105,-125,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Jaden McDaniels,22.5,bovada,100,-130,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Jaden McDaniels,22.5,bovada,-130,100,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Jaden McDaniels,23.5,bovada,120,-160,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Jaden McDaniels,23.5,bovada,-160,120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Jalen Suggs,19.5,bovada,-180,135,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Jalen Suggs,19.5,bovada,135,-180,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Jalen Suggs,20.5,bovada,-145,110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Jalen Suggs,20.5,bovada,110,-145,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Jalen Suggs,21.5,bovada,-115,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Jalen Suggs,21.5,bovada,-115,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Jalen Suggs,22.5,bovada,105,-135,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Jalen Suggs,22.5,bovada,-135,105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Jalen Suggs,23.5,bovada,130,-170,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Jalen Suggs,23.5,bovada,-170,130,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Jonathan Kuminga,17.5,bovada,-210,155,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Jonathan Kuminga,17.5,bovada,155,-210,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Jonathan Kuminga,18.5,bovada,-165,125,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Jonathan Kuminga,18.5,bovada,125,-165,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Jonathan Kuminga,19.5,bovada,-130,100,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Jonathan Kuminga,19.5,bovada,100,-130,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Jonathan Kuminga,20.5,bovada,-105,-125,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Jonathan Kuminga,20.5,bovada,-125,-105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Jonathan Kuminga,21.5,bovada,115,-150,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Jonathan Kuminga,21.5,bovada,-150,115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,LaMelo Ball,30.5,bovada,-185,140,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,LaMelo Ball,30.5,bovada,140,-185,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,LaMelo Ball,31.5,bovada,-160,120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,LaMelo Ball,31.5,bovada,120,-160,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,LaMelo Ball,32.5,bovada,-130,100,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,LaMelo Ball,32.5,bovada,100,-130,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,LaMelo Ball,33.5,bovada,-110,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,LaMelo Ball,33.5,bovada,-120,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,LaMelo Ball,34.5,bovada,110,-145,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,LaMelo Ball,34.5,bovada,-145,110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Paolo Banchero,34.5,bovada,-180,135,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Paolo Banchero,34.5,bovada,135,-180,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Paolo Banchero,35.5,bovada,-150,115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Paolo Banchero,35.5,bovada,115,-150,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Paolo Banchero,36.5,bovada,-125,-105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Paolo Banchero,36.5,bovada,-105,-125,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Paolo Banchero,37.5,bovada,-105,-125,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Paolo Banchero,37.5,bovada,-125,-105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Paolo Banchero,38.5,bovada,110,-145,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Paolo Banchero,38.5,bovada,-145,110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Rudy Gobert,20.5,bovada,-210,155,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Rudy Gobert,20.5,bovada,155,-210,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Rudy Gobert,21.5,bovada,-165,125,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Rudy Gobert,21.5,bovada,125,-165,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Rudy Gobert,22.5,bovada,-130,100,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Rudy Gobert,22.5,bovada,100,-130,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Rudy Gobert,23.5,bovada,-105,-125,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Rudy Gobert,23.5,bovada,-125,-105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Rudy Gobert,24.5,bovada,115,-150,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Rudy Gobert,24.5,bovada,-150,115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Tristan da Silva,12.5,bovada,-240,175,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Tristan da Silva,12.5,bovada,175,-240,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Tristan da Silva,13.5,bovada,-180,135,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Tristan da Silva,13.5,bovada,135,-180,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Tristan da Silva,14.5,bovada,-135,105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Tristan da Silva,14.5,bovada,105,-135,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Tristan da Silva,15.5,bovada,-105,-125,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Tristan da Silva,15.5,bovada,-125,-105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Tristan da Silva,16.5,bovada,120,-160,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Tristan da Silva,16.5,bovada,-160,120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Anthony Edwards,4.5,bovada,-185,140,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Anthony Edwards,4.5,bovada,140,-185,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Anthony Edwards,5.5,bovada,105,-135,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Anthony Edwards,5.5,bovada,-135,105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Anthony Edwards,6.5,bovada,190,-260,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Anthony Edwards,6.5,bovada,-260,190,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Ayo Dosunmu,2.5,bovada,-245,180,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Ayo Dosunmu,2.5,bovada,180,-245,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Ayo Dosunmu,3.5,bovada,-105,-125,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Ayo Dosunmu,3.5,bovada,-125,-105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Ayo Dosunmu,4.5,bovada,200,-275,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Ayo Dosunmu,4.5,bovada,-275,200,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Desmond Bane,3.5,bovada,-180,135,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Desmond Bane,3.5,bovada,135,-180,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Desmond Bane,4.5,bovada,115,-150,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Desmond Bane,4.5,bovada,-150,115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Franz Wagner,4.5,bovada,-185,140,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Franz Wagner,4.5,bovada,140,-185,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Franz Wagner,5.5,bovada,105,-135,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Franz Wagner,5.5,bovada,-135,105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Franz Wagner,6.5,bovada,190,-260,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Franz Wagner,6.5,bovada,-260,190,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Jaden McDaniels,4.5,bovada,-165,125,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Jaden McDaniels,4.5,bovada,125,-165,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Jaden McDaniels,5.5,bovada,115,-150,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Jaden McDaniels,5.5,bovada,-150,115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Jaden McDaniels,6.5,bovada,205,-280,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Jaden McDaniels,6.5,bovada,-280,205,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Jalen Suggs,3.5,bovada,-135,105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Jalen Suggs,3.5,bovada,105,-135,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Jalen Suggs,4.5,bovada,150,-200,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Jalen Suggs,4.5,bovada,-200,150,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Jonathan Kuminga,4.5,bovada,-185,140,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Jonathan Kuminga,4.5,bovada,140,-185,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Jonathan Kuminga,5.5,bovada,105,-135,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Jonathan Kuminga,5.5,bovada,-135,105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Jonathan Kuminga,6.5,bovada,190,-260,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Jonathan Kuminga,6.5,bovada,-260,190,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,LaMelo Ball,4.5,bovada,-185,140,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,LaMelo Ball,4.5,bovada,140,-185,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,LaMelo Ball,5.5,bovada,105,-135,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,LaMelo Ball,5.5,bovada,-135,105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,LaMelo Ball,6.5,bovada,190,-260,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,LaMelo Ball,6.5,bovada,-260,190,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Paolo Banchero,7.5,bovada,-200,150,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Paolo Banchero,7.5,bovada,150,-200,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Paolo Banchero,8.5,bovada,-120,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Paolo Banchero,8.5,bovada,-110,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Paolo Banchero,9.5,bovada,135,-180,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Paolo Banchero,9.5,bovada,-180,135,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Paolo Banchero,10.5,bovada,215,-300,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Paolo Banchero,10.5,bovada,-300,215,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Rudy Gobert,10.5,bovada,-200,150,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Rudy Gobert,10.5,bovada,150,-200,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Rudy Gobert,11.5,bovada,-125,-105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Rudy Gobert,11.5,bovada,-105,-125,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Rudy Gobert,12.5,bovada,120,-160,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Rudy Gobert,12.5,bovada,-160,120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Rudy Gobert,13.5,bovada,180,-245,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Rudy Gobert,13.5,bovada,-245,180,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Tristan da Silva,2.5,bovada,-180,135,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Tristan da Silva,2.5,bovada,135,-180,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Tristan da Silva,3.5,bovada,130,-170,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Tristan da Silva,3.5,bovada,-170,130,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Wendell Carter Jr,6.5,bovada,-165,125,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Wendell Carter Jr,6.5,bovada,125,-165,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Wendell Carter Jr,7.5,bovada,105,-135,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Wendell Carter Jr,7.5,bovada,-135,105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Wendell Carter Jr,8.5,bovada,175,-240,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Wendell Carter Jr,8.5,bovada,-240,175,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Anthony Edwards,3.5,bovada,-135,105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Anthony Edwards,3.5,bovada,105,-135,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Anthony Edwards,4.5,bovada,160,-215,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Anthony Edwards,4.5,bovada,-215,160,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Ayo Dosunmu,1.5,bovada,120,-160,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Ayo Dosunmu,1.5,bovada,-160,120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Desmond Bane,1.5,bovada,-280,205,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Desmond Bane,1.5,bovada,205,-280,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Desmond Bane,2.5,bovada,105,-135,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Desmond Bane,2.5,bovada,-135,105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Franz Wagner,1.5,bovada,110,-145,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Franz Wagner,1.5,bovada,-145,110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Jaden McDaniels,1.5,bovada,110,-145,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Jaden McDaniels,1.5,bovada,-145,110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Jalen Suggs,1.5,bovada,-240,175,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Jalen Suggs,1.5,bovada,175,-240,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Jalen Suggs,2.5,bovada,130,-170,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Jalen Suggs,2.5,bovada,-170,130,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Jonathan Kuminga,1.5,bovada,140,-185,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Jonathan Kuminga,1.5,bovada,-185,140,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,LaMelo Ball,2.5,bovada,-300,215,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,LaMelo Ball,2.5,bovada,215,-300,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,LaMelo Ball,3.5,bovada,-120,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,LaMelo Ball,3.5,bovada,-110,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,LaMelo Ball,4.5,bovada,180,-245,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,LaMelo Ball,4.5,bovada,-245,180,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Paolo Banchero,1.5,bovada,125,-165,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Paolo Banchero,1.5,bovada,-165,125,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Terrence Shannon Jr.,0.5,bovada,-210,155,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Terrence Shannon Jr.,0.5,bovada,155,-210,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Tristan da Silva,1.5,bovada,-165,125,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Tristan da Silva,1.5,bovada,125,-165,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Tristan da Silva,2.5,bovada,185,-250,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Tristan da Silva,2.5,bovada,-250,185,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,h1_ats,MIN,,0.5,bovada,-110,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,h1_ats,ORL,,-0.5,bovada,-110,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,h1_total,over,,115,bovada,-105,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,h1_total,under,,115,bovada,-115,-105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_ml,MIN,,,lowvig,102,-118,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_ml,ORL,,,lowvig,-118,102,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_ats,MIN,,1,lowvig,-101,-111,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_ats,ORL,,-1,lowvig,-111,-101,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_total,over,,234,lowvig,-107,-107,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_total,under,,234,lowvig,-107,-107,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_ml,MIN,,,betonlineag,100,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_ml,ORL,,,betonlineag,-120,100,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_ats,MIN,,1,betonlineag,-105,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_ats,ORL,,-1,betonlineag,-115,-105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_total,over,,234,betonlineag,-110,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_total,under,,234,betonlineag,-110,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Jaden McDaniels,2.5,betonlineag,124,-161,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Jaden McDaniels,2.5,betonlineag,-161,124,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Anthony Edwards,3.5,betonlineag,120,-156,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Anthony Edwards,3.5,betonlineag,-156,120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Franz Wagner,5.5,betonlineag,132,-172,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Franz Wagner,5.5,betonlineag,-172,132,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Jalen Suggs,4.5,betonlineag,-116,-111,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Jalen Suggs,4.5,betonlineag,-111,-116,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Paolo Banchero,5.5,betonlineag,-101,-128,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Paolo Banchero,5.5,betonlineag,-128,-101,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Desmond Bane,3.5,betonlineag,109,-141,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Desmond Bane,3.5,betonlineag,-141,109,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,LaMelo Ball,7.5,betonlineag,-110,-118,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,LaMelo Ball,7.5,betonlineag,-118,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Jonathan Kuminga,1.5,betonlineag,-185,142,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Jonathan Kuminga,1.5,betonlineag,142,-185,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Ayo Dosunmu,3.5,betonlineag,110,-143,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Ayo Dosunmu,3.5,betonlineag,-143,110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Rudy Gobert,1.5,betonlineag,-111,-116,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Rudy Gobert,1.5,betonlineag,-116,-111,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Tristan da Silva,2.5,betonlineag,171,-227,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Tristan da Silva,2.5,betonlineag,-227,171,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Anthony Edwards,29.5,betonlineag,-108,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Anthony Edwards,29.5,betonlineag,-120,-108,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Franz Wagner,20.5,betonlineag,-127,-102,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Franz Wagner,20.5,betonlineag,-102,-127,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Rudy Gobert,9.5,betonlineag,-109,-119,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Rudy Gobert,9.5,betonlineag,-119,-109,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Paolo Banchero,22.5,betonlineag,-116,-111,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Paolo Banchero,22.5,betonlineag,-111,-116,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,LaMelo Ball,19.5,betonlineag,-115,-112,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,LaMelo Ball,19.5,betonlineag,-112,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Desmond Bane,18.5,betonlineag,-115,-112,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Desmond Bane,18.5,betonlineag,-112,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Jalen Suggs,12.5,betonlineag,-114,-114,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Jalen Suggs,12.5,betonlineag,-114,-114,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Jonathan Kuminga,12.5,betonlineag,-109,-119,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Jonathan Kuminga,12.5,betonlineag,-119,-109,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Ayo Dosunmu,12.5,betonlineag,-106,-122,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Ayo Dosunmu,12.5,betonlineag,-122,-106,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Terrence Shannon Jr.,7.5,betonlineag,-110,-118,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Terrence Shannon Jr.,7.5,betonlineag,-118,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Tristan da Silva,9.5,betonlineag,-116,-111,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Tristan da Silva,9.5,betonlineag,-111,-116,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Jaden McDaniels,14.5,betonlineag,110,-143,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Jaden McDaniels,14.5,betonlineag,-143,110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Wendell Carter Jr,9.5,betonlineag,-114,-114,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Wendell Carter Jr,9.5,betonlineag,-114,-114,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Anthony Edwards,38.5,betonlineag,-109,-119,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Anthony Edwards,38.5,betonlineag,-119,-109,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Jaden McDaniels,22.5,betonlineag,-102,-127,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Jaden McDaniels,22.5,betonlineag,-127,-102,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Franz Wagner,31.5,betonlineag,-111,-116,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Franz Wagner,31.5,betonlineag,-116,-111,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Paolo Banchero,36.5,betonlineag,-120,-108,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Paolo Banchero,36.5,betonlineag,-108,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Rudy Gobert,22.5,betonlineag,-127,-102,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Rudy Gobert,22.5,betonlineag,-102,-127,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Jalen Suggs,21.5,betonlineag,-112,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Jalen Suggs,21.5,betonlineag,-115,-112,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Desmond Bane,26.5,betonlineag,-109,-119,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Desmond Bane,26.5,betonlineag,-119,-109,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Jonathan Kuminga,19.5,betonlineag,-122,-106,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Jonathan Kuminga,19.5,betonlineag,-106,-122,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Ayo Dosunmu,19.5,betonlineag,-109,-119,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Ayo Dosunmu,19.5,betonlineag,-119,-109,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,Tristan da Silva,15.5,betonlineag,-105,-123,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,Tristan da Silva,15.5,betonlineag,-123,-105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,over,LaMelo Ball,32.5,betonlineag,-115,-112,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pra,under,LaMelo Ball,32.5,betonlineag,-112,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Wendell Carter Jr,7.5,betonlineag,107,-139,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Wendell Carter Jr,7.5,betonlineag,-139,107,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Jaden McDaniels,4.5,betonlineag,-154,118,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Jaden McDaniels,4.5,betonlineag,118,-154,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Anthony Edwards,5.5,betonlineag,115,-149,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Anthony Edwards,5.5,betonlineag,-149,115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Franz Wagner,5.5,betonlineag,110,-143,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Franz Wagner,5.5,betonlineag,-143,110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Jalen Suggs,3.5,betonlineag,-128,-101,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Jalen Suggs,3.5,betonlineag,-101,-128,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Paolo Banchero,8.5,betonlineag,-112,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Paolo Banchero,8.5,betonlineag,-115,-112,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Rudy Gobert,11.5,betonlineag,-108,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Rudy Gobert,11.5,betonlineag,-120,-108,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Desmond Bane,4.5,betonlineag,130,-169,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Desmond Bane,4.5,betonlineag,-169,130,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,LaMelo Ball,4.5,betonlineag,-156,120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,LaMelo Ball,4.5,betonlineag,120,-156,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Jonathan Kuminga,5.5,betonlineag,112,-145,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Jonathan Kuminga,5.5,betonlineag,-145,112,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Ayo Dosunmu,3.5,betonlineag,115,-149,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Ayo Dosunmu,3.5,betonlineag,-149,115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Tristan da Silva,2.5,betonlineag,-182,139,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Tristan da Silva,2.5,betonlineag,139,-182,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Terrence Shannon Jr.,1.5,betonlineag,-156,120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Terrence Shannon Jr.,1.5,betonlineag,120,-156,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Jaden McDaniels,1.5,betonlineag,113,-147,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Jaden McDaniels,1.5,betonlineag,-147,113,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Anthony Edwards,3.5,betonlineag,-119,-109,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Anthony Edwards,3.5,betonlineag,-109,-119,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Franz Wagner,1.5,betonlineag,112,-145,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Franz Wagner,1.5,betonlineag,-145,112,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Paolo Banchero,1.5,betonlineag,124,-161,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Paolo Banchero,1.5,betonlineag,-161,124,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Desmond Bane,2.5,betonlineag,112,-145,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Desmond Bane,2.5,betonlineag,-145,112,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,LaMelo Ball,3.5,betonlineag,-103,-125,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,LaMelo Ball,3.5,betonlineag,-125,-103,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Jonathan Kuminga,1.5,betonlineag,146,-192,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Jonathan Kuminga,1.5,betonlineag,-192,146,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Jalen Suggs,2.5,betonlineag,136,-179,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Jalen Suggs,2.5,betonlineag,-179,136,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Ayo Dosunmu,1.5,betonlineag,120,-156,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Ayo Dosunmu,1.5,betonlineag,-156,120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Terrence Shannon Jr.,0.5,betonlineag,-192,145,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Terrence Shannon Jr.,0.5,betonlineag,145,-192,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Tristan da Silva,1.5,betonlineag,-156,120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Tristan da Silva,1.5,betonlineag,120,-156,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,h1_ats,MIN,,0,betonlineag,-105,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,h1_ats,ORL,,0,betonlineag,-115,-105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,h1_total,over,,114,betonlineag,-110,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,h1_total,under,,114,betonlineag,-110,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_ml,MIN,,,betmgm,-102,-118,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_ml,ORL,,,betmgm,-118,-102,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_ats,MIN,,1.5,betmgm,-115,-105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_ats,ORL,,-1.5,betmgm,-105,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_total,over,,234.5,betmgm,-110,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_total,under,,234.5,betmgm,-110,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,h1_ml,MIN,,,betmgm,-102,-118,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,h1_ml,ORL,,,betmgm,-118,-102,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Ayo Dosunmu,3.5,betmgm,105,-145,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Ayo Dosunmu,3.5,betmgm,-145,105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,LaMelo Ball,7.5,betmgm,110,-150,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,LaMelo Ball,7.5,betmgm,-150,110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Jonathan Kuminga,1.5,betmgm,-175,130,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Jonathan Kuminga,1.5,betmgm,130,-175,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Anthony Edwards,3.5,betmgm,130,-175,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Anthony Edwards,3.5,betmgm,-175,130,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Desmond Bane,3.5,betmgm,100,-135,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Desmond Bane,3.5,betmgm,-135,100,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Jalen Suggs,4.5,betmgm,-120,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Jalen Suggs,4.5,betmgm,-110,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Franz Wagner,4.5,betmgm,-160,120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Franz Wagner,4.5,betmgm,120,-160,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Jaden McDaniels,2.5,betmgm,120,-160,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Jaden McDaniels,2.5,betmgm,-160,120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,over,Paolo Banchero,5.5,betmgm,100,-135,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_ast,under,Paolo Banchero,5.5,betmgm,-135,100,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Ayo Dosunmu,12.5,betmgm,-111,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Ayo Dosunmu,12.5,betmgm,-120,-111,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,LaMelo Ball,19.5,betmgm,-120,-111,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,LaMelo Ball,19.5,betmgm,-111,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Jonathan Kuminga,12.5,betmgm,-105,-125,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Jonathan Kuminga,12.5,betmgm,-125,-105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Rudy Gobert,9.5,betmgm,-105,-125,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Rudy Gobert,9.5,betmgm,-125,-105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Franz Wagner,20.5,betmgm,-120,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Franz Wagner,20.5,betmgm,-110,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Desmond Bane,18.5,betmgm,-120,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Desmond Bane,18.5,betmgm,-110,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Wendell Carter Jr,10.5,betmgm,105,-140,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Wendell Carter Jr,10.5,betmgm,-140,105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Jalen Suggs,12.5,betmgm,-120,-111,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Jalen Suggs,12.5,betmgm,-111,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Paolo Banchero,22.5,betmgm,-115,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Paolo Banchero,22.5,betmgm,-115,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Anthony Edwards,28.5,betmgm,-125,-105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Anthony Edwards,28.5,betmgm,-105,-125,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Jaden McDaniels,14.5,betmgm,-115,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Jaden McDaniels,14.5,betmgm,-115,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Tristan da Silva,10.5,betmgm,-105,,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,over,Terrence Shannon Jr.,7.5,betmgm,-120,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_pts,under,Terrence Shannon Jr.,7.5,betmgm,-110,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Rudy Gobert,11.5,betmgm,-120,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Rudy Gobert,11.5,betmgm,-110,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Jonathan Kuminga,5.5,betmgm,125,-165,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Jonathan Kuminga,5.5,betmgm,-165,125,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Jaden McDaniels,4.5,betmgm,-155,115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Jaden McDaniels,4.5,betmgm,115,-155,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Jalen Suggs,3.5,betmgm,-125,-105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Jalen Suggs,3.5,betmgm,-105,-125,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Desmond Bane,3.5,betmgm,-160,120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Desmond Bane,3.5,betmgm,120,-160,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Anthony Edwards,5.5,betmgm,115,-155,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Anthony Edwards,5.5,betmgm,-155,115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Ayo Dosunmu,3.5,betmgm,125,-165,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Ayo Dosunmu,3.5,betmgm,-165,125,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,LaMelo Ball,4.5,betmgm,-155,115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,LaMelo Ball,4.5,betmgm,115,-155,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Franz Wagner,5.5,betmgm,105,-140,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Franz Wagner,5.5,betmgm,-140,105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Wendell Carter Jr,7.5,betmgm,100,-135,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Wendell Carter Jr,7.5,betmgm,-135,100,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Paolo Banchero,8.5,betmgm,-115,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Paolo Banchero,8.5,betmgm,-115,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Tristan da Silva,3.5,betmgm,110,-150,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Tristan da Silva,3.5,betmgm,-150,110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,over,Terrence Shannon Jr.,1.5,betmgm,-175,130,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_reb,under,Terrence Shannon Jr.,1.5,betmgm,130,-175,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Jalen Suggs,1.5,betmgm,-190,140,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Jalen Suggs,1.5,betmgm,140,-190,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Jaden McDaniels,1.5,betmgm,110,-150,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Jaden McDaniels,1.5,betmgm,-150,110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Franz Wagner,1.5,betmgm,115,-155,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Franz Wagner,1.5,betmgm,-155,115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Anthony Edwards,3.5,betmgm,-135,100,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Anthony Edwards,3.5,betmgm,100,-135,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,LaMelo Ball,3.5,betmgm,100,-135,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,LaMelo Ball,3.5,betmgm,-135,100,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Desmond Bane,2.5,betmgm,105,-145,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Desmond Bane,2.5,betmgm,-145,105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Tristan da Silva,1.5,betmgm,-165,125,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Tristan da Silva,1.5,betmgm,125,-165,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,over,Terrence Shannon Jr.,0.5,betmgm,-200,150,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,pl_3pm,under,Terrence Shannon Jr.,0.5,betmgm,150,-200,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,h1_ats,MIN,,0.5,betmgm,-110,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,h1_ats,ORL,,-0.5,betmgm,-110,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,h1_total,over,,114.5,betmgm,-105,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,h1_total,under,,114.5,betmgm,-115,-105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_ml,MIN,,,mybookieag,-104,-117,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_ml,ORL,,,mybookieag,-117,-104,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_ats,MIN,,1,mybookieag,-110,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_ats,ORL,,-1,mybookieag,-110,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_total,over,,234.5,mybookieag,-110,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_total,under,,234.5,mybookieag,-110,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,h1_ml,MIN,,,mybookieag,-106,-116,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,h1_ml,ORL,,,mybookieag,-116,-106,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,h1_ats,MIN,,0.5,mybookieag,-110,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,h1_ats,ORL,,-0.5,mybookieag,-110,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,h1_total,over,,114.5,mybookieag,-110,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,h1_total,under,,114.5,mybookieag,-110,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_ml,MIN,,,betus,100,-120,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_ml,ORL,,,betus,-120,100,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_ats,MIN,,1,betus,-105,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_ats,ORL,,-1,betus,-115,-105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_total,over,,234.5,betus,-110,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,game_total,under,,234.5,betus,-110,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,h1_ats,MIN,,0,betus,-105,-115,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,h1_ats,ORL,,0,betus,-115,-105,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,h1_total,over,,114,betus,-110,-110,oddsapi
+2026-10-23T23:00:10Z,2026-10-23,MIN @ ORL,7763ba1c6e1e163be38cbe1b880d4cd9,h1_total,under,,114,betus,-110,-110,oddsapi

@@ -1,0 +1,1138 @@
+captured_at,game_date,matchup,event_id,market,side,entity,line,book,american,opposite_american,source
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_ml,TOR,,,fanduel,-330,265,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_ml,WAS,,,fanduel,265,-330,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_ats,TOR,,-8.5,fanduel,-110,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_ats,WAS,,8.5,fanduel,-110,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_total,over,,236.5,fanduel,-110,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_total,under,,236.5,fanduel,-110,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_ml,TOR,,,fanduel,-235,186,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_ml,WAS,,,fanduel,186,-235,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Scottie Barnes,5.5,fanduel,-108,-118,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Scottie Barnes,5.5,fanduel,-118,-108,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Jamal Shead,3.5,fanduel,-154,120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Jamal Shead,3.5,fanduel,120,-154,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Trae Young,9.5,fanduel,100,-128,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Trae Young,9.5,fanduel,-128,100,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,R.J. Barrett,3.5,fanduel,120,-154,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,R.J. Barrett,3.5,fanduel,-154,120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Kyshawn George,3.5,fanduel,142,-184,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Kyshawn George,3.5,fanduel,-184,142,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Immanuel Quickley,5.5,fanduel,-142,112,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Immanuel Quickley,5.5,fanduel,112,-142,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Anthony Davis,2.5,fanduel,-128,100,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Anthony Davis,2.5,fanduel,100,-128,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Kawhi Leonard,3.5,fanduel,124,-158,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Kawhi Leonard,3.5,fanduel,-158,124,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Tre Johnson,8.5,fanduel,-115,-111,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Tre Johnson,8.5,fanduel,-111,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Scottie Barnes,18.5,fanduel,-120,-106,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Scottie Barnes,18.5,fanduel,-106,-120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Trae Young,19.5,fanduel,-125,-102,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Trae Young,19.5,fanduel,-102,-125,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Jakob Poeltl,8.5,fanduel,-130,102,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Jakob Poeltl,8.5,fanduel,102,-130,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Alex Sarr,12.5,fanduel,102,-130,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Alex Sarr,12.5,fanduel,-130,102,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Kyshawn George,14.5,fanduel,102,-130,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Kyshawn George,14.5,fanduel,-130,102,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Immanuel Quickley,16.5,fanduel,-118,-108,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Immanuel Quickley,16.5,fanduel,-108,-118,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Bilal Coulibaly,9.5,fanduel,-108,-118,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Bilal Coulibaly,9.5,fanduel,-118,-108,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Ja'Kobe Walter,7.5,fanduel,-122,-104,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Ja'Kobe Walter,7.5,fanduel,-104,-122,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,R.J. Barrett,18.5,fanduel,-111,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,R.J. Barrett,18.5,fanduel,-115,-111,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Justin Champagnie,5.5,fanduel,-113,-113,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Justin Champagnie,5.5,fanduel,-113,-113,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Collin Murray-Boyles,10.5,fanduel,100,-128,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Collin Murray-Boyles,10.5,fanduel,-128,100,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Kawhi Leonard,24.5,fanduel,-115,-111,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Kawhi Leonard,24.5,fanduel,-111,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Deandre Ayton,6.5,fanduel,-104,-122,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Deandre Ayton,6.5,fanduel,-122,-104,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Anthony Davis,22.5,fanduel,-102,-125,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Anthony Davis,22.5,fanduel,-125,-102,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Scottie Barnes,31.5,fanduel,-122,-104,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Scottie Barnes,31.5,fanduel,-104,-122,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Trae Young,31.5,fanduel,-122,-104,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Trae Young,31.5,fanduel,-104,-122,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Alex Sarr,20.5,fanduel,-111,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Alex Sarr,20.5,fanduel,-115,-111,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,R.J. Barrett,27.5,fanduel,-106,-120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,R.J. Barrett,27.5,fanduel,-120,-106,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Kyshawn George,21.5,fanduel,-111,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Kyshawn George,21.5,fanduel,-115,-111,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Immanuel Quickley,26.5,fanduel,-125,-102,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Immanuel Quickley,26.5,fanduel,-102,-125,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Collin Murray-Boyles,19.5,fanduel,100,-128,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Collin Murray-Boyles,19.5,fanduel,-128,100,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Anthony Davis,35.5,fanduel,-122,-104,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Anthony Davis,35.5,fanduel,-104,-122,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Kawhi Leonard,33.5,fanduel,-122,-104,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Kawhi Leonard,33.5,fanduel,-104,-122,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Kawhi Leonard,5.5,fanduel,-136,106,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Kawhi Leonard,5.5,fanduel,106,-136,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Scottie Barnes,7.5,fanduel,112,-142,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Scottie Barnes,7.5,fanduel,-142,112,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Jakob Poeltl,6.5,fanduel,-115,-111,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Jakob Poeltl,6.5,fanduel,-111,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Alex Sarr,6.5,fanduel,104,-132,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Alex Sarr,6.5,fanduel,-132,104,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Kyshawn George,4.5,fanduel,138,-178,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Kyshawn George,4.5,fanduel,-178,138,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Immanuel Quickley,3.5,fanduel,-146,114,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Immanuel Quickley,3.5,fanduel,114,-146,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Ja'Kobe Walter,3.5,fanduel,142,-184,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Ja'Kobe Walter,3.5,fanduel,-184,142,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Bilal Coulibaly,3.5,fanduel,-111,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Bilal Coulibaly,3.5,fanduel,-115,-111,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,R.J. Barrett,5.5,fanduel,120,-154,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,R.J. Barrett,5.5,fanduel,-154,120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Justin Champagnie,4.5,fanduel,-113,-113,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Justin Champagnie,4.5,fanduel,-113,-113,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Collin Murray-Boyles,6.5,fanduel,110,-140,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Collin Murray-Boyles,6.5,fanduel,-140,110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Anthony Davis,11.5,fanduel,116,-148,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Anthony Davis,11.5,fanduel,-148,116,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Kawhi Leonard,2.5,fanduel,130,-166,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Kawhi Leonard,2.5,fanduel,-166,130,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Trae Young,2.5,fanduel,144,-186,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Trae Young,2.5,fanduel,-186,144,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,R.J. Barrett,1.5,fanduel,-120,-106,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,R.J. Barrett,1.5,fanduel,-106,-120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Alex Sarr,1.5,fanduel,168,-220,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Alex Sarr,1.5,fanduel,-220,168,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Bilal Coulibaly,1.5,fanduel,186,-245,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Bilal Coulibaly,1.5,fanduel,-245,186,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Immanuel Quickley,2.5,fanduel,-120,-106,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Immanuel Quickley,2.5,fanduel,-106,-120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Ja'Kobe Walter,1.5,fanduel,104,-132,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Ja'Kobe Walter,1.5,fanduel,-132,104,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Kyshawn George,2.5,fanduel,162,-210,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Kyshawn George,2.5,fanduel,-210,162,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_ats,TOR,,-4.5,fanduel,-112,-108,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_ats,WAS,,4.5,fanduel,-108,-112,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_total,over,,114.5,fanduel,-110,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_total,under,,114.5,fanduel,-110,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_ml,TOR,,,fanatics,-330,260,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_ml,WAS,,,fanatics,260,-330,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_ats,TOR,,-8.5,fanatics,-110,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_ats,WAS,,8.5,fanatics,-110,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_total,over,,236.5,fanatics,-110,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_total,under,,236.5,fanatics,-110,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_ml,TOR,,,fanatics,-235,175,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_ml,WAS,,,fanatics,175,-235,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Immanuel Quickley,5.5,fanatics,-150,115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Immanuel Quickley,5.5,fanatics,115,-150,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Jakob Poeltl,8.5,fanatics,-115,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Jakob Poeltl,8.5,fanatics,-115,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Collin Murray-Boyles,18.5,fanatics,-115,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Collin Murray-Boyles,18.5,fanatics,-115,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,R.J. Barrett,5.5,fanatics,115,-150,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,R.J. Barrett,5.5,fanatics,-150,115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Trae Young,2.5,fanatics,130,-190,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Trae Young,2.5,fanatics,-190,130,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_ml,TOR,,,draftkings,-340,270,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_ml,WAS,,,draftkings,270,-340,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_ats,TOR,,-9.5,draftkings,-102,-118,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_ats,WAS,,9.5,draftkings,-118,-102,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_total,over,,236.5,draftkings,-108,-112,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_total,under,,236.5,draftkings,-112,-108,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_ml,TOR,,,draftkings,-225,185,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_ml,WAS,,,draftkings,185,-225,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Trae Young,9.5,draftkings,-105,-125,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Trae Young,9.5,draftkings,-125,-105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Immanuel Quickley,5.5,draftkings,-142,108,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Immanuel Quickley,5.5,draftkings,108,-142,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Scottie Barnes,5.5,draftkings,-101,-130,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Scottie Barnes,5.5,draftkings,-130,-101,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Jamal Shead,3.5,draftkings,-145,110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Jamal Shead,3.5,draftkings,110,-145,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Kawhi Leonard,3.5,draftkings,120,-158,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Kawhi Leonard,3.5,draftkings,-158,120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,R.J. Barrett,3.5,draftkings,122,-161,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,R.J. Barrett,3.5,draftkings,-161,122,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Kyshawn George,2.5,draftkings,-145,110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Kyshawn George,2.5,draftkings,110,-145,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Anthony Davis,2.5,draftkings,-130,-101,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Anthony Davis,2.5,draftkings,-101,-130,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Kawhi Leonard,24.5,draftkings,-113,-113,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Kawhi Leonard,24.5,draftkings,-113,-113,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Anthony Davis,21.5,draftkings,-119,-108,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Anthony Davis,21.5,draftkings,-108,-119,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Trae Young,20.5,draftkings,-103,-124,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Trae Young,20.5,draftkings,-124,-103,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,R.J. Barrett,18.5,draftkings,-111,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,R.J. Barrett,18.5,draftkings,-115,-111,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Scottie Barnes,18.5,draftkings,-107,-120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Scottie Barnes,18.5,draftkings,-120,-107,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Immanuel Quickley,16.5,draftkings,-103,-124,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Immanuel Quickley,16.5,draftkings,-124,-103,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Kyshawn George,14.5,draftkings,-102,-125,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Kyshawn George,14.5,draftkings,-125,-102,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Alex Sarr,12.5,draftkings,100,-128,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Alex Sarr,12.5,draftkings,-128,100,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Collin Murray-Boyles,9.5,draftkings,-123,-103,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Collin Murray-Boyles,9.5,draftkings,-103,-123,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Bilal Coulibaly,9.5,draftkings,-114,-111,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Bilal Coulibaly,9.5,draftkings,-111,-114,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Tre Johnson,9.5,draftkings,-101,-126,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Tre Johnson,9.5,draftkings,-126,-101,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Jakob Poeltl,8.5,draftkings,-117,-109,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Jakob Poeltl,8.5,draftkings,-109,-117,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Ja'Kobe Walter,7.5,draftkings,-127,100,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Ja'Kobe Walter,7.5,draftkings,100,-127,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Deandre Ayton,6.5,draftkings,105,-134,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Deandre Ayton,6.5,draftkings,-134,105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Justin Champagnie,5.5,draftkings,-131,103,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Justin Champagnie,5.5,draftkings,103,-131,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Anthony Davis,36.5,draftkings,-107,-123,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Anthony Davis,36.5,draftkings,-123,-107,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Kawhi Leonard,34.5,draftkings,-106,-124,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Kawhi Leonard,34.5,draftkings,-124,-106,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Trae Young,32.5,draftkings,-107,-122,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Trae Young,32.5,draftkings,-122,-107,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Scottie Barnes,31.5,draftkings,-113,-117,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Scottie Barnes,31.5,draftkings,-117,-113,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,R.J. Barrett,27.5,draftkings,-112,-117,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,R.J. Barrett,27.5,draftkings,-117,-112,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Immanuel Quickley,26.5,draftkings,-111,-118,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Immanuel Quickley,26.5,draftkings,-118,-111,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Kyshawn George,21.5,draftkings,-115,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Kyshawn George,21.5,draftkings,-115,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Anthony Davis,10.5,draftkings,-136,103,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Anthony Davis,10.5,draftkings,103,-136,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Scottie Barnes,7.5,draftkings,104,-136,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Scottie Barnes,7.5,draftkings,-136,104,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Jakob Poeltl,6.5,draftkings,-115,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Jakob Poeltl,6.5,draftkings,-115,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Alex Sarr,6.5,draftkings,-113,-116,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Alex Sarr,6.5,draftkings,-116,-113,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Collin Murray-Boyles,6.5,draftkings,108,-142,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Collin Murray-Boyles,6.5,draftkings,-142,108,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Kawhi Leonard,5.5,draftkings,-140,106,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Kawhi Leonard,5.5,draftkings,106,-140,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,R.J. Barrett,5.5,draftkings,108,-142,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,R.J. Barrett,5.5,draftkings,-142,108,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Deandre Ayton,4.5,draftkings,-136,103,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Deandre Ayton,4.5,draftkings,103,-136,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Justin Champagnie,4.5,draftkings,-122,-108,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Justin Champagnie,4.5,draftkings,-108,-122,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Kyshawn George,3.5,draftkings,-159,120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Kyshawn George,3.5,draftkings,120,-159,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Immanuel Quickley,3.5,draftkings,-151,114,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Immanuel Quickley,3.5,draftkings,114,-151,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Bilal Coulibaly,3.5,draftkings,-110,-119,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Bilal Coulibaly,3.5,draftkings,-119,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Ja'Kobe Walter,2.5,draftkings,-149,113,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Ja'Kobe Walter,2.5,draftkings,113,-149,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Trae Young,2.5,draftkings,120,-158,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Trae Young,2.5,draftkings,-158,120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Immanuel Quickley,2.5,draftkings,-122,-108,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Immanuel Quickley,2.5,draftkings,-108,-122,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Kawhi Leonard,2.5,draftkings,131,-173,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Kawhi Leonard,2.5,draftkings,-173,131,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Trae Young,2.5,draftkings,142,-189,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Trae Young,2.5,draftkings,-189,142,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Kyshawn George,1.5,draftkings,-165,125,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Kyshawn George,1.5,draftkings,125,-165,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,R.J. Barrett,1.5,draftkings,-127,-104,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,R.J. Barrett,1.5,draftkings,-104,-127,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Ja'Kobe Walter,1.5,draftkings,-112,-118,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Ja'Kobe Walter,1.5,draftkings,-118,-112,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Tre Johnson,1.5,draftkings,-104,-127,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Tre Johnson,1.5,draftkings,-127,-104,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Bilal Coulibaly,1.5,draftkings,171,-229,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Bilal Coulibaly,1.5,draftkings,-229,171,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Alex Sarr,1.5,draftkings,172,-230,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Alex Sarr,1.5,draftkings,-230,172,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Scottie Barnes,0.5,draftkings,-194,146,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Scottie Barnes,0.5,draftkings,146,-194,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Anthony Davis,0.5,draftkings,-132,100,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Anthony Davis,0.5,draftkings,100,-132,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_ats,TOR,,-4.5,draftkings,-105,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_ats,WAS,,4.5,draftkings,-115,-105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_total,over,,114.5,draftkings,-112,-108,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_total,under,,114.5,draftkings,-108,-112,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_ml,TOR,,,williamhill_us,-335,260,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_ml,WAS,,,williamhill_us,260,-335,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_ats,TOR,,-8.5,williamhill_us,-110,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_ats,WAS,,8.5,williamhill_us,-110,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_total,over,,236.5,williamhill_us,-110,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_total,under,,236.5,williamhill_us,-110,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Trae Young,9.5,williamhill_us,-110,-125,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Trae Young,9.5,williamhill_us,-125,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Immanuel Quickley,5.5,williamhill_us,-145,109,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Immanuel Quickley,5.5,williamhill_us,109,-145,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,R.J. Barrett,3.5,williamhill_us,113,-152,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,R.J. Barrett,3.5,williamhill_us,-152,113,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Kawhi Leonard,3.5,williamhill_us,118,-157,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Kawhi Leonard,3.5,williamhill_us,-157,118,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Scottie Barnes,5.5,williamhill_us,-110,-121,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Scottie Barnes,5.5,williamhill_us,-121,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Trae Young,20.5,williamhill_us,-105,-127,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Trae Young,20.5,williamhill_us,-127,-105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Justin Champagnie,5.5,williamhill_us,-122,-109,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Justin Champagnie,5.5,williamhill_us,-109,-122,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Ja'Kobe Walter,7.5,williamhill_us,-129,-104,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Ja'Kobe Walter,7.5,williamhill_us,-104,-129,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Collin Murray-Boyles,10.5,williamhill_us,100,-134,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Collin Murray-Boyles,10.5,williamhill_us,-134,100,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Immanuel Quickley,16.5,williamhill_us,-114,-117,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Immanuel Quickley,16.5,williamhill_us,-117,-114,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Jakob Poeltl,8.5,williamhill_us,-130,-103,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Jakob Poeltl,8.5,williamhill_us,-103,-130,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Alex Sarr,12.5,williamhill_us,-106,-125,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Alex Sarr,12.5,williamhill_us,-125,-106,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Tre Johnson,9.5,williamhill_us,-103,-130,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Tre Johnson,9.5,williamhill_us,-130,-103,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Kawhi Leonard,24.5,williamhill_us,-122,-109,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Kawhi Leonard,24.5,williamhill_us,-109,-122,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,R.J. Barrett,18.5,williamhill_us,-118,-113,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,R.J. Barrett,18.5,williamhill_us,-113,-118,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Anthony Davis,22.5,williamhill_us,-105,-127,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Anthony Davis,22.5,williamhill_us,-127,-105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Deandre Ayton,6.5,williamhill_us,-112,-120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Deandre Ayton,6.5,williamhill_us,-120,-112,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Kyshawn George,14.5,williamhill_us,-108,-124,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Kyshawn George,14.5,williamhill_us,-124,-108,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Scottie Barnes,18.5,williamhill_us,-118,-113,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Scottie Barnes,18.5,williamhill_us,-113,-118,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Bilal Coulibaly,9.5,williamhill_us,-117,-114,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Bilal Coulibaly,9.5,williamhill_us,-114,-117,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Immanuel Quickley,3.5,williamhill_us,-148,110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Immanuel Quickley,3.5,williamhill_us,110,-148,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,R.J. Barrett,5.5,williamhill_us,108,-143,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,R.J. Barrett,5.5,williamhill_us,-143,108,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Deandre Ayton,4.5,williamhill_us,-134,100,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Deandre Ayton,4.5,williamhill_us,100,-134,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Jakob Poeltl,6.5,williamhill_us,-121,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Jakob Poeltl,6.5,williamhill_us,-110,-121,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Collin Murray-Boyles,6.5,williamhill_us,108,-143,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Collin Murray-Boyles,6.5,williamhill_us,-143,108,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Scottie Barnes,7.5,williamhill_us,101,-134,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Scottie Barnes,7.5,williamhill_us,-134,101,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Bilal Coulibaly,3.5,williamhill_us,-120,-112,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Bilal Coulibaly,3.5,williamhill_us,-112,-120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Kyshawn George,3.5,williamhill_us,-159,119,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Kyshawn George,3.5,williamhill_us,119,-159,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Justin Champagnie,4.5,williamhill_us,-122,-109,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Justin Champagnie,4.5,williamhill_us,-109,-122,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Alex Sarr,6.5,williamhill_us,-114,-117,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Alex Sarr,6.5,williamhill_us,-117,-114,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Kawhi Leonard,5.5,williamhill_us,-141,107,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Kawhi Leonard,5.5,williamhill_us,107,-141,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Anthony Davis,10.5,williamhill_us,-141,106,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Anthony Davis,10.5,williamhill_us,106,-141,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Alex Sarr,1.5,williamhill_us,170,-230,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Alex Sarr,1.5,williamhill_us,-230,170,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Ja'Kobe Walter,1.5,williamhill_us,-108,-124,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Ja'Kobe Walter,1.5,williamhill_us,-124,-108,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Trae Young,2.5,williamhill_us,135,-182,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Trae Young,2.5,williamhill_us,-182,135,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Kawhi Leonard,2.5,williamhill_us,125,-170,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Kawhi Leonard,2.5,williamhill_us,-170,125,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Kyshawn George,1.5,williamhill_us,-173,129,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Kyshawn George,1.5,williamhill_us,129,-173,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,R.J. Barrett,1.5,williamhill_us,-130,-103,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,R.J. Barrett,1.5,williamhill_us,-103,-130,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Tre Johnson,1.5,williamhill_us,-106,-127,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Tre Johnson,1.5,williamhill_us,-127,-106,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Immanuel Quickley,2.5,williamhill_us,-118,-113,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Immanuel Quickley,2.5,williamhill_us,-113,-118,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_ml,TOR,,,betrivers,-345,270,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_ml,WAS,,,betrivers,270,-345,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_ats,TOR,,-8.5,betrivers,-113,-108,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_ats,WAS,,8.5,betrivers,-108,-113,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_total,over,,237.5,betrivers,-106,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_total,under,,237.5,betrivers,-115,-106,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_ml,TOR,,,betrivers,-250,185,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_ml,WAS,,,betrivers,185,-250,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Kyshawn George,2.5,betrivers,-167,123,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Kyshawn George,2.5,betrivers,123,-167,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Alex Sarr,1.5,betrivers,-137,100,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Alex Sarr,1.5,betrivers,100,-137,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Kawhi Leonard,3.5,betrivers,117,-159,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Kawhi Leonard,3.5,betrivers,-159,117,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,R.J. Barrett,3.5,betrivers,120,-162,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,R.J. Barrett,3.5,betrivers,-162,120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Scottie Barnes,5.5,betrivers,-104,-132,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Scottie Barnes,5.5,betrivers,-132,-104,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Collin Murray-Boyles,1.5,betrivers,-195,140,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Collin Murray-Boyles,1.5,betrivers,140,-195,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Trae Young,9.5,betrivers,-118,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Trae Young,9.5,betrivers,-115,-118,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Jakob Poeltl,1.5,betrivers,-190,138,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Jakob Poeltl,1.5,betrivers,138,-190,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Immanuel Quickley,6.5,betrivers,112,-155,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Immanuel Quickley,6.5,betrivers,-155,112,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Anthony Davis,2.5,betrivers,-152,110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Anthony Davis,2.5,betrivers,110,-152,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Immanuel Quickley,16.5,betrivers,-108,-127,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Immanuel Quickley,16.5,betrivers,-127,-108,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Ja'Kobe Walter,7.5,betrivers,-127,-108,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Ja'Kobe Walter,7.5,betrivers,-108,-127,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Tre Johnson,8.5,betrivers,-124,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Tre Johnson,8.5,betrivers,-110,-124,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Kawhi Leonard,24.5,betrivers,-113,-121,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Kawhi Leonard,24.5,betrivers,-121,-113,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Scottie Barnes,18.5,betrivers,-114,-118,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Scottie Barnes,18.5,betrivers,-118,-114,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Deandre Ayton,6.5,betrivers,-110,-124,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Deandre Ayton,6.5,betrivers,-124,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Bilal Coulibaly,9.5,betrivers,-127,-107,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Bilal Coulibaly,9.5,betrivers,-107,-127,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Kyshawn George,14.5,betrivers,-104,-130,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Kyshawn George,14.5,betrivers,-130,-104,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Jakob Poeltl,9.5,betrivers,-109,-125,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Jakob Poeltl,9.5,betrivers,-125,-109,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Alex Sarr,11.5,betrivers,-124,-109,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Alex Sarr,11.5,betrivers,-109,-124,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Trae Young,19.5,betrivers,-115,-118,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Trae Young,19.5,betrivers,-118,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,R.J. Barrett,18.5,betrivers,-113,-120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,R.J. Barrett,18.5,betrivers,-120,-113,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Anthony Davis,21.5,betrivers,-124,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Anthony Davis,21.5,betrivers,-110,-124,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Collin Murray-Boyles,10.5,betrivers,-105,-129,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Collin Murray-Boyles,10.5,betrivers,-129,-105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Anthony Davis,36.5,betrivers,-110,-124,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Anthony Davis,36.5,betrivers,-124,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Collin Murray-Boyles,18.5,betrivers,-120,-114,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Collin Murray-Boyles,18.5,betrivers,-114,-120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Scottie Barnes,31.5,betrivers,-112,-122,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Scottie Barnes,31.5,betrivers,-122,-112,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Immanuel Quickley,26.5,betrivers,-118,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Immanuel Quickley,26.5,betrivers,-115,-118,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,R.J. Barrett,27.5,betrivers,-106,-129,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,R.J. Barrett,27.5,betrivers,-129,-106,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Kyshawn George,21.5,betrivers,-114,-118,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Kyshawn George,21.5,betrivers,-118,-114,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Jakob Poeltl,18.5,betrivers,-107,-127,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Jakob Poeltl,18.5,betrivers,-127,-107,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Kawhi Leonard,33.5,betrivers,-120,-114,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Kawhi Leonard,33.5,betrivers,-114,-120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Trae Young,31.5,betrivers,-120,-114,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Trae Young,31.5,betrivers,-114,-120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Alex Sarr,20.5,betrivers,-114,-120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Alex Sarr,20.5,betrivers,-120,-114,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Tre Johnson,2.5,betrivers,148,-205,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Tre Johnson,2.5,betrivers,-205,148,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Immanuel Quickley,3.5,betrivers,-143,106,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Immanuel Quickley,3.5,betrivers,106,-143,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Bilal Coulibaly,3.5,betrivers,-110,-124,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Bilal Coulibaly,3.5,betrivers,-124,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Collin Murray-Boyles,5.5,betrivers,-150,110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Collin Murray-Boyles,5.5,betrivers,110,-150,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,R.J. Barrett,5.5,betrivers,120,-167,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,R.J. Barrett,5.5,betrivers,-167,120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Alex Sarr,6.5,betrivers,-113,-120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Alex Sarr,6.5,betrivers,-120,-113,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Ja'Kobe Walter,2.5,betrivers,-157,115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Ja'Kobe Walter,2.5,betrivers,115,-157,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Kawhi Leonard,5.5,betrivers,-129,-106,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Kawhi Leonard,5.5,betrivers,-106,-129,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Trae Young,2.5,betrivers,120,-162,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Trae Young,2.5,betrivers,-162,120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Kyshawn George,4.5,betrivers,125,-175,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Kyshawn George,4.5,betrivers,-175,125,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Scottie Barnes,7.5,betrivers,114,-157,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Scottie Barnes,7.5,betrivers,-157,114,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Anthony Davis,11.5,betrivers,104,-141,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Anthony Davis,11.5,betrivers,-141,104,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Jakob Poeltl,6.5,betrivers,-124,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Jakob Poeltl,6.5,betrivers,-110,-124,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Deandre Ayton,5.5,betrivers,118,-159,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Deandre Ayton,5.5,betrivers,-159,118,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Kyshawn George,1.5,betrivers,-167,123,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Kyshawn George,1.5,betrivers,123,-167,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Scottie Barnes,0.5,betrivers,-210,148,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Scottie Barnes,0.5,betrivers,148,-210,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Kawhi Leonard,2.5,betrivers,133,-186,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Kawhi Leonard,2.5,betrivers,-186,133,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Bilal Coulibaly,1.5,betrivers,163,-230,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Bilal Coulibaly,1.5,betrivers,-230,163,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Trae Young,2.5,betrivers,130,-180,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Trae Young,2.5,betrivers,-180,130,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Tre Johnson,1.5,betrivers,-108,-127,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Tre Johnson,1.5,betrivers,-127,-108,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Alex Sarr,1.5,betrivers,175,-245,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Alex Sarr,1.5,betrivers,-245,175,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,R.J. Barrett,1.5,betrivers,-122,-112,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,R.J. Barrett,1.5,betrivers,-112,-122,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Ja'Kobe Walter,1.5,betrivers,-108,-127,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Ja'Kobe Walter,1.5,betrivers,-127,-108,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Immanuel Quickley,2.5,betrivers,-118,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Immanuel Quickley,2.5,betrivers,-115,-118,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_ats,TOR,,-8.5,betrivers,163,-230,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_ats,WAS,,8.5,betrivers,-230,163,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_total,over,,113.5,betrivers,-141,104,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_total,under,,113.5,betrivers,104,-141,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_ml,TOR,,,bovada,-320,260,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_ml,WAS,,,bovada,260,-320,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_ats,TOR,,-8.5,bovada,-110,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_ats,WAS,,8.5,bovada,-110,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_total,over,,236,bovada,-110,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_total,under,,236,bovada,-110,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_ml,TOR,,,bovada,-225,185,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_ml,WAS,,,bovada,185,-225,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Anthony Davis,2.5,bovada,-130,100,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Anthony Davis,2.5,bovada,100,-130,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Anthony Davis,3.5,bovada,185,-250,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Anthony Davis,3.5,bovada,-250,185,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Immanuel Quickley,5.5,bovada,-145,110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Immanuel Quickley,5.5,bovada,110,-145,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Immanuel Quickley,6.5,bovada,125,-165,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Immanuel Quickley,6.5,bovada,-165,125,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Jamal Shead,3.5,bovada,-145,110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Jamal Shead,3.5,bovada,110,-145,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Jamal Shead,4.5,bovada,150,-200,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Jamal Shead,4.5,bovada,-200,150,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Kawhi Leonard,2.5,bovada,-200,150,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Kawhi Leonard,2.5,bovada,150,-200,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Kawhi Leonard,3.5,bovada,120,-160,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Kawhi Leonard,3.5,bovada,-160,120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Kyshawn George,2.5,bovada,-145,110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Kyshawn George,2.5,bovada,110,-145,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Kyshawn George,3.5,bovada,165,-220,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Kyshawn George,3.5,bovada,-220,165,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,R.J. Barrett,2.5,bovada,-200,150,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,R.J. Barrett,2.5,bovada,150,-200,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,R.J. Barrett,3.5,bovada,120,-160,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,R.J. Barrett,3.5,bovada,-160,120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Scottie Barnes,4.5,bovada,-200,150,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Scottie Barnes,4.5,bovada,150,-200,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Scottie Barnes,5.5,bovada,100,-130,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Scottie Barnes,5.5,bovada,-130,100,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Scottie Barnes,6.5,bovada,190,-260,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Scottie Barnes,6.5,bovada,-260,190,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Trae Young,8.5,bovada,-180,135,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Trae Young,8.5,bovada,135,-180,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Trae Young,9.5,bovada,-105,-125,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Trae Young,9.5,bovada,-125,-105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Trae Young,10.5,bovada,155,-210,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Trae Young,10.5,bovada,-210,155,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Alex Sarr,9.5,bovada,-250,185,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Alex Sarr,9.5,bovada,185,-250,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Alex Sarr,10.5,bovada,-180,135,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Alex Sarr,10.5,bovada,135,-180,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Alex Sarr,11.5,bovada,-130,100,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Alex Sarr,11.5,bovada,100,-130,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Alex Sarr,12.5,bovada,100,-130,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Alex Sarr,12.5,bovada,-130,100,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Alex Sarr,13.5,bovada,130,-170,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Alex Sarr,13.5,bovada,-170,130,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Alex Sarr,14.5,bovada,170,-230,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Alex Sarr,14.5,bovada,-230,170,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Anthony Davis,18.5,bovada,-240,175,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Anthony Davis,18.5,bovada,175,-240,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Anthony Davis,19.5,bovada,-185,140,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Anthony Davis,19.5,bovada,140,-185,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Anthony Davis,20.5,bovada,-150,115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Anthony Davis,20.5,bovada,115,-150,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Anthony Davis,21.5,bovada,-120,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Anthony Davis,21.5,bovada,-110,-120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Anthony Davis,22.5,bovada,105,-135,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Anthony Davis,22.5,bovada,-135,105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Anthony Davis,23.5,bovada,125,-165,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Anthony Davis,23.5,bovada,-165,125,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Anthony Davis,24.5,bovada,155,-210,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Anthony Davis,24.5,bovada,-210,155,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Anthony Davis,25.5,bovada,190,-260,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Anthony Davis,25.5,bovada,-260,190,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Bilal Coulibaly,7.5,bovada,-230,170,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Bilal Coulibaly,7.5,bovada,170,-230,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Bilal Coulibaly,8.5,bovada,-160,120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Bilal Coulibaly,8.5,bovada,120,-160,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Bilal Coulibaly,9.5,bovada,-115,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Bilal Coulibaly,9.5,bovada,-115,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Bilal Coulibaly,10.5,bovada,120,-160,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Bilal Coulibaly,10.5,bovada,-160,120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Bilal Coulibaly,11.5,bovada,155,-210,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Bilal Coulibaly,11.5,bovada,-210,155,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Bilal Coulibaly,12.5,bovada,205,-280,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Bilal Coulibaly,12.5,bovada,-280,205,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Collin Murray-Boyles,7.5,bovada,-250,185,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Collin Murray-Boyles,7.5,bovada,185,-250,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Collin Murray-Boyles,8.5,bovada,-170,130,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Collin Murray-Boyles,8.5,bovada,130,-170,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Collin Murray-Boyles,9.5,bovada,-125,-105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Collin Murray-Boyles,9.5,bovada,-105,-125,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Collin Murray-Boyles,10.5,bovada,110,-145,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Collin Murray-Boyles,10.5,bovada,-145,110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Collin Murray-Boyles,11.5,bovada,145,-190,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Collin Murray-Boyles,11.5,bovada,-190,145,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Collin Murray-Boyles,12.5,bovada,190,-260,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Collin Murray-Boyles,12.5,bovada,-260,190,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Deandre Ayton,4.5,bovada,-220,165,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Deandre Ayton,4.5,bovada,165,-220,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Deandre Ayton,5.5,bovada,-145,110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Deandre Ayton,5.5,bovada,110,-145,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Deandre Ayton,6.5,bovada,105,-135,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Deandre Ayton,6.5,bovada,-135,105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Deandre Ayton,7.5,bovada,150,-200,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Deandre Ayton,7.5,bovada,-200,150,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Deandre Ayton,8.5,bovada,205,-280,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Deandre Ayton,8.5,bovada,-280,205,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Immanuel Quickley,13.5,bovada,-230,170,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Immanuel Quickley,13.5,bovada,170,-230,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Immanuel Quickley,14.5,bovada,-170,130,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Immanuel Quickley,14.5,bovada,130,-170,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Immanuel Quickley,15.5,bovada,-135,105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Immanuel Quickley,15.5,bovada,105,-135,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Immanuel Quickley,16.5,bovada,-105,-125,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Immanuel Quickley,16.5,bovada,-125,-105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Immanuel Quickley,17.5,bovada,120,-160,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Immanuel Quickley,17.5,bovada,-160,120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Immanuel Quickley,18.5,bovada,150,-200,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Immanuel Quickley,18.5,bovada,-200,150,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Immanuel Quickley,19.5,bovada,190,-260,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Immanuel Quickley,19.5,bovada,-260,190,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Ja'Kobe Walter,5.5,bovada,-300,215,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Ja'Kobe Walter,5.5,bovada,215,-300,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Ja'Kobe Walter,6.5,bovada,-190,145,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Ja'Kobe Walter,6.5,bovada,145,-190,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Ja'Kobe Walter,7.5,bovada,-130,100,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Ja'Kobe Walter,7.5,bovada,100,-130,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Ja'Kobe Walter,8.5,bovada,110,-145,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Ja'Kobe Walter,8.5,bovada,-145,110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Ja'Kobe Walter,9.5,bovada,145,-190,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Ja'Kobe Walter,9.5,bovada,-190,145,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Ja'Kobe Walter,10.5,bovada,200,-275,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Ja'Kobe Walter,10.5,bovada,-275,200,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Jakob Poeltl,6.5,bovada,-250,185,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Jakob Poeltl,6.5,bovada,185,-250,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Jakob Poeltl,7.5,bovada,-170,130,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Jakob Poeltl,7.5,bovada,130,-170,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Jakob Poeltl,8.5,bovada,-120,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Jakob Poeltl,8.5,bovada,-110,-120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Jakob Poeltl,9.5,bovada,115,-150,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Jakob Poeltl,9.5,bovada,-150,115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Jakob Poeltl,10.5,bovada,155,-210,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Jakob Poeltl,10.5,bovada,-210,155,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Jakob Poeltl,11.5,bovada,205,-280,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Jakob Poeltl,11.5,bovada,-280,205,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Kawhi Leonard,20.5,bovada,-275,200,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Kawhi Leonard,20.5,bovada,200,-275,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Kawhi Leonard,21.5,bovada,-220,165,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Kawhi Leonard,21.5,bovada,165,-220,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Kawhi Leonard,22.5,bovada,-170,130,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Kawhi Leonard,22.5,bovada,130,-170,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Kawhi Leonard,23.5,bovada,-145,110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Kawhi Leonard,23.5,bovada,110,-145,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Kawhi Leonard,24.5,bovada,-115,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Kawhi Leonard,24.5,bovada,-115,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Kawhi Leonard,25.5,bovada,105,-135,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Kawhi Leonard,25.5,bovada,-135,105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Kawhi Leonard,26.5,bovada,130,-170,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Kawhi Leonard,26.5,bovada,-170,130,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Kawhi Leonard,27.5,bovada,155,-210,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Kawhi Leonard,27.5,bovada,-210,155,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Kawhi Leonard,28.5,bovada,185,-250,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Kawhi Leonard,28.5,bovada,-250,185,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Kyshawn George,11.5,bovada,-220,165,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Kyshawn George,11.5,bovada,165,-220,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Kyshawn George,12.5,bovada,-165,125,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Kyshawn George,12.5,bovada,125,-165,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Kyshawn George,13.5,bovada,-125,-105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Kyshawn George,13.5,bovada,-105,-125,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Kyshawn George,14.5,bovada,105,-135,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Kyshawn George,14.5,bovada,-135,105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Kyshawn George,15.5,bovada,135,-180,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Kyshawn George,15.5,bovada,-180,135,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Kyshawn George,16.5,bovada,170,-230,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Kyshawn George,16.5,bovada,-230,170,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Kyshawn George,17.5,bovada,215,-300,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Kyshawn George,17.5,bovada,-300,215,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,R.J. Barrett,15.5,bovada,-230,170,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,R.J. Barrett,15.5,bovada,170,-230,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,R.J. Barrett,16.5,bovada,-180,135,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,R.J. Barrett,16.5,bovada,135,-180,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,R.J. Barrett,17.5,bovada,-135,105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,R.J. Barrett,17.5,bovada,105,-135,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,R.J. Barrett,18.5,bovada,-110,-120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,R.J. Barrett,18.5,bovada,-120,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,R.J. Barrett,19.5,bovada,115,-150,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,R.J. Barrett,19.5,bovada,-150,115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,R.J. Barrett,20.5,bovada,140,-185,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,R.J. Barrett,20.5,bovada,-185,140,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,R.J. Barrett,21.5,bovada,175,-240,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,R.J. Barrett,21.5,bovada,-240,175,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Scottie Barnes,15.5,bovada,-230,170,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Scottie Barnes,15.5,bovada,170,-230,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Scottie Barnes,16.5,bovada,-180,135,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Scottie Barnes,16.5,bovada,135,-180,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Scottie Barnes,17.5,bovada,-135,105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Scottie Barnes,17.5,bovada,105,-135,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Scottie Barnes,18.5,bovada,-110,-120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Scottie Barnes,18.5,bovada,-120,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Scottie Barnes,19.5,bovada,115,-150,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Scottie Barnes,19.5,bovada,-150,115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Scottie Barnes,20.5,bovada,140,-185,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Scottie Barnes,20.5,bovada,-185,140,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Scottie Barnes,21.5,bovada,175,-240,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Scottie Barnes,21.5,bovada,-240,175,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Trae Young,16.5,bovada,-260,190,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Trae Young,16.5,bovada,190,-260,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Trae Young,17.5,bovada,-200,150,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Trae Young,17.5,bovada,150,-200,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Trae Young,18.5,bovada,-160,120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Trae Young,18.5,bovada,120,-160,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Trae Young,19.5,bovada,-125,-105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Trae Young,19.5,bovada,-105,-125,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Trae Young,20.5,bovada,100,-130,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Trae Young,20.5,bovada,-130,100,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Trae Young,21.5,bovada,125,-165,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Trae Young,21.5,bovada,-165,125,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Trae Young,22.5,bovada,150,-200,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Trae Young,22.5,bovada,-200,150,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Trae Young,23.5,bovada,185,-250,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Trae Young,23.5,bovada,-250,185,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Tre Johnson,6.5,bovada,-300,215,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Tre Johnson,6.5,bovada,215,-300,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Tre Johnson,7.5,bovada,-200,150,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Tre Johnson,7.5,bovada,150,-200,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Tre Johnson,8.5,bovada,-135,105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Tre Johnson,8.5,bovada,105,-135,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Tre Johnson,9.5,bovada,100,-130,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Tre Johnson,9.5,bovada,-130,100,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Tre Johnson,10.5,bovada,135,-180,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Tre Johnson,10.5,bovada,-180,135,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Tre Johnson,11.5,bovada,180,-245,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Tre Johnson,11.5,bovada,-245,180,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Anthony Davis,33.5,bovada,-180,135,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Anthony Davis,33.5,bovada,135,-180,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Anthony Davis,34.5,bovada,-150,115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Anthony Davis,34.5,bovada,115,-150,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Anthony Davis,35.5,bovada,-125,-105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Anthony Davis,35.5,bovada,-105,-125,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Anthony Davis,36.5,bovada,-105,-125,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Anthony Davis,36.5,bovada,-125,-105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Anthony Davis,37.5,bovada,110,-145,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Anthony Davis,37.5,bovada,-145,110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Immanuel Quickley,23.5,bovada,-200,150,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Immanuel Quickley,23.5,bovada,150,-200,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Immanuel Quickley,24.5,bovada,-160,120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Immanuel Quickley,24.5,bovada,120,-160,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Immanuel Quickley,25.5,bovada,-130,100,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Immanuel Quickley,25.5,bovada,100,-130,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Immanuel Quickley,26.5,bovada,-110,-120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Immanuel Quickley,26.5,bovada,-120,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Immanuel Quickley,27.5,bovada,110,-145,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Immanuel Quickley,27.5,bovada,-145,110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Kawhi Leonard,31.5,bovada,-180,135,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Kawhi Leonard,31.5,bovada,135,-180,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Kawhi Leonard,32.5,bovada,-145,110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Kawhi Leonard,32.5,bovada,110,-145,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Kawhi Leonard,33.5,bovada,-125,-105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Kawhi Leonard,33.5,bovada,-105,-125,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Kawhi Leonard,34.5,bovada,-105,-125,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Kawhi Leonard,34.5,bovada,-125,-105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Kawhi Leonard,35.5,bovada,110,-145,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Kawhi Leonard,35.5,bovada,-145,110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Kyshawn George,19.5,bovada,-180,135,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Kyshawn George,19.5,bovada,135,-180,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Kyshawn George,20.5,bovada,-145,110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Kyshawn George,20.5,bovada,110,-145,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Kyshawn George,21.5,bovada,-115,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Kyshawn George,21.5,bovada,-115,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Kyshawn George,22.5,bovada,105,-135,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Kyshawn George,22.5,bovada,-135,105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Kyshawn George,23.5,bovada,130,-170,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Kyshawn George,23.5,bovada,-170,130,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,R.J. Barrett,24.5,bovada,-200,150,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,R.J. Barrett,24.5,bovada,150,-200,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,R.J. Barrett,25.5,bovada,-160,120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,R.J. Barrett,25.5,bovada,120,-160,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,R.J. Barrett,26.5,bovada,-130,100,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,R.J. Barrett,26.5,bovada,100,-130,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,R.J. Barrett,27.5,bovada,-110,-120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,R.J. Barrett,27.5,bovada,-120,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,R.J. Barrett,28.5,bovada,110,-145,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,R.J. Barrett,28.5,bovada,-145,110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Scottie Barnes,29.5,bovada,-165,125,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Scottie Barnes,29.5,bovada,125,-165,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Scottie Barnes,30.5,bovada,-135,105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Scottie Barnes,30.5,bovada,105,-135,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Scottie Barnes,31.5,bovada,-115,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Scottie Barnes,31.5,bovada,-115,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Scottie Barnes,32.5,bovada,105,-135,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Scottie Barnes,32.5,bovada,-135,105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Scottie Barnes,33.5,bovada,120,-160,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Scottie Barnes,33.5,bovada,-160,120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Trae Young,29.5,bovada,-180,135,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Trae Young,29.5,bovada,135,-180,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Trae Young,30.5,bovada,-150,115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Trae Young,30.5,bovada,115,-150,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Trae Young,31.5,bovada,-125,-105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Trae Young,31.5,bovada,-105,-125,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Trae Young,32.5,bovada,-105,-125,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Trae Young,32.5,bovada,-125,-105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Trae Young,33.5,bovada,110,-145,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Trae Young,33.5,bovada,-145,110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Alex Sarr,5.5,bovada,-210,155,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Alex Sarr,5.5,bovada,155,-210,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Alex Sarr,6.5,bovada,-115,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Alex Sarr,6.5,bovada,-115,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Alex Sarr,7.5,bovada,150,-200,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Alex Sarr,7.5,bovada,-200,150,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Anthony Davis,9.5,bovada,-220,165,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Anthony Davis,9.5,bovada,165,-220,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Anthony Davis,10.5,bovada,-135,105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Anthony Davis,10.5,bovada,105,-135,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Anthony Davis,11.5,bovada,115,-150,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Anthony Davis,11.5,bovada,-150,115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Anthony Davis,12.5,bovada,170,-230,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Anthony Davis,12.5,bovada,-230,170,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Bilal Coulibaly,2.5,bovada,-275,200,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Bilal Coulibaly,2.5,bovada,200,-275,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Bilal Coulibaly,3.5,bovada,-110,-120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Bilal Coulibaly,3.5,bovada,-120,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Bilal Coulibaly,4.5,bovada,180,-245,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Bilal Coulibaly,4.5,bovada,-245,180,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Collin Murray-Boyles,5.5,bovada,-165,125,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Collin Murray-Boyles,5.5,bovada,125,-165,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Collin Murray-Boyles,6.5,bovada,110,-145,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Collin Murray-Boyles,6.5,bovada,-145,110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Collin Murray-Boyles,7.5,bovada,190,-260,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Collin Murray-Boyles,7.5,bovada,-260,190,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Deandre Ayton,3.5,bovada,-300,215,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Deandre Ayton,3.5,bovada,215,-300,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Deandre Ayton,4.5,bovada,-135,105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Deandre Ayton,4.5,bovada,105,-135,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Deandre Ayton,5.5,bovada,140,-185,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Deandre Ayton,5.5,bovada,-185,140,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Immanuel Quickley,3.5,bovada,-150,115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Immanuel Quickley,3.5,bovada,115,-150,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Immanuel Quickley,4.5,bovada,135,-180,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Immanuel Quickley,4.5,bovada,-180,135,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Ja'Kobe Walter,2.5,bovada,-150,115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Ja'Kobe Walter,2.5,bovada,115,-150,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Ja'Kobe Walter,3.5,bovada,150,-200,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Ja'Kobe Walter,3.5,bovada,-200,150,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Jakob Poeltl,5.5,bovada,-210,155,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Jakob Poeltl,5.5,bovada,155,-210,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Jakob Poeltl,6.5,bovada,-115,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Jakob Poeltl,6.5,bovada,-115,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Jakob Poeltl,7.5,bovada,150,-200,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Jakob Poeltl,7.5,bovada,-200,150,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Kawhi Leonard,4.5,bovada,-275,200,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Kawhi Leonard,4.5,bovada,200,-275,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Kawhi Leonard,5.5,bovada,-135,105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Kawhi Leonard,5.5,bovada,105,-135,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Kawhi Leonard,6.5,bovada,130,-170,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Kawhi Leonard,6.5,bovada,-170,130,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Kyshawn George,3.5,bovada,-160,120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Kyshawn George,3.5,bovada,120,-160,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Kyshawn George,4.5,bovada,130,-170,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Kyshawn George,4.5,bovada,-170,130,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,R.J. Barrett,4.5,bovada,-170,130,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,R.J. Barrett,4.5,bovada,130,-170,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,R.J. Barrett,5.5,bovada,110,-145,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,R.J. Barrett,5.5,bovada,-145,110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,R.J. Barrett,6.5,bovada,200,-275,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,R.J. Barrett,6.5,bovada,-275,200,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Scottie Barnes,6.5,bovada,-165,125,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Scottie Barnes,6.5,bovada,125,-165,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Scottie Barnes,7.5,bovada,105,-135,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Scottie Barnes,7.5,bovada,-135,105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Scottie Barnes,8.5,bovada,175,-240,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Scottie Barnes,8.5,bovada,-240,175,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Trae Young,1.5,bovada,-230,170,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Trae Young,1.5,bovada,170,-230,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Trae Young,2.5,bovada,120,-160,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Trae Young,2.5,bovada,-160,120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Alex Sarr,0.5,bovada,-275,200,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Alex Sarr,0.5,bovada,200,-275,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Alex Sarr,1.5,bovada,170,-230,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Alex Sarr,1.5,bovada,-230,170,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Anthony Davis,0.5,bovada,-130,100,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Anthony Davis,0.5,bovada,100,-130,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Bilal Coulibaly,0.5,bovada,-275,200,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Bilal Coulibaly,0.5,bovada,200,-275,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Bilal Coulibaly,1.5,bovada,170,-230,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Bilal Coulibaly,1.5,bovada,-230,170,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Immanuel Quickley,2.5,bovada,-120,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Immanuel Quickley,2.5,bovada,-110,-120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Immanuel Quickley,3.5,bovada,210,-290,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Immanuel Quickley,3.5,bovada,-290,210,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Ja'Kobe Walter,1.5,bovada,-110,-120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Ja'Kobe Walter,1.5,bovada,-120,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Kawhi Leonard,1.5,bovada,-240,175,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Kawhi Leonard,1.5,bovada,175,-240,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Kawhi Leonard,2.5,bovada,130,-170,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Kawhi Leonard,2.5,bovada,-170,130,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Kyshawn George,1.5,bovada,-165,125,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Kyshawn George,1.5,bovada,125,-165,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Kyshawn George,2.5,bovada,185,-250,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Kyshawn George,2.5,bovada,-250,185,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,R.J. Barrett,1.5,bovada,-125,-105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,R.J. Barrett,1.5,bovada,-105,-125,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Scottie Barnes,0.5,bovada,-190,145,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Scottie Barnes,0.5,bovada,145,-190,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Trae Young,1.5,bovada,-210,155,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Trae Young,1.5,bovada,155,-210,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Trae Young,2.5,bovada,145,-190,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Trae Young,2.5,bovada,-190,145,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Tre Johnson,1.5,bovada,-105,-125,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Tre Johnson,1.5,bovada,-125,-105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_ats,TOR,,-4,bovada,-115,-105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_ats,WAS,,4,bovada,-105,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_total,over,,114,bovada,-115,-105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_total,under,,114,bovada,-105,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_ml,TOR,,,betonlineag,-335,270,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_ml,WAS,,,betonlineag,270,-335,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_ats,TOR,,-8.5,betonlineag,-115,-105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_ats,WAS,,8.5,betonlineag,-105,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_total,over,,236,betonlineag,-115,-105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_total,under,,236,betonlineag,-105,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_ml,TOR,,,betonlineag,-220,186,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_ml,WAS,,,betonlineag,186,-220,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Kawhi Leonard,3.5,betonlineag,118,-154,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Kawhi Leonard,3.5,betonlineag,-154,118,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Scottie Barnes,5.5,betonlineag,104,-135,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Scottie Barnes,5.5,betonlineag,-135,104,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,R.J. Barrett,3.5,betonlineag,115,-149,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,R.J. Barrett,3.5,betonlineag,-149,115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Immanuel Quickley,5.5,betonlineag,-141,108,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Immanuel Quickley,5.5,betonlineag,108,-141,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Kyshawn George,2.5,betonlineag,-159,122,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Kyshawn George,2.5,betonlineag,122,-159,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Alex Sarr,1.5,betonlineag,-130,100,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Alex Sarr,1.5,betonlineag,100,-130,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Jamal Shead,3.5,betonlineag,-147,113,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Jamal Shead,3.5,betonlineag,113,-147,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Trae Young,9.5,betonlineag,-101,-128,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Trae Young,9.5,betonlineag,-128,-101,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Anthony Davis,2.5,betonlineag,-128,-101,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Anthony Davis,2.5,betonlineag,-101,-128,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Collin Murray-Boyles,2.5,betonlineag,130,-169,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Collin Murray-Boyles,2.5,betonlineag,-169,130,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Jakob Poeltl,8.5,betonlineag,-130,100,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Jakob Poeltl,8.5,betonlineag,100,-130,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Bilal Coulibaly,9.5,betonlineag,-114,-114,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Bilal Coulibaly,9.5,betonlineag,-114,-114,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Kawhi Leonard,24.5,betonlineag,-114,-114,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Kawhi Leonard,24.5,betonlineag,-114,-114,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Scottie Barnes,18.5,betonlineag,-116,-111,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Scottie Barnes,18.5,betonlineag,-111,-116,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,R.J. Barrett,18.5,betonlineag,-118,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,R.J. Barrett,18.5,betonlineag,-110,-118,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Ja'Kobe Walter,7.5,betonlineag,-123,-104,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Ja'Kobe Walter,7.5,betonlineag,-104,-123,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Immanuel Quickley,16.5,betonlineag,-105,-123,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Immanuel Quickley,16.5,betonlineag,-123,-105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Kyshawn George,14.5,betonlineag,-101,-128,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Kyshawn George,14.5,betonlineag,-128,-101,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Alex Sarr,12.5,betonlineag,100,-130,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Alex Sarr,12.5,betonlineag,-130,100,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Jamal Shead,4.5,betonlineag,-132,102,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Jamal Shead,4.5,betonlineag,102,-132,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Anthony Davis,22.5,betonlineag,-105,-123,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Anthony Davis,22.5,betonlineag,-123,-105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Tre Johnson,9.5,betonlineag,-105,-123,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Tre Johnson,9.5,betonlineag,-123,-105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Trae Young,19.5,betonlineag,-135,104,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Trae Young,19.5,betonlineag,104,-135,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Deandre Ayton,5.5,betonlineag,-130,100,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Deandre Ayton,5.5,betonlineag,100,-130,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Collin Murray-Boyles,10.5,betonlineag,104,-135,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Collin Murray-Boyles,10.5,betonlineag,-135,104,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Justin Champagnie,5.5,betonlineag,-123,-104,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Justin Champagnie,5.5,betonlineag,-104,-123,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Immanuel Quickley,26.5,betonlineag,-110,-118,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Immanuel Quickley,26.5,betonlineag,-118,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Kyshawn George,21.5,betonlineag,-103,-125,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Kyshawn George,21.5,betonlineag,-125,-103,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Anthony Davis,36.5,betonlineag,-108,-120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Anthony Davis,36.5,betonlineag,-120,-108,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,R.J. Barrett,27.5,betonlineag,-111,-116,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,R.J. Barrett,27.5,betonlineag,-116,-111,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Scottie Barnes,31.5,betonlineag,-115,-112,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Scottie Barnes,31.5,betonlineag,-112,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Kawhi Leonard,33.5,betonlineag,-119,-109,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Kawhi Leonard,33.5,betonlineag,-109,-119,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Trae Young,32.5,betonlineag,-114,-114,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Trae Young,32.5,betonlineag,-114,-114,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Alex Sarr,20.5,betonlineag,-114,-114,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Alex Sarr,20.5,betonlineag,-114,-114,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,over,Collin Murray-Boyles,19.5,betonlineag,102,-132,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pra,under,Collin Murray-Boyles,19.5,betonlineag,-132,102,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Kawhi Leonard,5.5,betonlineag,-137,106,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Kawhi Leonard,5.5,betonlineag,106,-137,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Bilal Coulibaly,3.5,betonlineag,-115,-112,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Bilal Coulibaly,3.5,betonlineag,-112,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Immanuel Quickley,3.5,betonlineag,-141,108,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Immanuel Quickley,3.5,betonlineag,108,-141,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Kyshawn George,3.5,betonlineag,-139,107,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Kyshawn George,3.5,betonlineag,107,-139,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Ja'Kobe Walter,2.5,betonlineag,-135,105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Ja'Kobe Walter,2.5,betonlineag,105,-135,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Alex Sarr,6.5,betonlineag,-108,-120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Alex Sarr,6.5,betonlineag,-120,-108,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Deandre Ayton,4.5,betonlineag,-123,-105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Deandre Ayton,4.5,betonlineag,-105,-123,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Anthony Davis,11.5,betonlineag,115,-149,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Anthony Davis,11.5,betonlineag,-149,115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Jakob Poeltl,6.5,betonlineag,-114,-114,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Jakob Poeltl,6.5,betonlineag,-114,-114,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,R.J. Barrett,5.5,betonlineag,112,-145,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,R.J. Barrett,5.5,betonlineag,-145,112,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Scottie Barnes,7.5,betonlineag,107,-139,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Scottie Barnes,7.5,betonlineag,-139,107,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Collin Murray-Boyles,6.5,betonlineag,109,-141,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Collin Murray-Boyles,6.5,betonlineag,-141,109,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Trae Young,2.5,betonlineag,120,-156,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Trae Young,2.5,betonlineag,-156,120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Tre Johnson,1.5,betonlineag,-156,120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Tre Johnson,1.5,betonlineag,120,-156,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Justin Champagnie,4.5,betonlineag,-116,-111,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Justin Champagnie,4.5,betonlineag,-111,-116,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Scottie Barnes,0.5,betonlineag,-175,135,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Scottie Barnes,0.5,betonlineag,135,-175,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Kawhi Leonard,2.5,betonlineag,126,-164,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Kawhi Leonard,2.5,betonlineag,-164,126,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Bilal Coulibaly,1.5,betonlineag,174,-233,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Bilal Coulibaly,1.5,betonlineag,-233,174,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,R.J. Barrett,1.5,betonlineag,-125,-103,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,R.J. Barrett,1.5,betonlineag,-103,-125,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Immanuel Quickley,2.5,betonlineag,-111,-116,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Immanuel Quickley,2.5,betonlineag,-116,-111,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Ja'Kobe Walter,1.5,betonlineag,-105,-123,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Ja'Kobe Walter,1.5,betonlineag,-123,-105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Alex Sarr,1.5,betonlineag,171,-227,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Alex Sarr,1.5,betonlineag,-227,171,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Trae Young,2.5,betonlineag,141,-185,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Trae Young,2.5,betonlineag,-185,141,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Tre Johnson,1.5,betonlineag,-102,-127,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Tre Johnson,1.5,betonlineag,-127,-102,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Kyshawn George,1.5,betonlineag,-156,121,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Kyshawn George,1.5,betonlineag,121,-156,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_ats,TOR,,-4.5,betonlineag,-105,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_ats,WAS,,4.5,betonlineag,-115,-105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_total,over,,115,betonlineag,-105,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_total,under,,115,betonlineag,-115,-105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_ml,TOR,,,lowvig,-331,274,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_ml,WAS,,,lowvig,274,-331,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_ats,TOR,,-8.5,lowvig,-111,-101,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_ats,WAS,,8.5,lowvig,-101,-111,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_total,over,,236,lowvig,-113,-102,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_total,under,,236,lowvig,-102,-113,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_ml,TOR,,,betmgm,-325,260,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_ml,WAS,,,betmgm,260,-325,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_ats,TOR,,-8.5,betmgm,-110,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_ats,WAS,,8.5,betmgm,-110,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_total,over,,237.5,betmgm,-105,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_total,under,,237.5,betmgm,-115,-105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_ml,TOR,,,betmgm,-210,170,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_ml,WAS,,,betmgm,170,-210,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Kyshawn George,2.5,betmgm,-165,125,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Kyshawn George,2.5,betmgm,125,-165,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Trae Young,9.5,betmgm,-115,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Trae Young,9.5,betmgm,-115,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,R.J. Barrett,3.5,betmgm,105,-140,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,R.J. Barrett,3.5,betmgm,-140,105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Immanuel Quickley,5.5,betmgm,-155,115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Immanuel Quickley,5.5,betmgm,115,-155,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Scottie Barnes,5.5,betmgm,-111,-120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Scottie Barnes,5.5,betmgm,-120,-111,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Anthony Davis,2.5,betmgm,-120,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Anthony Davis,2.5,betmgm,-110,-120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Kawhi Leonard,3.5,betmgm,120,-160,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Kawhi Leonard,3.5,betmgm,-160,120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,over,Collin Murray-Boyles,2.5,betmgm,130,-175,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_ast,under,Collin Murray-Boyles,2.5,betmgm,-175,130,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Trae Young,19.5,betmgm,-105,,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Scottie Barnes,18.5,betmgm,-115,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Scottie Barnes,18.5,betmgm,-115,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Bilal Coulibaly,9.5,betmgm,-105,,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Immanuel Quickley,15.5,betmgm,-130,-105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Immanuel Quickley,15.5,betmgm,-105,-130,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,R.J. Barrett,18.5,betmgm,-130,-105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,R.J. Barrett,18.5,betmgm,-105,-130,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Jakob Poeltl,8.5,betmgm,-115,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Jakob Poeltl,8.5,betmgm,-115,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Kyshawn George,14.5,betmgm,-110,-120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Kyshawn George,14.5,betmgm,-120,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Anthony Davis,21.5,betmgm,-125,-105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Anthony Davis,21.5,betmgm,-105,-125,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Kawhi Leonard,25.5,betmgm,-115,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Kawhi Leonard,25.5,betmgm,-115,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Tre Johnson,9.5,betmgm,-110,-120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Tre Johnson,9.5,betmgm,-120,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Deandre Ayton,6.5,betmgm,-120,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Deandre Ayton,6.5,betmgm,-110,-120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Ja'Kobe Walter,7.5,betmgm,-110,,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Alex Sarr,11.5,betmgm,-130,-105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Alex Sarr,11.5,betmgm,-105,-130,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,over,Collin Murray-Boyles,10.5,betmgm,100,-135,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_pts,under,Collin Murray-Boyles,10.5,betmgm,-135,100,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Anthony Davis,11.5,betmgm,105,-140,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Anthony Davis,11.5,betmgm,-140,105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,R.J. Barrett,5.5,betmgm,110,-150,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,R.J. Barrett,5.5,betmgm,-150,110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Immanuel Quickley,3.5,betmgm,-140,105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Immanuel Quickley,3.5,betmgm,105,-140,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Scottie Barnes,7.5,betmgm,100,-135,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Scottie Barnes,7.5,betmgm,-135,100,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Bilal Coulibaly,3.5,betmgm,-125,-105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Bilal Coulibaly,3.5,betmgm,-105,-125,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Alex Sarr,6.5,betmgm,-115,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Alex Sarr,6.5,betmgm,-115,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Kawhi Leonard,5.5,betmgm,-155,115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Kawhi Leonard,5.5,betmgm,115,-155,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Jakob Poeltl,6.5,betmgm,-115,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Jakob Poeltl,6.5,betmgm,-115,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Kyshawn George,3.5,betmgm,-135,100,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Kyshawn George,3.5,betmgm,100,-135,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Trae Young,1.5,betmgm,-190,140,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Trae Young,1.5,betmgm,140,-190,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Collin Murray-Boyles,6.5,betmgm,105,-140,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Collin Murray-Boyles,6.5,betmgm,-140,105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Deandre Ayton,4.5,betmgm,-120,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Deandre Ayton,4.5,betmgm,-110,-120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,over,Ja'Kobe Walter,2.5,betmgm,-140,105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_reb,under,Ja'Kobe Walter,2.5,betmgm,105,-140,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,R.J. Barrett,1.5,betmgm,-105,-125,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,R.J. Barrett,1.5,betmgm,-125,-105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Kyshawn George,1.5,betmgm,-160,120,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Kyshawn George,1.5,betmgm,120,-160,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Trae Young,2.5,betmgm,140,-190,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Trae Young,2.5,betmgm,-190,140,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Immanuel Quickley,2.5,betmgm,100,-135,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Immanuel Quickley,2.5,betmgm,-135,100,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Kawhi Leonard,2.5,betmgm,110,-150,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Kawhi Leonard,2.5,betmgm,-150,110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Tre Johnson,1.5,betmgm,100,-135,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Tre Johnson,1.5,betmgm,-135,100,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,over,Ja'Kobe Walter,1.5,betmgm,105,-145,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,pl_3pm,under,Ja'Kobe Walter,1.5,betmgm,-145,105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_ats,TOR,,-4.5,betmgm,-105,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_ats,WAS,,4.5,betmgm,-115,-105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_total,over,,114.5,betmgm,-115,-105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_total,under,,114.5,betmgm,-105,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_ml,TOR,,,mybookieag,-348,259,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_ml,WAS,,,mybookieag,259,-348,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_ats,TOR,,-8.5,mybookieag,-110,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_ats,WAS,,8.5,mybookieag,-110,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_total,over,,236.5,mybookieag,-110,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_total,under,,236.5,mybookieag,-110,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_ml,TOR,,,mybookieag,-222,177,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_ml,WAS,,,mybookieag,177,-222,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_ats,TOR,,-4.5,mybookieag,-110,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_ats,WAS,,4.5,mybookieag,-110,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_total,over,,114.5,mybookieag,-110,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_total,under,,114.5,mybookieag,-110,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_ml,TOR,,,betus,-335,272,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_ml,WAS,,,betus,272,-335,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_ats,TOR,,-8.5,betus,-110,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_ats,WAS,,8.5,betus,-110,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_total,over,,236.5,betus,-110,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,game_total,under,,236.5,betus,-110,-110,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_ml,TOR,,,betus,-220,175,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_ml,WAS,,,betus,175,-220,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_ats,TOR,,-4.5,betus,-115,-105,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_ats,WAS,,4.5,betus,-105,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_total,over,,115,betus,-105,-115,oddsapi
+2026-10-23T23:00:11Z,2026-10-23,TOR @ WAS,8540b2b24fe0b2042a07c8c20452aead,h1_total,under,,115,betus,-115,-105,oddsapi
