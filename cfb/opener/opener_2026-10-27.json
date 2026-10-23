@@ -1,0 +1,62 @@
+{
+  "Delaware @ Western Kentuc|game_ats|Delaware": {
+    "american": -110.0,
+    "line": -2.5,
+    "no_vig_prob": 0.5
+  },
+  "Delaware @ Western Kentuc|game_ats|Western Kentuc": {
+    "american": -110.0,
+    "line": 2.5,
+    "no_vig_prob": 0.5
+  },
+  "Delaware @ Western Kentuc|game_ml|Delaware": {
+    "american": -134.0,
+    "line": null,
+    "no_vig_prob": 0.548332303891291
+  },
+  "Delaware @ Western Kentuc|game_ml|Western Kentuc": {
+    "american": 112.0,
+    "line": null,
+    "no_vig_prob": 0.45166769610870916
+  },
+  "Delaware @ Western Kentuc|game_total|Over": {
+    "american": -110.0,
+    "line": 59.5,
+    "no_vig_prob": 0.5
+  },
+  "Delaware @ Western Kentuc|game_total|Under": {
+    "american": -110.0,
+    "line": 59.5,
+    "no_vig_prob": 0.5
+  },
+  "Sam Houston St @ Missouri State|game_ats|Missouri State": {
+    "american": -102.0,
+    "line": -6.5,
+    "no_vig_prob": 0.48071979434447304
+  },
+  "Sam Houston St @ Missouri State|game_ats|Sam Houston St": {
+    "american": -120.0,
+    "line": 6.5,
+    "no_vig_prob": 0.519280205655527
+  },
+  "Sam Houston St @ Missouri State|game_ml|Missouri State": {
+    "american": -220.0,
+    "line": null,
+    "no_vig_prob": 0.6581196581196581
+  },
+  "Sam Houston St @ Missouri State|game_ml|Sam Houston St": {
+    "american": 180.0,
+    "line": null,
+    "no_vig_prob": 0.3418803418803419
+  },
+  "Sam Houston St @ Missouri State|game_total|Over": {
+    "american": -110.0,
+    "line": 51.5,
+    "no_vig_prob": 0.5
+  },
+  "Sam Houston St @ Missouri State|game_total|Under": {
+    "american": -110.0,
+    "line": 51.5,
+    "no_vig_prob": 0.5
+  }
+}
