@@ -1,0 +1,1114 @@
+captured_at,game_date,matchup,event_id,market,side,entity,line,book,american,opposite_american,source
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_ml,DAL,,,fanduel,156,-194,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_ml,IND,,,fanduel,-194,156,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Cooper Flagg,5.5,fanduel,118,-150,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Cooper Flagg,5.5,fanduel,-150,118,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Kyrie Irving,4.5,fanduel,118,-150,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Kyrie Irving,4.5,fanduel,-150,118,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Naji Marshall,3.5,fanduel,100,-128,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Naji Marshall,3.5,fanduel,-128,100,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Pascal Siakam,3.5,fanduel,128,-162,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Pascal Siakam,3.5,fanduel,-162,128,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Ivica Zubac,2.5,fanduel,130,-166,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Ivica Zubac,2.5,fanduel,-166,130,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Andrew Nembhard,6.5,fanduel,-118,-108,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Andrew Nembhard,6.5,fanduel,-108,-118,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Tyrese Haliburton,9.5,fanduel,-104,-122,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Tyrese Haliburton,9.5,fanduel,-122,-104,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Kyrie Irving,19.5,fanduel,-113,-113,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Kyrie Irving,19.5,fanduel,-113,-113,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Naji Marshall,12.5,fanduel,-120,-106,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Naji Marshall,12.5,fanduel,-106,-120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Zaccharie Risacher,8.5,fanduel,102,-130,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Zaccharie Risacher,8.5,fanduel,-130,102,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Cooper Flagg,24.5,fanduel,-118,-108,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Cooper Flagg,24.5,fanduel,-108,-118,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Daniel Gafford,9.5,fanduel,-113,-113,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Daniel Gafford,9.5,fanduel,-113,-113,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Kelly Oubre Jr.,9.5,fanduel,-120,-106,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Kelly Oubre Jr.,9.5,fanduel,-106,-120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Aaron Nesmith,12.5,fanduel,-104,-122,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Aaron Nesmith,12.5,fanduel,-122,-104,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Obi Toppin,12.5,fanduel,-106,-120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Obi Toppin,12.5,fanduel,-120,-106,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Ivica Zubac,15.5,fanduel,-115,-111,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Ivica Zubac,15.5,fanduel,-111,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Andrew Nembhard,13.5,fanduel,-115,-111,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Andrew Nembhard,13.5,fanduel,-111,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Max Christie,10.5,fanduel,-111,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Max Christie,10.5,fanduel,-115,-111,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Pascal Siakam,23.5,fanduel,-113,-113,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Pascal Siakam,23.5,fanduel,-113,-113,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Tyrese Haliburton,19.5,fanduel,-111,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Tyrese Haliburton,19.5,fanduel,-115,-111,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,P.J. Washington,12.5,fanduel,-115,-111,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,P.J. Washington,12.5,fanduel,-111,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Cooper Flagg,36.5,fanduel,-115,-111,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Cooper Flagg,36.5,fanduel,-111,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Kyrie Irving,27.5,fanduel,-115,-111,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Kyrie Irving,27.5,fanduel,-111,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Naji Marshall,20.5,fanduel,-111,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Naji Marshall,20.5,fanduel,-115,-111,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Zaccharie Risacher,13.5,fanduel,-115,-111,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Zaccharie Risacher,13.5,fanduel,-111,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Andrew Nembhard,23.5,fanduel,-108,-118,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Andrew Nembhard,23.5,fanduel,-118,-108,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Ivica Zubac,29.5,fanduel,-118,-108,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Ivica Zubac,29.5,fanduel,-108,-118,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Obi Toppin,18.5,fanduel,-120,-106,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Obi Toppin,18.5,fanduel,-106,-120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Pascal Siakam,33.5,fanduel,-113,-113,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Pascal Siakam,33.5,fanduel,-113,-113,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Kelly Oubre Jr.,15.5,fanduel,100,-128,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Kelly Oubre Jr.,15.5,fanduel,-128,100,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,P.J. Washington,20.5,fanduel,-113,-113,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,P.J. Washington,20.5,fanduel,-113,-113,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Tyrese Haliburton,32.5,fanduel,-115,-111,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Tyrese Haliburton,32.5,fanduel,-111,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Max Christie,16.5,fanduel,-102,-125,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Max Christie,16.5,fanduel,-125,-102,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Kyrie Irving,3.5,fanduel,-106,-120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Kyrie Irving,3.5,fanduel,-120,-106,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Naji Marshall,3.5,fanduel,-148,116,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Naji Marshall,3.5,fanduel,116,-148,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Daniel Gafford,7.5,fanduel,116,-148,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Daniel Gafford,7.5,fanduel,-148,116,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Cooper Flagg,6.5,fanduel,104,-132,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Cooper Flagg,6.5,fanduel,-132,104,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Kelly Oubre Jr.,3.5,fanduel,-118,-108,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Kelly Oubre Jr.,3.5,fanduel,-108,-118,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Andrew Nembhard,2.5,fanduel,-138,108,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Andrew Nembhard,2.5,fanduel,108,-138,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Pascal Siakam,6.5,fanduel,-113,-113,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Pascal Siakam,6.5,fanduel,-113,-113,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Ivica Zubac,11.5,fanduel,-122,-104,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Ivica Zubac,11.5,fanduel,-104,-122,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Obi Toppin,4.5,fanduel,-113,-113,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Obi Toppin,4.5,fanduel,-113,-113,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Tyrese Haliburton,3.5,fanduel,-132,104,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Tyrese Haliburton,3.5,fanduel,104,-132,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,P.J. Washington,5.5,fanduel,-146,114,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,P.J. Washington,5.5,fanduel,114,-146,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Max Christie,3.5,fanduel,120,-154,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Max Christie,3.5,fanduel,-154,120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Kyrie Irving,2.5,fanduel,122,-156,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Kyrie Irving,2.5,fanduel,-156,122,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Zaccharie Risacher,1.5,fanduel,190,-250,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Zaccharie Risacher,1.5,fanduel,-250,190,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Pascal Siakam,1.5,fanduel,128,-164,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Pascal Siakam,1.5,fanduel,-164,128,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,P.J. Washington,1.5,fanduel,128,-164,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,P.J. Washington,1.5,fanduel,-164,128,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Cooper Flagg,1.5,fanduel,124,-160,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Cooper Flagg,1.5,fanduel,-160,124,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Tyrese Haliburton,2.5,fanduel,-128,100,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Tyrese Haliburton,2.5,fanduel,100,-128,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Obi Toppin,1.5,fanduel,-113,-113,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Obi Toppin,1.5,fanduel,-113,-113,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Kelly Oubre Jr.,1.5,fanduel,176,-230,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Kelly Oubre Jr.,1.5,fanduel,-230,176,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Andrew Nembhard,1.5,fanduel,102,-130,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Andrew Nembhard,1.5,fanduel,-130,102,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Max Christie,1.5,fanduel,-180,140,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Max Christie,1.5,fanduel,140,-180,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_ats,DAL,,3.5,fanduel,-108,-112,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_ats,IND,,-3.5,fanduel,-112,-108,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_total,over,,122.5,fanduel,-114,-106,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_total,under,,122.5,fanduel,-106,-114,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_ml,DAL,,,draftkings,164,-198,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_ml,IND,,,draftkings,-198,164,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Tyrese Haliburton,9.5,draftkings,-102,-129,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Tyrese Haliburton,9.5,draftkings,-129,-102,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Andrew Nembhard,6.5,draftkings,-119,-111,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Andrew Nembhard,6.5,draftkings,-111,-119,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Cooper Flagg,5.5,draftkings,102,-135,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Cooper Flagg,5.5,draftkings,-135,102,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Kyrie Irving,4.5,draftkings,-107,-123,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Kyrie Irving,4.5,draftkings,-123,-107,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Naji Marshall,3.5,draftkings,-115,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Naji Marshall,3.5,draftkings,-115,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Pascal Siakam,3.5,draftkings,119,-158,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Pascal Siakam,3.5,draftkings,-158,119,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Ivica Zubac,2.5,draftkings,118,-156,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Ivica Zubac,2.5,draftkings,-156,118,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Max Christie,2.5,draftkings,132,-174,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Max Christie,2.5,draftkings,-174,132,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,P.J. Washington,1.5,draftkings,-128,-103,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,P.J. Washington,1.5,draftkings,-103,-128,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Obi Toppin,1.5,draftkings,-115,-114,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Obi Toppin,1.5,draftkings,-114,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Kelly Oubre Jr.,1.5,draftkings,-103,-127,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Kelly Oubre Jr.,1.5,draftkings,-127,-103,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Zaccharie Risacher,1.5,draftkings,126,-167,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Zaccharie Risacher,1.5,draftkings,-167,126,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Cooper Flagg,24.5,draftkings,-115,-111,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Cooper Flagg,24.5,draftkings,-111,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Pascal Siakam,22.5,draftkings,-106,-120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Pascal Siakam,22.5,draftkings,-120,-106,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Kyrie Irving,19.5,draftkings,-113,-113,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Kyrie Irving,19.5,draftkings,-113,-113,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Tyrese Haliburton,18.5,draftkings,-119,-107,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Tyrese Haliburton,18.5,draftkings,-107,-119,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Ivica Zubac,14.5,draftkings,-125,-102,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Ivica Zubac,14.5,draftkings,-102,-125,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Andrew Nembhard,13.5,draftkings,-118,-108,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Andrew Nembhard,13.5,draftkings,-108,-118,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Naji Marshall,12.5,draftkings,-128,100,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Naji Marshall,12.5,draftkings,100,-128,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,P.J. Washington,12.5,draftkings,-111,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,P.J. Washington,12.5,draftkings,-115,-111,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Obi Toppin,11.5,draftkings,-125,-102,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Obi Toppin,11.5,draftkings,-102,-125,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Max Christie,10.5,draftkings,-121,-106,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Max Christie,10.5,draftkings,-106,-121,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Kelly Oubre Jr.,9.5,draftkings,-122,-104,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Kelly Oubre Jr.,9.5,draftkings,-104,-122,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Daniel Gafford,9.5,draftkings,-120,-106,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Daniel Gafford,9.5,draftkings,-106,-120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Zaccharie Risacher,8.5,draftkings,-112,-114,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Zaccharie Risacher,8.5,draftkings,-114,-112,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Cooper Flagg,36.5,draftkings,-116,-113,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Cooper Flagg,36.5,draftkings,-113,-116,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Pascal Siakam,32.5,draftkings,-112,-118,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Pascal Siakam,32.5,draftkings,-118,-112,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Tyrese Haliburton,32.5,draftkings,-105,-126,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Tyrese Haliburton,32.5,draftkings,-126,-105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Ivica Zubac,29.5,draftkings,-112,-118,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Ivica Zubac,29.5,draftkings,-118,-112,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Kyrie Irving,27.5,draftkings,-119,-111,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Kyrie Irving,27.5,draftkings,-111,-119,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Andrew Nembhard,23.5,draftkings,-117,-112,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Andrew Nembhard,23.5,draftkings,-112,-117,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Naji Marshall,20.5,draftkings,-119,-110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Naji Marshall,20.5,draftkings,-110,-119,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,P.J. Washington,20.5,draftkings,-106,-124,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,P.J. Washington,20.5,draftkings,-124,-106,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Obi Toppin,18.5,draftkings,-110,-119,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Obi Toppin,18.5,draftkings,-119,-110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Max Christie,16.5,draftkings,-108,-121,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Max Christie,16.5,draftkings,-121,-108,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Kelly Oubre Jr.,15.5,draftkings,-110,-119,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Kelly Oubre Jr.,15.5,draftkings,-119,-110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Zaccharie Risacher,13.5,draftkings,-124,-106,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Zaccharie Risacher,13.5,draftkings,-106,-124,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Ivica Zubac,11.5,draftkings,-108,-122,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Ivica Zubac,11.5,draftkings,-122,-108,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Daniel Gafford,7.5,draftkings,109,-143,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Daniel Gafford,7.5,draftkings,-143,109,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Pascal Siakam,6.5,draftkings,-108,-122,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Pascal Siakam,6.5,draftkings,-122,-108,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Cooper Flagg,6.5,draftkings,104,-137,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Cooper Flagg,6.5,draftkings,-137,104,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,P.J. Washington,5.5,draftkings,-112,-118,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,P.J. Washington,5.5,draftkings,-118,-112,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Obi Toppin,4.5,draftkings,-113,-117,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Obi Toppin,4.5,draftkings,-117,-113,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Naji Marshall,3.5,draftkings,-138,105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Naji Marshall,3.5,draftkings,105,-138,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Kelly Oubre Jr.,3.5,draftkings,-132,100,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Kelly Oubre Jr.,3.5,draftkings,100,-132,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Zaccharie Risacher,3.5,draftkings,-123,-107,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Zaccharie Risacher,3.5,draftkings,-107,-123,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Tyrese Haliburton,3.5,draftkings,-119,-111,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Tyrese Haliburton,3.5,draftkings,-111,-119,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Kyrie Irving,3.5,draftkings,109,-143,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Kyrie Irving,3.5,draftkings,-143,109,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Max Christie,3.5,draftkings,130,-172,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Max Christie,3.5,draftkings,-172,130,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Andrew Nembhard,2.5,draftkings,-138,105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Andrew Nembhard,2.5,draftkings,105,-138,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Tyrese Haliburton,2.5,draftkings,-119,-110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Tyrese Haliburton,2.5,draftkings,-110,-119,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Kyrie Irving,2.5,draftkings,121,-159,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Kyrie Irving,2.5,draftkings,-159,121,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Max Christie,2.5,draftkings,142,-189,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Max Christie,2.5,draftkings,-189,142,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Obi Toppin,1.5,draftkings,-105,-125,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Obi Toppin,1.5,draftkings,-125,-105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Andrew Nembhard,1.5,draftkings,106,-140,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Andrew Nembhard,1.5,draftkings,-140,106,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,P.J. Washington,1.5,draftkings,107,-141,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,P.J. Washington,1.5,draftkings,-141,107,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Cooper Flagg,1.5,draftkings,115,-151,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Cooper Flagg,1.5,draftkings,-151,115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Pascal Siakam,1.5,draftkings,127,-168,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Pascal Siakam,1.5,draftkings,-168,127,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Kelly Oubre Jr.,1.5,draftkings,178,-239,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Kelly Oubre Jr.,1.5,draftkings,-239,178,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Zaccharie Risacher,0.5,draftkings,-237,177,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Zaccharie Risacher,0.5,draftkings,177,-237,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_ats,DAL,,3.5,draftkings,-108,-112,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_ats,IND,,-3.5,draftkings,-112,-108,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_total,over,,123.5,draftkings,-105,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_total,under,,123.5,draftkings,-115,-105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_ml,DAL,,,fanatics,160,-215,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_ml,IND,,,fanatics,-215,160,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Kyrie Irving,4.5,fanatics,110,-145,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Kyrie Irving,4.5,fanatics,-145,110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Naji Marshall,12.5,fanatics,-120,-110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Naji Marshall,12.5,fanatics,-110,-120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Kyrie Irving,27.5,fanatics,-105,-125,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Kyrie Irving,27.5,fanatics,-125,-105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Daniel Gafford,6.5,fanatics,-140,105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Daniel Gafford,6.5,fanatics,105,-140,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Andrew Nembhard,1.5,fanatics,105,-140,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Andrew Nembhard,1.5,fanatics,-140,105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Andrew Nembhard,6.5,williamhill_us,-120,-111,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Andrew Nembhard,6.5,williamhill_us,-111,-120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Pascal Siakam,3.5,williamhill_us,115,-154,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Pascal Siakam,3.5,williamhill_us,-154,115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Tyrese Haliburton,9.5,williamhill_us,-111,-121,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Tyrese Haliburton,9.5,williamhill_us,-121,-111,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Kyrie Irving,4.5,williamhill_us,102,-136,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Kyrie Irving,4.5,williamhill_us,-136,102,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Cooper Flagg,5.5,williamhill_us,112,-155,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Cooper Flagg,5.5,williamhill_us,-155,112,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Naji Marshall,3.5,williamhill_us,-110,-125,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Naji Marshall,3.5,williamhill_us,-125,-110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Obi Toppin,12.5,williamhill_us,107,-138,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Obi Toppin,12.5,williamhill_us,-138,107,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Andrew Nembhard,13.5,williamhill_us,-125,-107,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Andrew Nembhard,13.5,williamhill_us,-107,-125,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Tyrese Haliburton,19.5,williamhill_us,-115,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Tyrese Haliburton,19.5,williamhill_us,-115,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Cooper Flagg,24.5,williamhill_us,-114,-117,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Cooper Flagg,24.5,williamhill_us,-117,-114,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Pascal Siakam,23.5,williamhill_us,-114,-118,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Pascal Siakam,23.5,williamhill_us,-118,-114,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Ivica Zubac,15.5,williamhill_us,-112,-120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Ivica Zubac,15.5,williamhill_us,-120,-112,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Aaron Nesmith,12.5,williamhill_us,-122,-109,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Aaron Nesmith,12.5,williamhill_us,-109,-122,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,P.J. Washington,12.5,williamhill_us,-112,-120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,P.J. Washington,12.5,williamhill_us,-120,-112,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Kelly Oubre Jr.,9.5,williamhill_us,-132,-102,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Kelly Oubre Jr.,9.5,williamhill_us,-102,-132,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Daniel Gafford,9.5,williamhill_us,-121,-110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Daniel Gafford,9.5,williamhill_us,-110,-121,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Max Christie,10.5,williamhill_us,-118,-113,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Max Christie,10.5,williamhill_us,-113,-118,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Kyrie Irving,19.5,williamhill_us,-115,-113,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Kyrie Irving,19.5,williamhill_us,-113,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Zaccharie Risacher,8.5,williamhill_us,-113,-120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Zaccharie Risacher,8.5,williamhill_us,-120,-113,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Naji Marshall,12.5,williamhill_us,-125,-106,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Naji Marshall,12.5,williamhill_us,-106,-125,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Ivica Zubac,11.5,williamhill_us,-121,-110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Ivica Zubac,11.5,williamhill_us,-110,-121,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Cooper Flagg,6.5,williamhill_us,-102,-132,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Cooper Flagg,6.5,williamhill_us,-132,-102,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Daniel Gafford,7.5,williamhill_us,106,-141,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Daniel Gafford,7.5,williamhill_us,-141,106,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Zaccharie Risacher,3.5,williamhill_us,-118,-113,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Zaccharie Risacher,3.5,williamhill_us,-113,-118,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Max Christie,3.5,williamhill_us,119,-159,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Max Christie,3.5,williamhill_us,-159,119,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Obi Toppin,4.5,williamhill_us,-112,-120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Obi Toppin,4.5,williamhill_us,-120,-112,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Kelly Oubre Jr.,3.5,williamhill_us,-129,-104,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Kelly Oubre Jr.,3.5,williamhill_us,-104,-129,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Naji Marshall,3.5,williamhill_us,-143,108,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Naji Marshall,3.5,williamhill_us,108,-143,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Tyrese Haliburton,3.5,williamhill_us,-132,-102,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Tyrese Haliburton,3.5,williamhill_us,-102,-132,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Pascal Siakam,6.5,williamhill_us,-118,-113,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Pascal Siakam,6.5,williamhill_us,-113,-118,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,P.J. Washington,5.5,williamhill_us,-132,-102,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,P.J. Washington,5.5,williamhill_us,-102,-132,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Aaron Nesmith,3.5,williamhill_us,-129,-105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Aaron Nesmith,3.5,williamhill_us,-105,-129,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Kyrie Irving,3.5,williamhill_us,-102,-132,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Kyrie Irving,3.5,williamhill_us,-132,-102,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Max Christie,1.5,williamhill_us,-190,141,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Max Christie,1.5,williamhill_us,141,-190,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Obi Toppin,1.5,williamhill_us,-113,-118,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Obi Toppin,1.5,williamhill_us,-118,-113,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,P.J. Washington,1.5,williamhill_us,120,-165,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,P.J. Washington,1.5,williamhill_us,-165,120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Andrew Nembhard,1.5,williamhill_us,-102,-132,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Andrew Nembhard,1.5,williamhill_us,-132,-102,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Pascal Siakam,1.5,williamhill_us,122,-162,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Pascal Siakam,1.5,williamhill_us,-162,122,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Tyrese Haliburton,2.5,williamhill_us,-132,-102,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Tyrese Haliburton,2.5,williamhill_us,-102,-132,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Cooper Flagg,1.5,williamhill_us,121,-162,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Cooper Flagg,1.5,williamhill_us,-162,121,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Kyrie Irving,2.5,williamhill_us,118,-159,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Kyrie Irving,2.5,williamhill_us,-159,118,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_ml,DAL,,,betrivers,155,-210,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_ml,IND,,,betrivers,-210,155,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Tyrese Haliburton,9.5,betrivers,-115,-117,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Tyrese Haliburton,9.5,betrivers,-117,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Cooper Flagg,4.5,betrivers,-152,112,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Cooper Flagg,4.5,betrivers,112,-152,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Max Christie,2.5,betrivers,123,-167,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Max Christie,2.5,betrivers,-167,123,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Obi Toppin,1.5,betrivers,-136,-103,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Obi Toppin,1.5,betrivers,-103,-136,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Naji Marshall,3.5,betrivers,-125,-109,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Naji Marshall,3.5,betrivers,-109,-125,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Ivica Zubac,2.5,betrivers,120,-165,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Ivica Zubac,2.5,betrivers,-165,120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Kyrie Irving,4.5,betrivers,108,-148,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Kyrie Irving,4.5,betrivers,-148,108,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Andrew Nembhard,6.5,betrivers,-130,-105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Andrew Nembhard,6.5,betrivers,-105,-130,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,P.J. Washington,1.5,betrivers,-143,105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,P.J. Washington,1.5,betrivers,105,-143,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Pascal Siakam,3.5,betrivers,120,-162,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Pascal Siakam,3.5,betrivers,-162,120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Obi Toppin,11.5,betrivers,-132,-104,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Obi Toppin,11.5,betrivers,-104,-132,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Kelly Oubre Jr.,9.5,betrivers,-122,-112,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Kelly Oubre Jr.,9.5,betrivers,-112,-122,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Daniel Gafford,9.5,betrivers,-117,-117,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Daniel Gafford,9.5,betrivers,-117,-117,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Andrew Nembhard,13.5,betrivers,-130,-105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Andrew Nembhard,13.5,betrivers,-105,-130,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,P.J. Washington,12.5,betrivers,-110,-124,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,P.J. Washington,12.5,betrivers,-124,-110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Naji Marshall,13.5,betrivers,-108,-127,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Naji Marshall,13.5,betrivers,-127,-108,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Aaron Nesmith,12.5,betrivers,-117,-117,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Aaron Nesmith,12.5,betrivers,-117,-117,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Pascal Siakam,23.5,betrivers,-121,-113,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Pascal Siakam,23.5,betrivers,-113,-121,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Cooper Flagg,25.5,betrivers,-112,-121,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Cooper Flagg,25.5,betrivers,-121,-112,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Ivica Zubac,16.5,betrivers,-105,-130,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Ivica Zubac,16.5,betrivers,-130,-105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Tyrese Haliburton,19.5,betrivers,-118,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Tyrese Haliburton,19.5,betrivers,-115,-118,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Zaccharie Risacher,8.5,betrivers,-132,-103,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Zaccharie Risacher,8.5,betrivers,-103,-132,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Kyrie Irving,19.5,betrivers,-125,-109,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Kyrie Irving,19.5,betrivers,-109,-125,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Max Christie,9.5,betrivers,-127,-107,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Max Christie,9.5,betrivers,-107,-127,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Kyrie Irving,28.5,betrivers,-105,-129,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Kyrie Irving,28.5,betrivers,-129,-105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Obi Toppin,19.5,betrivers,-105,-130,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Obi Toppin,19.5,betrivers,-130,-105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,P.J. Washington,20.5,betrivers,-104,-132,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,P.J. Washington,20.5,betrivers,-132,-104,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Pascal Siakam,33.5,betrivers,-120,-114,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Pascal Siakam,33.5,betrivers,-114,-120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Tyrese Haliburton,33.5,betrivers,-110,-124,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Tyrese Haliburton,33.5,betrivers,-124,-110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Andrew Nembhard,24.5,betrivers,-105,-130,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Andrew Nembhard,24.5,betrivers,-130,-105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Ivica Zubac,30.5,betrivers,-114,-120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Ivica Zubac,30.5,betrivers,-120,-114,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Cooper Flagg,37.5,betrivers,-106,-129,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Cooper Flagg,37.5,betrivers,-129,-106,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Max Christie,15.5,betrivers,-115,-118,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Max Christie,15.5,betrivers,-118,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Naji Marshall,21.5,betrivers,-106,-129,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Naji Marshall,21.5,betrivers,-129,-106,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Aaron Nesmith,3.5,betrivers,-106,-129,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Aaron Nesmith,3.5,betrivers,-129,-106,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Andrew Nembhard,2.5,betrivers,-143,106,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Andrew Nembhard,2.5,betrivers,106,-143,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Naji Marshall,3.5,betrivers,-136,100,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Naji Marshall,3.5,betrivers,100,-136,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Ivica Zubac,11.5,betrivers,-117,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Ivica Zubac,11.5,betrivers,-115,-117,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Cooper Flagg,6.5,betrivers,108,-148,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Cooper Flagg,6.5,betrivers,-148,108,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Kyrie Irving,3.5,betrivers,-104,-130,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Kyrie Irving,3.5,betrivers,-130,-104,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Tyrese Haliburton,3.5,betrivers,-122,-110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Tyrese Haliburton,3.5,betrivers,-110,-122,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Obi Toppin,4.5,betrivers,-129,-106,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Obi Toppin,4.5,betrivers,-106,-129,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Daniel Gafford,6.5,betrivers,-129,-105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Daniel Gafford,6.5,betrivers,-105,-129,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,P.J. Washington,5.5,betrivers,-117,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,P.J. Washington,5.5,betrivers,-115,-117,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Max Christie,3.5,betrivers,128,-177,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Max Christie,3.5,betrivers,-177,128,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Pascal Siakam,6.5,betrivers,-105,-130,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Pascal Siakam,6.5,betrivers,-130,-105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Kelly Oubre Jr.,3.5,betrivers,-103,-132,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Kelly Oubre Jr.,3.5,betrivers,-132,-103,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Zaccharie Risacher,3.5,betrivers,-129,-106,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Zaccharie Risacher,3.5,betrivers,-106,-129,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Max Christie,2.5,betrivers,148,-205,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Max Christie,2.5,betrivers,-205,148,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Obi Toppin,1.5,betrivers,-124,-110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Obi Toppin,1.5,betrivers,-110,-124,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Aaron Nesmith,1.5,betrivers,-152,112,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Aaron Nesmith,1.5,betrivers,112,-152,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Andrew Nembhard,1.5,betrivers,108,-148,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Andrew Nembhard,1.5,betrivers,-148,108,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Naji Marshall,0.5,betrivers,-200,143,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Naji Marshall,0.5,betrivers,143,-200,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Cooper Flagg,1.5,betrivers,120,-165,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Cooper Flagg,1.5,betrivers,-165,120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Zaccharie Risacher,1.5,betrivers,163,-230,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Zaccharie Risacher,1.5,betrivers,-230,163,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,P.J. Washington,1.5,betrivers,104,-141,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,P.J. Washington,1.5,betrivers,-141,104,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Kyrie Irving,2.5,betrivers,110,-150,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Kyrie Irving,2.5,betrivers,-150,110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Pascal Siakam,1.5,betrivers,138,-190,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Pascal Siakam,1.5,betrivers,-190,138,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Tyrese Haliburton,2.5,betrivers,-112,-122,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Tyrese Haliburton,2.5,betrivers,-122,-112,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Kelly Oubre Jr.,0.5,betrivers,-240,170,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Kelly Oubre Jr.,0.5,betrivers,170,-240,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_ats,DAL,,6.5,betrivers,-186,133,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_ats,IND,,-6.5,betrivers,133,-186,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_total,over,,125.5,betrivers,108,-148,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_total,under,,125.5,betrivers,-148,108,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_ml,DAL,,,bovada,175,-210,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_ml,IND,,,bovada,-210,175,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Andrew Nembhard,5.5,bovada,-230,170,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Andrew Nembhard,5.5,bovada,170,-230,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Andrew Nembhard,6.5,bovada,-120,-110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Andrew Nembhard,6.5,bovada,-110,-120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Andrew Nembhard,7.5,bovada,150,-200,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Andrew Nembhard,7.5,bovada,-200,150,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Cooper Flagg,4.5,bovada,-190,145,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Cooper Flagg,4.5,bovada,145,-190,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Cooper Flagg,5.5,bovada,105,-135,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Cooper Flagg,5.5,bovada,-135,105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Cooper Flagg,6.5,bovada,200,-275,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Cooper Flagg,6.5,bovada,-275,200,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Ivica Zubac,1.5,bovada,-245,180,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Ivica Zubac,1.5,bovada,180,-245,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Ivica Zubac,2.5,bovada,120,-160,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Ivica Zubac,2.5,bovada,-160,120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Kelly Oubre Jr.,1.5,bovada,-105,-125,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Kelly Oubre Jr.,1.5,bovada,-125,-105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Kyrie Irving,3.5,bovada,-230,170,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Kyrie Irving,3.5,bovada,170,-230,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Kyrie Irving,4.5,bovada,-105,-125,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Kyrie Irving,4.5,bovada,-125,-105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Kyrie Irving,5.5,bovada,190,-260,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Kyrie Irving,5.5,bovada,-260,190,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Max Christie,1.5,bovada,-230,170,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Max Christie,1.5,bovada,170,-230,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Max Christie,2.5,bovada,130,-170,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Max Christie,2.5,bovada,-170,130,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Naji Marshall,2.5,bovada,-260,190,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Naji Marshall,2.5,bovada,190,-260,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Naji Marshall,3.5,bovada,-105,-125,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Naji Marshall,3.5,bovada,-125,-105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Obi Toppin,1.5,bovada,-115,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Obi Toppin,1.5,bovada,-115,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,P.J. Washington,1.5,bovada,-125,-105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,P.J. Washington,1.5,bovada,-105,-125,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Pascal Siakam,2.5,bovada,-200,150,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Pascal Siakam,2.5,bovada,150,-200,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Pascal Siakam,3.5,bovada,120,-160,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Pascal Siakam,3.5,bovada,-160,120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Tyrese Haliburton,8.5,bovada,-170,130,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Tyrese Haliburton,8.5,bovada,130,-170,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Tyrese Haliburton,9.5,bovada,100,-130,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Tyrese Haliburton,9.5,bovada,-130,100,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Tyrese Haliburton,10.5,bovada,165,-220,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Tyrese Haliburton,10.5,bovada,-220,165,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Zaccharie Risacher,1.5,bovada,125,-165,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Zaccharie Risacher,1.5,bovada,-165,125,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Andrew Nembhard,10.5,bovada,-300,215,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Andrew Nembhard,10.5,bovada,215,-300,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Andrew Nembhard,11.5,bovada,-215,160,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Andrew Nembhard,11.5,bovada,160,-215,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Andrew Nembhard,12.5,bovada,-160,120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Andrew Nembhard,12.5,bovada,120,-160,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Andrew Nembhard,13.5,bovada,-120,-110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Andrew Nembhard,13.5,bovada,-110,-120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Andrew Nembhard,14.5,bovada,110,-145,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Andrew Nembhard,14.5,bovada,-145,110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Andrew Nembhard,15.5,bovada,140,-185,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Andrew Nembhard,15.5,bovada,-185,140,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Andrew Nembhard,16.5,bovada,175,-240,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Andrew Nembhard,16.5,bovada,-240,175,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Cooper Flagg,20.5,bovada,-290,210,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Cooper Flagg,20.5,bovada,210,-290,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Cooper Flagg,21.5,bovada,-230,170,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Cooper Flagg,21.5,bovada,170,-230,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Cooper Flagg,22.5,bovada,-180,135,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Cooper Flagg,22.5,bovada,135,-180,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Cooper Flagg,23.5,bovada,-145,110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Cooper Flagg,23.5,bovada,110,-145,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Cooper Flagg,24.5,bovada,-120,-110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Cooper Flagg,24.5,bovada,-110,-120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Cooper Flagg,25.5,bovada,105,-135,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Cooper Flagg,25.5,bovada,-135,105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Cooper Flagg,26.5,bovada,125,-165,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Cooper Flagg,26.5,bovada,-165,125,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Cooper Flagg,27.5,bovada,150,-200,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Cooper Flagg,27.5,bovada,-200,150,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Cooper Flagg,28.5,bovada,180,-245,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Cooper Flagg,28.5,bovada,-245,180,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Daniel Gafford,7.5,bovada,-240,175,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Daniel Gafford,7.5,bovada,175,-240,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Daniel Gafford,8.5,bovada,-165,125,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Daniel Gafford,8.5,bovada,125,-165,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Daniel Gafford,9.5,bovada,-120,-110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Daniel Gafford,9.5,bovada,-110,-120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Daniel Gafford,10.5,bovada,115,-150,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Daniel Gafford,10.5,bovada,-150,115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Daniel Gafford,11.5,bovada,150,-200,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Daniel Gafford,11.5,bovada,-200,150,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Daniel Gafford,12.5,bovada,200,-275,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Daniel Gafford,12.5,bovada,-275,200,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Ivica Zubac,12.5,bovada,-220,165,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Ivica Zubac,12.5,bovada,165,-220,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Ivica Zubac,13.5,bovada,-165,125,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Ivica Zubac,13.5,bovada,125,-165,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Ivica Zubac,14.5,bovada,-125,-105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Ivica Zubac,14.5,bovada,-105,-125,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Ivica Zubac,15.5,bovada,105,-135,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Ivica Zubac,15.5,bovada,-135,105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Ivica Zubac,16.5,bovada,130,-170,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Ivica Zubac,16.5,bovada,-170,130,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Ivica Zubac,17.5,bovada,165,-220,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Ivica Zubac,17.5,bovada,-220,165,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Ivica Zubac,18.5,bovada,210,-290,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Ivica Zubac,18.5,bovada,-290,210,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Kelly Oubre Jr.,7.5,bovada,-250,185,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Kelly Oubre Jr.,7.5,bovada,185,-250,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Kelly Oubre Jr.,8.5,bovada,-170,130,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Kelly Oubre Jr.,8.5,bovada,130,-170,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Kelly Oubre Jr.,9.5,bovada,-125,-105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Kelly Oubre Jr.,9.5,bovada,-105,-125,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Kelly Oubre Jr.,10.5,bovada,110,-145,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Kelly Oubre Jr.,10.5,bovada,-145,110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Kelly Oubre Jr.,11.5,bovada,145,-190,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Kelly Oubre Jr.,11.5,bovada,-190,145,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Kelly Oubre Jr.,12.5,bovada,190,-260,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Kelly Oubre Jr.,12.5,bovada,-260,190,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Kyrie Irving,16.5,bovada,-240,175,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Kyrie Irving,16.5,bovada,175,-240,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Kyrie Irving,17.5,bovada,-185,140,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Kyrie Irving,17.5,bovada,140,-185,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Kyrie Irving,18.5,bovada,-145,110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Kyrie Irving,18.5,bovada,110,-145,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Kyrie Irving,19.5,bovada,-115,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Kyrie Irving,19.5,bovada,-115,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Kyrie Irving,20.5,bovada,110,-145,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Kyrie Irving,20.5,bovada,-145,110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Kyrie Irving,21.5,bovada,135,-180,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Kyrie Irving,21.5,bovada,-180,135,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Kyrie Irving,22.5,bovada,165,-220,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Kyrie Irving,22.5,bovada,-220,165,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Kyrie Irving,23.5,bovada,205,-280,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Kyrie Irving,23.5,bovada,-280,205,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Max Christie,8.5,bovada,-245,180,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Max Christie,8.5,bovada,180,-245,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Max Christie,9.5,bovada,-170,130,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Max Christie,9.5,bovada,130,-170,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Max Christie,10.5,bovada,-125,-105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Max Christie,10.5,bovada,-105,-125,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Max Christie,11.5,bovada,105,-135,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Max Christie,11.5,bovada,-135,105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Max Christie,12.5,bovada,140,-185,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Max Christie,12.5,bovada,-185,140,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Max Christie,13.5,bovada,180,-245,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Max Christie,13.5,bovada,-245,180,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Naji Marshall,10.5,bovada,-240,175,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Naji Marshall,10.5,bovada,175,-240,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Naji Marshall,11.5,bovada,-180,135,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Naji Marshall,11.5,bovada,135,-180,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Naji Marshall,12.5,bovada,-130,100,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Naji Marshall,12.5,bovada,100,-130,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Naji Marshall,13.5,bovada,100,-130,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Naji Marshall,13.5,bovada,-130,100,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Naji Marshall,14.5,bovada,130,-170,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Naji Marshall,14.5,bovada,-170,130,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Naji Marshall,15.5,bovada,165,-220,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Naji Marshall,15.5,bovada,-220,165,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Naji Marshall,16.5,bovada,210,-290,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Naji Marshall,16.5,bovada,-290,210,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Obi Toppin,9.5,bovada,-240,175,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Obi Toppin,9.5,bovada,175,-240,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Obi Toppin,10.5,bovada,-170,130,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Obi Toppin,10.5,bovada,130,-170,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Obi Toppin,11.5,bovada,-125,-105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Obi Toppin,11.5,bovada,-105,-125,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Obi Toppin,12.5,bovada,105,-135,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Obi Toppin,12.5,bovada,-135,105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Obi Toppin,13.5,bovada,135,-180,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Obi Toppin,13.5,bovada,-180,135,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Obi Toppin,14.5,bovada,175,-240,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Obi Toppin,14.5,bovada,-240,175,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,P.J. Washington,9.5,bovada,-280,205,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,P.J. Washington,9.5,bovada,205,-280,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,P.J. Washington,10.5,bovada,-200,150,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,P.J. Washington,10.5,bovada,150,-200,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,P.J. Washington,11.5,bovada,-145,110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,P.J. Washington,11.5,bovada,110,-145,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,P.J. Washington,12.5,bovada,-110,-120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,P.J. Washington,12.5,bovada,-120,-110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,P.J. Washington,13.5,bovada,120,-160,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,P.J. Washington,13.5,bovada,-160,120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,P.J. Washington,14.5,bovada,155,-210,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,P.J. Washington,14.5,bovada,-210,155,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,P.J. Washington,15.5,bovada,200,-275,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,P.J. Washington,15.5,bovada,-275,200,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Pascal Siakam,18.5,bovada,-275,200,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Pascal Siakam,18.5,bovada,200,-275,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Pascal Siakam,19.5,bovada,-215,160,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Pascal Siakam,19.5,bovada,160,-215,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Pascal Siakam,20.5,bovada,-170,130,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Pascal Siakam,20.5,bovada,130,-170,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Pascal Siakam,21.5,bovada,-135,105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Pascal Siakam,21.5,bovada,105,-135,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Pascal Siakam,22.5,bovada,-110,-120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Pascal Siakam,22.5,bovada,-120,-110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Pascal Siakam,23.5,bovada,110,-145,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Pascal Siakam,23.5,bovada,-145,110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Pascal Siakam,24.5,bovada,135,-180,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Pascal Siakam,24.5,bovada,-180,135,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Pascal Siakam,25.5,bovada,165,-220,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Pascal Siakam,25.5,bovada,-220,165,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Pascal Siakam,26.5,bovada,200,-275,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Pascal Siakam,26.5,bovada,-275,200,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Tyrese Haliburton,15.5,bovada,-250,185,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Tyrese Haliburton,15.5,bovada,185,-250,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Tyrese Haliburton,16.5,bovada,-190,145,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Tyrese Haliburton,16.5,bovada,145,-190,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Tyrese Haliburton,17.5,bovada,-150,115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Tyrese Haliburton,17.5,bovada,115,-150,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Tyrese Haliburton,18.5,bovada,-120,-110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Tyrese Haliburton,18.5,bovada,-110,-120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Tyrese Haliburton,19.5,bovada,105,-135,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Tyrese Haliburton,19.5,bovada,-135,105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Tyrese Haliburton,20.5,bovada,130,-170,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Tyrese Haliburton,20.5,bovada,-170,130,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Tyrese Haliburton,21.5,bovada,160,-215,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Tyrese Haliburton,21.5,bovada,-215,160,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Tyrese Haliburton,22.5,bovada,200,-275,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Tyrese Haliburton,22.5,bovada,-275,200,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Zaccharie Risacher,6.5,bovada,-240,175,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Zaccharie Risacher,6.5,bovada,175,-240,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Zaccharie Risacher,7.5,bovada,-165,125,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Zaccharie Risacher,7.5,bovada,125,-165,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Zaccharie Risacher,8.5,bovada,-115,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Zaccharie Risacher,8.5,bovada,-115,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Zaccharie Risacher,9.5,bovada,120,-160,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Zaccharie Risacher,9.5,bovada,-160,120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Zaccharie Risacher,10.5,bovada,160,-215,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Zaccharie Risacher,10.5,bovada,-215,160,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Andrew Nembhard,21.5,bovada,-180,135,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Andrew Nembhard,21.5,bovada,135,-180,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Andrew Nembhard,22.5,bovada,-145,110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Andrew Nembhard,22.5,bovada,110,-145,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Andrew Nembhard,23.5,bovada,-120,-110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Andrew Nembhard,23.5,bovada,-110,-120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Andrew Nembhard,24.5,bovada,100,-130,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Andrew Nembhard,24.5,bovada,-130,100,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Andrew Nembhard,25.5,bovada,125,-165,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Andrew Nembhard,25.5,bovada,-165,125,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Cooper Flagg,34.5,bovada,-160,120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Cooper Flagg,34.5,bovada,120,-160,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Cooper Flagg,35.5,bovada,-135,105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Cooper Flagg,35.5,bovada,105,-135,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Cooper Flagg,36.5,bovada,-115,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Cooper Flagg,36.5,bovada,-115,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Cooper Flagg,37.5,bovada,100,-130,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Cooper Flagg,37.5,bovada,-130,100,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Cooper Flagg,38.5,bovada,120,-160,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Cooper Flagg,38.5,bovada,-160,120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Ivica Zubac,26.5,bovada,-190,145,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Ivica Zubac,26.5,bovada,145,-190,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Ivica Zubac,27.5,bovada,-160,120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Ivica Zubac,27.5,bovada,120,-160,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Ivica Zubac,28.5,bovada,-130,100,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Ivica Zubac,28.5,bovada,100,-130,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Ivica Zubac,29.5,bovada,-110,-120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Ivica Zubac,29.5,bovada,-120,-110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Ivica Zubac,30.5,bovada,110,-145,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Ivica Zubac,30.5,bovada,-145,110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Kelly Oubre Jr.,12.5,bovada,-245,180,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Kelly Oubre Jr.,12.5,bovada,180,-245,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Kelly Oubre Jr.,13.5,bovada,-185,140,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Kelly Oubre Jr.,13.5,bovada,140,-185,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Kelly Oubre Jr.,14.5,bovada,-145,110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Kelly Oubre Jr.,14.5,bovada,110,-145,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Kelly Oubre Jr.,15.5,bovada,-110,-120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Kelly Oubre Jr.,15.5,bovada,-120,-110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Kelly Oubre Jr.,16.5,bovada,115,-150,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Kelly Oubre Jr.,16.5,bovada,-150,115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Kyrie Irving,25.5,bovada,-180,135,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Kyrie Irving,25.5,bovada,135,-180,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Kyrie Irving,26.5,bovada,-145,110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Kyrie Irving,26.5,bovada,110,-145,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Kyrie Irving,27.5,bovada,-120,-110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Kyrie Irving,27.5,bovada,-110,-120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Kyrie Irving,28.5,bovada,100,-130,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Kyrie Irving,28.5,bovada,-130,100,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Kyrie Irving,29.5,bovada,120,-160,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Kyrie Irving,29.5,bovada,-160,120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Max Christie,13.5,bovada,-240,175,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Max Christie,13.5,bovada,175,-240,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Max Christie,14.5,bovada,-180,135,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Max Christie,14.5,bovada,135,-180,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Max Christie,15.5,bovada,-135,105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Max Christie,15.5,bovada,105,-135,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Max Christie,16.5,bovada,-110,-120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Max Christie,16.5,bovada,-120,-110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Max Christie,17.5,bovada,115,-150,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Max Christie,17.5,bovada,-150,115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Naji Marshall,18.5,bovada,-190,145,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Naji Marshall,18.5,bovada,145,-190,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Naji Marshall,19.5,bovada,-150,115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Naji Marshall,19.5,bovada,115,-150,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Naji Marshall,20.5,bovada,-120,-110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Naji Marshall,20.5,bovada,-110,-120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Naji Marshall,21.5,bovada,105,-135,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Naji Marshall,21.5,bovada,-135,105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Naji Marshall,22.5,bovada,125,-165,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Naji Marshall,22.5,bovada,-165,125,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Obi Toppin,15.5,bovada,-230,170,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Obi Toppin,15.5,bovada,170,-230,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Obi Toppin,16.5,bovada,-180,135,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Obi Toppin,16.5,bovada,135,-180,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Obi Toppin,17.5,bovada,-135,105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Obi Toppin,17.5,bovada,105,-135,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Obi Toppin,18.5,bovada,-110,-120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Obi Toppin,18.5,bovada,-120,-110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Obi Toppin,19.5,bovada,115,-150,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Obi Toppin,19.5,bovada,-150,115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,P.J. Washington,17.5,bovada,-210,155,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,P.J. Washington,17.5,bovada,155,-210,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,P.J. Washington,18.5,bovada,-165,125,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,P.J. Washington,18.5,bovada,125,-165,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,P.J. Washington,19.5,bovada,-130,100,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,P.J. Washington,19.5,bovada,100,-130,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,P.J. Washington,20.5,bovada,-105,-125,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,P.J. Washington,20.5,bovada,-125,-105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,P.J. Washington,21.5,bovada,115,-150,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,P.J. Washington,21.5,bovada,-150,115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Pascal Siakam,29.5,bovada,-185,140,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Pascal Siakam,29.5,bovada,140,-185,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Pascal Siakam,30.5,bovada,-160,120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Pascal Siakam,30.5,bovada,120,-160,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Pascal Siakam,31.5,bovada,-130,100,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Pascal Siakam,31.5,bovada,100,-130,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Pascal Siakam,32.5,bovada,-110,-120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Pascal Siakam,32.5,bovada,-120,-110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Pascal Siakam,33.5,bovada,110,-145,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Pascal Siakam,33.5,bovada,-145,110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Tyrese Haliburton,29.5,bovada,-180,135,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Tyrese Haliburton,29.5,bovada,135,-180,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Tyrese Haliburton,30.5,bovada,-150,115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Tyrese Haliburton,30.5,bovada,115,-150,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Tyrese Haliburton,31.5,bovada,-125,-105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Tyrese Haliburton,31.5,bovada,-105,-125,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Tyrese Haliburton,32.5,bovada,-105,-125,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Tyrese Haliburton,32.5,bovada,-125,-105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Tyrese Haliburton,33.5,bovada,110,-145,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Tyrese Haliburton,33.5,bovada,-145,110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Zaccharie Risacher,11.5,bovada,-220,165,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Zaccharie Risacher,11.5,bovada,165,-220,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Zaccharie Risacher,12.5,bovada,-165,125,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Zaccharie Risacher,12.5,bovada,125,-165,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Zaccharie Risacher,13.5,bovada,-125,-105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Zaccharie Risacher,13.5,bovada,-105,-125,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Zaccharie Risacher,14.5,bovada,105,-135,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Zaccharie Risacher,14.5,bovada,-135,105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Zaccharie Risacher,15.5,bovada,135,-180,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Zaccharie Risacher,15.5,bovada,-180,135,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Andrew Nembhard,2.5,bovada,-135,105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Andrew Nembhard,2.5,bovada,105,-135,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Andrew Nembhard,3.5,bovada,165,-220,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Andrew Nembhard,3.5,bovada,-220,165,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Cooper Flagg,5.5,bovada,-170,130,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Cooper Flagg,5.5,bovada,130,-170,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Cooper Flagg,6.5,bovada,105,-135,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Cooper Flagg,6.5,bovada,-135,105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Cooper Flagg,7.5,bovada,180,-245,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Cooper Flagg,7.5,bovada,-245,180,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Daniel Gafford,5.5,bovada,-300,215,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Daniel Gafford,5.5,bovada,215,-300,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Daniel Gafford,6.5,bovada,-160,120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Daniel Gafford,6.5,bovada,120,-160,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Daniel Gafford,7.5,bovada,110,-145,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Daniel Gafford,7.5,bovada,-145,110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Daniel Gafford,8.5,bovada,185,-250,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Daniel Gafford,8.5,bovada,-250,185,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Ivica Zubac,9.5,bovada,-280,205,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Ivica Zubac,9.5,bovada,205,-280,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Ivica Zubac,10.5,bovada,-170,130,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Ivica Zubac,10.5,bovada,130,-170,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Ivica Zubac,11.5,bovada,-110,-120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Ivica Zubac,11.5,bovada,-120,-110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Ivica Zubac,12.5,bovada,140,-185,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Ivica Zubac,12.5,bovada,-185,140,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Kelly Oubre Jr.,3.5,bovada,-130,100,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Kelly Oubre Jr.,3.5,bovada,100,-130,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Kelly Oubre Jr.,4.5,bovada,155,-210,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Kelly Oubre Jr.,4.5,bovada,-210,155,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Kyrie Irving,2.5,bovada,-210,155,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Kyrie Irving,2.5,bovada,155,-210,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Kyrie Irving,3.5,bovada,110,-145,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Kyrie Irving,3.5,bovada,-145,110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Max Christie,2.5,bovada,-180,135,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Max Christie,2.5,bovada,135,-180,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Max Christie,3.5,bovada,130,-170,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Max Christie,3.5,bovada,-170,130,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Naji Marshall,3.5,bovada,-135,105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Naji Marshall,3.5,bovada,105,-135,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Naji Marshall,4.5,bovada,150,-200,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Naji Marshall,4.5,bovada,-200,150,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Obi Toppin,3.5,bovada,-240,175,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Obi Toppin,3.5,bovada,175,-240,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Obi Toppin,4.5,bovada,-115,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Obi Toppin,4.5,bovada,-115,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Obi Toppin,5.5,bovada,165,-220,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Obi Toppin,5.5,bovada,-220,165,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,P.J. Washington,4.5,bovada,-215,160,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,P.J. Washington,4.5,bovada,160,-215,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,P.J. Washington,5.5,bovada,-110,-120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,P.J. Washington,5.5,bovada,-120,-110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,P.J. Washington,6.5,bovada,165,-220,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,P.J. Washington,6.5,bovada,-220,165,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Pascal Siakam,5.5,bovada,-200,150,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Pascal Siakam,5.5,bovada,150,-200,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Pascal Siakam,6.5,bovada,-110,-120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Pascal Siakam,6.5,bovada,-120,-110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Pascal Siakam,7.5,bovada,155,-210,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Pascal Siakam,7.5,bovada,-210,155,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Tyrese Haliburton,3.5,bovada,-120,-110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Tyrese Haliburton,3.5,bovada,-110,-120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Tyrese Haliburton,4.5,bovada,170,-230,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Tyrese Haliburton,4.5,bovada,-230,170,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Zaccharie Risacher,3.5,bovada,-125,-105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Zaccharie Risacher,3.5,bovada,-105,-125,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Zaccharie Risacher,4.5,bovada,165,-220,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Zaccharie Risacher,4.5,bovada,-220,165,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Andrew Nembhard,1.5,bovada,105,-135,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Andrew Nembhard,1.5,bovada,-135,105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Cooper Flagg,1.5,bovada,115,-150,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Cooper Flagg,1.5,bovada,-150,115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Kelly Oubre Jr.,1.5,bovada,180,-245,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Kelly Oubre Jr.,1.5,bovada,-245,180,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Kyrie Irving,1.5,bovada,-250,185,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Kyrie Irving,1.5,bovada,185,-250,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Kyrie Irving,2.5,bovada,120,-160,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Kyrie Irving,2.5,bovada,-160,120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Max Christie,1.5,bovada,-210,155,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Max Christie,1.5,bovada,155,-210,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Max Christie,2.5,bovada,145,-190,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Max Christie,2.5,bovada,-190,145,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Obi Toppin,1.5,bovada,-105,-125,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Obi Toppin,1.5,bovada,-125,-105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,P.J. Washington,1.5,bovada,110,-145,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,P.J. Washington,1.5,bovada,-145,110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Pascal Siakam,1.5,bovada,130,-170,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Pascal Siakam,1.5,bovada,-170,130,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Tyrese Haliburton,2.5,bovada,-120,-110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Tyrese Haliburton,2.5,bovada,-110,-120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Tyrese Haliburton,3.5,bovada,210,-290,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Tyrese Haliburton,3.5,bovada,-290,210,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Zaccharie Risacher,0.5,bovada,-240,175,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Zaccharie Risacher,0.5,bovada,175,-240,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Zaccharie Risacher,1.5,bovada,190,-260,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Zaccharie Risacher,1.5,bovada,-260,190,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_ats,DAL,,4,bovada,-115,-105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_ats,IND,,-4,bovada,-105,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_total,over,,123,bovada,-110,-110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_total,under,,123,bovada,-110,-110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_ml,DAL,,,betonlineag,170,-195,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_ml,IND,,,betonlineag,-195,170,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Andrew Nembhard,6.5,betonlineag,-114,-114,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Andrew Nembhard,6.5,betonlineag,-114,-114,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Tyrese Haliburton,9.5,betonlineag,-106,-122,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Tyrese Haliburton,9.5,betonlineag,-122,-106,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Kyrie Irving,4.5,betonlineag,110,-143,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Kyrie Irving,4.5,betonlineag,-143,110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Pascal Siakam,3.5,betonlineag,118,-154,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Pascal Siakam,3.5,betonlineag,-154,118,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,P.J. Washington,1.5,betonlineag,-130,100,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,P.J. Washington,1.5,betonlineag,100,-130,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Obi Toppin,1.5,betonlineag,-133,103,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Obi Toppin,1.5,betonlineag,103,-133,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Naji Marshall,3.5,betonlineag,-114,-114,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Naji Marshall,3.5,betonlineag,-114,-114,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Cooper Flagg,5.5,betonlineag,110,-143,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Cooper Flagg,5.5,betonlineag,-143,110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Kelly Oubre Jr.,1.5,betonlineag,110,-143,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Kelly Oubre Jr.,1.5,betonlineag,-143,110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Ivica Zubac,2.5,betonlineag,120,-156,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Ivica Zubac,2.5,betonlineag,-156,120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Zaccharie Risacher,1.5,betonlineag,128,-167,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Zaccharie Risacher,1.5,betonlineag,-167,128,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Daniel Gafford,1.5,betonlineag,118,-154,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Daniel Gafford,1.5,betonlineag,-154,118,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Max Christie,2.5,betonlineag,130,-169,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Max Christie,2.5,betonlineag,-169,130,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Tyrese Haliburton,19.5,betonlineag,-109,-119,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Tyrese Haliburton,19.5,betonlineag,-119,-109,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Kyrie Irving,19.5,betonlineag,-114,-114,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Kyrie Irving,19.5,betonlineag,-114,-114,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Andrew Nembhard,13.5,betonlineag,-118,-110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Andrew Nembhard,13.5,betonlineag,-110,-118,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,P.J. Washington,12.5,betonlineag,-111,-116,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,P.J. Washington,12.5,betonlineag,-116,-111,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Pascal Siakam,23.5,betonlineag,-103,-125,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Pascal Siakam,23.5,betonlineag,-125,-103,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Daniel Gafford,9.5,betonlineag,-116,-111,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Daniel Gafford,9.5,betonlineag,-111,-116,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Cooper Flagg,24.5,betonlineag,107,-139,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Cooper Flagg,24.5,betonlineag,-139,107,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Naji Marshall,12.5,betonlineag,-125,-103,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Naji Marshall,12.5,betonlineag,-103,-125,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Max Christie,10.5,betonlineag,-115,-112,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Max Christie,10.5,betonlineag,-112,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Kelly Oubre Jr.,10.5,betonlineag,102,-132,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Kelly Oubre Jr.,10.5,betonlineag,-132,102,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Ivica Zubac,15.5,betonlineag,-110,-118,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Ivica Zubac,15.5,betonlineag,-118,-110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Zaccharie Risacher,8.5,betonlineag,100,-130,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Zaccharie Risacher,8.5,betonlineag,-130,100,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Aaron Nesmith,12.5,betonlineag,-112,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Aaron Nesmith,12.5,betonlineag,-115,-112,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Obi Toppin,12.5,betonlineag,-110,-118,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Obi Toppin,12.5,betonlineag,-118,-110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Tyrese Haliburton,32.5,betonlineag,-110,-118,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Tyrese Haliburton,32.5,betonlineag,-118,-110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Kyrie Irving,27.5,betonlineag,-111,-116,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Kyrie Irving,27.5,betonlineag,-116,-111,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Obi Toppin,18.5,betonlineag,-116,-111,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Obi Toppin,18.5,betonlineag,-111,-116,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Pascal Siakam,33.5,betonlineag,-118,-110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Pascal Siakam,33.5,betonlineag,-110,-118,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,P.J. Washington,20.5,betonlineag,-109,-119,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,P.J. Washington,20.5,betonlineag,-119,-109,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Max Christie,16.5,betonlineag,-106,-122,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Max Christie,16.5,betonlineag,-122,-106,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Cooper Flagg,36.5,betonlineag,-109,-119,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Cooper Flagg,36.5,betonlineag,-119,-109,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Naji Marshall,20.5,betonlineag,-112,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Naji Marshall,20.5,betonlineag,-115,-112,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Ivica Zubac,29.5,betonlineag,-111,-116,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Ivica Zubac,29.5,betonlineag,-116,-111,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Daniel Gafford,18.5,betonlineag,100,-130,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Daniel Gafford,18.5,betonlineag,-130,100,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Zaccharie Risacher,13.5,betonlineag,-114,-114,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Zaccharie Risacher,13.5,betonlineag,-114,-114,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Kelly Oubre Jr.,15.5,betonlineag,-114,-114,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Kelly Oubre Jr.,15.5,betonlineag,-114,-114,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,over,Andrew Nembhard,23.5,betonlineag,-114,-114,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pra,under,Andrew Nembhard,23.5,betonlineag,-114,-114,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Andrew Nembhard,2.5,betonlineag,-141,109,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Andrew Nembhard,2.5,betonlineag,109,-141,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Tyrese Haliburton,3.5,betonlineag,-128,-101,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Tyrese Haliburton,3.5,betonlineag,-101,-128,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Kyrie Irving,3.5,betonlineag,103,-133,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Kyrie Irving,3.5,betonlineag,-133,103,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,P.J. Washington,5.5,betonlineag,-123,-104,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,P.J. Washington,5.5,betonlineag,-104,-123,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Obi Toppin,4.5,betonlineag,100,-130,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Obi Toppin,4.5,betonlineag,-130,100,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Pascal Siakam,6.5,betonlineag,-112,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Pascal Siakam,6.5,betonlineag,-115,-112,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Cooper Flagg,6.5,betonlineag,102,-132,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Cooper Flagg,6.5,betonlineag,-132,102,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Max Christie,3.5,betonlineag,120,-156,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Max Christie,3.5,betonlineag,-156,120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Ivica Zubac,11.5,betonlineag,-116,-111,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Ivica Zubac,11.5,betonlineag,-111,-116,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Kelly Oubre Jr.,3.5,betonlineag,-119,-109,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Kelly Oubre Jr.,3.5,betonlineag,-109,-119,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Zaccharie Risacher,3.5,betonlineag,-123,-105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Zaccharie Risacher,3.5,betonlineag,-105,-123,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Aaron Nesmith,3.5,betonlineag,-120,-108,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Aaron Nesmith,3.5,betonlineag,-108,-120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Daniel Gafford,7.5,betonlineag,112,-145,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Daniel Gafford,7.5,betonlineag,-145,112,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Naji Marshall,4.5,betonlineag,120,-156,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Naji Marshall,4.5,betonlineag,-156,120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Tyrese Haliburton,2.5,betonlineag,-120,-108,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Tyrese Haliburton,2.5,betonlineag,-108,-120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Andrew Nembhard,1.5,betonlineag,100,-130,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Andrew Nembhard,1.5,betonlineag,-130,100,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Kyrie Irving,2.5,betonlineag,128,-167,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Kyrie Irving,2.5,betonlineag,-167,128,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Pascal Siakam,1.5,betonlineag,128,-167,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Pascal Siakam,1.5,betonlineag,-167,128,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,P.J. Washington,1.5,betonlineag,132,-172,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,P.J. Washington,1.5,betonlineag,-172,132,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Obi Toppin,1.5,betonlineag,-110,-118,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Obi Toppin,1.5,betonlineag,-118,-110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Max Christie,1.5,betonlineag,-169,130,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Max Christie,1.5,betonlineag,130,-169,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Cooper Flagg,1.5,betonlineag,124,-161,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Cooper Flagg,1.5,betonlineag,-161,124,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Zaccharie Risacher,0.5,betonlineag,-227,172,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Zaccharie Risacher,0.5,betonlineag,172,-227,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Kelly Oubre Jr.,1.5,betonlineag,164,-217,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Kelly Oubre Jr.,1.5,betonlineag,-217,164,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Aaron Nesmith,1.5,betonlineag,-169,130,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Aaron Nesmith,1.5,betonlineag,130,-169,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Naji Marshall,0.5,betonlineag,-208,157,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Naji Marshall,0.5,betonlineag,157,-208,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_ats,DAL,,4,betonlineag,-115,-105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_ats,IND,,-4,betonlineag,-105,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_total,over,,123.5,betonlineag,-115,-105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_total,under,,123.5,betonlineag,-105,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_ml,DAL,,,betmgm,165,-200,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_ml,IND,,,betmgm,-200,165,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Zaccharie Risacher,1.5,betmgm,120,-160,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Zaccharie Risacher,1.5,betmgm,-160,120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,P.J. Washington,1.5,betmgm,-120,-110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,P.J. Washington,1.5,betmgm,-110,-120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Kyrie Irving,4.5,betmgm,120,-160,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Kyrie Irving,4.5,betmgm,-160,120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Cooper Flagg,4.5,betmgm,-155,115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Cooper Flagg,4.5,betmgm,115,-155,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,over,Max Christie,1.5,betmgm,-200,145,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_ast,under,Max Christie,1.5,betmgm,145,-200,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Zaccharie Risacher,8.5,betmgm,-115,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Zaccharie Risacher,8.5,betmgm,-115,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Naji Marshall,12.5,betmgm,-135,100,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Naji Marshall,12.5,betmgm,100,-135,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Daniel Gafford,9.5,betmgm,-111,-118,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Daniel Gafford,9.5,betmgm,-118,-111,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Max Christie,10.5,betmgm,-105,-125,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Max Christie,10.5,betmgm,-125,-105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,P.J. Washington,11.5,betmgm,-120,-110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,P.J. Washington,11.5,betmgm,-110,-120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Kyrie Irving,18.5,betmgm,-125,,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,over,Cooper Flagg,23.5,betmgm,-115,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_pts,under,Cooper Flagg,23.5,betmgm,-115,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Kyrie Irving,3.5,betmgm,100,-135,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Kyrie Irving,3.5,betmgm,-135,100,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Max Christie,3.5,betmgm,120,-160,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Max Christie,3.5,betmgm,-160,120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Daniel Gafford,7.5,betmgm,105,-140,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Daniel Gafford,7.5,betmgm,-140,105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,Cooper Flagg,6.5,betmgm,105,-140,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,Cooper Flagg,6.5,betmgm,-140,105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,over,P.J. Washington,5.5,betmgm,-135,100,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_reb,under,P.J. Washington,5.5,betmgm,100,-135,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Kyrie Irving,2.5,betmgm,130,-175,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Kyrie Irving,2.5,betmgm,-175,130,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,P.J. Washington,1.5,betmgm,120,-160,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,P.J. Washington,1.5,betmgm,-160,120,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Zaccharie Risacher,0.5,betmgm,-235,170,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Zaccharie Risacher,0.5,betmgm,170,-235,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Cooper Flagg,1.5,betmgm,130,-175,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Cooper Flagg,1.5,betmgm,-175,130,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,over,Max Christie,1.5,betmgm,-190,140,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,pl_3pm,under,Max Christie,1.5,betmgm,140,-190,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_ats,DAL,,3.5,betmgm,-105,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_ats,IND,,-3.5,betmgm,-115,-105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_total,over,,123.5,betmgm,-105,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_total,under,,123.5,betmgm,-115,-105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_ml,DAL,,,mybookieag,156,-193,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_ml,IND,,,mybookieag,-193,156,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_ats,DAL,,4,mybookieag,-110,-110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_ats,IND,,-4,mybookieag,-110,-110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_total,over,,123,mybookieag,-110,-110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_total,under,,123,mybookieag,-110,-110,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_ml,DAL,,,betus,161,-195,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_ml,IND,,,betus,-195,161,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_ats,DAL,,3.5,betus,-105,-115,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_ats,IND,,-3.5,betus,-115,-105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_total,over,,123.5,betus,-115,-105,oddsapi
+2026-10-23T21:35:09Z,2026-10-23,DAL @ IND,d36eac2ef6bf2d6c0af0073612f6193d,h1_total,under,,123.5,betus,-105,-115,oddsapi
