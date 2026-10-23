@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import pytest
+
 from nhl_engine.audit import bands, ledger_report
 from nhl_engine.audit.ledger import LedgerRow
 from nhl_engine.audit.screens import Context
@@ -98,6 +100,25 @@ def test_verdict_needs_the_sample_and_both_halves():
     lose = bands.BandRead("x", [-1.0, -1.0, 1.0] * 40)
     assert lose.verdict == "loses: refusal candidate"
     assert bands.BandRead("x", [1.0] * 50).verdict == "probation (50/100 games)"
+
+
+def test_heavy_favourite_band_cannot_lose_on_vig_alone():
+    # -320 Unders at a 70% consensus: each flat unit expects -0.081u; 120 of them, won at the
+    # market's own rate, lose ~9.8u yet are exactly what the price predicted.
+    pays = 100 / 320
+    pnls = [pays if i % 10 < 7 else -1.0 for i in range(120)]
+    expected = [0.70 * pays - 0.30] * 120
+    read = bands.BandRead("x", pnls, expected=expected)
+    assert read.units < -2 and abs(read.excess) < 1.0
+    assert read.verdict == "no edge"
+    zero = bands.BandRead("x", pnls)  # no prices: judged against zero as before
+    assert zero.verdict.startswith(("loses", "no edge"))
+
+
+def test_market_expected_is_the_vig_at_the_card_price():
+    r = _row("game_ml", "H", consensus=0.76)
+    r.american = -320.0
+    assert bands.market_expected(r) == pytest.approx(0.76 * 100 / 320 - 0.24)
 
 
 def test_audit_report_renders_the_bands():
