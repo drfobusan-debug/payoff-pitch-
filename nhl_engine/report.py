@@ -228,6 +228,8 @@ table.rows td.num{text-align:right;font-variant-numeric:tabular-nums;}
 .slatebets{page-break-inside:avoid;background:#0f2438;color:#f4f6f8;border-radius:6px;padding:12px 16px;margin:16px 0 8px;}
 .slatebets h2{color:#ffd76a;border:none;margin:0 0 4px;}
 .slatebets .sbnote{color:#c6ccd4;font-style:italic;font-size:9.4pt;margin:0 0 6px;}
+.slatebets ol.best{margin:4px 0 0 18px;padding:0;font-size:10.5pt;line-height:1.45;}
+.slatebets ol.best li{margin:0 0 3px;}
 .slatebets table{color:#f4f6f8;}
 .slatebets td,.slatebets th{border-color:#2b4460 !important;}
 .pod{border:1px solid #d7dbe0;border-left:4px solid #b8860b;background:#fbf8ef;padding:6px 10px;margin:8px 0;font-size:9pt;page-break-inside:avoid;}
@@ -575,10 +577,59 @@ def _leans_block(ctx: ReportContext) -> str:
         "the bar set before the test (same sign both seasons, |z| &ge; 3, &ge; 2.3 pts), so each is "
         "graded flat 1u at the card's price on every qualifying side and never gates or buys. A "
         "'fade' lean is expected to lose; it is a refusal candidate.</p>"
-        + (f"<p class='sbnote'><strong>{escape(ctx.lean_note)}</strong></p>" if ctx.lean_note else "")
+        + (
+            f"<p class='sbnote'><strong>{escape(ctx.lean_note)}</strong></p>"
+            if ctx.lean_note
+            else ""
+        )
         + "<table><tr><th>lean</th><th>tonight</th><th>record so far</th></tr>"
         + "".join(body)
         + "</table></div>"
+    )
+
+
+TIER_RANK = {"Strong buy": 0, "Moderate buy": 1}
+BEST_BETS = 6
+
+
+def best_bets(rows: list[LedgerRow]) -> list[LedgerRow]:
+    """The night's buys ranked for the top of the card: strongest tier, then edge; one per game-market."""
+    seen: set[tuple[str, str]] = set()
+    out: list[LedgerRow] = []
+    for r in sorted(
+        (r for r in rows if r.is_buy), key=lambda r: (TIER_RANK.get(r.tier, 9), -r.edge)
+    ):
+        k = (r.matchup, r.market)
+        if k in seen:
+            continue
+        seen.add(k)
+        out.append(r)
+    return out[:BEST_BETS]
+
+
+def _why(r: LedgerRow) -> str:
+    """The row's own first reason that is not the anchor arithmetic."""
+    for reason in r.reasons:
+        if not reason.startswith("anchored"):
+            return reason
+    return ""
+
+
+def _best_bets_block(rows: list[LedgerRow]) -> str:
+    best = best_bets(rows)
+    if not best:
+        return ""
+    items = "".join(
+        f"<li><b>{escape(r.matchup)} — {escape(_sel(r))} {_american(r.american)}</b> ({escape(r.book)}) · "
+        f"model {r.model_prob:.0%} vs market {r.consensus:.0%}, edge {_signed(r.edge)} · <i>{escape(r.tier)}</i>"
+        + (f" — {escape(_why(r))}" if _why(r) else "")
+        + "</li>"
+        for r in best
+    )
+    return (
+        "<div class='slatebets'><h2>Best bets</h2>"
+        "<p class='sbnote'>the night's buys, strongest tier first, then edge; one per game and market.</p>"
+        f"<ol class='best'>{items}</ol></div>"
     )
 
 
@@ -593,7 +644,7 @@ def render_html(card: SlateCard, ctx: ReportContext) -> str:
         f"<div class='dateline'>priced {escape(card.priced_at)} · tag {escape(card.tag)} · prior {escape(card.prior_version)}</div></div>"
     )
     if buys:
-        slate = (
+        slate = _best_bets_block(card.rows) + (
             "<div class='slatebets'><h2>Tonight's buys</h2>"
             "<p class='sbnote'>pass every gate (edge, EV, odds cap, fresh quote, confirmed goalies, verified settlement).</p>"
             + _rows_table(buys, limit=len(buys))
