@@ -2,6 +2,20 @@
   {
     "matchup": "TB @ MIL",
     "market": "batter_1b",
+    "selection": "Ben Williamson 1B o0.5",
+    "american": 115.0,
+    "no_vig_prob": 0.443612
+  },
+  {
+    "matchup": "TB @ MIL",
+    "market": "batter_1b",
+    "selection": "Ben Williamson 1B u0.5",
+    "american": -144.0,
+    "no_vig_prob": 0.556388
+  },
+  {
+    "matchup": "TB @ MIL",
+    "market": "batter_1b",
     "selection": "Brice Turang 1B o0.5",
     "american": -108.0,
     "no_vig_prob": 0.485183
@@ -250,6 +264,20 @@
     "selection": "Yandy Diaz 1B u0.5",
     "american": 110.0,
     "no_vig_prob": 0.460116
+  },
+  {
+    "matchup": "TB @ MIL",
+    "market": "batter_2b",
+    "selection": "Ben Williamson 2B o0.5",
+    "american": 740.0,
+    "no_vig_prob": 0.117492
+  },
+  {
+    "matchup": "TB @ MIL",
+    "market": "batter_2b",
+    "selection": "Ben Williamson 2B u0.5",
+    "american": -1320.0,
+    "no_vig_prob": 0.882508
   },
   {
     "matchup": "TB @ MIL",
@@ -506,6 +534,20 @@
   {
     "matchup": "TB @ MIL",
     "market": "batter_bb",
+    "selection": "Ben Williamson BB o0.5",
+    "american": 347.0,
+    "no_vig_prob": 0.215999
+  },
+  {
+    "matchup": "TB @ MIL",
+    "market": "batter_bb",
+    "selection": "Ben Williamson BB u0.5",
+    "american": -500.0,
+    "no_vig_prob": 0.784001
+  },
+  {
+    "matchup": "TB @ MIL",
+    "market": "batter_bb",
     "selection": "Brice Turang BB o0.5",
     "american": 150.0,
     "no_vig_prob": 0.374303
@@ -754,6 +796,20 @@
     "selection": "Yandy Diaz BB u0.5",
     "american": -300.0,
     "no_vig_prob": 0.712495
+  },
+  {
+    "matchup": "TB @ MIL",
+    "market": "batter_hrr",
+    "selection": "Ben Williamson H+R+RBI o0.5",
+    "american": -150.0,
+    "no_vig_prob": 0.568126
+  },
+  {
+    "matchup": "TB @ MIL",
+    "market": "batter_hrr",
+    "selection": "Ben Williamson H+R+RBI u0.5",
+    "american": 120.0,
+    "no_vig_prob": 0.431874
   },
   {
     "matchup": "TB @ MIL",
@@ -1024,6 +1080,20 @@
   {
     "matchup": "TB @ MIL",
     "market": "batter_hr",
+    "selection": "Ben Williamson HR o0.5",
+    "american": 1500.0,
+    "no_vig_prob": 0.064583
+  },
+  {
+    "matchup": "TB @ MIL",
+    "market": "batter_hr",
+    "selection": "Ben Williamson HR o1.5",
+    "american": 47500.0,
+    "no_vig_prob": 0.002101
+  },
+  {
+    "matchup": "TB @ MIL",
+    "market": "batter_hr",
     "selection": "Brice Turang HR o0.5",
     "american": 850.0,
     "no_vig_prob": 0.119298
@@ -1265,6 +1335,20 @@
     "selection": "Yandy Diaz HR o1.5",
     "american": 20000.0,
     "no_vig_prob": 0.004975
+  },
+  {
+    "matchup": "TB @ MIL",
+    "market": "batter_h",
+    "selection": "Ben Williamson H o0.5",
+    "american": -120.0,
+    "no_vig_prob": 0.520565
+  },
+  {
+    "matchup": "TB @ MIL",
+    "market": "batter_h",
+    "selection": "Ben Williamson H u0.5",
+    "american": 100.0,
+    "no_vig_prob": 0.479435
   },
   {
     "matchup": "TB @ MIL",
@@ -1535,6 +1619,20 @@
   {
     "matchup": "TB @ MIL",
     "market": "batter_rbi",
+    "selection": "Ben Williamson RBI o0.5",
+    "american": 375.0,
+    "no_vig_prob": 0.198706
+  },
+  {
+    "matchup": "TB @ MIL",
+    "market": "batter_rbi",
+    "selection": "Ben Williamson RBI u0.5",
+    "american": -566.0,
+    "no_vig_prob": 0.801294
+  },
+  {
+    "matchup": "TB @ MIL",
+    "market": "batter_rbi",
     "selection": "Brice Turang RBI o0.5",
     "american": 241.0,
     "no_vig_prob": 0.293216
@@ -1783,6 +1881,20 @@
     "selection": "Yandy Diaz RBI u0.5",
     "american": -350.0,
     "no_vig_prob": 0.735802
+  },
+  {
+    "matchup": "TB @ MIL",
+    "market": "batter_r",
+    "selection": "Ben Williamson R o0.5",
+    "american": 280.0,
+    "no_vig_prob": 0.248577
+  },
+  {
+    "matchup": "TB @ MIL",
+    "market": "batter_r",
+    "selection": "Ben Williamson R u0.5",
+    "american": -400.0,
+    "no_vig_prob": 0.751423
   },
   {
     "matchup": "TB @ MIL",
@@ -2039,9 +2151,37 @@
   {
     "matchup": "TB @ MIL",
     "market": "batter_tb",
+    "selection": "Ben Williamson TB o0.5",
+    "american": -120.0,
+    "no_vig_prob": 0.51655
+  },
+  {
+    "matchup": "TB @ MIL",
+    "market": "batter_tb",
+    "selection": "Ben Williamson TB u0.5",
+    "american": -104.0,
+    "no_vig_prob": 0.48345
+  },
+  {
+    "matchup": "TB @ MIL",
+    "market": "batter_tb",
+    "selection": "Brice Turang TB o0.5",
+    "american": -185.0,
+    "no_vig_prob": 0.609246
+  },
+  {
+    "matchup": "TB @ MIL",
+    "market": "batter_tb",
     "selection": "Brice Turang TB o1.5",
     "american": 175.0,
     "no_vig_prob": 0.372175
+  },
+  {
+    "matchup": "TB @ MIL",
+    "market": "batter_tb",
+    "selection": "Brice Turang TB u0.5",
+    "american": 145.0,
+    "no_vig_prob": 0.390754
   },
   {
     "matchup": "TB @ MIL",
@@ -2683,9 +2823,23 @@
   {
     "matchup": "TB @ MIL",
     "market": "pitcher_h",
+    "selection": "Nick Martinez Hits o3.5",
+    "american": -163.0,
+    "no_vig_prob": 0.581301
+  },
+  {
+    "matchup": "TB @ MIL",
+    "market": "pitcher_h",
     "selection": "Nick Martinez Hits o4.5",
     "american": 125.0,
     "no_vig_prob": 0.426864
+  },
+  {
+    "matchup": "TB @ MIL",
+    "market": "pitcher_h",
+    "selection": "Nick Martinez Hits u3.5",
+    "american": 125.0,
+    "no_vig_prob": 0.418699
   },
   {
     "matchup": "TB @ MIL",
@@ -2756,6 +2910,13 @@
     "selection": "Nick Martinez Outs o13.5",
     "american": 106.0,
     "no_vig_prob": 0.46229
+  },
+  {
+    "matchup": "TB @ MIL",
+    "market": "pitcher_outs",
+    "selection": "Nick Martinez Outs u12.5",
+    "american": 105.0,
+    "no_vig_prob": 0.470257
   },
   {
     "matchup": "TB @ MIL",
