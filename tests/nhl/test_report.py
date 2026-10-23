@@ -258,17 +258,30 @@ def test_lean_b2b_reads_past_nights_from_a_kept_cache_and_flags_tonight(monkeypa
         def __init__(self, *a, cache_ttl: int = 300, **k):
             self.ttl = cache_ttl
 
-        def schedule(self, day: Date):
+        def schedule_or_none(self, day: Date):
             calls.append((self.ttl, day))
-            if day == Date(2026, 10, 20):
-                raise RuntimeError("down")
-            return []
+            return None if day == Date(2026, 10, 20) else []
 
     monkeypatch.setattr(cli, "NHLAPIClient", Fake)
     monkeypatch.setattr(cli, "_nhlapi", lambda: Fake())
     _, unread = cli._lean_b2b(["2026-10-10"], Date(2026, 10, 21))
     assert unread
     assert {d for t, d in calls if t == cli.FOREVER} == {Date(2026, 10, 9), Date(2026, 10, 10)}
+
+
+def test_lean_b2b_counts_an_empty_slate_schedule_as_unread(monkeypatch):
+    from nhl_engine import cli
+
+    class Fake:
+        def __init__(self, *a, **k):
+            pass
+
+        def schedule_or_none(self, day: Date):
+            return []
+
+    monkeypatch.setattr(cli, "NHLAPIClient", Fake)
+    monkeypatch.setattr(cli, "_nhlapi", lambda: Fake())
+    assert cli._lean_b2b([], Date(2026, 10, 21))[1]
 
 
 def test_best_bets_rank_tier_then_edge_one_per_game_market():
