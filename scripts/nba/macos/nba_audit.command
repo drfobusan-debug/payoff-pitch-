@@ -14,4 +14,7 @@ while [ -L "$_src" ]; do
 done
 . "$(dirname "$_src")/_env.sh"
 
+# Grade yesterday first: a Sunday slate is otherwise graded only by that
+# evening's card, after this Monday morning send.
+nba-engine grade || true
 nba-engine audit --recent 7 --email "$@"
