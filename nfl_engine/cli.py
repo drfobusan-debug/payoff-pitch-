@@ -48,6 +48,7 @@ from nfl_engine.audit.ledger import (
     ENGINE,
     PAPER,
     LedgerEntry,
+    Metrics,
     apply_close,
     apply_open,
     close_is_final,
@@ -963,12 +964,28 @@ def report_lines(entries: list[LedgerEntry], *, include_all: bool = True) -> lis
         f"{'':26s} {'n':>5s} {'win%':>7s} {'need':>7s} {'PPV+':>7s} {'NPV+':>7s}"
         f" {'ROI':>7s} {'units':>8s} {'CLV':>8s}"
     )
-    return [header] + [
-        f"{row.label:26s} {row.n:5d} {row.win_pct:7.4f} {row.required_win_pct:7.4f}"
-        f" {row.ppv_lift:+7.4f} {row.npv_lift:+7.4f} {row.roi:+7.4f}"
-        f" {row.units:+8.2f} {row.mean_clv:+8.4f}"
-        for row in rows
-    ]
+    return [header] + [_report_row(row) for row in rows]
+
+
+def _report_row(row: Metrics) -> str:
+    """One report line; a rate with nothing under it prints n/a, not a zero.
+
+    NPV+ is blank on the Pass row too: its negative class is the buys, so the
+    "rejections" it would score are the bets the engine took.
+    """
+
+    def rate(value: float, width: int, spec: str, ok: bool) -> str:
+        return f"{value:{spec}}".rjust(width) if ok else "n/a".rjust(width)
+
+    has_rows = row.n > 0
+    return (
+        f"{row.label:26s} {row.n:5d} {rate(row.win_pct, 7, '7.4f', has_rows)}"
+        f" {rate(row.required_win_pct, 7, '7.4f', has_rows)}"
+        f" {rate(row.ppv_lift, 7, '+7.4f', has_rows)}"
+        f" {rate(row.npv_lift, 7, '+7.4f', row.negatives > 0 and row.label != Tier.PASS.value)}"
+        f" {rate(row.roi, 7, '+7.4f', has_rows)}"
+        f" {row.units:+8.2f} {rate(row.mean_clv, 8, '+8.4f', row.clv_n > 0)}"
+    )
 
 
 def _write(path: Path, data: bytes) -> bool:
