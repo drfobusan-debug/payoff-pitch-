@@ -26,6 +26,7 @@
   pre-tip close at its book; written once, when every game is settled.
 * ``audit`` -- the graded ledger's tables: buys, tiers, markets, gates (false
   negatives), book, one/two-book, the board's base rates, CLV and integrity.
+  ``--recent 7 --email`` mails the last 7 slates and the season (weekly job).
 * ``card`` -- the daily package from the day's recorded ledger passes: slate
   PDF, betting workbook and (``--email``) the email carrying both. No Odds API
   call; context is read off disk (plus free ESPN finals) and prices nothing.
@@ -37,6 +38,7 @@ Nothing here prices a game yet: without a model every row is refused
 from __future__ import annotations
 
 import argparse
+import html
 import json
 import logging
 import sys
@@ -358,6 +360,48 @@ def _pct(x: float) -> str:
     return f"{100 * x:+.1f}%"
 
 
+def _audit_lines(
+    root: Path, rows: list[ledger.LedgerRow], days: list[Date], draws: int
+) -> list[str]:
+    """The graded ledger's tables as text: integrity, cuts, calibration, schedule bands."""
+    out = [
+        f"{len(rows)} graded row(s) over {len(days)} slate(s), {days[0]} .. {days[-1]}",
+        f"integrity {asdict(scorecard.integrity(rows))}",
+        f"absent from the box (games): {scorecard.absent_names(rows)}",
+    ]
+    head = (
+        f"{'cut':26} {'n':>6} {'W-L-P':>14} {'win':>6} {'need':>6} {'base':>6} {'PPV':>6} "
+        f"{'NPV':>6} {'ROI':>7} {'ROI 95%':>17} {'CLV':>7} {'beat':>5} {'CLV EV':>7} "
+        f"{'pulled':>6} {'prepull':>7}"
+    )
+    for name, table in scorecard.tables(rows, draws=draws).items():
+        table = [m for m in table if m.n or name == "buys"]
+        if not table:
+            continue
+        out += ["", f"[{name}]", head]
+        for m in table:
+            out.append(
+                f"{m.label[:26]:26} {m.n:6} {f'{m.wins}-{m.losses}-{m.pushes}':>14} "
+                f"{100 * m.win_pct:5.1f}% {100 * m.required_win_pct:5.1f}% "
+                f"{100 * m.base_rate:5.1f}% {100 * m.ppv:5.1f}% {100 * m.npv:5.1f}% "
+                f"{_pct(m.roi):>7} ({_pct(m.roi_lo):>7},{_pct(m.roi_hi):>7}) "
+                f"{100 * m.mean_clv:+6.2f} {100 * m.clv_beat_pct:4.0f}% {_pct(m.mean_clv_ev):>7} "
+                f"{m.pulled + m.moved:6} {100 * m.mean_pre_pull_clv:+7.2f}"
+            )
+    out += ["", "[calibration: consensus fair]"]
+    for label, n, p, hit in scorecard.calibration(rows, lambda r: r.fair):
+        out.append(f"{label:10} n={n:6} fair {100 * p:5.1f}% hit {100 * hit:5.1f}%")
+    out.append("")
+    sched = schedule_bands.schedule_from(root, rows)
+    out += ["", *schedule_bands.lines(schedule_bands.read_bands(rows, sched))]
+    return out
+
+
+def _buys_record(rows: list[ledger.LedgerRow]) -> str:
+    buys = scorecard.tables(rows, draws=1).get("buys", [])
+    return f"{buys[0].wins}-{buys[0].losses}-{buys[0].pushes}" if buys else "0-0-0"
+
+
 def cmd_audit(args: argparse.Namespace) -> int:
     cfg = load_config()
     root = data_dir()
@@ -368,34 +412,49 @@ def cmd_audit(args: argparse.Namespace) -> int:
     if not rows:
         print("no graded ledger rows in range")
         return 1
-    print(f"{len(rows)} graded row(s) over {len(days)} slate(s), {days[0]} .. {days[-1]}")
-    print(f"integrity {asdict(scorecard.integrity(rows))}")
-    print(f"absent from the box (games): {scorecard.absent_names(rows)}")
-    head = (
-        f"{'cut':26} {'n':>6} {'W-L-P':>14} {'win':>6} {'need':>6} {'base':>6} {'PPV':>6} "
-        f"{'NPV':>6} {'ROI':>7} {'ROI 95%':>17} {'CLV':>7} {'beat':>5} {'CLV EV':>7} "
-        f"{'pulled':>6} {'prepull':>7}"
-    )
-    for name, table in scorecard.tables(rows, draws=args.draws).items():
-        table = [m for m in table if m.n or name == "buys"]
-        if not table:
-            continue
-        print(f"\n[{name}]\n{head}")
-        for m in table:
-            print(
-                f"{m.label[:26]:26} {m.n:6} {f'{m.wins}-{m.losses}-{m.pushes}':>14} "
-                f"{100 * m.win_pct:5.1f}% {100 * m.required_win_pct:5.1f}% "
-                f"{100 * m.base_rate:5.1f}% {100 * m.ppv:5.1f}% {100 * m.npv:5.1f}% "
-                f"{_pct(m.roi):>7} ({_pct(m.roi_lo):>7},{_pct(m.roi_hi):>7}) "
-                f"{100 * m.mean_clv:+6.2f} {100 * m.clv_beat_pct:4.0f}% {_pct(m.mean_clv_ev):>7} "
-                f"{m.pulled + m.moved:6} {100 * m.mean_pre_pull_clv:+7.2f}"
+    sections: list[tuple[str, list[str]]] = []
+    if args.recent:
+        today = _parse_date(None)
+        first = today - timedelta(days=args.recent)
+        recent_days = [d for d in days if first <= d < today]
+        recent_rows = ledger.graded_rows(root, recent_days)
+        label = f"Last {args.recent} days ({first} .. {today - timedelta(days=1)})"
+        sections.append(
+            (
+                label,
+                _audit_lines(root, recent_rows, recent_days, args.draws)
+                if recent_rows
+                else ["no graded ledger rows in these days"],
             )
-    print("\n[calibration: consensus fair]")
-    for label, n, p, hit in scorecard.calibration(rows, lambda r: r.fair):
-        print(f"{label:10} n={n:6} fair {100 * p:5.1f}% hit {100 * hit:5.1f}%")
-    print()
-    sched = schedule_bands.schedule_from(root, rows)
-    print("\n".join(schedule_bands.lines(schedule_bands.read_bands(rows, sched))))
+        )
+        sections.append(("Season to date", _audit_lines(root, rows, days, args.draws)))
+    else:
+        sections.append(("", _audit_lines(root, rows, days, args.draws)))
+    text = "\n\n".join(
+        (f"== {title} ==\n" if title else "") + "\n".join(lines) for title, lines in sections
+    )
+    print(text)
+    if not args.email:
+        return 0
+    span = f"{days[0]} .. {days[-1]}"
+    subject = (
+        f"NBA {'weekly ' if args.recent else ''}ledger audit {span}"
+        f" -- {len(rows)} graded rows, buys {_buys_record(rows)} [paper]"
+    )
+    page = (
+        "<html><body><p>Graded only, paper mode: this report changes no price, gate or buy.</p>"
+        f"<pre style='font-family:monospace;font-size:9pt'>{html.escape(text)}</pre>"
+        "</body></html>"
+    )
+    try:
+        sent = send_package(cfg, subject=subject, html_body=page, text_body=text, to=args.to)
+    except EmailNotConfigured as exc:
+        print(f"  audit email not sent ({exc})")
+        return 0
+    except Exception as exc:  # noqa: BLE001 - SMTP down: the audit is already printed
+        print(f"  audit email failed ({type(exc).__name__}: {exc})")
+        return 1
+    print(f"  emailed the audit to {sent.recipient} ({sent.size:,} bytes)")
     return 0
 
 
@@ -1167,6 +1226,15 @@ def build_parser() -> argparse.ArgumentParser:
     au.add_argument("--until")
     au.add_argument("--draws", type=int, default=400)
     au.add_argument("--no-sync", action="store_true", help="do not pull engine-state")
+    au.add_argument(
+        "--recent",
+        type=int,
+        default=0,
+        metavar="DAYS",
+        help="lead with the last DAYS slates before the season to date (weekly email: 7)",
+    )
+    au.add_argument("--email", action="store_true", help="email the audit")
+    au.add_argument("--to", help="recipient (default NBAE_EMAIL_TO / GMAIL_USER)")
     au.set_defaults(func=cmd_audit)
 
     cd = sub.add_parser("card", help="slate PDF + workbook (+ email) from the day's ledger")
