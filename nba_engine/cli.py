@@ -53,10 +53,10 @@ from engine_common.podcasts.episodes import store_dir
 from engine_common.podcasts.run import read_feeds
 from engine_common.podcasts.shows import NBA
 from nba_engine import alarm, podcast, state
-from nba_engine.audit import ledger, schedule_bands, scorecard
+from nba_engine.audit import altlines, ledger, schedule_bands, scorecard
 from nba_engine.config import cache_dir, data_dir, load_config, output_dir
 from nba_engine.data import boxes, capture, espn_injuries, history, injuries, pbp
-from nba_engine.data.capture import ALL_MARKETS, EVENT_MARKETS, GAME_MARKETS
+from nba_engine.data.capture import ALL_MARKETS, CORE_MARKETS, EVENT_MARKETS, GAME_MARKETS
 from nba_engine.data.espn import ESPNClient, parse_box
 from nba_engine.data.oddsapi import SLATE_TZ, OddsAPIClient, parse_utc
 from nba_engine.market import overbias, params
@@ -400,6 +400,22 @@ def _audit_lines(
 def _buys_record(rows: list[ledger.LedgerRow]) -> str:
     buys = scorecard.tables(rows, draws=1).get("buys", [])
     return f"{buys[0].wins}-{buys[0].losses}-{buys[0].pushes}" if buys else "0-0-0"
+
+
+def cmd_alt_report(args: argparse.Namespace) -> int:
+    """The tracked alternate spreads/totals, by direction and points moved."""
+    cfg = load_config()
+    root = data_dir()
+    if cfg.state_sync and not args.no_sync:
+        state.auto_pull(root, trees=("ledger",))
+    table = altlines.report(ledger.graded_rows(root, _ledger_days(root, args.since, args.until)))
+    if not table:
+        print("no graded alternate lines in range")
+        return 0
+    print(f"{'group':28} {'n':>6} {'W-L-P':>12} {'units':>9} {'ROI':>7}")
+    for label, n, w, lo, p, units, roi in table:
+        print(f"{label:28} {n:6} {f'{w}-{lo}-{p}':>12} {units:+9.2f} {_pct(roi):>7}")
+    return 0
 
 
 def cmd_audit(args: argparse.Namespace) -> int:
@@ -763,7 +779,7 @@ def cmd_history(args: argparse.Namespace) -> int:
     if unknown:
         print(f"unknown anchor(s) {unknown}; choose from {list(history.ANCHORS)}", file=sys.stderr)
         return 2
-    markets = tuple(m.strip() for m in args.markets.split(",")) if args.markets else ALL_MARKETS
+    markets = tuple(m.strip() for m in args.markets.split(",")) if args.markets else CORE_MARKETS
     report = history.pull(
         client,
         data_dir(),
@@ -1247,6 +1263,12 @@ def build_parser() -> argparse.ArgumentParser:
     au.add_argument("--email", action="store_true", help="email the audit")
     au.add_argument("--to", help="recipient (default NBAE_EMAIL_TO / GMAIL_USER)")
     au.set_defaults(func=cmd_audit)
+
+    alt = sub.add_parser("alt-report", help="tracked alternate spreads/totals, bought vs sold")
+    alt.add_argument("--since")
+    alt.add_argument("--until")
+    alt.add_argument("--no-sync", action="store_true", help="do not pull engine-state")
+    alt.set_defaults(func=cmd_alt_report)
 
     cd = sub.add_parser("card", help="slate PDF + workbook (+ email) from the day's ledger")
     cd.add_argument("--date", help="slate date (ET), default today")
