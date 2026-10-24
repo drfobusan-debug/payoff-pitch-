@@ -24,6 +24,7 @@ from mlb_engine.state import (
     _worktree,
     push_refusal,
     repo_root,
+    synced,
 )
 from nba_engine.config import preseason
 
@@ -70,6 +71,7 @@ def production_data_dir() -> Path:
     return Path.home() / ".nba_engine"
 
 
+@synced
 def pull_state(
     data_dir: Path,
     repo: Path | None = None,
@@ -80,6 +82,7 @@ def pull_state(
     return SyncReport(pulled=tuple(_copy_missing(state / prefix(), data_dir, trees)))
 
 
+@synced
 def push_state(
     data_dir: Path,
     message: str,

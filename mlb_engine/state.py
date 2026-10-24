@@ -26,17 +26,20 @@ from __future__ import annotations
 
 import csv
 import fcntl
+import functools
 import gzip
+import inspect
 import json
 import logging
 import os
 import re
 import shutil
 import subprocess
-from collections.abc import Iterable, Iterator
+from collections.abc import Callable, Iterable, Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any, TypeVar, cast
 
 from mlb_engine.audit import power_ledger, power_roster
 from mlb_engine.audit.clv import (
@@ -130,6 +133,9 @@ def _git_try(args: list[str], cwd: Path) -> str | None:
     return proc.stderr.strip() or proc.stdout.strip() or f"exit status {proc.returncode}"
 
 
+_HELD: dict[Path, int] = {}
+
+
 @contextmanager
 def _sync_lock(repo: Path, branch: str) -> Iterator[None]:
     """One sync at a time per repo and branch.
@@ -142,6 +148,15 @@ def _sync_lock(repo: Path, branch: str) -> Iterator[None]:
     makes the second process wait its turn instead.
     """
     lock_path = repo / ".git" / f"state-sync-{branch}.lock"
+    if _HELD.get(lock_path):
+        # Already ours: a push re-pulls inside its own lock, and a second
+        # flock on a new descriptor would wait on this process forever.
+        _HELD[lock_path] += 1
+        try:
+            yield
+        finally:
+            _HELD[lock_path] -= 1
+        return
     try:
         lock_path.parent.mkdir(parents=True, exist_ok=True)
         fh = lock_path.open("w")
@@ -151,10 +166,35 @@ def _sync_lock(repo: Path, branch: str) -> Iterator[None]:
         return
     with fh:
         fcntl.flock(fh, fcntl.LOCK_EX)
+        _HELD[lock_path] = 1
         try:
             yield
         finally:
+            _HELD.pop(lock_path, None)
             fcntl.flock(fh, fcntl.LOCK_UN)
+
+
+_F = TypeVar("_F", bound=Callable[..., Any])
+
+
+def synced(fn: _F) -> _F:
+    """Run an engine's state pull or push under ``_sync_lock``.
+
+    Every engine syncs through the one shared worktree, so an NBA watch tick
+    rebuilding it mid-checkout of an NHL capture fails both. ``fn`` takes the
+    ``repo`` and ``branch`` its lock is keyed on (``None`` = this checkout).
+    """
+    sig = inspect.signature(fn)
+
+    @functools.wraps(fn)
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
+        bound = sig.bind(*args, **kwargs)
+        bound.apply_defaults()
+        repo = bound.arguments.get("repo") or repo_root()
+        with _sync_lock(repo, bound.arguments.get("branch", STATE_BRANCH)):
+            return fn(*args, **kwargs)
+
+    return cast(_F, wrapper)
 
 
 def _commit(state: Path, message: str) -> None:

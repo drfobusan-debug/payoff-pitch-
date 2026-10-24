@@ -22,6 +22,7 @@ from mlb_engine.state import (
     _worktree,
     merge_dated_csv,
     repo_root,
+    synced,
 )
 
 PREFIX = "podcasts"
@@ -40,6 +41,7 @@ def fill_in_file(remote: Path, local: Path) -> bool:
     return True
 
 
+@synced
 def pull_state(root: Path, repo: Path | None = None, branch: str = STATE_BRANCH) -> SyncReport:
     """Bring the branch's podcast picks and ledgers into ``root``, never overwriting a read."""
     state = _worktree(repo or repo_root(), branch) / PREFIX
@@ -53,6 +55,7 @@ def pull_state(root: Path, repo: Path | None = None, branch: str = STATE_BRANCH)
     return SyncReport(pulled=tuple(pulled))
 
 
+@synced
 def push_state(
     root: Path, message: str, repo: Path | None = None, branch: str = STATE_BRANCH
 ) -> SyncReport:
