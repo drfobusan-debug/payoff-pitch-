@@ -2739,9 +2739,23 @@
   {
     "matchup": "TB @ MIL",
     "market": "pitcher_k",
+    "selection": "Drew Rasmussen Ks o6.5",
+    "american": 127.0,
+    "no_vig_prob": 0.416045
+  },
+  {
+    "matchup": "TB @ MIL",
+    "market": "pitcher_k",
     "selection": "Drew Rasmussen Ks u5.5",
     "american": 126.0,
     "no_vig_prob": 0.431034
+  },
+  {
+    "matchup": "TB @ MIL",
+    "market": "pitcher_k",
+    "selection": "Drew Rasmussen Ks u6.5",
+    "american": -162.0,
+    "no_vig_prob": 0.583955
   },
   {
     "matchup": "TB @ MIL",
