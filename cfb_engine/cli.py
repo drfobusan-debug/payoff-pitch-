@@ -40,7 +40,13 @@ from cfb_engine.audit.clv import (
     save_closing,
     timely_only,
 )
-from cfb_engine.audit.grade import ResultIndex, build_result_index, grade, result_for
+from cfb_engine.audit.grade import (
+    ResultIndex,
+    build_result_index,
+    grade,
+    result_for,
+    same_team,
+)
 from cfb_engine.audit.ledger import (
     LedgerEntry,
     OverallMetrics,
@@ -72,7 +78,6 @@ from cfb_engine.audit.weekly import weekly_audit
 from cfb_engine.config import Config, load_config
 from cfb_engine.data.cfbd import CFBDClient
 from cfb_engine.data.oddsapi import OddsAPIClient
-from cfb_engine.data.teamnames import norm
 from cfb_engine.market import atscontext, lowtotal, unitranks, yppmatch
 from cfb_engine.market.tiers import Tier
 from cfb_engine.output.audit_report import generate_audit_report
@@ -180,16 +185,26 @@ def _tier(rec: Recommendation) -> str:
 
 
 def _capture_alt_lines(cfg: Config, day: Date, recs: list[Recommendation]) -> None:
-    """Alternate numbers for each game with a spread buy or graded-only total."""
+    """Alternate numbers for each game with a spread buy or graded-only total.
+
+    Tracked only, so a failure here never stops the card.
+    """
     if os.getenv("CFBE_ALT_LINES", "1") == "0":
         return
     matchups = {r.matchup for r in recs if altlines.tracked(r.market, _tier(r), r.pass_gate)}
     if not matchups:
         return
-    odds = OddsAPIClient(
-        cfg.creds.odds_api_key, regions=cfg.odds_regions, cache_dir=cfg.odds_cache_dir, cache_ttl=0
-    )
-    n = altlines.append(odds.fetch_alt_lines(day, matchups), cfg.altlines_file(day))
+    try:
+        odds = OddsAPIClient(
+            cfg.creds.odds_api_key,
+            regions=cfg.odds_regions,
+            cache_dir=cfg.odds_cache_dir,
+            cache_ttl=0,
+        )
+        n = altlines.append(odds.fetch_alt_lines(day, matchups), cfg.altlines_file(day))
+    except Exception as exc:  # noqa: BLE001
+        logging.getLogger(__name__).warning("alternate lines not captured for %s: %s", day, exc)
+        return
     print(f"Alternate lines: {n} quotes for {len(matchups)} game(s) -> {cfg.altlines_file(day)}")
 
 
@@ -209,7 +224,7 @@ def _grade_alt_lines(
         if final is None or not side:
             continue
         home_pts, away_pts = final.home_points, final.away_points
-        if rec.home_abbrev and norm(final.away).startswith(norm(rec.home_abbrev)):
+        if not same_team(rec.home_abbrev or "", final.home):
             home_pts, away_pts = away_pts, home_pts
         out += altlines.grade(
             date=day.isoformat(),

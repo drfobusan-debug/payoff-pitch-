@@ -25,17 +25,20 @@ def _home(r: LedgerRow) -> str:
     return r.matchup.rsplit(" @ ", 1)[-1]
 
 
-def main_lines(rows: Iterable[LedgerRow]) -> dict[tuple[str, str], float]:
-    """``(event_id, game_ats|game_total)`` -> main number (a spread from the home side).
+def main_lines(rows: Iterable[LedgerRow], *, by_pass: bool = False) -> dict[tuple[str, ...], float]:
+    """``(event_id, game_ats|game_total[, pass_tag])`` -> main number (spreads from home).
 
-    The main number is the line most books pair, as on the card.
+    The main number is the line most books pair, as on the card. ``by_pass``
+    keys it per pricing pass, so a number the books moved off is not compared
+    with alternates priced after the move.
     """
-    groups: dict[tuple[str, str], dict[float, list[LedgerRow]]] = defaultdict(dict)
+    groups: dict[tuple[str, ...], dict[float, list[LedgerRow]]] = defaultdict(dict)
     for r in rows:
         if r.market not in ALT.values() or r.line is None or r.entity:
             continue
         key = r.line if r.market == "game_total" or r.side == _home(r) else -r.line
-        groups[(r.event_id, r.market)].setdefault(key, []).append(r)
+        at = (r.event_id, r.market, r.pass_tag) if by_pass else (r.event_id, r.market)
+        groups[at].setdefault(key, []).append(r)
     return {
         k: max(
             g.items(),
@@ -49,9 +52,8 @@ def main_lines(rows: Iterable[LedgerRow]) -> dict[tuple[str, str], float]:
     }
 
 
-def favour(r: LedgerRow, main: dict[tuple[str, str], float]) -> float | None:
-    """Points the alternate gives this side over the main number (negative: sold)."""
-    m = main.get((r.event_id, ALT.get(r.market, "")))
+def favour(r: LedgerRow, m: float | None) -> float | None:
+    """Points the alternate gives this side over main number ``m`` (negative: sold)."""
     if m is None or r.line is None:
         return None
     if r.market == "alt_total":
@@ -65,15 +67,21 @@ def _bucket(pts: float) -> str:
     return f"{MAX_BUCKET}+" if b >= MAX_BUCKET else str(b)
 
 
-def report(rows: Iterable[LedgerRow]) -> list[Row]:
-    """Graded alternates at a DraftKings/BetMGM price, by market, direction and points."""
+def report(rows: Iterable[LedgerRow], passes: Iterable[LedgerRow] = ()) -> list[Row]:
+    """Graded alternates at a DraftKings/BetMGM price, by market, direction and points.
+
+    ``passes`` (every pricing pass's rows) gives each alternate the main number
+    of the pass that priced it; without them, the slate's of-record main is used.
+    """
     rows = list(rows)
     main = main_lines(rows)
+    at_pass = main_lines(passes, by_pass=True)
     groups: dict[str, list[LedgerRow]] = defaultdict(list)
     for r in rows:
         if r.market not in ALT or r.american is None or not r.graded:
             continue
-        f = favour(r, main)
+        base = ALT[r.market]
+        f = favour(r, at_pass.get((r.event_id, base, r.pass_tag), main.get((r.event_id, base))))
         if not f:
             continue
         way = "bought" if f > 0 else "sold"
