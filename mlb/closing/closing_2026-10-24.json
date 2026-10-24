@@ -821,9 +821,23 @@
   {
     "matchup": "TB @ MIL",
     "market": "batter_hrr",
+    "selection": "Cooper Pratt H+R+RBI o1.5",
+    "american": 133.0,
+    "no_vig_prob": 0.405997
+  },
+  {
+    "matchup": "TB @ MIL",
+    "market": "batter_hrr",
     "selection": "Cooper Pratt H+R+RBI u0.5",
     "american": 140.0,
     "no_vig_prob": 0.391944
+  },
+  {
+    "matchup": "TB @ MIL",
+    "market": "batter_hrr",
+    "selection": "Cooper Pratt H+R+RBI u1.5",
+    "american": -165.0,
+    "no_vig_prob": 0.594003
   },
   {
     "matchup": "TB @ MIL",
@@ -884,9 +898,23 @@
   {
     "matchup": "TB @ MIL",
     "market": "batter_hrr",
+    "selection": "Jake Bauers H+R+RBI o0.5",
+    "american": -175.0,
+    "no_vig_prob": 0.594096
+  },
+  {
+    "matchup": "TB @ MIL",
+    "market": "batter_hrr",
     "selection": "Jake Bauers H+R+RBI o1.5",
     "american": 121.0,
     "no_vig_prob": 0.423991
+  },
+  {
+    "matchup": "TB @ MIL",
+    "market": "batter_hrr",
+    "selection": "Jake Bauers H+R+RBI u0.5",
+    "american": 130.0,
+    "no_vig_prob": 0.405904
   },
   {
     "matchup": "TB @ MIL",
@@ -940,9 +968,23 @@
   {
     "matchup": "TB @ MIL",
     "market": "batter_hrr",
+    "selection": "Liam Hicks H+R+RBI o0.5",
+    "american": -175.0,
+    "no_vig_prob": 0.594096
+  },
+  {
+    "matchup": "TB @ MIL",
+    "market": "batter_hrr",
     "selection": "Liam Hicks H+R+RBI o1.5",
     "american": 127.0,
     "no_vig_prob": 0.421208
+  },
+  {
+    "matchup": "TB @ MIL",
+    "market": "batter_hrr",
+    "selection": "Liam Hicks H+R+RBI u0.5",
+    "american": 130.0,
+    "no_vig_prob": 0.405904
   },
   {
     "matchup": "TB @ MIL",
@@ -2487,6 +2529,13 @@
   {
     "matchup": "TB @ MIL",
     "market": "f5_rl",
+    "selection": "MIL F5 +0.5",
+    "american": -170.0,
+    "no_vig_prob": 0.591528
+  },
+  {
+    "matchup": "TB @ MIL",
+    "market": "f5_rl",
     "selection": "MIL F5 -0.5",
     "american": 135.0,
     "no_vig_prob": 0.409282
@@ -2504,6 +2553,13 @@
     "selection": "TB F5 +0.5",
     "american": -155.0,
     "no_vig_prob": 0.590718
+  },
+  {
+    "matchup": "TB @ MIL",
+    "market": "f5_rl",
+    "selection": "TB F5 -0.5",
+    "american": 130.0,
+    "no_vig_prob": 0.408472
   },
   {
     "matchup": "TB @ MIL",
