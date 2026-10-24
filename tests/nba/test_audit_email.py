@@ -109,6 +109,30 @@ def test_weekly_season_leaves_out_last_season(scratch, monkeypatch):
     assert f"ledger audit {OLD} .. {DAY}" in msg["Subject"]
 
 
+def test_an_explicit_range_keeps_last_seasons_grades(scratch, capsys):
+    ledger.write_once(graded(PRIOR, "prior"), ledger.graded_path(scratch, PRIOR))
+
+    assert (
+        cli.main(
+            ["audit", "--recent", "7", "--since", str(PRIOR), "--until", str(PRIOR), "--no-sync"]
+        )
+        == 0
+    )
+
+    season = capsys.readouterr().out.partition("== Season to date ==")[2]
+    assert f"over 1 slate(s), {PRIOR} .. {PRIOR}" in season
+
+
+def test_a_recent_window_across_seasons_keeps_every_slate_in_it(scratch, capsys):
+    ledger.write_once(graded(PRIOR, "prior"), ledger.graded_path(scratch, PRIOR))
+
+    assert cli.main(["audit", "--recent", "400", "--no-sync"]) == 0
+
+    recent, _, season = capsys.readouterr().out.partition("== Season to date ==")
+    assert f"over 3 slate(s), {PRIOR} .. {DAY}" in recent
+    assert f"over 2 slate(s), {OLD} .. {DAY}" in season
+
+
 def test_weekly_script_grades_yesterday_before_the_audit():
     script = (ROOT / "scripts" / "nba" / "macos" / "nba_audit.command").read_text()
     assert script.index("\nnba-engine grade") < script.index("\nnba-engine audit")

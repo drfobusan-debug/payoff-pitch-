@@ -408,31 +408,39 @@ def cmd_audit(args: argparse.Namespace) -> int:
     if cfg.state_sync and not args.no_sync:
         state.auto_pull(root, trees=("ledger",))
     days = _ledger_days(root, args.since, args.until)
-    if args.recent:
+    season_days = days
+    if args.recent and not (args.since or args.until):
         season = season_of(_parse_date(None) - timedelta(days=1))
-        days = [d for d in days if season_of(d) == season]
-    rows = ledger.graded_rows(root, days)
-    if not rows:
-        print("no graded ledger rows in range")
-        return 1
-    sections: list[tuple[str, list[str]]] = []
+        season_days = [d for d in days if season_of(d) == season]
+    rows = ledger.graded_rows(root, season_days)
+    recent_days: list[Date] = []
+    recent_rows: list[ledger.LedgerRow] = []
     if args.recent:
         today = _parse_date(None)
         first = today - timedelta(days=args.recent)
         recent_days = [d for d in days if first <= d < today]
         recent_rows = ledger.graded_rows(root, recent_days)
+    if not rows and not recent_rows:
+        print("no graded ledger rows in range")
+        return 1
+    empty = ["no graded ledger rows in these days"]
+    sections: list[tuple[str, list[str]]] = []
+    if args.recent:
         label = f"Last {args.recent} days ({first} .. {today - timedelta(days=1)})"
         sections.append(
             (
                 label,
-                _audit_lines(root, recent_rows, recent_days, args.draws)
-                if recent_rows
-                else ["no graded ledger rows in these days"],
+                _audit_lines(root, recent_rows, recent_days, args.draws) if recent_rows else empty,
             )
         )
-        sections.append(("Season to date", _audit_lines(root, rows, days, args.draws)))
+        sections.append(
+            ("Season to date", _audit_lines(root, rows, season_days, args.draws) if rows else empty)
+        )
     else:
         sections.append(("", _audit_lines(root, rows, days, args.draws)))
+    if not rows:
+        rows, season_days = recent_rows, recent_days
+    days = season_days
     text = "\n\n".join(
         (f"== {title} ==\n" if title else "") + "\n".join(lines) for title, lines in sections
     )
