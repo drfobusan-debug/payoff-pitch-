@@ -236,9 +236,16 @@ def cmd_close(cfg: Config, args: argparse.Namespace) -> int:
     within = getattr(args, "within", None)
     if within is not None:
         # Kickoffs come from the slate's saved predictions: free, no Odds API call.
+        # A card priced on another machine is pulled from the state branch first.
+        if not cfg.predictions_file(day).exists():
+            _state_pull(cfg, day)
         recs = load_json(cfg.predictions_file(day)) if cfg.predictions_file(day).exists() else []
         kicks = {r.matchup: r.kickoff_utc or "" for r in recs}
-        due = close_due(kicks, load_closing(cfg.closing_file(day)), datetime.now(timezone.utc), within)
+        sides: dict[str, set[str]] = {}
+        for r in recs:
+            sides.setdefault(r.matchup, set()).add(snapshot.key(r.matchup, r.market, r.selection))
+        now = datetime.now(timezone.utc)
+        due = close_due(kicks, load_closing(cfg.closing_file(day)), now, within, sides)
         if not due:
             print(f"No game kicks off within {within:g} min without a close; nothing fetched")
             return 0
