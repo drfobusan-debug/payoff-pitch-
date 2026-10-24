@@ -1,141 +1,197 @@
 {
   "Missouri @ Kansas|game_ats|Kansas": {
     "american": -125.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 7.5,
     "no_vig_prob": 0.5312649236739835
   },
   "Missouri @ Kansas|game_ats|Missouri": {
     "american": 104.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -7.5,
     "no_vig_prob": 0.4687350763260166
   },
   "Missouri @ Kansas|game_ml|Kansas": {
     "american": 900.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.13929256585431846
   },
   "Missouri @ Kansas|game_ml|Missouri": {
     "american": -700.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.8607074341456816
   },
   "Missouri @ Kansas|game_total|Over": {
     "american": 100.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 63.5,
     "no_vig_prob": 0.4822128913602441
   },
   "Missouri @ Kansas|game_total|Under": {
     "american": -118.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 63.5,
     "no_vig_prob": 0.517787108639756
   },
   "Norfolk State @ Virginia|game_ats|Norfolk State": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 46.5,
     "no_vig_prob": 0.4992683640620427
   },
   "Norfolk State @ Virginia|game_ats|Virginia": {
     "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -46.5,
     "no_vig_prob": 0.5007316359379573
   },
   "Norfolk State @ Virginia|game_total|Over": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 56.5,
     "no_vig_prob": 0.5059518050424052
   },
   "Norfolk State @ Virginia|game_total|Under": {
     "american": 105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 56.5,
     "no_vig_prob": 0.49404819495759483
   },
   "Richmond @ NC State|game_ats|NC State": {
     "american": -155.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -69.5,
     "no_vig_prob": 0.6349065727817215
   },
   "Richmond @ NC State|game_ats|Richmond": {
     "american": 250.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 69.5,
     "no_vig_prob": 0.36509342721827853
   },
   "Richmond @ NC State|game_ml|NC State": {
     "american": -6500.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.9672645620319498
   },
   "Richmond @ NC State|game_ml|Richmond": {
     "american": 4000.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.03273543796805024
   },
   "Richmond @ NC State|game_total|Over": {
     "american": 250.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 70.5,
     "no_vig_prob": 0.31530138741347463
   },
   "Richmond @ NC State|game_total|Under": {
     "american": -225.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 70.5,
     "no_vig_prob": 0.6846986125865252
   },
   "Rutgers @ Boston College|game_ats|Boston College": {
     "american": 210.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -7.5,
     "no_vig_prob": 0.3408915320029586
   },
   "Rutgers @ Boston College|game_ats|Rutgers": {
     "american": -188.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 7.5,
     "no_vig_prob": 0.6591084679970414
   },
   "Rutgers @ Boston College|game_ml|Boston College": {
     "american": -1360.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.9037872831612516
   },
   "Rutgers @ Boston College|game_ml|Rutgers": {
     "american": 1200.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.0962127168387485
   },
   "Rutgers @ Boston College|game_total|Over": {
     "american": -102.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 52.5,
     "no_vig_prob": 0.5016840211658316
   },
   "Rutgers @ Boston College|game_total|Under": {
     "american": 102.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 52.5,
     "no_vig_prob": 0.49831597883416845
   },
   "Villanova @ Louisville|game_ats|Louisville": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -39.5,
     "no_vig_prob": 0.4995074893812964
   },
   "Villanova @ Louisville|game_ats|Villanova": {
     "american": 100.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 39.5,
     "no_vig_prob": 0.5004925106187036
   },
   "Villanova @ Louisville|game_ml|Louisville": {
     "american": -100000.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.9824389045806213
   },
   "Villanova @ Louisville|game_ml|Villanova": {
     "american": 5500.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.017561095419378604
   },
   "Villanova @ Louisville|game_total|Over": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 56.5,
     "no_vig_prob": 0.5067263925552606
   },
   "Villanova @ Louisville|game_total|Under": {
     "american": -102.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 56.5,
     "no_vig_prob": 0.4932736074447393
   }

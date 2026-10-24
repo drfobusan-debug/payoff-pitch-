@@ -1,91 +1,127 @@
 {
   "Middle Tenness @ Florida Intern|game_ats|Florida Intern": {
     "american": -114.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -10.5,
     "no_vig_prob": 0.5086640097036909
   },
   "Middle Tenness @ Florida Intern|game_ats|Middle Tenness": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 10.5,
     "no_vig_prob": 0.49133599029630914
   },
   "Middle Tenness @ Florida Intern|game_ml|Florida Intern": {
     "american": -450.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.7832362782370875
   },
   "Middle Tenness @ Florida Intern|game_ml|Middle Tenness": {
     "american": 340.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.2167637217629125
   },
   "Middle Tenness @ Florida Intern|game_total|Over": {
     "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 45.5,
     "no_vig_prob": 0.5
   },
   "Middle Tenness @ Florida Intern|game_total|Under": {
     "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 45.5,
     "no_vig_prob": 0.5
   },
   "Missouri State @ Delaware|game_ats|Delaware": {
     "american": -118.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -2.5,
     "no_vig_prob": 0.5149751839808318
   },
   "Missouri State @ Delaware|game_ats|Missouri State": {
     "american": -104.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 2.5,
     "no_vig_prob": 0.4850248160191682
   },
   "Missouri State @ Delaware|game_ml|Delaware": {
     "american": -142.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.5589736113136026
   },
   "Missouri State @ Delaware|game_ml|Missouri State": {
     "american": 116.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.4410263886863974
   },
   "Missouri State @ Delaware|game_total|Over": {
     "american": -115.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 51.5,
     "no_vig_prob": 0.5108342361863488
   },
   "Missouri State @ Delaware|game_total|Under": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 51.5,
     "no_vig_prob": 0.4891657638136511
   },
   "South Alabama @ Marshall|game_ats|Marshall": {
     "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 2.5,
     "no_vig_prob": 0.5
   },
   "South Alabama @ Marshall|game_ats|South Alabama": {
     "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -2.5,
     "no_vig_prob": 0.5
   },
   "South Alabama @ Marshall|game_ml|Marshall": {
     "american": 114.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.44721843785882276
   },
   "South Alabama @ Marshall|game_ml|South Alabama": {
     "american": -137.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.5527815621411771
   },
   "South Alabama @ Marshall|game_total|Over": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 60.5,
     "no_vig_prob": 0.4891657638136511
   },
   "South Alabama @ Marshall|game_total|Under": {
     "american": -115.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 60.5,
     "no_vig_prob": 0.5108342361863488
   }

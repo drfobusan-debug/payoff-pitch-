@@ -1,151 +1,211 @@
 {
   "Air Force @ Wyoming|game_ats|Air Force": {
     "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -5.5,
     "no_vig_prob": 0.505068641076389
   },
   "Air Force @ Wyoming|game_ats|Wyoming": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 5.5,
     "no_vig_prob": 0.49493135892361084
   },
   "Air Force @ Wyoming|game_ml|Air Force": {
     "american": -210.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.6631298700690891
   },
   "Air Force @ Wyoming|game_ml|Wyoming": {
     "american": 193.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.3368701299309109
   },
   "Air Force @ Wyoming|game_total|Over": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 45.5,
     "no_vig_prob": 0.49669925214238386
   },
   "Air Force @ Wyoming|game_total|Under": {
     "american": -107.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 45.5,
     "no_vig_prob": 0.5033007478576162
   },
   "Army @ Tulsa|game_ats|Army": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 1.5,
     "no_vig_prob": 0.4980101092461126
   },
   "Army @ Tulsa|game_ats|Tulsa": {
     "american": -109.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -1.5,
     "no_vig_prob": 0.5019898907538874
   },
   "Army @ Tulsa|game_ml|Army": {
     "american": 105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.47281321453521047
   },
   "Army @ Tulsa|game_ml|Tulsa": {
     "american": -118.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.5271867854647896
   },
   "Army @ Tulsa|game_total|Over": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 54.5,
     "no_vig_prob": 0.49807324731637787
   },
   "Army @ Tulsa|game_total|Under": {
     "american": -107.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 54.5,
     "no_vig_prob": 0.5019267526836223
   },
   "Duke @ Virginia|game_ats|Duke": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 2.5,
     "no_vig_prob": 0.49797002567666204
   },
   "Duke @ Virginia|game_ats|Virginia": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -2.5,
     "no_vig_prob": 0.502029974323338
   },
   "Duke @ Virginia|game_ml|Duke": {
     "american": 121.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.44498289600694974
   },
   "Duke @ Virginia|game_ml|Virginia": {
     "american": -134.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.5550171039930504
   },
   "Duke @ Virginia|game_total|Over": {
     "american": -112.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 46.5,
     "no_vig_prob": 0.5116554264432182
   },
   "Duke @ Virginia|game_total|Under": {
     "american": -102.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 46.5,
     "no_vig_prob": 0.4883445735567818
   },
   "NC State @ Stanford|game_ats|NC State": {
     "american": 100.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -7.0,
     "no_vig_prob": 0.49656360193645327
   },
   "NC State @ Stanford|game_ats|Stanford": {
     "american": -107.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 7.0,
     "no_vig_prob": 0.5034363980635467
   },
   "NC State @ Stanford|game_ml|NC State": {
     "american": -250.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.693841618105567
   },
   "NC State @ Stanford|game_ml|Stanford": {
     "american": 218.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.30615838189443306
   },
   "NC State @ Stanford|game_total|Over": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 55.5,
     "no_vig_prob": 0.4980013976524652
   },
   "NC State @ Stanford|game_total|Under": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 55.5,
     "no_vig_prob": 0.5019986023475347
   },
   "UMass @ UConn|game_ats|UConn": {
     "american": -103.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -14.5,
     "no_vig_prob": 0.4980764243801546
   },
   "UMass @ UConn|game_ats|UMass": {
     "american": -109.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 14.5,
     "no_vig_prob": 0.5019235756198455
   },
   "UMass @ UConn|game_ml|UConn": {
     "american": -650.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.8392965703769881
   },
   "UMass @ UConn|game_ml|UMass": {
     "american": 530.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.16070342962301187
   },
   "UMass @ UConn|game_total|Over": {
     "american": -107.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 50.5,
     "no_vig_prob": 0.4997154802019399
   },
   "UMass @ UConn|game_total|Under": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 50.5,
     "no_vig_prob": 0.5002845197980602
   }

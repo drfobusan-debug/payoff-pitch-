@@ -1,91 +1,127 @@
 {
   "Louisville @ Ole Miss|game_ats|Louisville": {
     "american": 140.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 13.5,
     "no_vig_prob": 0.4266057930165602
   },
   "Louisville @ Ole Miss|game_ats|Ole Miss": {
     "american": -145.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -13.5,
     "no_vig_prob": 0.5733942069834398
   },
   "Louisville @ Ole Miss|game_ml|Louisville": {
     "american": 3500.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.05366702060696764
   },
   "Louisville @ Ole Miss|game_ml|Ole Miss": {
     "american": -2000.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.9463329793930324
   },
   "Louisville @ Ole Miss|game_total|Over": {
     "american": -152.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 68.5,
     "no_vig_prob": 0.5806007425552894
   },
   "Louisville @ Ole Miss|game_total|Under": {
     "american": 130.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 68.5,
     "no_vig_prob": 0.4193992574447106
   },
   "Washington Sta @ Washington|game_ats|Washington": {
     "american": 165.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -10.5,
     "no_vig_prob": 0.3838893861950694
   },
   "Washington Sta @ Washington|game_ats|Washington Sta": {
     "american": -150.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 10.5,
     "no_vig_prob": 0.6161106138049306
   },
   "Washington Sta @ Washington|game_ml|Washington": {
     "american": -800.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.9134492071727414
   },
   "Washington Sta @ Washington|game_ml|Washington Sta": {
     "american": 1700.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.08655079282725867
   },
   "Washington Sta @ Washington|game_total|Over": {
     "american": 107.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 30.5,
     "no_vig_prob": 0.5205934226065371
   },
   "Washington Sta @ Washington|game_total|Under": {
     "american": 114.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 30.5,
     "no_vig_prob": 0.47940657739346293
   },
   "Wisconsin @ Notre Dame|game_ats|Notre Dame": {
     "american": 260.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -21.5,
     "no_vig_prob": 0.3268180344807753
   },
   "Wisconsin @ Notre Dame|game_ats|Wisconsin": {
     "american": -145.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 21.5,
     "no_vig_prob": 0.6731819655192247
   },
   "Wisconsin @ Notre Dame|game_ml|Notre Dame": {
     "american": -1600.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.9137924813510839
   },
   "Wisconsin @ Notre Dame|game_ml|Wisconsin": {
     "american": 1200.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.08620751864891607
   },
   "Wisconsin @ Notre Dame|game_total|Over": {
     "american": 240.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 47.5,
     "no_vig_prob": 0.34278360671781427
   },
   "Wisconsin @ Notre Dame|game_total|Under": {
     "american": -137.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 47.5,
     "no_vig_prob": 0.6572163932821857
   }

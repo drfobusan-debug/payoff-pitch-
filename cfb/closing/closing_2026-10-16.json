@@ -1,91 +1,127 @@
 {
   "Appalachian St @ Coastal Caroli|game_ats|Appalachian St": {
     "american": -102.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -1.5,
     "no_vig_prob": 0.4883851140030616
   },
   "Appalachian St @ Coastal Caroli|game_ats|Coastal Caroli": {
     "american": -113.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 1.5,
     "no_vig_prob": 0.5116148859969383
   },
   "Appalachian St @ Coastal Caroli|game_ml|Appalachian St": {
     "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.5121928128337977
   },
   "Appalachian St @ Coastal Caroli|game_ml|Coastal Caroli": {
     "american": 100.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.48780718716620225
   },
   "Appalachian St @ Coastal Caroli|game_total|Over": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 49.0,
     "no_vig_prob": 0.4980992568094124
   },
   "Appalachian St @ Coastal Caroli|game_total|Under": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 49.0,
     "no_vig_prob": 0.5019007431905875
   },
   "Memphis @ Tulane|game_ats|Memphis": {
     "american": -114.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -6.5,
     "no_vig_prob": 0.5128886335418666
   },
   "Memphis @ Tulane|game_ats|Tulane": {
     "american": 103.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 6.5,
     "no_vig_prob": 0.4871113664581332
   },
   "Memphis @ Tulane|game_ml|Memphis": {
     "american": -250.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.6923015173604804
   },
   "Memphis @ Tulane|game_ml|Tulane": {
     "american": 219.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.3076984826395196
   },
   "Memphis @ Tulane|game_total|Over": {
     "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 55.5,
     "no_vig_prob": 0.5055691732531887
   },
   "Memphis @ Tulane|game_total|Under": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 55.5,
     "no_vig_prob": 0.4944308267468112
   },
   "Washington @ Purdue|game_ats|Purdue": {
     "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -3.0,
     "no_vig_prob": 0.5093744687811581
   },
   "Washington @ Purdue|game_ats|Washington": {
     "american": 102.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 3.0,
     "no_vig_prob": 0.49062553121884195
   },
   "Washington @ Purdue|game_ml|Purdue": {
     "american": -159.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.5966561366155642
   },
   "Washington @ Purdue|game_ml|Washington": {
     "american": 144.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.40334386338443595
   },
   "Washington @ Purdue|game_total|Over": {
     "american": 100.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 50.5,
     "no_vig_prob": 0.49861381681164485
   },
   "Washington @ Purdue|game_total|Under": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 50.5,
     "no_vig_prob": 0.5013861831883553
   }

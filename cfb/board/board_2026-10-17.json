@@ -1,1541 +1,2157 @@
 {
   "Akron @ Miami (OH)|game_ats|Akron": {
     "american": -103.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 9.5,
     "no_vig_prob": 0.4937415554364563
   },
   "Akron @ Miami (OH)|game_ats|Miami (OH)": {
     "american": -109.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -9.5,
     "no_vig_prob": 0.5062584445635436
   },
   "Akron @ Miami (OH)|game_ml|Akron": {
     "american": 310.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.24355318451622757
   },
   "Akron @ Miami (OH)|game_ml|Miami (OH)": {
     "american": -360.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.7564468154837726
   },
   "Akron @ Miami (OH)|game_total|Over": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 46.5,
     "no_vig_prob": 0.5006097814844711
   },
   "Akron @ Miami (OH)|game_total|Under": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 46.5,
     "no_vig_prob": 0.499390218515529
   },
   "Alabama @ Tennessee|game_ats|Alabama": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -7.5,
     "no_vig_prob": 0.5037671535062314
   },
   "Alabama @ Tennessee|game_ats|Tennessee": {
     "american": -101.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 7.5,
     "no_vig_prob": 0.49623284649376875
   },
   "Alabama @ Tennessee|game_ml|Alabama": {
     "american": -315.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.7339256624791811
   },
   "Alabama @ Tennessee|game_ml|Tennessee": {
     "american": 270.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.26607433752081894
   },
   "Alabama @ Tennessee|game_total|Over": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 51.0,
     "no_vig_prob": 0.49874912258364446
   },
   "Alabama @ Tennessee|game_total|Under": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 51.0,
     "no_vig_prob": 0.5012508774163555
   },
   "Arizona State @ Texas Tech|game_ats|Arizona State": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 15.5,
     "no_vig_prob": 0.5002858119919857
   },
   "Arizona State @ Texas Tech|game_ats|Texas Tech": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -15.5,
     "no_vig_prob": 0.4997141880080143
   },
   "Arizona State @ Texas Tech|game_ml|Arizona State": {
     "american": 525.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.15959746122304783
   },
   "Arizona State @ Texas Tech|game_ml|Texas Tech": {
     "american": -675.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.8404025387769523
   },
   "Arizona State @ Texas Tech|game_total|Over": {
     "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 49.5,
     "no_vig_prob": 0.5043091222240519
   },
   "Arizona State @ Texas Tech|game_total|Under": {
     "american": -104.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 49.5,
     "no_vig_prob": 0.4956908777759481
   },
   "Arkansas @ Vanderbilt|game_ats|Arkansas": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 6.0,
     "no_vig_prob": 0.5000031678101536
   },
   "Arkansas @ Vanderbilt|game_ats|Vanderbilt": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -6.0,
     "no_vig_prob": 0.4999968321898464
   },
   "Arkansas @ Vanderbilt|game_ml|Arkansas": {
     "american": 195.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.3348264334093001
   },
   "Arkansas @ Vanderbilt|game_ml|Vanderbilt": {
     "american": -220.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.6651735665907
   },
   "Arkansas @ Vanderbilt|game_total|Over": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 50.0,
     "no_vig_prob": 0.5016170501770669
   },
   "Arkansas @ Vanderbilt|game_total|Under": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 50.0,
     "no_vig_prob": 0.49838294982293296
   },
   "Arkansas State @ Southern Missi|game_ats|Arkansas State": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -6.5,
     "no_vig_prob": 0.5005250058340759
   },
   "Arkansas State @ Southern Missi|game_ats|Southern Missi": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 6.5,
     "no_vig_prob": 0.4994749941659241
   },
   "Arkansas State @ Southern Missi|game_ml|Arkansas State": {
     "american": -225.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.6738229802349383
   },
   "Arkansas State @ Southern Missi|game_ml|Southern Missi": {
     "american": 205.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.3261770197650618
   },
   "Arkansas State @ Southern Missi|game_total|Over": {
     "american": -103.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 62.0,
     "no_vig_prob": 0.4943635460929265
   },
   "Arkansas State @ Southern Missi|game_total|Under": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 62.0,
     "no_vig_prob": 0.5056364539070735
   },
   "Auburn @ Georgia|game_ats|Auburn": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 19.5,
     "no_vig_prob": 0.49690571033235814
   },
   "Auburn @ Georgia|game_ats|Georgia": {
     "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -19.5,
     "no_vig_prob": 0.5030942896676419
   },
   "Auburn @ Georgia|game_ml|Auburn": {
     "american": 900.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.10462396782887437
   },
   "Auburn @ Georgia|game_ml|Georgia": {
     "american": -1200.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.8953760321711256
   },
   "Auburn @ Georgia|game_total|Over": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 50.0,
     "no_vig_prob": 0.49935376804925835
   },
   "Auburn @ Georgia|game_total|Under": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 50.0,
     "no_vig_prob": 0.5006462319507416
   },
   "Ball State @ Bowling Green|game_ats|Ball State": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 6.5,
     "no_vig_prob": 0.4997265783179277
   },
   "Ball State @ Bowling Green|game_ats|Bowling Green": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -6.5,
     "no_vig_prob": 0.5002734216820723
   },
   "Ball State @ Bowling Green|game_ml|Ball State": {
     "american": 210.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.3173684023824187
   },
   "Ball State @ Bowling Green|game_ml|Bowling Green": {
     "american": -235.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.6826315976175813
   },
   "Ball State @ Bowling Green|game_total|Over": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 46.5,
     "no_vig_prob": 0.5001749247238256
   },
   "Ball State @ Bowling Green|game_total|Under": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 46.5,
     "no_vig_prob": 0.4998250752761743
   },
   "Charleston Sou @ Clemson|game_ats|Charleston Sou": {
     "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 42.0,
     "no_vig_prob": 0.5
   },
   "Charleston Sou @ Clemson|game_ats|Clemson": {
     "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -42.0,
     "no_vig_prob": 0.5
   },
   "Charleston Sou @ Clemson|game_total|Over": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 57.0,
     "no_vig_prob": 0.49209393575590754
   },
   "Charleston Sou @ Clemson|game_total|Under": {
     "american": -112.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 57.0,
     "no_vig_prob": 0.5079060642440923
   },
   "Charlotte @ Temple|game_ats|Charlotte": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 19.5,
     "no_vig_prob": 0.4970607434234424
   },
   "Charlotte @ Temple|game_ats|Temple": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -19.5,
     "no_vig_prob": 0.5029392565765575
   },
   "Charlotte @ Temple|game_ml|Charlotte": {
     "american": 1029.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.09153121322787919
   },
   "Charlotte @ Temple|game_ml|Temple": {
     "american": -1600.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.9084687867721208
   },
   "Charlotte @ Temple|game_total|Over": {
     "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 46.5,
     "no_vig_prob": 0.5056466632009242
   },
   "Charlotte @ Temple|game_total|Under": {
     "american": -103.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 46.5,
     "no_vig_prob": 0.49435333679907584
   },
   "Cincinnati @ West Virginia|game_ats|Cincinnati": {
     "american": -109.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 1.5,
     "no_vig_prob": 0.5005499941675579
   },
   "Cincinnati @ West Virginia|game_ats|West Virginia": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -1.5,
     "no_vig_prob": 0.4994500058324421
   },
   "Cincinnati @ West Virginia|game_ml|Cincinnati": {
     "american": 107.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.4744132166311532
   },
   "Cincinnati @ West Virginia|game_ml|West Virginia": {
     "american": -116.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.5255867833688469
   },
   "Cincinnati @ West Virginia|game_total|Over": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 63.5,
     "no_vig_prob": 0.5011202733750916
   },
   "Cincinnati @ West Virginia|game_total|Under": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 63.5,
     "no_vig_prob": 0.4988797266249085
   },
   "Citadel @ Texas A&M|game_ats|Citadel": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 45.5,
     "no_vig_prob": 0.5012939377244674
   },
   "Citadel @ Texas A&M|game_ats|Texas A&M": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -45.5,
     "no_vig_prob": 0.4987060622755325
   },
   "Citadel @ Texas A&M|game_total|Over": {
     "american": -113.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 57.0,
     "no_vig_prob": 0.5087657025083108
   },
   "Citadel @ Texas A&M|game_total|Under": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 57.0,
     "no_vig_prob": 0.4912342974916892
   },
   "Elon @ Stanford|game_ats|Elon": {
     "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 35.5,
     "no_vig_prob": 0.5172615058166825
   },
   "Elon @ Stanford|game_ats|Stanford": {
     "american": 105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -35.5,
     "no_vig_prob": 0.4827384941833175
   },
   "Elon @ Stanford|game_ml|Elon": {
     "american": 3500.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.027158492095662744
   },
   "Elon @ Stanford|game_ml|Stanford": {
     "american": -20000.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.9728415079043372
   },
   "Elon @ Stanford|game_total|Over": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 56.5,
     "no_vig_prob": 0.49806949081365604
   },
   "Elon @ Stanford|game_total|Under": {
     "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 56.5,
     "no_vig_prob": 0.5019305091863439
   },
   "Florida @ Texas|game_ats|Florida": {
     "american": -109.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 11.5,
     "no_vig_prob": 0.5011026710378639
   },
   "Florida @ Texas|game_ats|Texas": {
     "american": -107.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -11.5,
     "no_vig_prob": 0.49889732896213607
   },
   "Florida @ Texas|game_ml|Florida": {
     "american": 350.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.21890706858769143
   },
   "Florida @ Texas|game_ml|Texas": {
     "american": -420.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.7810929314123087
   },
   "Florida @ Texas|game_total|Over": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 51.0,
     "no_vig_prob": 0.49803065061606266
   },
   "Florida @ Texas|game_total|Under": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 51.0,
     "no_vig_prob": 0.5019693493839373
   },
   "Florida Atlant @ Army|game_ats|Army": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -2.0,
     "no_vig_prob": 0.5003947385186164
   },
   "Florida Atlant @ Army|game_ats|Florida Atlant": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 2.0,
     "no_vig_prob": 0.4996052614813836
   },
   "Florida Atlant @ Army|game_ml|Army": {
     "american": -125.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.5377280923457635
   },
   "Florida Atlant @ Army|game_ml|Florida Atlant": {
     "american": 110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.46227190765423665
   },
   "Florida Atlant @ Army|game_total|Over": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 55.5,
     "no_vig_prob": 0.5001911928906835
   },
   "Florida Atlant @ Army|game_total|Under": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 55.5,
     "no_vig_prob": 0.4998088071093164
   },
   "Florida State @ Miami|game_ats|Florida State": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 20.5,
     "no_vig_prob": 0.4968883602367886
   },
   "Florida State @ Miami|game_ats|Miami": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -20.5,
     "no_vig_prob": 0.5031116397632114
   },
   "Florida State @ Miami|game_ml|Florida State": {
     "american": 1029.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.09295235476805862
   },
   "Florida State @ Miami|game_ml|Miami": {
     "american": -1400.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.9070476452319415
   },
   "Florida State @ Miami|game_total|Over": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 56.5,
     "no_vig_prob": 0.5009592192970251
   },
   "Florida State @ Miami|game_total|Under": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 56.5,
     "no_vig_prob": 0.4990407807029748
   },
   "Fresno State @ San Diego Stat|game_ats|Fresno State": {
     "american": -101.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -7.5,
     "no_vig_prob": 0.4908871367198295
   },
   "Fresno State @ San Diego Stat|game_ats|San Diego Stat": {
     "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 7.5,
     "no_vig_prob": 0.5091128632801706
   },
   "Fresno State @ San Diego Stat|game_ml|Fresno State": {
     "american": -290.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.722618848492815
   },
   "Fresno State @ San Diego Stat|game_ml|San Diego Stat": {
     "american": 255.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.27738115150718506
   },
   "Fresno State @ San Diego Stat|game_total|Over": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 45.5,
     "no_vig_prob": 0.5018042850551289
   },
   "Fresno State @ San Diego Stat|game_total|Under": {
     "american": -107.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 45.5,
     "no_vig_prob": 0.4981957149448711
   },
   "Georgia State @ James Madison|game_ats|Georgia State": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 9.5,
     "no_vig_prob": 0.4999274101797186
   },
   "Georgia State @ James Madison|game_ats|James Madison": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -9.5,
     "no_vig_prob": 0.5000725898202814
   },
   "Georgia State @ James Madison|game_ml|Georgia State": {
     "american": 325.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.25008860348193995
   },
   "Georgia State @ James Madison|game_ml|James Madison": {
     "american": -330.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.7499113965180602
   },
   "Georgia State @ James Madison|game_total|Over": {
     "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 57.5,
     "no_vig_prob": 0.5052613230067506
   },
   "Georgia State @ James Madison|game_total|Under": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 57.5,
     "no_vig_prob": 0.49473867699324936
   },
   "Georgia Tech @ Virginia Tech|game_ats|Georgia Tech": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 8.5,
     "no_vig_prob": 0.499893836178905
   },
   "Georgia Tech @ Virginia Tech|game_ats|Virginia Tech": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -8.5,
     "no_vig_prob": 0.500106163821095
   },
   "Georgia Tech @ Virginia Tech|game_ml|Georgia Tech": {
     "american": 300.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.25490429771675344
   },
   "Georgia Tech @ Virginia Tech|game_ml|Virginia Tech": {
     "american": -330.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.7450957022832466
   },
   "Georgia Tech @ Virginia Tech|game_total|Over": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 56.0,
     "no_vig_prob": 0.5015333096301752
   },
   "Georgia Tech @ Virginia Tech|game_total|Under": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 56.0,
     "no_vig_prob": 0.4984666903698248
   },
   "Kansas @ Kansas State|game_ats|Kansas": {
     "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 3.5,
     "no_vig_prob": 0.508784783166007
   },
   "Kansas @ Kansas State|game_ats|Kansas State": {
     "american": -101.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -3.5,
     "no_vig_prob": 0.491215216833993
   },
   "Kansas @ Kansas State|game_ml|Kansas": {
     "american": 149.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.3958517378849024
   },
   "Kansas @ Kansas State|game_ml|Kansas State": {
     "american": -162.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.6041482621150975
   },
   "Kansas @ Kansas State|game_total|Over": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 55.5,
     "no_vig_prob": 0.49367748177205745
   },
   "Kansas @ Kansas State|game_total|Under": {
     "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 55.5,
     "no_vig_prob": 0.5063225182279426
   },
   "Kent State @ South Florida|game_ats|Kent State": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 20.5,
     "no_vig_prob": 0.49837768710640995
   },
   "Kent State @ South Florida|game_ats|South Florida": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -20.5,
     "no_vig_prob": 0.50162231289359
   },
   "Kent State @ South Florida|game_ml|Kent State": {
     "american": 1000.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.09835776055334375
   },
   "Kent State @ South Florida|game_ml|South Florida": {
     "american": -1300.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.9016422394466563
   },
   "Kent State @ South Florida|game_total|Over": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 45.0,
     "no_vig_prob": 0.5007596059771875
   },
   "Kent State @ South Florida|game_total|Under": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 45.0,
     "no_vig_prob": 0.49924039402281245
   },
   "Kentucky @ Oklahoma|game_ats|Kentucky": {
     "american": -104.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 6.5,
     "no_vig_prob": 0.4938615177189909
   },
   "Kentucky @ Oklahoma|game_ats|Oklahoma": {
     "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -6.5,
     "no_vig_prob": 0.5061384822810091
   },
   "Kentucky @ Oklahoma|game_ml|Kentucky": {
     "american": 211.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.3138793232707367
   },
   "Kentucky @ Oklahoma|game_ml|Oklahoma": {
     "american": -240.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.6861206767292634
   },
   "Kentucky @ Oklahoma|game_total|Over": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 43.5,
     "no_vig_prob": 0.498695178380161
   },
   "Kentucky @ Oklahoma|game_total|Under": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 43.5,
     "no_vig_prob": 0.501304821619839
   },
   "Louisiana Tech @ UL Monroe|game_ats|Louisiana Tech": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -15.5,
     "no_vig_prob": 0.49932735444496495
   },
   "Louisiana Tech @ UL Monroe|game_ats|UL Monroe": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 15.5,
     "no_vig_prob": 0.5006726455550351
   },
   "Louisiana Tech @ UL Monroe|game_ml|Louisiana Tech": {
     "american": -650.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.8430679636929618
   },
   "Louisiana Tech @ UL Monroe|game_ml|UL Monroe": {
     "american": 600.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.15693203630703823
   },
   "Louisiana Tech @ UL Monroe|game_total|Over": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 55.5,
     "no_vig_prob": 0.5004386754752538
   },
   "Louisiana Tech @ UL Monroe|game_total|Under": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 55.5,
     "no_vig_prob": 0.4995613245247462
   },
   "Louisville @ Syracuse|game_ats|Louisville": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -14.5,
     "no_vig_prob": 0.49962546556910575
   },
   "Louisville @ Syracuse|game_ats|Syracuse": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 14.5,
     "no_vig_prob": 0.5003745344308942
   },
   "Louisville @ Syracuse|game_ml|Louisville": {
     "american": -640.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.8337544495801547
   },
   "Louisville @ Syracuse|game_ml|Syracuse": {
     "american": 500.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.16624555041984554
   },
   "Louisville @ Syracuse|game_total|Over": {
     "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 55.5,
     "no_vig_prob": 0.5075965508399732
   },
   "Louisville @ Syracuse|game_total|Under": {
     "american": -103.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 55.5,
     "no_vig_prob": 0.4924034491600267
   },
   "Mississippi St @ LSU|game_ats|LSU": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -17.5,
     "no_vig_prob": 0.4993190419063348
   },
   "Mississippi St @ LSU|game_ats|Mississippi St": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 17.5,
     "no_vig_prob": 0.5006809580936652
   },
   "Mississippi St @ LSU|game_ml|LSU": {
     "american": -800.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.8603273759937082
   },
   "Mississippi St @ LSU|game_ml|Mississippi St": {
     "american": 630.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.1396726240062918
   },
   "Mississippi St @ LSU|game_total|Over": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 56.0,
     "no_vig_prob": 0.49838294982293296
   },
   "Mississippi St @ LSU|game_total|Under": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 56.0,
     "no_vig_prob": 0.5016170501770669
   },
   "Missouri @ Ole Miss|game_ats|Missouri": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 5.0,
     "no_vig_prob": 0.4993016525693598
   },
   "Missouri @ Ole Miss|game_ats|Ole Miss": {
     "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -5.0,
     "no_vig_prob": 0.5006983474306401
   },
   "Missouri @ Ole Miss|game_ml|Missouri": {
     "american": 180.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.3534814024316316
   },
   "Missouri @ Ole Miss|game_ml|Ole Miss": {
     "american": -196.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.6465185975683685
   },
   "Missouri @ Ole Miss|game_total|Over": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 58.5,
     "no_vig_prob": 0.5006021782991517
   },
   "Missouri @ Ole Miss|game_total|Under": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 58.5,
     "no_vig_prob": 0.4993978217008483
   },
   "Navy @ UTSA|game_ats|Navy": {
     "american": 104.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 6.5,
     "no_vig_prob": 0.4785741420403709
   },
   "Navy @ UTSA|game_ats|UTSA": {
     "american": -116.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -6.5,
     "no_vig_prob": 0.521425857959629
   },
   "Navy @ UTSA|game_ml|Navy": {
     "american": 230.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.30729576846663625
   },
   "Navy @ UTSA|game_ml|UTSA": {
     "american": -245.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.6927042315333638
   },
   "Navy @ UTSA|game_total|Over": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 54.5,
     "no_vig_prob": 0.5020805526411966
   },
   "Navy @ UTSA|game_total|Under": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 54.5,
     "no_vig_prob": 0.4979194473588035
   },
   "Nebraska @ Oregon|game_ats|Nebraska": {
     "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 7.0,
     "no_vig_prob": 0.5147452690806706
   },
   "Nebraska @ Oregon|game_ats|Oregon": {
     "american": 101.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -7.0,
     "no_vig_prob": 0.48525473091932925
   },
   "Nebraska @ Oregon|game_ml|Nebraska": {
     "american": 220.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.3085514241349789
   },
   "Nebraska @ Oregon|game_ml|Oregon": {
     "american": -235.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.6914485758650212
   },
   "Nebraska @ Oregon|game_total|Over": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 51.5,
     "no_vig_prob": 0.4992116102353366
   },
   "Nebraska @ Oregon|game_total|Under": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 51.5,
     "no_vig_prob": 0.5007883897646633
   },
   "Nevada @ North Dakota S|game_ats|Nevada": {
     "american": -101.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 14.0,
     "no_vig_prob": 0.4925791904095539
   },
   "Nevada @ North Dakota S|game_ats|North Dakota S": {
     "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -14.0,
     "no_vig_prob": 0.5074208095904461
   },
   "Nevada @ North Dakota S|game_ml|Nevada": {
     "american": 510.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.16333126818978427
   },
   "Nevada @ North Dakota S|game_ml|North Dakota S": {
     "american": -650.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.8366687318102158
   },
   "Nevada @ North Dakota S|game_total|Over": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 42.5,
     "no_vig_prob": 0.5001954076729637
   },
   "Nevada @ North Dakota S|game_total|Under": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 42.5,
     "no_vig_prob": 0.4998045923270363
   },
   "New Mexico @ Hawaii|game_ats|Hawaii": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 14.5,
     "no_vig_prob": 0.502429800623593
   },
   "New Mexico @ Hawaii|game_ats|New Mexico": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -14.5,
     "no_vig_prob": 0.49757019937640706
   },
   "New Mexico @ Hawaii|game_ml|Hawaii": {
     "american": 530.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.16179423075771926
   },
   "New Mexico @ Hawaii|game_ml|New Mexico": {
     "american": -670.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.8382057692422807
   },
   "New Mexico @ Hawaii|game_total|Over": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 44.5,
     "no_vig_prob": 0.49721000864974274
   },
   "New Mexico @ Hawaii|game_total|Under": {
     "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 44.5,
     "no_vig_prob": 0.5027899913502574
   },
   "North Carolina @ Duke|game_ats|Duke": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -3.0,
     "no_vig_prob": 0.501318420381326
   },
   "North Carolina @ Duke|game_ats|North Carolina": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 3.0,
     "no_vig_prob": 0.4986815796186741
   },
   "North Carolina @ Duke|game_ml|Duke": {
     "american": -150.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.5849283700374218
   },
   "North Carolina @ Duke|game_ml|North Carolina": {
     "american": 134.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.41507162996257824
   },
   "North Carolina @ Duke|game_total|Over": {
     "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 46.5,
     "no_vig_prob": 0.5065178144061602
   },
   "North Carolina @ Duke|game_total|Under": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 46.5,
     "no_vig_prob": 0.4934821855938398
   },
   "Northern Illin @ Wyoming|game_ats|Northern Illin": {
     "american": -102.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 7.5,
     "no_vig_prob": 0.4914178078445627
   },
   "Northern Illin @ Wyoming|game_ats|Wyoming": {
     "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -7.5,
     "no_vig_prob": 0.5085821921554373
   },
   "Northern Illin @ Wyoming|game_ml|Northern Illin": {
     "american": 275.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.2699870762563712
   },
   "Northern Illin @ Wyoming|game_ml|Wyoming": {
     "american": -300.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.7300129237436289
   },
   "Northern Illin @ Wyoming|game_total|Over": {
     "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 41.5,
     "no_vig_prob": 0.5026083880232928
   },
   "Northern Illin @ Wyoming|game_total|Under": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 41.5,
     "no_vig_prob": 0.49739161197670717
   },
   "Northwestern @ Michigan State|game_ats|Michigan State": {
     "american": -103.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 7.0,
     "no_vig_prob": 0.49425103358805006
   },
   "Northwestern @ Michigan State|game_ats|Northwestern": {
     "american": -109.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -7.0,
     "no_vig_prob": 0.50574896641195
   },
   "Northwestern @ Michigan State|game_ml|Michigan State": {
     "american": 250.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.27978724475403355
   },
   "Northwestern @ Michigan State|game_ml|Northwestern": {
     "american": -290.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.7202127552459665
   },
   "Northwestern @ Michigan State|game_total|Over": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 49.5,
     "no_vig_prob": 0.5015595065838669
   },
   "Northwestern @ Michigan State|game_total|Under": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 49.5,
     "no_vig_prob": 0.49844049341613306
   },
   "Notre Dame @ BYU|game_ats|BYU": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 10.5,
     "no_vig_prob": 0.49979486842861015
   },
   "Notre Dame @ BYU|game_ats|Notre Dame": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -10.5,
     "no_vig_prob": 0.5002051315713899
   },
   "Notre Dame @ BYU|game_ml|BYU": {
     "american": 340.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.2254876303498698
   },
   "Notre Dame @ BYU|game_ml|Notre Dame": {
     "american": -395.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.7745123696501303
   },
   "Notre Dame @ BYU|game_total|Over": {
     "american": -109.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 47.0,
     "no_vig_prob": 0.5014005772770218
   },
   "Notre Dame @ BYU|game_total|Under": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 47.0,
     "no_vig_prob": 0.49859942272297814
   },
   "Ohio @ Sacramento Sta|game_ats|Ohio": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -15.5,
     "no_vig_prob": 0.49776700745634095
   },
   "Ohio @ Sacramento Sta|game_ats|Sacramento Sta": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 15.5,
     "no_vig_prob": 0.5022329925436592
   },
   "Ohio @ Sacramento Sta|game_ml|Ohio": {
     "american": -650.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.8398892072238241
   },
   "Ohio @ Sacramento Sta|game_ml|Sacramento Sta": {
     "american": 650.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.16011079277617593
   },
   "Ohio @ Sacramento Sta|game_total|Over": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 46.5,
     "no_vig_prob": 0.5032377841349122
   },
   "Ohio @ Sacramento Sta|game_total|Under": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 46.5,
     "no_vig_prob": 0.4967622158650878
   },
   "Ohio State @ Indiana|game_ats|Indiana": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 3.0,
     "no_vig_prob": 0.5016708460287778
   },
   "Ohio State @ Indiana|game_ats|Ohio State": {
     "american": -102.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -3.0,
     "no_vig_prob": 0.49832915397122224
   },
   "Ohio State @ Indiana|game_ml|Indiana": {
     "american": 138.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.41086795367675677
   },
   "Ohio State @ Indiana|game_ml|Ohio State": {
     "american": -150.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.5891320463232432
   },
   "Ohio State @ Indiana|game_total|Over": {
     "american": -103.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 50.5,
     "no_vig_prob": 0.496474287109403
   },
   "Ohio State @ Indiana|game_total|Under": {
     "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 50.5,
     "no_vig_prob": 0.5035257128905971
   },
   "Oklahoma State @ Houston|game_ats|Houston": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -4.5,
     "no_vig_prob": 0.4989660376576923
   },
   "Oklahoma State @ Houston|game_ats|Oklahoma State": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 4.5,
     "no_vig_prob": 0.5010339623423078
   },
   "Oklahoma State @ Houston|game_ml|Houston": {
     "american": -182.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.6342628388507895
   },
   "Oklahoma State @ Houston|game_ml|Oklahoma State": {
     "american": 170.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.3657371611492107
   },
   "Oklahoma State @ Houston|game_total|Over": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 62.5,
     "no_vig_prob": 0.4998692730848111
   },
   "Oklahoma State @ Houston|game_total|Under": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 62.5,
     "no_vig_prob": 0.5001307269151889
   },
   "Penn State Nit @ Michigan|game_ats|Michigan": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -6.5,
     "no_vig_prob": 0.4953829364572281
   },
   "Penn State Nit @ Michigan|game_ats|Penn State Nit": {
     "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 6.5,
     "no_vig_prob": 0.5046170635427719
   },
   "Penn State Nit @ Michigan|game_ml|Michigan": {
     "american": -220.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.6676488094262422
   },
   "Penn State Nit @ Michigan|game_ml|Penn State Nit": {
     "american": 200.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.33235119057375784
   },
   "Penn State Nit @ Michigan|game_total|Over": {
     "american": -109.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 43.0,
     "no_vig_prob": 0.50387429209329
   },
   "Penn State Nit @ Michigan|game_total|Under": {
     "american": -103.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 43.0,
     "no_vig_prob": 0.4961257079067099
   },
   "Pittsburgh @ Boston College|game_ats|Boston College": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 6.0,
     "no_vig_prob": 0.49889713575997036
   },
   "Pittsburgh @ Boston College|game_ats|Pittsburgh": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -6.0,
     "no_vig_prob": 0.5011028642400297
   },
   "Pittsburgh @ Boston College|game_ml|Boston College": {
     "american": 205.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.33082386864405905
   },
   "Pittsburgh @ Boston College|game_ml|Pittsburgh": {
     "american": -215.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.669176131355941
   },
   "Pittsburgh @ Boston College|game_total|Over": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 42.5,
     "no_vig_prob": 0.5031298368663655
   },
   "Pittsburgh @ Boston College|game_total|Under": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 42.5,
     "no_vig_prob": 0.4968701631336345
   },
   "Rutgers @ Maryland|game_ats|Maryland": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -6.0,
     "no_vig_prob": 0.49783931174305385
   },
   "Rutgers @ Maryland|game_ats|Rutgers": {
     "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 6.0,
     "no_vig_prob": 0.5021606882569462
   },
   "Rutgers @ Maryland|game_ml|Maryland": {
     "american": -210.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.6599199162138013
   },
   "Rutgers @ Maryland|game_ml|Rutgers": {
     "american": 195.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.34008008378619886
   },
   "Rutgers @ Maryland|game_total|Over": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 56.0,
     "no_vig_prob": 0.5033724999040778
   },
   "Rutgers @ Maryland|game_total|Under": {
     "american": -103.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 56.0,
     "no_vig_prob": 0.49662750009592216
   },
   "San Jose State @ UTEP|game_ats|San Jose State": {
     "american": 100.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -7.0,
     "no_vig_prob": 0.49366960900675416
   },
   "San Jose State @ UTEP|game_ats|UTEP": {
     "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 7.0,
     "no_vig_prob": 0.506330390993246
   },
   "San Jose State @ UTEP|game_ml|San Jose State": {
     "american": -260.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.6994902140127114
   },
   "San Jose State @ UTEP|game_ml|UTEP": {
     "american": 230.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.30050978598728856
   },
   "San Jose State @ UTEP|game_total|Over": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 45.5,
     "no_vig_prob": 0.500501286340354
   },
   "San Jose State @ UTEP|game_total|Under": {
     "american": -107.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 45.5,
     "no_vig_prob": 0.49949871365964615
   },
   "TCU @ Baylor|game_ats|Baylor": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -5.5,
     "no_vig_prob": 0.5018612262266914
   },
   "TCU @ Baylor|game_ats|TCU": {
     "american": -104.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 5.5,
     "no_vig_prob": 0.4981387737733088
   },
   "TCU @ Baylor|game_ml|Baylor": {
     "american": -205.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.6598492529201075
   },
   "TCU @ Baylor|game_ml|TCU": {
     "american": 190.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.34015074707989246
   },
   "TCU @ Baylor|game_total|Over": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 49.0,
     "no_vig_prob": 0.5001626566383427
   },
   "TCU @ Baylor|game_total|Under": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 49.0,
     "no_vig_prob": 0.49983734336165725
   },
   "Toledo @ Eastern Michig|game_ats|Eastern Michig": {
     "american": -111.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 7.0,
     "no_vig_prob": 0.5118045861428906
   },
   "Toledo @ Eastern Michig|game_ats|Toledo": {
     "american": -101.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -7.0,
     "no_vig_prob": 0.48819541385710924
   },
   "Toledo @ Eastern Michig|game_ml|Eastern Michig": {
     "american": 235.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.3087757341435497
   },
   "Toledo @ Eastern Michig|game_ml|Toledo": {
     "american": -235.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.6912242658564504
   },
   "Toledo @ Eastern Michig|game_total|Over": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 52.5,
     "no_vig_prob": 0.4987505150250266
   },
   "Toledo @ Eastern Michig|game_total|Under": {
     "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 52.5,
     "no_vig_prob": 0.5012494849749735
   },
   "Troy @ Louisiana|game_ats|Louisiana": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -3.0,
     "no_vig_prob": 0.5051409724185905
   },
   "Troy @ Louisiana|game_ats|Troy": {
     "american": -104.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 3.0,
     "no_vig_prob": 0.4948590275814097
   },
   "Troy @ Louisiana|game_ml|Louisiana": {
     "american": -150.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.5804605737035183
   },
   "Troy @ Louisiana|game_ml|Troy": {
     "american": 132.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.4195394262964817
   },
   "Troy @ Louisiana|game_total|Over": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 49.0,
     "no_vig_prob": 0.5
   },
   "Troy @ Louisiana|game_total|Under": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 49.0,
     "no_vig_prob": 0.5
   },
   "Tulsa @ Rice|game_ats|Rice": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 4.5,
     "no_vig_prob": 0.5004434154230211
   },
   "Tulsa @ Rice|game_ats|Tulsa": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -4.5,
     "no_vig_prob": 0.49955658457697905
   },
   "Tulsa @ Rice|game_ml|Rice": {
     "american": 174.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.36514396231474827
   },
   "Tulsa @ Rice|game_ml|Tulsa": {
     "american": -186.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.6348560376852518
   },
   "Tulsa @ Rice|game_total|Over": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 46.5,
     "no_vig_prob": 0.497277569906918
   },
   "Tulsa @ Rice|game_total|Under": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 46.5,
     "no_vig_prob": 0.502722430093082
   },
   "UMass @ Buffalo|game_ats|Buffalo": {
     "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -7.0,
     "no_vig_prob": 0.5114575178832935
   },
   "UMass @ Buffalo|game_ats|UMass": {
     "american": 100.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 7.0,
     "no_vig_prob": 0.4885424821167064
   },
   "UMass @ Buffalo|game_ml|Buffalo": {
     "american": -280.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.7110323347780104
   },
   "UMass @ Buffalo|game_ml|UMass": {
     "american": 240.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.2889676652219897
   },
   "UMass @ Buffalo|game_total|Over": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 42.5,
     "no_vig_prob": 0.49700886117541604
   },
   "UMass @ Buffalo|game_total|Under": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 42.5,
     "no_vig_prob": 0.5029911388245839
   },
   "UNLV @ Air Force|game_ats|Air Force": {
     "american": -103.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 0.0,
     "no_vig_prob": 0.4951071409146665
   },
   "UNLV @ Air Force|game_ats|UNLV": {
     "american": -109.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -0.0,
     "no_vig_prob": 0.5048928590853335
   },
   "UNLV @ Air Force|game_ml|Air Force": {
     "american": -102.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.49884836038878483
   },
   "UNLV @ Air Force|game_ml|UNLV": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.5011516396112151
   },
   "UNLV @ Air Force|game_total|Over": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 48.0,
     "no_vig_prob": 0.5001911928906835
   },
   "UNLV @ Air Force|game_total|Under": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 48.0,
     "no_vig_prob": 0.4998088071093164
   },
   "Utah @ Colorado|game_ats|Colorado": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 14.5,
     "no_vig_prob": 0.49928998039305683
   },
   "Utah @ Colorado|game_ats|Utah": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -14.5,
     "no_vig_prob": 0.5007100196069433
   },
   "Utah @ Colorado|game_ml|Colorado": {
     "american": 530.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.1560492867918237
   },
   "Utah @ Colorado|game_ml|Utah": {
     "american": -700.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.8439507132081764
   },
   "Utah @ Colorado|game_total|Over": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 49.5,
     "no_vig_prob": 0.49743493655202525
   },
   "Utah @ Colorado|game_total|Under": {
     "american": -109.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 49.5,
     "no_vig_prob": 0.5025650634479747
   },
   "Virginia @ SMU|game_ats|SMU": {
     "american": -101.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -10.0,
     "no_vig_prob": 0.493080191961068
   },
   "Virginia @ SMU|game_ats|Virginia": {
     "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 10.0,
     "no_vig_prob": 0.506919808038932
   },
   "Virginia @ SMU|game_ml|SMU": {
     "american": -330.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.7455062494156063
   },
   "Virginia @ SMU|game_ml|Virginia": {
     "american": 290.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.2544937505843937
   },
   "Virginia @ SMU|game_total|Over": {
     "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 51.5,
     "no_vig_prob": 0.5053717357175923
   },
   "Virginia @ SMU|game_total|Under": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 51.5,
     "no_vig_prob": 0.4946282642824078
   },
   "Wake Forest @ California|game_ats|California": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 10.0,
     "no_vig_prob": 0.49932478168513106
   },
   "Wake Forest @ California|game_ats|Wake Forest": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -10.0,
     "no_vig_prob": 0.5006752183148689
   },
   "Wake Forest @ California|game_ml|California": {
     "american": 325.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.23979763433704895
   },
   "Wake Forest @ California|game_ml|Wake Forest": {
     "american": -345.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.7602023656629511
   },
   "Wake Forest @ California|game_total|Over": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 53.5,
     "no_vig_prob": 0.5011158265909649
   },
   "Wake Forest @ California|game_total|Under": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 53.5,
     "no_vig_prob": 0.49888417340903507
   },
   "Washington Sta @ Oregon State|game_ats|Oregon State": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -18.5,
     "no_vig_prob": 0.4980028659246261
   },
   "Washington Sta @ Oregon State|game_ats|Washington Sta": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 18.5,
     "no_vig_prob": 0.5019971340753739
   },
   "Washington Sta @ Oregon State|game_ml|Oregon State": {
     "american": -1000.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.8772770377529603
   },
   "Washington Sta @ Oregon State|game_ml|Washington Sta": {
     "american": 709.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.12272296224703978
   },
   "Washington Sta @ Oregon State|game_total|Over": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 52.0,
     "no_vig_prob": 0.4991976986145218
   },
   "Washington Sta @ Oregon State|game_total|Under": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 52.0,
     "no_vig_prob": 0.5008023013854782
   },
   "Western Michig @ Central Michig|game_ats|Central Michig": {
     "american": -101.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 7.0,
     "no_vig_prob": 0.49474605425012286
   },
   "Western Michig @ Central Michig|game_ats|Western Michig": {
     "american": -109.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -7.0,
     "no_vig_prob": 0.5052539457498771
   },
   "Western Michig @ Central Michig|game_ml|Central Michig": {
     "american": 248.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.29762130691890254
   },
   "Western Michig @ Central Michig|game_ml|Western Michig": {
     "american": -250.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.7023786930810973
   },
   "Western Michig @ Central Michig|game_total|Over": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 43.0,
     "no_vig_prob": 0.5
   },
   "Western Michig @ Central Michig|game_total|Under": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 43.0,
     "no_vig_prob": 0.5
   },
   "Wisconsin @ UCLA|game_ats|UCLA": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -2.5,
     "no_vig_prob": 0.5050890947892183
   },
   "Wisconsin @ UCLA|game_ats|Wisconsin": {
     "american": -104.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 2.5,
     "no_vig_prob": 0.49491090521078185
   },
   "Wisconsin @ UCLA|game_ml|UCLA": {
     "american": -130.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.5562056834847195
   },
   "Wisconsin @ UCLA|game_ml|Wisconsin": {
     "american": 120.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.44379431651528056
   },
   "Wisconsin @ UCLA|game_total|Over": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 43.0,
     "no_vig_prob": 0.49838294982293296
   },
   "Wisconsin @ UCLA|game_total|Under": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 43.0,
     "no_vig_prob": 0.5016170501770669
   }

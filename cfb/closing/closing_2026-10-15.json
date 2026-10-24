@@ -1,91 +1,127 @@
 {
   "Colorado State @ Texas State|game_ats|Colorado State": {
     "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 14.5,
     "no_vig_prob": 0.5056298854639851
   },
   "Colorado State @ Texas State|game_ats|Texas State": {
     "american": -101.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -14.5,
     "no_vig_prob": 0.49437011453601476
   },
   "Colorado State @ Texas State|game_ml|Colorado State": {
     "american": 600.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.1664266583637855
   },
   "Colorado State @ Texas State|game_ml|Texas State": {
     "american": -625.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.8335733416362144
   },
   "Colorado State @ Texas State|game_total|Over": {
     "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 69.5,
     "no_vig_prob": 0.5082131950441591
   },
   "Colorado State @ Texas State|game_total|Under": {
     "american": -103.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 69.5,
     "no_vig_prob": 0.49178680495584093
   },
   "East Carolina @ UAB|game_ats|East Carolina": {
     "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -4.5,
     "no_vig_prob": 0.5089210024200709
   },
   "East Carolina @ UAB|game_ats|UAB": {
     "american": 101.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 4.5,
     "no_vig_prob": 0.491078997579929
   },
   "East Carolina @ UAB|game_ml|East Carolina": {
     "american": -190.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.6411638619124664
   },
   "East Carolina @ UAB|game_ml|UAB": {
     "american": 175.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.3588361380875337
   },
   "East Carolina @ UAB|game_total|Over": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 49.0,
     "no_vig_prob": 0.5007596059771875
   },
   "East Carolina @ UAB|game_total|Under": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 49.0,
     "no_vig_prob": 0.49924039402281245
   },
   "Georgia Southe @ Old Dominion|game_ats|Georgia Southe": {
     "american": -109.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -3.0,
     "no_vig_prob": 0.5045760877641916
   },
   "Georgia Southe @ Old Dominion|game_ats|Old Dominion": {
     "american": -103.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 3.0,
     "no_vig_prob": 0.4954239122358085
   },
   "Georgia Southe @ Old Dominion|game_ml|Georgia Southe": {
     "american": -150.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.5896231400004659
   },
   "Georgia Southe @ Old Dominion|game_ml|Old Dominion": {
     "american": 143.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.41037685999953416
   },
   "Georgia Southe @ Old Dominion|game_total|Over": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 44.5,
     "no_vig_prob": 0.5025229117513907
   },
   "Georgia Southe @ Old Dominion|game_total|Under": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 44.5,
     "no_vig_prob": 0.49747708824860937
   }

@@ -1,61 +1,85 @@
 {
   "Jacksonville S @ Kennesaw State|game_ats|Jacksonville S": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -3.0,
     "no_vig_prob": 0.49869632202902425
   },
   "Jacksonville S @ Kennesaw State|game_ats|Kennesaw State": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 3.0,
     "no_vig_prob": 0.5013036779709759
   },
   "Jacksonville S @ Kennesaw State|game_ml|Jacksonville S": {
     "american": -150.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.5787250673399131
   },
   "Jacksonville S @ Kennesaw State|game_ml|Kennesaw State": {
     "american": 130.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.4212749326600869
   },
   "Jacksonville S @ Kennesaw State|game_total|Over": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 48.5,
     "no_vig_prob": 0.4972151677881918
   },
   "Jacksonville S @ Kennesaw State|game_total|Under": {
     "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 48.5,
     "no_vig_prob": 0.5027848322118083
   },
   "New Mexico Sta @ Florida Intern|game_ats|Florida Intern": {
     "american": 100.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -7.0,
     "no_vig_prob": 0.489333743106313
   },
   "New Mexico Sta @ Florida Intern|game_ats|New Mexico Sta": {
     "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 7.0,
     "no_vig_prob": 0.5106662568936869
   },
   "New Mexico Sta @ Florida Intern|game_ml|Florida Intern": {
     "american": -245.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.6938998843524935
   },
   "New Mexico Sta @ Florida Intern|game_ml|New Mexico Sta": {
     "american": 223.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.30610011564750655
   },
   "New Mexico Sta @ Florida Intern|game_total|Over": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 46.5,
     "no_vig_prob": 0.4990481923299079
   },
   "New Mexico Sta @ Florida Intern|game_total|Under": {
     "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 46.5,
     "no_vig_prob": 0.5009518076700921
   }

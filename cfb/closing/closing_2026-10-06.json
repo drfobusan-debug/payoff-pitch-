@@ -1,31 +1,43 @@
 {
   "Southern Missi @ Troy|game_ats|Southern Missi": {
     "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 10.0,
     "no_vig_prob": 0.5010302808543444
   },
   "Southern Missi @ Troy|game_ats|Troy": {
     "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -10.0,
     "no_vig_prob": 0.4989697191456556
   },
   "Southern Missi @ Troy|game_ml|Southern Missi": {
     "american": 325.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.23016414562118245
   },
   "Southern Missi @ Troy|game_ml|Troy": {
     "american": -400.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.7698358543788176
   },
   "Southern Missi @ Troy|game_total|Over": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 51.5,
     "no_vig_prob": 0.5004046499130812
   },
   "Southern Missi @ Troy|game_total|Under": {
     "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 51.5,
     "no_vig_prob": 0.49959535008691885
   }

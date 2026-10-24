@@ -1,61 +1,85 @@
 {
   "Jacksonville S @ New Mexico Sta|game_ats|Jacksonville S": {
     "american": -122.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -2.5,
     "no_vig_prob": 0.5236051502145922
   },
   "Jacksonville S @ New Mexico Sta|game_ats|New Mexico Sta": {
     "american": 100.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 2.5,
     "no_vig_prob": 0.47639484978540764
   },
   "Jacksonville S @ New Mexico Sta|game_ml|Jacksonville S": {
     "american": -146.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.5685118922332141
   },
   "Jacksonville S @ New Mexico Sta|game_ml|New Mexico Sta": {
     "american": 122.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.4314881077667859
   },
   "Jacksonville S @ New Mexico Sta|game_total|Over": {
     "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 49.5,
     "no_vig_prob": 0.5
   },
   "Jacksonville S @ New Mexico Sta|game_total|Under": {
     "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 49.5,
     "no_vig_prob": 0.5
   },
   "Kennesaw State @ Middle Tenness|game_ats|Kennesaw State": {
     "american": -122.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 3.5,
     "no_vig_prob": 0.5236051502145922
   },
   "Kennesaw State @ Middle Tenness|game_ats|Middle Tenness": {
     "american": 100.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": -3.5,
     "no_vig_prob": 0.47639484978540764
   },
   "Kennesaw State @ Middle Tenness|game_ml|Kennesaw State": {
     "american": 128.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.41975145425700683
   },
   "Kennesaw State @ Middle Tenness|game_ml|Middle Tenness": {
     "american": -154.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": null,
     "no_vig_prob": 0.5802485457429931
   },
   "Kennesaw State @ Middle Tenness|game_total|Over": {
     "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 50.5,
     "no_vig_prob": 0.5
   },
   "Kennesaw State @ Middle Tenness|game_total|Under": {
     "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
     "line": 50.5,
     "no_vig_prob": 0.5
   }
