@@ -30,12 +30,14 @@ from cfb_engine.audit.availability import read_log, summarize
 from cfb_engine.audit.clv import (
     ClosingQuote,
     bet_clv_summary,
+    close_due,
     closing_quotes,
     compute_clv,
     drop_in_play,
     load_closing,
     merge_closing,
     save_closing,
+    timely_only,
 )
 from cfb_engine.audit.grade import ResultIndex, build_result_index, grade, result_for
 from cfb_engine.audit.ledger import (
@@ -231,6 +233,16 @@ def cmd_card(cfg: Config, args: argparse.Namespace) -> int:
 
 def cmd_close(cfg: Config, args: argparse.Namespace) -> int:
     day = _day(args)
+    within = getattr(args, "within", None)
+    if within is not None:
+        # Kickoffs come from the slate's saved predictions: free, no Odds API call.
+        recs = load_json(cfg.predictions_file(day)) if cfg.predictions_file(day).exists() else []
+        kicks = {r.matchup: r.kickoff_utc or "" for r in recs}
+        due = close_due(kicks, load_closing(cfg.closing_file(day)), datetime.now(timezone.utc), within)
+        if not due:
+            print(f"No game kicks off within {within:g} min without a close; nothing fetched")
+            return 0
+        print(f"Closing {len(due)} game(s): {', '.join(due)}")
     odds = OddsAPIClient(
         cfg.creds.odds_api_key, regions=cfg.odds_regions, cache_dir=cfg.odds_cache_dir, cache_ttl=0
     )
@@ -400,6 +412,9 @@ def _audit_slate(cfg: Config, day: Date) -> tuple[list[LedgerEntry], int] | None
         print(
             f"Close ignored for {len(in_play)} game(s) quoted in play: {', '.join(sorted(in_play))}"
         )
+    closing, stale = timely_only(closing)
+    if stale:
+        print(f"Close ignored for {stale} side(s) not captured within 45 min of kickoff")
     if closing:
         # entries_from_graded emits one entry per graded rec, in order, so the
         # rec's side (cover/over/under) travels with its ledger row.
@@ -492,6 +507,7 @@ def _grade_podcasts(cfg: Config, day: Date, index: ResultIndex) -> int:
             return 0
         board = snapshot.load(cfg.board_file(day))
         closing, _ = drop_in_play(load_closing(cfg.closing_file(day)), board)
+        closing, _ = timely_only(closing)
         rows = [grade_row(pl, index, board, closing) for pl in slate.placed]
         graded = [r for r in rows if r["result"]]
         update_podcast_ledger(cfg.podcast_ledger_file, rows, day)
@@ -796,7 +812,7 @@ def cmd_repair_closes(cfg: Config, args: argparse.Namespace) -> int:
             dropped_total += len(bad)
             print(f"{iso}: dropped in-play close for {len(bad)} game(s): {', '.join(sorted(bad))}")
         day_rows = [e for e in entries if e.date == iso]
-        _restamp_clv(cfg, day_rows, kept)
+        _restamp_clv(cfg, day_rows, timely_only(kept)[0])
         update_ledger(cfg.ledger_file, day_rows, day)
     merged = load_ledger(cfg.ledger_file)
     stamped = sum(1 for e in merged if e.clv is not None)
@@ -923,7 +939,15 @@ def _build_parser() -> argparse.ArgumentParser:
     add_common(
         sub.add_parser("card", help="rebuild article/PDF/MP3 from saved predictions"), email=True
     )
-    add_common(sub.add_parser("close", help="snapshot the closing market"))
+    cl = sub.add_parser("close", help="snapshot the closing market")
+    add_common(cl)
+    cl.add_argument(
+        "--within",
+        type=float,
+        default=None,
+        metavar="MIN",
+        help="fetch only if a game kicks off within MIN minutes with no close yet",
+    )
     add_common(sub.add_parser("opener", help="capture the coming week's boards near the open"))
     add_common(sub.add_parser("audit", help="grade a slate and update the ledger"), email=True)
     sub.add_parser("repair-closes", help="purge in-play quotes from saved closes and re-stamp CLV")
