@@ -408,7 +408,9 @@ def cmd_alt_report(args: argparse.Namespace) -> int:
     root = data_dir()
     if cfg.state_sync and not args.no_sync:
         state.auto_pull(root, trees=("ledger",))
-    table = altlines.report(ledger.graded_rows(root, _ledger_days(root, args.since, args.until)))
+    days = _ledger_days(root, args.since, args.until)
+    passes = [r for d in days for r in ledger.passes(root, d)]
+    table = altlines.report(ledger.graded_rows(root, days), passes)
     if not table:
         print("no graded alternate lines in range")
         return 0
