@@ -30,6 +30,7 @@ from mlb_engine.state import (
     merge_dated_csv,
     push_refusal,
     repo_root,
+    synced,
 )
 
 PREFIX = "cfb"
@@ -145,6 +146,7 @@ def production_data_dir() -> Path:
     return Path.home() / ".cfb_engine"
 
 
+@synced
 def pull_state(
     data_dir: Path,
     repo: Path | None = None,
@@ -198,6 +200,7 @@ def _stage_predictions(state: Path, audit: Path) -> tuple[list[str], int]:
     return staged, pruned
 
 
+@synced
 def push_state(
     data_dir: Path,
     message: str,
