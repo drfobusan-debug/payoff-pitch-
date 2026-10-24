@@ -30,8 +30,8 @@ footing before they can be subtracted. Two steps:
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from datetime import datetime, timezone
+from dataclasses import dataclass, replace
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from cfb_engine.audit import snapshot
@@ -45,7 +45,9 @@ __all__ = [
     "ClosingQuote",
     "ClvResult",
     "ClvSummary",
+    "STALE_CLOSE_MIN",
     "bet_clv_summary",
+    "close_due",
     "closing_quotes",
     "clv_summary",
     "compute_clv",
@@ -54,6 +56,8 @@ __all__ = [
     "load_closing",
     "merge_closing",
     "save_closing",
+    "timely_close",
+    "timely_only",
 ]
 
 
@@ -69,7 +73,66 @@ def closing_quotes(
     """
     now = now or datetime.now(timezone.utc)
     pregame = [g for g in slate.games if not _has_started(g.commence_time_utc, now)]
-    return snapshot.board_quotes(slate.model_copy(update={"games": pregame}), board)
+    quotes = snapshot.board_quotes(slate.model_copy(update={"games": pregame}), board)
+    stamp = now.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    kick = {g.matchup(): g.commence_time_utc or "" for g in pregame}
+    return {
+        k: replace(q, captured_at=stamp, kickoff_utc=kick.get(k.split("|", 1)[0], ""))
+        for k, q in quotes.items()
+    }
+
+
+#: A close taken earlier than this before kickoff is not the close.
+STALE_CLOSE_MIN = 45.0
+
+
+def _utc(stamp: str | None) -> datetime | None:
+    if not stamp:
+        return None
+    try:
+        t = datetime.fromisoformat(stamp.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return (t if t.tzinfo else t.replace(tzinfo=timezone.utc)).astimezone(timezone.utc)
+
+
+def timely_close(q: ClosingQuote) -> bool:
+    """Captured before kickoff and no more than ``STALE_CLOSE_MIN`` ahead of it.
+
+    An unstamped quote (every close written before the per-game close) cannot
+    show when it was taken, so it is not a close.
+    """
+    seen, kick = _utc(q.captured_at), _utc(q.kickoff_utc)
+    if seen is None or kick is None:
+        return False
+    return timedelta(0) < kick - seen <= timedelta(minutes=STALE_CLOSE_MIN)
+
+
+def timely_only(closing: dict[str, ClosingQuote]) -> tuple[dict[str, ClosingQuote], int]:
+    """The closes CLV may be scored against, and how many sides were left out."""
+    kept = {k: q for k, q in closing.items() if timely_close(q)}
+    return kept, len(closing) - len(kept)
+
+
+def close_due(
+    kickoffs: dict[str, str], closing: dict[str, ClosingQuote], now: datetime, within_min: float
+) -> list[str]:
+    """Matchups kicking off within ``within_min`` whose close is not yet on file."""
+    out = []
+    for matchup, stamp in sorted(kickoffs.items()):
+        kick = _utc(stamp)
+        if kick is None or not now < kick <= now + timedelta(minutes=within_min):
+            continue
+        lo = kick - timedelta(minutes=within_min)
+        done = any(
+            k.split("|", 1)[0] == matchup
+            and (seen := _utc(q.captured_at)) is not None
+            and lo <= seen < kick
+            for k, q in closing.items()
+        )
+        if not done:
+            out.append(matchup)
+    return out
 
 
 def _has_started(commence_time_utc: str | None, now: datetime) -> bool:

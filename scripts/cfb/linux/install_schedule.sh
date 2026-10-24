@@ -2,7 +2,7 @@
 # Install the hands-off daily college-football schedule on Linux (cron).
 # Adds three cron jobs that run by themselves every day:
 #   * 09:00              price + email today's card   (cfb-engine run)
-#   * 11/15/19/23:00     CLV closing-line snapshots   (cfb-engine close)
+#   * every 5 min 11-23  per-game close ~10 min before kickoff (cfb-engine close --within 15)
 #   * 03:00              grade yesterday + email recap (cfb-engine audit)
 #   * 07:00              capture the coming week's boards (cfb-engine opener)
 #   * Sunday 08:00       weekly audit article + email (cfb-engine weekly)
@@ -35,7 +35,7 @@ existing="$(crontab -l 2>/dev/null | grep -vF "$MARKER" || true)"
 {
     [ -n "$existing" ] && printf '%s\n' "$existing"
     echo "0 $RUN_HOUR * * * $AUTORUN run >> $LOG 2>&1 $MARKER"
-    echo "0 11,15,19,23 * * * $AUTORUN close >> $LOG 2>&1 $MARKER"
+    echo "*/5 11-23 * * * $AUTORUN close --within 15 >> $LOG 2>&1 $MARKER"
     echo "0 $AUDIT_HOUR * * * $AUTORUN audit >> $LOG 2>&1 $MARKER"
     echo "0 $OPENER_HOUR * * * $AUTORUN opener >> $LOG 2>&1 $MARKER"
     echo "0 $WEEKLY_HOUR * * 0 $AUTORUN weekly >> $LOG 2>&1 $MARKER"

@@ -2,7 +2,7 @@
 # Install the hands-off daily college-football schedule on macOS (launchd).
 # Creates three LaunchAgents that run by themselves every day:
 #   * com.payoffpitch.cfb.predictions -> 09:00  price + email today's card
-#   * com.payoffpitch.cfb.close       -> 11:00/15:00/19:00/23:00  CLV snapshots
+#   * com.payoffpitch.cfb.close       -> every 5 min 11:00-23:55: each game's close ~10 min before kickoff
 #   * com.payoffpitch.cfb.audit       -> 03:00  grade yesterday + email recap
 #   * com.payoffpitch.cfb.opener      -> 07:00  capture the coming week's boards
 #   * com.payoffpitch.cfb.weekly      -> Sunday 08:00  weekly audit article + email
@@ -94,15 +94,22 @@ install_agent "com.payoffpitch.cfb.podcast" '    <key>StartCalendarInterval</key
     </array>' podcast
 install_agent "com.payoffpitch.cfb.podcast-card" "$(single_time 20)" podcast --card
 
-# Closing-line snapshots throughout the game day (repeat-safe since PR #69).
+# The per-game close: a tick every five minutes, 11:00-23:55. A tick fetches the
+# board (~3 credits) only when a game kicks off within CLOSE_WITHIN_MIN and has
+# no close yet, so each game is closed about ten minutes before kickoff and every
+# quote is stamped with when it was taken. Other ticks cost nothing.
+CLOSE_WITHIN_MIN="${CFB_CLOSE_WITHIN_MIN:-15}"
 CLOSE_CAL='    <key>StartCalendarInterval</key>
     <array>
-        <dict><key>Hour</key><integer>11</integer><key>Minute</key><integer>0</integer></dict>
-        <dict><key>Hour</key><integer>15</integer><key>Minute</key><integer>0</integer></dict>
-        <dict><key>Hour</key><integer>19</integer><key>Minute</key><integer>0</integer></dict>
-        <dict><key>Hour</key><integer>23</integer><key>Minute</key><integer>0</integer></dict>
-    </array>'
-install_agent "com.payoffpitch.cfb.close" "$CLOSE_CAL" close
+'
+for h in $(seq 11 23); do
+    for m in 0 5 10 15 20 25 30 35 40 45 50 55; do
+        CLOSE_CAL="$CLOSE_CAL        <dict><key>Hour</key><integer>$h</integer><key>Minute</key><integer>$m</integer></dict>
+"
+    done
+done
+CLOSE_CAL="$CLOSE_CAL    </array>"
+install_agent "com.payoffpitch.cfb.close" "$CLOSE_CAL" close --within "$CLOSE_WITHIN_MIN"
 
 echo
 echo "Done. The CFB card, CLV snapshots, and audit now run automatically every day."

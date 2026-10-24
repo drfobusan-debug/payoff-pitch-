@@ -51,6 +51,10 @@ class SideQuote:
     american: float
     no_vig_prob: float
     line: float | None = None
+    #: When the board was fetched and when the game kicks (ISO UTC). Blank on
+    #: every snapshot written before the per-game close stamped them.
+    captured_at: str = ""
+    kickoff_utc: str = ""
 
 
 def _quote(quotes: list[MarketQuote], line: float | None) -> SideQuote | None:
@@ -110,7 +114,13 @@ def merge_last_wins(
 def save(quotes: dict[str, SideQuote], path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     payload = {
-        k: {"american": q.american, "no_vig_prob": q.no_vig_prob, "line": q.line}
+        k: {
+            "american": q.american,
+            "no_vig_prob": q.no_vig_prob,
+            "line": q.line,
+            "captured_at": q.captured_at,
+            "kickoff_utc": q.kickoff_utc,
+        }
         for k, q in quotes.items()
     }
     path.write_text(json.dumps(payload, indent=2, sort_keys=True))
@@ -133,7 +143,11 @@ def load(path: Path) -> dict[str, SideQuote]:
         if line is None:
             line = _line_in(parts[-1])
         out[k if len(parts) < 3 else key(parts[0], parts[1], parts[2])] = SideQuote(
-            v["american"], v["no_vig_prob"], line
+            v["american"],
+            v["no_vig_prob"],
+            line,
+            str(v.get("captured_at") or ""),
+            str(v.get("kickoff_utc") or ""),
         )
     return out
 
