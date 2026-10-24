@@ -20,12 +20,13 @@ from __future__ import annotations
 
 import argparse
 import logging
+import os
 import sys
 from datetime import date as Date
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
-from cfb_engine.audit import shop, snapshot, watchlist
+from cfb_engine.audit import altlines, shop, snapshot, watchlist
 from cfb_engine.audit.availability import read_log, summarize
 from cfb_engine.audit.clv import (
     ClosingQuote,
@@ -69,6 +70,7 @@ from cfb_engine.audit.weekly import weekly_audit
 from cfb_engine.config import Config, load_config
 from cfb_engine.data.cfbd import CFBDClient
 from cfb_engine.data.oddsapi import OddsAPIClient
+from cfb_engine.data.teamnames import norm
 from cfb_engine.market import atscontext, lowtotal, unitranks, yppmatch
 from cfb_engine.market.tiers import Tier
 from cfb_engine.output.audit_report import generate_audit_report
@@ -171,6 +173,71 @@ def _low_total_record(cfg: Config) -> Probation | None:
     return verdict
 
 
+def _tier(rec: Recommendation) -> str:
+    return str(getattr(rec.tier, "value", rec.tier))
+
+
+def _capture_alt_lines(cfg: Config, day: Date, recs: list[Recommendation]) -> None:
+    """Alternate numbers for each game with a spread buy or graded-only total."""
+    if os.getenv("CFBE_ALT_LINES", "1") == "0":
+        return
+    matchups = {r.matchup for r in recs if altlines.tracked(r.market, _tier(r), r.pass_gate)}
+    if not matchups:
+        return
+    odds = OddsAPIClient(
+        cfg.creds.odds_api_key, regions=cfg.odds_regions, cache_dir=cfg.odds_cache_dir, cache_ttl=0
+    )
+    n = altlines.append(odds.fetch_alt_lines(day, matchups), cfg.altlines_file(day))
+    print(f"Alternate lines: {n} quotes for {len(matchups)} game(s) -> {cfg.altlines_file(day)}")
+
+
+def _grade_alt_lines(
+    cfg: Config, day: Date, graded: list[tuple[Recommendation, str]], index: ResultIndex
+) -> int:
+    quotes = altlines.load(cfg.altlines_file(day))
+    if not quotes:
+        return 0
+    out: list[altlines.AltRow] = []
+    for rec, _ in graded:
+        tier = _tier(rec)
+        if rec.line is None or not altlines.tracked(rec.market, tier, rec.pass_gate):
+            continue
+        final = result_for(rec, index)
+        side = rec.side if rec.market == "game_total" else rec.team_side
+        if final is None or not side:
+            continue
+        home_pts, away_pts = final.home_points, final.away_points
+        if rec.home_abbrev and norm(final.away).startswith(norm(rec.home_abbrev)):
+            home_pts, away_pts = away_pts, home_pts
+        out += altlines.grade(
+            date=day.isoformat(),
+            matchup=rec.matchup,
+            market=rec.market,
+            selection=rec.selection,
+            main_line=rec.line,
+            tier=tier,
+            side=side,
+            home_pts=home_pts,
+            away_pts=away_pts,
+            rows=quotes,
+            kickoff_utc=rec.kickoff_utc or "",
+        )
+    n = altlines.save_day(cfg.alt_ledger_file, day.isoformat(), out)
+    print(f"Graded {n} alternate lines (tracked only) -> {cfg.alt_ledger_file}")
+    return n
+
+
+def cmd_alt_report(cfg: Config, args: argparse.Namespace) -> int:
+    rows = altlines.report(cfg.alt_ledger_file)
+    if not rows:
+        print("No graded alternate lines yet.")
+        return 0
+    print(f"{'group':34s} {'n':>5s} {'W-L':>9s} {'units':>8s} {'ROI':>7s}")
+    for label, n, w, lo, units, roi in rows:
+        print(f"{label:34s} {n:5d} {f'{w}-{lo}':>9s} {units:+8.2f} {roi:+7.1%}")
+    return 0
+
+
 def cmd_run(cfg: Config, args: argparse.Namespace) -> int:
     day = _day(args)
     # The first-seen board may already be on the branch from another machine's
@@ -183,6 +250,7 @@ def cmd_run(cfg: Config, args: argparse.Namespace) -> int:
         return 0
 
     save_json(recs, cfg.predictions_file(day))
+    _capture_alt_lines(cfg, day, recs)
     _state_push(cfg, f"cfb run {day.isoformat()}: {len(recs)} markets priced")
     xlsx = write_workbook(recs, cfg.output_dir / f"PayoffPitch_CFB_{day.isoformat()}.xlsx", day)
     print(f"Wrote {len(recs)} recommendations -> {xlsx}")
@@ -421,6 +489,7 @@ def _audit_slate(cfg: Config, day: Date) -> tuple[list[LedgerEntry], int] | None
     _stamp_units(entries, _unit_ranks(cfg, day))
     _stamp_ypp(entries, _ypp_book(cfg, day))
     _stamp_shop(cfg, day, entries, graded, index)
+    _grade_alt_lines(cfg, day, graded, index)
     merged = update_ledger(cfg.ledger_file, entries, day)
     print(f"Graded {len(entries)} markets; ledger now {len(merged)} rows.")
 
@@ -926,6 +995,7 @@ def _build_parser() -> argparse.ArgumentParser:
     add_common(sub.add_parser("close", help="snapshot the closing market"))
     add_common(sub.add_parser("opener", help="capture the coming week's boards near the open"))
     add_common(sub.add_parser("audit", help="grade a slate and update the ledger"), email=True)
+    sub.add_parser("alt-report", help="record of the tracked alternate spreads and totals")
     sub.add_parser("repair-closes", help="purge in-play quotes from saved closes and re-stamp CLV")
     sub.add_parser(
         "stamp-units",
@@ -964,6 +1034,7 @@ _DISPATCH = {
     "run": cmd_run,
     "card": cmd_card,
     "close": cmd_close,
+    "alt-report": cmd_alt_report,
     "opener": cmd_opener,
     "audit": cmd_audit,
     "repair-closes": cmd_repair_closes,
