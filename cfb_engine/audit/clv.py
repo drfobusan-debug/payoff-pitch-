@@ -115,22 +115,33 @@ def timely_only(closing: dict[str, ClosingQuote]) -> tuple[dict[str, ClosingQuot
 
 
 def close_due(
-    kickoffs: dict[str, str], closing: dict[str, ClosingQuote], now: datetime, within_min: float
+    kickoffs: dict[str, str],
+    closing: dict[str, ClosingQuote],
+    now: datetime,
+    within_min: float,
+    sides: dict[str, set[str]] | None = None,
 ) -> list[str]:
-    """Matchups kicking off within ``within_min`` whose close is not yet on file."""
+    """Matchups kicking off within ``within_min`` whose close is not yet on file.
+
+    With ``sides`` (the snapshot keys the card priced, per matchup) a game stays
+    due until every one of them has a close stamped inside the window, so a
+    board missing a market at one tick is retried at the next.
+    """
     out = []
     for matchup, stamp in sorted(kickoffs.items()):
         kick = _utc(stamp)
         if kick is None or not now < kick <= now + timedelta(minutes=within_min):
             continue
         lo = kick - timedelta(minutes=within_min)
-        done = any(
-            k.split("|", 1)[0] == matchup
+        stamped = {
+            k
+            for k, q in closing.items()
+            if k.split("|", 1)[0] == matchup
             and (seen := _utc(q.captured_at)) is not None
             and lo <= seen < kick
-            for k, q in closing.items()
-        )
-        if not done:
+        }
+        wanted = (sides or {}).get(matchup)
+        if not (wanted <= stamped if wanted else stamped):
             out.append(matchup)
     return out
 

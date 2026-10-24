@@ -52,3 +52,15 @@ def test_a_game_is_due_once_inside_its_window() -> None:
     assert close_due(kicks, done, now, 15) == []
     early = {"A @ B|game_ml|B": ClosingQuote(-160.0, 0.6, None, "2026-10-24T11:00:00Z", KICK)}
     assert close_due(kicks, early, now, 15) == ["A @ B"]
+
+
+def test_a_game_stays_due_until_every_priced_side_has_its_close() -> None:
+    now = datetime(2026, 10, 24, 15, 48, tzinfo=timezone.utc)
+    sides = {"A @ B": {"A @ B|game_ml|B", "A @ B|game_ats|B"}}
+    partial = {"A @ B|game_ml|B": ClosingQuote(-160.0, 0.6, None, "2026-10-24T15:47:00Z", KICK)}
+    assert close_due({"A @ B": KICK}, partial, now, 15, sides) == ["A @ B"]
+    full = {
+        **partial,
+        "A @ B|game_ats|B": ClosingQuote(-110.0, 0.5, -3.5, "2026-10-24T15:47:00Z", KICK),
+    }
+    assert close_due({"A @ B": KICK}, full, now, 15, sides) == []
