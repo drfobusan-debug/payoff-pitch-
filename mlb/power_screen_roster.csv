@@ -206,3 +206,11 @@ date,run_id,arm_tier,kind,name,player_id,team,game_pk,versus,versus_id,slot,proj
 2026-10-23,20261023T1534Z,elite,bat,Luis Lara,800325,MIL,849805,Nick Martinez,607259,8,True,SCREEN WATCH,,held,,
 2026-10-23,20261023T1534Z,soft,arm,Nick Martinez,607259,TB,849805,Nick Martinez,607259,,False,,,gated,siera: SIERA 4.18 ≤ 4.40,4.18
 2026-10-23,20261023T1534Z,soft,arm,Jacob Misiorowski,694819,MIL,849805,Jacob Misiorowski,694819,,False,,,gated,siera: SIERA 2.56 ≤ 4.40,2.56
+2026-10-24,20261024T1534Z,elite,arm,Drew Rasmussen,656876,TB,849802,Drew Rasmussen,656876,,False,,,gated,siera: SIERA 2.95 ≤ 3.25,2.95
+2026-10-24,20261024T1534Z,elite,arm,Logan Henderson,701656,MIL,849802,Logan Henderson,701656,,False,,,screened,,3.37
+2026-10-24,20261024T1534Z,elite,bat,Yandy Diaz,650490,TB,849802,Logan Henderson,701656,1,True,SCREEN WATCH,,held,,
+2026-10-24,20261024T1534Z,elite,bat,Jonathan Aranda,666018,TB,849802,Logan Henderson,701656,2,True,SCREEN WATCH,,held,,
+2026-10-24,20261024T1534Z,elite,bat,Taylor Walls,670764,TB,849802,Logan Henderson,701656,9,True,SCREEN WATCH,,held,,
+2026-10-24,20261024T1534Z,elite,bat,Junior Caminero,691406,TB,849802,Logan Henderson,701656,3,True,SCREEN WATCH,,held,,
+2026-10-24,20261024T1534Z,soft,arm,Drew Rasmussen,656876,TB,849802,Drew Rasmussen,656876,,False,,,gated,siera: SIERA 2.95 ≤ 4.40,2.95
+2026-10-24,20261024T1534Z,soft,arm,Logan Henderson,701656,MIL,849802,Logan Henderson,701656,,False,,,gated,siera: SIERA 3.37 ≤ 4.40,3.37
