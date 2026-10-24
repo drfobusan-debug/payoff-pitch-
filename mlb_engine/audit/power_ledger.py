@@ -30,9 +30,10 @@ import csv
 import logging
 import unicodedata
 from collections import defaultdict
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from dataclasses import asdict, dataclass, field, replace
 from datetime import date as Date
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from mlb_engine.audit.clv import ClosingQuote, clv_ev, is_plausible_close
@@ -464,8 +465,65 @@ class GradedPosition:
     units: float
 
 
+#: Why a row with a final box score is still not graded.
+PLAYED_ANOTHER_DAY = "played on another day"
+PRICED_AFTER_START = "priced at or after first pitch"
+#: A close taken earlier than this before first pitch is not the close.
+STALE_CLOSE_MIN = 45.0
+
+
+def parse_utc(stamp: str) -> datetime | None:
+    """An ISO stamp (``...Z`` or offset) as aware UTC; ``None`` if blank or unreadable."""
+    if not stamp:
+        return None
+    try:
+        t = datetime.fromisoformat(stamp.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return (t if t.tzinfo else t.replace(tzinfo=timezone.utc)).astimezone(timezone.utc)
+
+
+def run_time(run_id: str) -> datetime | None:
+    """When a run of the screen priced its board (``20261019T2159Z``)."""
+    try:
+        return datetime.strptime(run_id, "%Y%m%dT%H%MZ").replace(tzinfo=timezone.utc)
+    except ValueError:
+        return None
+
+
+def timing_void(p: Position, res: GameResult) -> str | None:
+    """Why ``p`` is not a bet on the game in ``res``, or ``None`` if it is.
+
+    A rainout keeps its ``game_pk`` and is made up on another day, so the box
+    score under the key is a different game from the one priced; a book voids
+    the prop. A row priced once the game had started took an in-play price. A
+    blank schedule stamp voids nothing.
+    """
+    if res.official_date and res.official_date != p.date:
+        return PLAYED_ANOTHER_DAY
+    start, priced = parse_utc(res.start_utc), run_time(p.run_id)
+    if start is not None and priced is not None and priced >= start:
+        return PRICED_AFTER_START
+    return None
+
+
+def timing_voids(
+    positions: Iterable[Position], results: Mapping[int, GameResult]
+) -> dict[str, int]:
+    """How many rows ``timing_void`` takes out of the record, by reason."""
+    out: dict[str, int] = defaultdict(int)
+    for p in positions:
+        res = results.get(p.game_pk) if p.game_pk is not None else None
+        if res is None or not res.final:
+            continue
+        why = timing_void(p, res)
+        if why is not None:
+            out[why] += 1
+    return dict(out)
+
+
 def grade_positions(
-    positions: list[Position], results: dict[int, GameResult]
+    positions: list[Position], results: Mapping[int, GameResult]
 ) -> tuple[list[GradedPosition], int]:
     """Grade what can be graded; return the rows and the count that could not be.
 
@@ -479,6 +537,9 @@ def grade_positions(
     for p in positions:
         res = results.get(p.game_pk) if p.game_pk is not None else None
         if res is None or not res.final or p.player_id is None or p.line is None:
+            voided += 1
+            continue
+        if timing_void(p, res) is not None:
             voided += 1
             continue
         if p.category == "pitcher":
@@ -660,10 +721,47 @@ class Closed:
     close_ev: float
     #: EV of the recorded price under the bet-time no-vig probability: the juice.
     bet_ev: float
+    #: The snapshot quote itself, for when it was captured.
+    quote: ClosingQuote | None = None
 
 
-def closed(graded: list[GradedPosition], index_for_day: dict[str, CloseIndex]) -> list[Closed]:
-    """Every decided two-sided row whose prop was captured at the close."""
+def timely_close(q: ClosingQuote, start_utc: str) -> bool:
+    """Captured before first pitch and no more than ``STALE_CLOSE_MIN`` ahead of it.
+
+    A quote with no capture stamp (every close written before stamps existed)
+    cannot show when it was taken, so it is not counted as a close.
+    """
+    captured, start = parse_utc(q.captured_at), parse_utc(start_utc)
+    if captured is None or start is None:
+        return False
+    lead = start - captured
+    return timedelta(0) < lead <= timedelta(minutes=STALE_CLOSE_MIN)
+
+
+def closed(
+    graded: list[GradedPosition],
+    index_for_day: dict[str, CloseIndex],
+    starts: Mapping[int, str],
+) -> list[Closed]:
+    """Every decided two-sided row whose prop was captured at its game's close."""
+    return [c for c in _closes(graded, index_for_day) if _timely(c, starts)]
+
+
+def untimely_closes(
+    graded: list[GradedPosition],
+    index_for_day: dict[str, CloseIndex],
+    starts: Mapping[int, str],
+) -> int:
+    """Rows that met a snapshot not taken inside ``STALE_CLOSE_MIN`` of first pitch."""
+    return sum(1 for c in _closes(graded, index_for_day) if not _timely(c, starts))
+
+
+def _timely(c: Closed, starts: Mapping[int, str]) -> bool:
+    pk = c.graded.position.game_pk
+    return c.quote is not None and pk is not None and timely_close(c.quote, starts.get(pk, ""))
+
+
+def _closes(graded: list[GradedPosition], index_for_day: dict[str, CloseIndex]) -> list[Closed]:
     out: list[Closed] = []
     for g in graded:
         p = g.position
@@ -683,6 +781,7 @@ def closed(graded: list[GradedPosition], index_for_day: dict[str, CloseIndex]) -
                 clv=q.no_vig_prob - p.fair_prob,
                 close_ev=clv_ev(p.odds, q.no_vig_prob),
                 bet_ev=p.fair_prob * american_to_decimal(p.odds) - 1.0,
+                quote=q,
             )
         )
     return out

@@ -21,8 +21,9 @@ VENV_DIR="${VENV_DIR:-$REPO_DIR/.venv}"
 ENV_FILE="${ENV_FILE:-/etc/engine.env}"
 AUDIT_CMD="${AUDIT_CMD:-mlb-engine audit --report --email}"
 MORNING_WAKE_HHMM="${MORNING_WAKE_HHMM:-10:00}"
-CLOSE_WAKE_HHMM="${CLOSE_WAKE_HHMM:-18:35}"
-DAY_CLOSE_WAKE_HHMM="${DAY_CLOSE_WAKE_HHMM:-12:45}"
+# The per-game MLB close: every five-minute tick closes any game starting inside
+# this many minutes that has no close yet (so about ten minutes before it).
+MLB_CLOSE_WITHIN_MIN="${MLB_CLOSE_WITHIN_MIN:-15}"
 CFB_WAKE_HHMM="${CFB_WAKE_HHMM:-09:00}"
 # NFL pre-kickoff closes: "weekday=HH:MM" wakes (launchd weekday, 0=Sun), five
 # minutes ahead of each nfl-close run. Must match setup_engine_autorun.sh.
@@ -168,23 +169,26 @@ if [[ "$MODE" == "night" ]]; then
       ;;
   esac
 elif [[ "$MODE" == "close" ]]; then
-  # Snapshot today's CLOSING market so tomorrow morning's audit can score closing
-  # line value (CLV) -- the fast way to tell whether a pick had real edge. Runs
-  # twice a day (afternoon + evening) and merges, because a started game leaves
-  # the pre-match board. Cheap (~3 credits + one per event for props).
-  mlb-engine close || echo "[$(date)] 'mlb-engine close' exited non-zero" >&2
-  # Lineups posted since the last slate pass, stamped with when they were seen.
-  # Free (StatsAPI); the close's own slate fetch records them too, but a close
-  # that finds no pre-match board exits before it writes anything.
-  mlb-engine lineups || echo "[$(date)] 'mlb-engine lineups' exited non-zero" >&2
-  # Re-arm tonight's evening capture in case the Mac would sleep before it.
-  pmset_ schedule wake "$(date +%m/%d/%Y) ${CLOSE_WAKE_HHMM}:00" || echo "[$(date)] could not arm evening wake" >&2
-  # Wed/Sat/Sun evenings also arm the NFL night-before board capture. %u: 1=Mon .. 7=Sun.
-  case "$(date +%u)" in
-    3|6|7)
-      pmset_ schedule wake "$(date +%m/%d/%Y) ${NFL_EVE_WAKE_HHMM}:00" || echo "[$(date)] could not arm NFL night-before wake" >&2
-      ;;
-  esac
+  # The per-game CLOSING snapshot, so the audit can score closing line value
+  # (CLV) against the price at first pitch. Runs every five minutes; it fetches
+  # only when a game starts inside MLB_CLOSE_WITHIN_MIN and has no close yet, and
+  # then only that game (~3 credits for the game board + one per F5/prop market).
+  # Every other tick costs nothing. It prints the next close's wake, armed here
+  # once, so a sleeping Mac is up for it.
+  OUT="$(mktemp -t mlbclose)"
+  mlb-engine close --within "${MLB_CLOSE_WITHIN_MIN}" > "$OUT" || echo "[$(date)] 'mlb-engine close' exited non-zero" >&2
+  cat "$OUT"
+  WAKE="$(sed -n 's/^next close wake: //p' "$OUT" | tail -n 1)"
+  rm -f "$OUT"
+  ARMED="$HOME/.mlb_engine/close_wake_armed"
+  if [[ -n "$WAKE" && "$WAKE" != "$(cat "$ARMED" 2>/dev/null || true)" ]]; then
+    if pmset_ schedule wake "$WAKE"; then
+      mkdir -p "$(dirname "$ARMED")" && echo "$WAKE" > "$ARMED"
+      echo "[$(date)] armed MLB close wake for $WAKE"
+    else
+      echo "[$(date)] could not arm the MLB close wake for $WAKE" >&2
+    fi
+  fi
 elif [[ "$MODE" == "react" ]]; then
   # Price-reaction watcher: poll the slate for lineups as they post and snapshot
   # the posted game's props at +0/+5/+15/+30 min, with an hourly before-price.
@@ -258,6 +262,14 @@ elif [[ "$MODE" == slate-* ]]; then
   BLOCK="${MODE#slate-}"
   /usr/bin/caffeinate -i -w $$ &
   arm_next_slate
+  # Wed/Sat/Sun evenings arm the NFL night-before board capture. %u: 1=Mon .. 7=Sun.
+  if [[ "$BLOCK" == "evening" ]]; then
+    case "$(date +%u)" in
+      3|6|7)
+        pmset_ schedule wake "$(date +%m/%d/%Y) ${NFL_EVE_WAKE_HHMM}:00" || echo "[$(date)] could not arm NFL night-before wake" >&2
+        ;;
+    esac
+  fi
   pull_latest
   # Posted lineups, stamped now: a study of who a team sent out (and when that
   # was known) needs the nine as posted, not the box score's. The run records
@@ -354,10 +366,6 @@ else
   # Homebrew libs. Instead hold a background caffeinate tied to THIS script's
   # PID and run the engine as a direct child, so DYLD_*/SSL_CERT_FILE survive.
   /usr/bin/caffeinate -i -w $$ &
-
-  # Arm a one-shot wake for TONIGHT's closing snapshot (same calendar day), so
-  # the close daemon can fire even if the Mac would otherwise sleep by evening.
-  pmset_ schedule wake "$(date +%m/%d/%Y) ${DAY_CLOSE_WAKE_HHMM}:00" || echo "[$(date)] could not arm afternoon wake" >&2
 
   # 0) take whatever has been merged since yesterday.
   pull_latest
