@@ -41,6 +41,7 @@ import json
 import logging
 import sys
 import time
+from collections import defaultdict
 from dataclasses import asdict, replace
 from datetime import date as Date
 from datetime import datetime, timedelta, timezone
@@ -103,33 +104,28 @@ def _stamp(at: datetime) -> str:
     return at.strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
-def _ledger_tips(root: Path, day: Date) -> dict[str, str]:
-    """The earliest tip each game was priced against: the tip the grader cuts closes at."""
-    out: dict[str, str] = {}
+def _ledger_tips(root: Path, day: Date) -> dict[str, set[str]]:
+    """Every tip each game was priced against; the grader cuts closes at its row of record's."""
+    out: dict[str, set[str]] = defaultdict(set)
     for r in ledger.passes(root, day):
-        if r.tip_utc and (r.event_id not in out or r.tip_utc < out[r.event_id]):
-            out[r.event_id] = r.tip_utc
-    return out
+        if r.tip_utc:
+            out[r.event_id].add(r.tip_utc)
+    return dict(out)
 
 
-def _earliest(*raw: str) -> datetime | None:
-    tips = [t for t in (parse_utc(x) for x in raw if x) if t is not None]
-    return min(tips) if tips else None
-
-
-def _close_label(event_id: str) -> str:
-    return f"close-{event_id[:12]}"
+def _close_label(event_id: str, tip: datetime) -> str:
+    return f"close-{event_id[:12]}-{tip:%H%M}"
 
 
 def _capture_closes(
     client: OddsAPIClient, root: Path, slate_date: Date, *, clock=_utcnow
 ) -> list[str]:
-    """Every market for games tipping within the close window, once per game.
+    """Every market for games tipping within the close window, once per known tip.
 
-    The window runs to the earlier of the board's tip now and the tip the ledger
-    priced the game at (the Odds API moves tip times), and the snapshot carries
-    the time of its own fetch. A close that comes back at or after that tip is
-    not written: the grader would drop it.
+    The Odds API moves tip times, and the grader cuts closes at the tip on the
+    row of record, so each tip a game was priced at, and the board's tip now,
+    gets its own close. The snapshot carries the time of its own fetch; a close
+    that comes back at or after its tip is not written: the grader would drop it.
     """
     cfg = load_config()
     slate = client.fetch_events(slate_date=slate_date, horizon_hours=cfg.capture.horizon_hours)
@@ -138,22 +134,23 @@ def _capture_closes(
     priced = _ledger_tips(root, slate_date)
     written: list[str] = []
     for game in slate.games:
-        tip = _earliest(game.start_utc, priced.get(game.event_id, ""))
-        now = clock()
-        if tip is None or not now < tip <= now + window or _close_label(game.event_id) in held:
-            continue
-        taken = _stamp(now)
-        rows = client.fetch_event_markets(
-            [game], markets=ALL_MARKETS, captured_at=taken, max_events=1
-        )
-        if clock() >= tip:
-            print(f"{slate_date}: {game.matchup} close came back after tip; not written")
-            continue
-        path = capture.write_snapshot(
-            rows, root, slate_date, label=_close_label(game.event_id), captured_at=taken
-        )
-        if path is not None:
-            written.append(path.name)
+        raw = {game.start_utc, *priced.get(game.event_id, set())}
+        for tip in sorted(t for t in map(parse_utc, raw) if t is not None):
+            label = _close_label(game.event_id, tip)
+            now = clock()
+            if not now < tip <= now + window or label in held:
+                continue
+            taken = _stamp(now)
+            rows = client.fetch_event_markets(
+                [game], markets=ALL_MARKETS, captured_at=taken, max_events=1
+            )
+            if clock() >= tip:
+                print(f"{slate_date}: {game.matchup} close came back after tip; not written")
+                continue
+            path = capture.write_snapshot(rows, root, slate_date, label=label, captured_at=taken)
+            if path is not None:
+                held.add(label)
+                written.append(path.name)
     return written
 
 
@@ -169,6 +166,8 @@ def _early_pass(
     The card pass prices only games that have not tipped, so an afternoon tip
     would never reach the ledger. Each such game inside ``early_pass_min`` of
     tip gets its first-half and prop markets re-captured and its own ledger pass.
+    A game whose event markets come back empty waits for the next tick, until
+    it is inside the close window; then it is priced from the board alone.
     """
     cfg = load_config().capture
     hour, minute = (int(x) for x in cfg.early_pass_before.split(":"))
@@ -184,7 +183,9 @@ def _early_pass(
         local = tip.astimezone(SLATE_TZ)
         if (local.hour, local.minute) < (hour, minute) and now < tip <= now + window:
             due.append(g)
+    last_call = timedelta(minutes=cfg.close_window_min)
     written: list[str] = []
+    ready: dict[str, str] = {}
     for g in due:
         taken = _stamp(clock())
         rows = client.fetch_event_markets(
@@ -195,10 +196,13 @@ def _early_pass(
         )
         if path is not None:
             written.append(path.name)
-    if due:
+        tip = parse_utc(g.start_utc)
+        if rows or (tip is not None and tip - clock() <= last_call):
+            ready[g.event_id] = g.start_utc
+    if ready:
         at = clock()
         tag = f"early-{at.astimezone(SLATE_TZ):%H%M}"
-        path = _record_pass(root, day, {g.event_id: g.start_utc for g in due}, tag, _stamp(at))
+        path = _record_pass(root, day, ready, tag, _stamp(at))
         if path is not None:
             written.append(path.name)
     return written
