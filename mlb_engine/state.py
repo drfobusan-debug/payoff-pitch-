@@ -35,6 +35,7 @@ import os
 import re
 import shutil
 import subprocess
+import threading
 from collections.abc import Callable, Iterable, Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
@@ -133,7 +134,15 @@ def _git_try(args: list[str], cwd: Path) -> str | None:
     return proc.stderr.strip() or proc.stdout.strip() or f"exit status {proc.returncode}"
 
 
-_HELD: dict[Path, int] = {}
+_LOCAL = threading.local()
+
+
+def _held() -> dict[Path, int]:
+    """Locks this thread holds; another thread or process still waits on the flock."""
+    held: dict[Path, int] | None = getattr(_LOCAL, "held", None)
+    if held is None:
+        held = _LOCAL.held = {}
+    return held
 
 
 @contextmanager
@@ -148,14 +157,15 @@ def _sync_lock(repo: Path, branch: str) -> Iterator[None]:
     makes the second process wait its turn instead.
     """
     lock_path = repo / ".git" / f"state-sync-{branch}.lock"
-    if _HELD.get(lock_path):
+    held = _held()
+    if held.get(lock_path):
         # Already ours: a push re-pulls inside its own lock, and a second
         # flock on a new descriptor would wait on this process forever.
-        _HELD[lock_path] += 1
+        held[lock_path] += 1
         try:
             yield
         finally:
-            _HELD[lock_path] -= 1
+            held[lock_path] -= 1
         return
     try:
         lock_path.parent.mkdir(parents=True, exist_ok=True)
@@ -166,11 +176,11 @@ def _sync_lock(repo: Path, branch: str) -> Iterator[None]:
         return
     with fh:
         fcntl.flock(fh, fcntl.LOCK_EX)
-        _HELD[lock_path] = 1
+        held[lock_path] = 1
         try:
             yield
         finally:
-            _HELD.pop(lock_path, None)
+            held.pop(lock_path, None)
             fcntl.flock(fh, fcntl.LOCK_UN)
 
 

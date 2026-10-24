@@ -21,9 +21,9 @@ def test_the_lock_is_reentrant_in_one_process(tmp_path):
     (tmp_path / ".git").mkdir()
     with mlb_state._sync_lock(tmp_path, "engine-state"):
         with mlb_state._sync_lock(tmp_path, "engine-state"):
-            assert mlb_state._HELD
-        assert mlb_state._HELD
-    assert not mlb_state._HELD
+            assert mlb_state._held()
+        assert mlb_state._held()
+    assert not mlb_state._held()
 
 
 @pytest.mark.parametrize("name", ENGINES)
@@ -35,10 +35,10 @@ def test_pull_rebuilds_the_worktree_only_under_the_lock(name, tmp_path, monkeypa
     seen: list[bool] = []
 
     def worktree(repo_arg, branch):
-        seen.append(bool(mlb_state._HELD))
+        seen.append(bool(mlb_state._held()))
         return tree
 
     monkeypatch.setattr(mod, "_worktree", worktree)
     mod.pull_state(tmp_path / "data", repo=repo)
     assert seen == [True]
-    assert not mlb_state._HELD
+    assert not mlb_state._held()
