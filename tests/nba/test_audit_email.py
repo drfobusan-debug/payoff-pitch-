@@ -18,6 +18,7 @@ from tests.nba.test_output import DAY, priced
 
 ROOT = Path(__file__).resolve().parents[2]
 OLD = DAY - timedelta(days=10)
+PRIOR = DAY - timedelta(days=365)
 
 
 class FakeSMTP:
@@ -93,6 +94,24 @@ def test_a_week_without_grades_still_mails_the_season(scratch, monkeypatch):
     body = FakeSMTP.sent[0].get_body(("plain",)).get_content()
     assert "no graded ledger rows in these days" in body
     assert f"over 2 slate(s), {OLD} .. {DAY}" in body
+
+
+def test_weekly_season_leaves_out_last_season(scratch, monkeypatch):
+    monkeypatch.setenv("GMAIL_USER", "me@example.com")
+    monkeypatch.setenv("GMAIL_APP_PASSWORD", "pw")
+    ledger.write_once(graded(PRIOR, "prior"), ledger.graded_path(scratch, PRIOR))
+
+    assert cli.main(["audit", "--recent", "7", "--email", "--no-sync"]) == 0
+
+    (msg,) = FakeSMTP.sent
+    body = msg.get_body(("plain",)).get_content()
+    assert f"over 2 slate(s), {OLD} .. {DAY}" in body and str(PRIOR) not in body
+    assert f"ledger audit {OLD} .. {DAY}" in msg["Subject"]
+
+
+def test_weekly_script_grades_yesterday_before_the_audit():
+    script = (ROOT / "scripts" / "nba" / "macos" / "nba_audit.command").read_text()
+    assert script.index("\nnba-engine grade") < script.index("\nnba-engine audit")
 
 
 def test_audit_email_without_credentials_prints_and_returns_zero(scratch, capsys):

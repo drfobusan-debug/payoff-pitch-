@@ -62,7 +62,7 @@ from nba_engine.data.oddsapi import SLATE_TZ, OddsAPIClient, parse_utc
 from nba_engine.market import overbias, params
 from nba_engine.market.board import ev_per_unit, selections
 from nba_engine.models import game_sim, minutes, minutes_fit, rating_fit, ratings, sim_fit
-from nba_engine.models.schedule import schedule
+from nba_engine.models.schedule import schedule, season_of
 from nba_engine.output import context
 from nba_engine.output.card import SlateCard, build_card, render_html, render_pdf, render_text
 from nba_engine.output.email import EmailNotConfigured, send_package
@@ -408,6 +408,9 @@ def cmd_audit(args: argparse.Namespace) -> int:
     if cfg.state_sync and not args.no_sync:
         state.auto_pull(root, trees=("ledger",))
     days = _ledger_days(root, args.since, args.until)
+    if args.recent:
+        season = season_of(_parse_date(None) - timedelta(days=1))
+        days = [d for d in days if season_of(d) == season]
     rows = ledger.graded_rows(root, days)
     if not rows:
         print("no graded ledger rows in range")
