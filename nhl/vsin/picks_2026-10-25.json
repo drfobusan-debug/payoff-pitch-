@@ -1,0 +1,38 @@
+[
+ {
+  "slate_date": "2026-10-25",
+  "matchup": "NYI @ DAL",
+  "market": "game_total",
+  "side": "under",
+  "line": 5.5,
+  "american": -115,
+  "stake": 2.0,
+  "host": "Jonathan Davis",
+  "stamp": "2026-10-25T15:29:39+00:00",
+  "text": "Under 5.5 (-115) - 2 units",
+  "outcome": null,
+  "pnl_flat": null,
+  "pnl_stake": null,
+  "close_consensus": null,
+  "clv": null,
+  "graded_at": ""
+ },
+ {
+  "slate_date": "2026-10-25",
+  "matchup": "MTL @ WPG",
+  "market": "game_total",
+  "side": "over",
+  "line": 5.5,
+  "american": -130,
+  "stake": 1.0,
+  "host": "Jonathan Davis",
+  "stamp": "2026-10-25T15:29:39+00:00",
+  "text": "Over 5.5 (-130) - 1 unit",
+  "outcome": null,
+  "pnl_flat": null,
+  "pnl_stake": null,
+  "close_consensus": null,
+  "clv": null,
+  "graded_at": ""
+ }
+]
