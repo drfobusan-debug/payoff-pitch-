@@ -25,6 +25,8 @@ from nba_engine.data import boxes, capture, espn_injuries, injuries, teamnames
 from nba_engine.data.espn import SITE, ESPNClient
 from nba_engine.data.oddsapi import parse_utc
 from nba_engine.models.schedule import REST_CAP, schedule, season_of
+from nba_engine.output import teamstats
+from nba_engine.output.teamstats import TeamStats
 from nba_engine.schemas import GameResult
 
 log = logging.getLogger(__name__)
@@ -116,6 +118,7 @@ class GameContext:
     official_report: str = ""  # stamp of the official report read; "" when none held
     espn_feed: str = ""  # file stamp of the ESPN feed read
     alarm: str = ""  # the news alarm's day for this game, one line
+    teams: tuple[TeamStats | None, ...] = ()  # away, home; season to date
 
     def moves_text(self, home: str) -> str:
         """``12:43 PM ET → 6:05 PM ET: ML LAL 57.1% → 60.3% · ...``; "" with no board held."""
@@ -311,6 +314,11 @@ def gather(
     rests = rest(day, games, prior, known)
     moved = moves(root, day, games)
     alarms = alarm_lines(root, day)
+    try:
+        table = teamstats.season_table(teamstats.season_finals(root, day, fetch))
+    except Exception as exc:  # noqa: BLE001 - context only; the card goes out regardless
+        log.warning("season team ratings not built: %s", exc)
+        table = {}
     out: dict[str, GameContext] = {}
     for g in games:
         teams = (g.away, g.home)
@@ -327,6 +335,7 @@ def gather(
             official_report=report,
             espn_feed=feed_at,
             alarm=alarms.get(g.event_id, ""),
+            teams=tuple(table.get(t) for t in teams),
         )
     return out
 

@@ -32,6 +32,7 @@ from nba_engine.data import teamnames
 from nba_engine.data.capture import MARKET_MAP
 from nba_engine.market.board import EXEC_BOOKS
 from nba_engine.output.context import ESPN, OFFICIAL, GameContext, Injury, et_clock
+from nba_engine.output.teamstats import Factors, Rated, Split, TeamStats
 
 PodcastView = podcast_render.PodcastView[list[LedgerRow]]
 MAIN_MARKETS = ("game_ml", "game_ats", "game_total")
@@ -299,7 +300,7 @@ h2{font-size:15pt;color:#16324f;border-bottom:1px solid #d7dbe0;padding-bottom:3
 h2 .kick{float:right;font-size:8.6pt;color:#6b7280;font-family:'DejaVu Sans',sans-serif;font-weight:normal;padding-top:6px;}
 p{margin:6px 0;}
 .lead{font-size:11pt;}
-.game{page-break-inside:avoid;border-bottom:2px solid #eceef1;padding-bottom:10px;margin-bottom:6px;}
+.game{border-bottom:2px solid #eceef1;padding-bottom:10px;margin-bottom:6px;}
 .mkt{margin:-2px 0 4px;font-size:9.4pt;color:#4b5563;}
 table.board{width:100%;border-collapse:collapse;font-size:8.4pt;font-family:'DejaVu Sans',sans-serif;margin:6px 0 4px;}
 table.board th{text-align:left;font-weight:normal;color:#6b7280;border-bottom:1px solid #d7dbe0;padding:2px 5px;font-size:7.4pt;text-transform:uppercase;letter-spacing:.4px;}
@@ -309,6 +310,20 @@ table.board td.nomodel{color:#6b7280;font-style:italic;font-size:7.8pt;}
 table.board td.gate{color:#6b7280;font-size:7.8pt;}
 table.board tr.buy td{background:#fbf7ec;}
 .muted{color:#6b7280;font-style:italic;font-size:8.6pt;}
+.rk{color:#9aa0a8;font-size:6.6pt;font-weight:normal;}
+h2{page-break-after:avoid;}
+.keep,table.panel{page-break-inside:avoid;}
+table.panel{width:100%;border-collapse:collapse;margin:6px 0 0;}
+table.panel>tbody>tr>td,table.panel>tr>td{width:50%;vertical-align:top;padding:0 4px 0 0;}
+table.tape{width:100%;border-collapse:collapse;font-size:7.8pt;font-family:'DejaVu Sans',sans-serif;}
+table.tape th{font-weight:normal;color:#6b7280;font-size:7pt;text-transform:uppercase;letter-spacing:.3px;padding:1px 4px;text-align:right;border-bottom:1px solid #d7dbe0;}
+table.tape th.cap{text-align:left;color:#16324f;font-weight:bold;}
+table.tape th[colspan]{text-align:center;color:#16324f;}
+table.tape td{padding:2px 4px;text-align:right;border-bottom:1px solid #eceef1;white-space:nowrap;}
+table.tape td.mk{text-align:left;color:#16324f;font-weight:bold;}
+table.tape .tn{background:#fbf7ec;font-weight:bold;}
+table.tape tr.g td{color:#6b7280;font-size:7pt;}
+.tapenote{font-size:7.2pt;color:#6b7280;font-style:italic;margin:2px 0 4px;}
 .ctx{font-size:9.2pt;margin:3px 0;color:#2b2f36;}
 p.bets{margin:10px 0 2px;font-size:11pt;color:#16324f;}
 ul.bets{margin:2px 0 4px 0;font-size:10pt;}
@@ -456,6 +471,99 @@ def _context(game: GameCard) -> str:
     return "".join(out)
 
 
+def _rated(x: Rated, fmt: str) -> str:
+    if x.value is None:
+        return "—"
+    rank = f" <span class='rk'>#{x.rank}</span>" if x.rank is not None else ""
+    return fmt.format(x.value) + rank
+
+
+def _team_stats(game: GameCard) -> dict[str, TeamStats]:
+    return {t: s for t, s in zip((game.away, game.home), game.context.teams, strict=False) if s is not None}
+
+
+_TN = " class='tn'"
+
+
+def _tape_cell(x: Rated, fmt: str, *, tonight: bool = False) -> str:
+    mark = _TN if tonight else ""
+    return f"<td{mark}>{_rated(x, fmt)}</td>"
+
+
+def _efficiency(game: GameCard, stats: dict[str, TeamStats]) -> str:
+    """Off, def and net rating per 100 possessions, each team at home and on the road."""
+    cols: list[tuple[Split, bool]] = []
+    for team, tonight in ((game.away, "away"), (game.home, "home")):
+        s = stats.get(team)
+        for where in ("home", "away"):
+            cols.append((getattr(s, where) if s else Split(), where == tonight))
+    teams = "".join(f"<th colspan='2'>{_e(t)}</th>" for t in (game.away, game.home))
+    wheres = "".join(
+        f"<th{_TN if on else ''}>{w}</th>"
+        for (_, on), w in zip(cols, ("Home", "Road") * 2, strict=True)
+    )
+    body = "".join(
+        f"<tr><td class='mk'>{label}</td>"
+        + "".join(_tape_cell(getattr(sp, key), fmt, tonight=on) for sp, on in cols)
+        + "</tr>"
+        for label, key, fmt in (
+            ("Off rtg", "off", "{:.1f}"),
+            ("Def rtg", "dfn", "{:.1f}"),
+            ("Net", "net", "{:+.1f}"),
+        )
+    )
+    games = "".join(f"<td{_TN if on else ''}>{sp.games}</td>" for sp, on in cols)
+    return (
+        "<table class='tape'><thead><tr><th class='cap'>Per 100 poss</th>"
+        f"{teams}</tr><tr><th></th>{wheres}</tr></thead><tbody>{body}"
+        f"<tr class='g'><td class='mk'>Games</td>{games}</tr></tbody></table>"
+    )
+
+
+def _factors(game: GameCard, stats: dict[str, TeamStats]) -> str:
+    """Each offense beside the defense it meets tonight."""
+    units: list[tuple[str, str]] = [
+        (game.away, "offense"),
+        (game.home, "defense"),
+        (game.home, "offense"),
+        (game.away, "defense"),
+    ]
+    cols = [getattr(stats[t], u) if t in stats else Factors() for t, u in units]
+    pairs = "".join(
+        f"<th colspan='2'>{_e(o)} O vs {_e(d)} D</th>"
+        for o, d in ((game.away, game.home), (game.home, game.away))
+    )
+    heads = "".join(f"<th>{_e(t)} {u[0].upper()}</th>" for t, u in units)
+    body = "".join(
+        f"<tr><td class='mk'>{label}</td>"
+        + "".join(_tape_cell(getattr(f, key), fmt) for f in cols)
+        + "</tr>"
+        for label, key, fmt in (
+            ("eFG%", "efg", "{:.1%}"),
+            ("TOV%", "tov", "{:.1%}"),
+            ("OREB%", "orb", "{:.1%}"),
+            ("FT/FGA", "ftr", "{:.3f}"),
+        )
+    )
+    return (
+        "<table class='tape'><thead><tr><th class='cap'>Four factors</th>"
+        f"{pairs}</tr><tr><th></th>{heads}</tr></thead><tbody>{body}</tbody></table>"
+    )
+
+
+def _team_panel(game: GameCard) -> str:
+    """Ratings at home and on the road beside the four factors, one panel per game."""
+    stats = _team_stats(game)
+    if not stats:
+        return "<p class='ctx'><b>Team ratings</b> — no regular-season box scores archived yet</p>"
+    return (
+        "<table class='panel'><tr>"
+        f"<td>{_efficiency(game, stats)}</td><td>{_factors(game, stats)}</td>"
+        "</tr></table><p class='tapenote'>Season to date, grey # = rank among teams with"
+        " games; tonight's venue shaded. Early splits rest on few games, so ranks are noisy.</p>"
+    )
+
+
 def _others_line(game: GameCard) -> str:
     others = game.others()
     if not others:
@@ -500,9 +608,10 @@ def _game_bets(game: GameCard) -> str:
 
 def _game_section(game: GameCard, podcast: PodcastView | None = None) -> str:
     return (
-        f"<div class='game'><h2>{_e(game.title)}<span class='kick'>{_e(game.tip_et)}</span></h2>"
-        f"{_market_line(game)}{_board_table(game)}{_context(game)}{_others_line(game)}"
-        f"{_game_bets(game)}{podcast_game_block(podcast, game.matchup)}</div>"
+        f"<div class='game'><div class='keep'><h2>{_e(game.title)}<span class='kick'>{_e(game.tip_et)}</span></h2>"
+        f"{_market_line(game)}{_board_table(game)}</div>{_team_panel(game)}"
+        f"{_context(game)}<div class='keep'>{_others_line(game)}"
+        f"{_game_bets(game)}</div>{podcast_game_block(podcast, game.matchup)}</div>"
     )
 
 

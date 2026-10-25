@@ -9,14 +9,15 @@ from openpyxl import load_workbook
 from nba_engine import cli
 from nba_engine.audit import ledger
 from nba_engine.config import load_config
+from nba_engine.data import boxes
 from nba_engine.data.capture import QuoteRow
 from nba_engine.market.board import selections
 from nba_engine.output import card as card_mod
-from nba_engine.output import context
+from nba_engine.output import context, teamstats
 from nba_engine.output import email as email_mod
 from nba_engine.output.card import NO_MODEL_TEXT, PAPER_NOTE, build_card, render_html
 from nba_engine.output.excel import SELECTION_HEADER, build_workbook
-from nba_engine.schemas import GameResult
+from nba_engine.schemas import GameResult, TeamBox
 
 DAY = date(2025, 12, 10)
 LATE, EARLY = "BOS @ NYK", "PHX @ DET"  # alphabetical order is the reverse of tip order
@@ -421,3 +422,66 @@ def test_integrity_line_and_schedule_bands_render_only_with_a_graded_ledger():
     assert (
         "Schedule bands" in page and "rest_host_ats" in page and "probation (3/100 games)" in page
     )
+
+
+# -- season ratings ----------------------------------------------------------
+def _box(team, fgm=40, fga=88, fg3m=12, ftm=16, fta=20, oreb=10, dreb=34, tov=13):
+    return TeamBox(team, fgm, fga, fg3m, 35, ftm, fta, oreb, dreb, tov, 18)
+
+
+def _final(eid, day, away, home, ap, hp, *, season_type=2, neutral=False, abox=None, hbox=None):
+    return GameResult(
+        eid,
+        day,
+        away,
+        home,
+        "STATUS_FINAL",
+        (ap, 0, 0, 0),
+        (hp, 0, 0, 0),
+        away_box=abox or _box(away),
+        home_box=hbox or _box(home),
+        neutral=neutral,
+        season_type=season_type,
+    )
+
+
+def test_season_table_splits_home_and_away_per_100_and_skips_preseason_and_neutral():
+    d = date(2025, 11, 1)
+    games = [
+        _final("1", d, "BOS", "NYK", 100, 120),
+        _final("2", d, "NYK", "BOS", 110, 90),
+        _final("3", d, "NYK", "BOS", 150, 50, season_type=1),  # preseason: left out
+        _final("4", d, "BOS", "NYK", 100, 100, neutral=True),  # neutral: no venue split
+    ]
+    t = teamstats.season_table(games)
+    poss = games[0].possessions
+    nyk = t["NYK"]
+    assert nyk.games == 3 and nyk.home.games == 1 and nyk.away.games == 1
+    assert nyk.home.off.value == pytest.approx(100 * 120 / poss)
+    assert nyk.home.dfn.value == pytest.approx(100 * 100 / poss)
+    assert nyk.home.off.rank == 1 and t["BOS"].home.dfn.rank == 2
+    assert t["BOS"].away.net.value == pytest.approx(-100 * 20 / poss)
+
+
+def test_four_factors_rank_defense_on_what_opponents_did():
+    d = date(2025, 11, 1)
+    good = _box("NYK", fgm=45, fg3m=15, tov=8, oreb=14)
+    bad = _box("BOS", fgm=35, fg3m=8, tov=18, oreb=6)
+    t = teamstats.season_table([_final("1", d, "BOS", "NYK", 95, 120, abox=bad, hbox=good)])
+    nyk, bos = t["NYK"], t["BOS"]
+    assert nyk.offense.efg.value == pytest.approx((45 + 7.5) / 88)
+    assert nyk.offense.efg.rank == 1 and nyk.offense.tov.rank == 1
+    assert nyk.defense.efg.value == bos.offense.efg.value and nyk.defense.efg.rank == 1
+    assert nyk.offense.orb.value == pytest.approx(14 / (14 + 34))
+
+
+def test_card_prints_ratings_and_four_factors_or_says_none_are_archived(scratch):
+    root, _ = scratch
+    rows = ledger.of_record(ledger.passes(root, DAY))
+    played = [_final("1", DAY - timedelta(days=3), "BOS", "NYK", 100, 110)]
+    boxes.write_results(root, DAY - timedelta(days=3), played)
+    page = render_html(build_card(rows, day=DAY, context=context.gather(root, DAY, rows)))
+    assert "Per 100 poss" in page and "Four factors" in page
+    assert "BOS O vs NYK D" in page and "NYK O vs BOS D" in page and "class='tn'" in page
+    bare = render_html(build_card(rows, day=DAY))
+    assert "no regular-season box scores archived yet" in bare and "Four factors" not in bare
