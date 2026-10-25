@@ -21,7 +21,7 @@ from cbb_engine.config import SPORT, SPORT_KEY, data_dir, dry_run, load_config, 
 from cbb_engine.data import capture, espn, torvik, watch
 from cbb_engine.markets import EVENT_MARKETS, FEATURED
 from cbb_engine.models import distribution as dist
-from engine_runtime import ledger, quotes, runner
+from engine_runtime import ledger, quotes, runner, views
 from engine_runtime.odds_client import OddsClient
 
 
@@ -220,7 +220,18 @@ def cmd_price(args: argparse.Namespace) -> int:
             if "espn_id" in h:
                 pending.add(str(h["espn_id"]))
     cfg = load_config()
-    priced = card.price(root, day.isoformat(), pass_id=ps.pass_id, pass_kind="featured", code_sha=ps.code_sha, env_lock_hash=ps.env_lock_hash, pending_events=pending, width=dist.load_width(), max_live_buys=cfg.exposure.max_live_buys, max_per_book=cfg.exposure.max_per_book)
+    priced = card.price(
+        root,
+        day.isoformat(),
+        pass_id=ps.pass_id,
+        pass_kind="featured",
+        code_sha=ps.code_sha,
+        env_lock_hash=ps.env_lock_hash,
+        pending_events=pending,
+        width=dist.load_width(),
+        max_live_buys=cfg.exposure.max_live_buys,
+        max_per_book=cfg.exposure.max_per_book,
+    )
     if priced is None:
         print(f"{day}: no board shard to price")
         return 1
@@ -235,7 +246,9 @@ def cmd_price(args: argparse.Namespace) -> int:
     out.write_text(text)
     print(text)
     if args.email and not args.dry_run:
-        print(f"emailed {email.send(cfg, subject=f'CBB card {day} ({ps.pass_id})', text=text, paths={'card': out}, to=args.to)}")
+        print(
+            f"emailed {email.send(cfg, subject=f'CBB card {day} ({ps.pass_id})', text=text, paths={'card': out}, to=args.to)}"
+        )
     return 0
 
 
@@ -252,20 +265,40 @@ def cmd_audit(args: argparse.Namespace) -> int:
     ps = runner.start(SPORT, day.isoformat(), "board", root)
     written = audit.grade(root, day.isoformat(), games, teams, pass_id=ps.pass_id)
     rows = list(ledger.record(root, SPORT, day.isoformat()).values())
-    rungs = ["v0_shape", "foul_redistribution", "half_correlation", "blend_shift", "availability_residual"]
+    rungs = [
+        "v0_shape",
+        "foul_redistribution",
+        "half_correlation",
+        "blend_shift",
+        "availability_residual",
+    ]
     shards = quotes.read_day(root, SPORT, day.isoformat())
     rep = audit.report(rows, rungs, shards)
+    # The stake bar is season-to-date: eight live buys a day never reach 100 in one slate.
+    season = [
+        r
+        for d in sorted(p.name for p in (root / "ledger" / SPORT).glob("*") if p.is_dir())
+        if d <= day.isoformat()
+        for r in ledger.record(root, SPORT, d).values()
+    ]
+    rep["v_promotion"] = views.v_promotion(season)
     if args.time_travel:
         stamps = [("quote", q.captured_at) for q in shards] + [("row", r.tip_utc) for r in rows]
         rep["time_travel_violations"] = study.time_travel(day.isoformat(), stamps)
-    text = checklist.render(checklist.run(load_config(), root, day.isoformat())) + "\n\n" + audit.render(rep)
+    text = (
+        checklist.render(checklist.run(load_config(), root, day.isoformat()))
+        + "\n\n"
+        + audit.render(rep)
+    )
     out = data_dir() / "audit" / f"{day.isoformat()}.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(text)
     print(text)
     print(f"graded {len(written)} row(s)")
     if args.email:
-        print(f"emailed {email.send(load_config(), subject=f'CBB audit {day}', text=text, paths={'audit': out}, to=args.to)}")
+        print(
+            f"emailed {email.send(load_config(), subject=f'CBB audit {day}', text=text, paths={'audit': out}, to=args.to)}"
+        )
     return 0
 
 
@@ -302,13 +335,19 @@ def cmd_study(args: argparse.Namespace) -> int:
     if args.which == "funnel":
         print(json.dumps(study.funnel(rows), indent=2))
     else:
-        print(json.dumps(study.featured_value(rows, quotes.read_day(root, SPORT, day.isoformat())), indent=2))
+        print(
+            json.dumps(
+                study.featured_value(rows, quotes.read_day(root, SPORT, day.isoformat())), indent=2
+            )
+        )
     return 0
 
 
 def cmd_checklist(args: argparse.Namespace) -> int:
     day = _parse_date(args.date)
-    items = checklist.run(load_config(), runtime_root(), day.isoformat(), daily_credits=args.daily_credits)
+    items = checklist.run(
+        load_config(), runtime_root(), day.isoformat(), daily_credits=args.daily_credits
+    )
     print(checklist.render(items))
     return 0 if all(i.ok for i in items) else 1
 
@@ -370,7 +409,9 @@ def cmd_pilot(args: argparse.Namespace, root: Path, days: list[str]) -> int:
     sd = width.sd_by_bucket["all"]
     for d in days:
         shards = quotes.read_day(root, SPORT, d)
-        if not any(q.pass_kind == "featured" and q.pass_id.startswith(history.HIST_PREFIX) for q in shards):
+        if not any(
+            q.pass_kind == "featured" and q.pass_id.startswith(history.HIST_PREFIX) for q in shards
+        ):
             continue
         rows += pilot.clv_rows(shards, sd)
         deltas += pilot.featured_deltas(shards, sd)
@@ -378,12 +419,18 @@ def cmd_pilot(args: argparse.Namespace, root: Path, days: list[str]) -> int:
     if args.closes:
         with open(args.closes, newline="") as fh:
             scores = pilot.log_scores(csv.DictReader(fh), sd, start=args.start)
-    rep = pilot.summarize(rows, deltas, scores, cluster_inflation=card.prereg_scalar("cluster_inflation", 1.4))
+    rep = pilot.summarize(
+        rows, deltas, scores, cluster_inflation=card.prereg_scalar("cluster_inflation", 1.4)
+    )
     print(json.dumps(rep, indent=2))
     if args.write:
         prereg = rep["prereg"]
         assert isinstance(prereg, dict)
-        done = pilot.write_prereg(card.PREREG, prereg, note=f"{Date.today().isoformat()}, {len(rows)} quotes on {len(rep['days'])} dense slates")  # type: ignore[arg-type]
+        done = pilot.write_prereg(
+            card.PREREG,
+            prereg,
+            note=f"{Date.today().isoformat()}, {len(rows)} quotes on {len(rep['days'])} dense slates",
+        )  # type: ignore[arg-type]
         print(f"wrote {done} to {card.PREREG}")
     return 0
 
@@ -408,16 +455,26 @@ def build_parser() -> argparse.ArgumentParser:
     tv.add_argument("--date")
     tv.add_argument("files", nargs="*", default=list(torvik.FILES))
     tv.set_defaults(func=cmd_torvik)
-    pr = sub.add_parser("price", help="price the slate from the latest shard and write the card pass")
+    pr = sub.add_parser(
+        "price", help="price the slate from the latest shard and write the card pass"
+    )
     pr.add_argument("--date")
-    pr.add_argument("--dry-run", action="store_true", help="print the card, write no ledger rows, send nothing")
+    pr.add_argument(
+        "--dry-run", action="store_true", help="print the card, write no ledger rows, send nothing"
+    )
     pr.add_argument("--email", action="store_true")
     pr.add_argument("--to")
     pr.set_defaults(func=cmd_price)
-    au = sub.add_parser("audit", help="grade bet-of-record rows (close shards + ESPN finals), print the views")
+    au = sub.add_parser(
+        "audit", help="grade bet-of-record rows (close shards + ESPN finals), print the views"
+    )
     au.add_argument("--date")
     au.add_argument("--offline", action="store_true", help="no ESPN call; CLV only")
-    au.add_argument("--time-travel", action="store_true", help="§4.y: flag any input stamped after the slate day")
+    au.add_argument(
+        "--time-travel",
+        action="store_true",
+        help="§4.y: flag any input stamped after the slate day",
+    )
     au.add_argument("--email", action="store_true")
     au.add_argument("--to")
     au.set_defaults(func=cmd_audit)
@@ -432,15 +489,22 @@ def build_parser() -> argparse.ArgumentParser:
     bu = sub.add_parser("budget", help="credits one slate day costs under the cadence table")
     bu.add_argument("--games", type=int, default=60)
     bu.set_defaults(func=cmd_budget)
-    hi = sub.add_parser("history", help="§4.e: buy 2024-25 closes from the historical endpoint; export fit_width CSV")
+    hi = sub.add_parser(
+        "history",
+        help="§4.e: buy 2024-25 closes from the historical endpoint; export fit_width CSV",
+    )
     hi.add_argument("action", choices=["plan", "pull", "export", "pilot"])
     hi.add_argument("--start", default="2024-11-04")
     hi.add_argument("--end", default="2025-04-07")
-    hi.add_argument("--dense", nargs="*", help="slate dates that also get the 10-min featured grid from T-3h")
+    hi.add_argument(
+        "--dense", nargs="*", help="slate dates that also get the 10-min featured grid from T-3h"
+    )
     hi.add_argument("--yes", action="store_true", help="actually spend credits (pull)")
     hi.add_argument("--out", default="closes_2024_25.csv")
     hi.add_argument("--closes", help="pilot: fit_width CSV for the week-5 log-score sample")
-    hi.add_argument("--write", action="store_true", help="pilot: fill TODO-PILOT slots in preregistered.yaml")
+    hi.add_argument(
+        "--write", action="store_true", help="pilot: fill TODO-PILOT slots in preregistered.yaml"
+    )
     hi.set_defaults(func=cmd_history)
     ga = sub.add_parser("gaps", help="capture gaps per pass_kind + shard integrity")
     ga.add_argument("--date")
