@@ -21,7 +21,7 @@ from cbb_engine.config import SPORT, SPORT_KEY, data_dir, dry_run, load_config, 
 from cbb_engine.data import capture, espn, torvik, watch
 from cbb_engine.markets import EVENT_MARKETS, FEATURED
 from cbb_engine.models import distribution as dist
-from engine_runtime import ledger, quotes, runner
+from engine_runtime import ledger, quotes, runner, views
 from engine_runtime.odds_client import OddsClient
 
 
@@ -274,6 +274,14 @@ def cmd_audit(args: argparse.Namespace) -> int:
     ]
     shards = quotes.read_day(root, SPORT, day.isoformat())
     rep = audit.report(rows, rungs, shards)
+    # The stake bar is season-to-date: eight live buys a day never reach 100 in one slate.
+    season = [
+        r
+        for d in sorted(p.name for p in (root / "ledger" / SPORT).glob("*") if p.is_dir())
+        if d <= day.isoformat()
+        for r in ledger.record(root, SPORT, d).values()
+    ]
+    rep["v_promotion"] = views.v_promotion(season)
     if args.time_travel:
         stamps = [("quote", q.captured_at) for q in shards] + [("row", r.tip_utc) for r in rows]
         rep["time_travel_violations"] = study.time_travel(day.isoformat(), stamps)
