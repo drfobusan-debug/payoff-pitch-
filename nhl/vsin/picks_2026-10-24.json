@@ -10,12 +10,12 @@
   "host": "Jonathan Davis",
   "stamp": "2026-10-24T18:27:11+00:00",
   "text": "Over 7 (+100) - 1.5 units",
-  "outcome": null,
-  "pnl_flat": null,
-  "pnl_stake": null,
-  "close_consensus": null,
-  "clv": null,
-  "graded_at": ""
+  "outcome": "win",
+  "pnl_flat": 1.0,
+  "pnl_stake": 1.5,
+  "close_consensus": 0.4891657638136511,
+  "clv": -0.010834236186348878,
+  "graded_at": "2026-10-25T13:30:27Z"
  },
  {
   "slate_date": "2026-10-24",
@@ -28,12 +28,12 @@
   "host": "Jonathan Davis",
   "stamp": "2026-10-24T18:27:11+00:00",
   "text": "Over 6 (-115) - 1 unit",
-  "outcome": null,
-  "pnl_flat": null,
-  "pnl_stake": null,
-  "close_consensus": null,
-  "clv": null,
-  "graded_at": ""
+  "outcome": "win",
+  "pnl_flat": 0.8695652173913043,
+  "pnl_stake": 0.8695652173913043,
+  "close_consensus": 0.5108342361863488,
+  "clv": -0.024049484743883687,
+  "graded_at": "2026-10-25T13:30:27Z"
  },
  {
   "slate_date": "2026-10-24",
@@ -46,12 +46,12 @@
   "host": "Jonathan Davis",
   "stamp": "2026-10-24T18:27:11+00:00",
   "text": "San Jose Sharks ML (+154) - 1 unit",
-  "outcome": null,
-  "pnl_flat": null,
-  "pnl_stake": null,
-  "close_consensus": null,
-  "clv": null,
-  "graded_at": ""
+  "outcome": "loss",
+  "pnl_flat": -1.0,
+  "pnl_stake": -1.0,
+  "close_consensus": 0.3734110169491525,
+  "clv": -0.020289770452422307,
+  "graded_at": "2026-10-25T13:30:27Z"
  },
  {
   "slate_date": "2026-10-24",
@@ -64,11 +64,11 @@
   "host": "Jonathan Davis",
   "stamp": "2026-10-24T18:27:11+00:00",
   "text": "Over 6.5 (-120) - 1 unit",
-  "outcome": null,
-  "pnl_flat": null,
-  "pnl_stake": null,
-  "close_consensus": null,
-  "clv": null,
-  "graded_at": ""
+  "outcome": "win",
+  "pnl_flat": 0.8333333333333334,
+  "pnl_stake": 0.8333333333333334,
+  "close_consensus": 0.5379670550421856,
+  "clv": -0.007487490412359854,
+  "graded_at": "2026-10-25T13:30:27Z"
  }
 ]
