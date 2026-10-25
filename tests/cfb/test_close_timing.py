@@ -85,6 +85,8 @@ def _row(date: str, matchup: str, market: str, clv: float | None) -> LedgerEntry
         clv=clv,
         clv_ev=clv,
         clv_pts=0.5 if clv is not None else None,
+        close_odds=-110.0 if clv is not None else None,
+        close_prob=0.5 if clv is not None else None,
     )
 
 
@@ -109,4 +111,5 @@ def test_reports_read_clv_only_where_the_close_was_timely() -> None:
         (None, None),
         (None, None),
     ]
+    assert [e.close_prob for e in out] == [None, 0.5, None, None]  # no stale close in Briers
     assert rows[0].clv == 0.02  # the ledger's own rows are left alone
