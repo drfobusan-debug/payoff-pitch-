@@ -481,7 +481,7 @@ def test_card_prints_ratings_and_four_factors_or_says_none_are_archived(scratch)
     played = [_final("1", DAY - timedelta(days=3), "BOS", "NYK", 100, 110)]
     boxes.write_results(root, DAY - timedelta(days=3), played)
     page = render_html(build_card(rows, day=DAY, context=context.gather(root, DAY, rows)))
-    assert "Ratings, home &amp; away" in page and "Four factors" in page
-    assert "on the road (tonight)" in page and "BOS offense" in page and "NYK defense" in page
+    assert "Per 100 poss" in page and "Four factors" in page
+    assert "BOS O vs NYK D" in page and "NYK O vs BOS D" in page and "class='tn'" in page
     bare = render_html(build_card(rows, day=DAY))
     assert "no regular-season box scores archived yet" in bare and "Four factors" not in bare
