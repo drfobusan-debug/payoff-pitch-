@@ -20,6 +20,7 @@ from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
 from datetime import date as Date
 
+from engine_common.bands import CALL_SE, MIN_N, BandRead
 from engine_common.odds import american_to_prob
 from engine_common.podcasts import render as podcast_render
 from engine_common.podcasts.render import CSS as PODCAST_CSS
@@ -215,6 +216,7 @@ class SlateCard:
     record: Mapping[str, list[scorecard.Metrics]] = field(default_factory=dict)
     graded_rows: int = 0
     integrity: scorecard.Integrity | None = None
+    bands: tuple[BandRead, ...] = ()
 
     @property
     def rows(self) -> list[LedgerRow]:
@@ -246,6 +248,7 @@ def build_card(
     graded: Sequence[LedgerRow] = (),
     preseason: bool = False,
     draws: int = 400,
+    bands: Sequence[BandRead] = (),
 ) -> SlateCard:
     """Group the rows of record by game, in tip-off order. Reads rows, never writes them."""
     ordered = board_order(rows)
@@ -277,6 +280,7 @@ def build_card(
         record=scorecard.tables(graded, draws=draws) if graded else {},
         graded_rows=len(graded),
         integrity=scorecard.integrity(graded) if graded else None,
+        bands=tuple(bands),
     )
 
 
@@ -323,9 +327,32 @@ table.record td{padding:3px 6px;border-bottom:1px solid #eceef1;}
 _e = html.escape
 
 
-def _exec_cell(r: LedgerRow) -> str:
+def exec_sibling(game: GameCard, r: LedgerRow) -> LedgerRow | None:
+    """The same side's row at the line DraftKings/BetMGM did post, when the main line lacks one.
+
+    Rows are keyed by line, so a consensus main number the two exec books are not
+    on (CHA +4 when they sit at +4.5) looks unbettable on the card; the bettable
+    row is the sibling one line over."""
+    if exec_prices(r) or r.entity or r.market.endswith("_ml") or r.line is None:
+        return None
+    sibs = [
+        x
+        for x in game.rows
+        if x.market == r.market and x.side == r.side and not x.entity and exec_prices(x)
+    ]
+    if not sibs:
+        return None
+    return min(sibs, key=lambda x: abs((x.line or 0.0) - r.line))
+
+
+def _exec_cell(r: LedgerRow, sibling: LedgerRow | None = None) -> str:
     prices = exec_prices(r)
     if not prices:
+        if sibling is not None:
+            return (
+                f"<span class='muted'>not at this number; at {_e(line_text(sibling))}:</span> "
+                f"{_exec_cell(sibling)}"
+            )
         return "<span class='muted'>neither DK nor BetMGM posted it</span>"
     bits = []
     for book in EXEC_BOOKS:
@@ -359,7 +386,7 @@ def _market_rows(game: GameCard, market: str) -> str:
         out.append(
             f"<tr{cls}><td class='mk'>{_e(label) if i == 0 else ''}</td>"
             f"<td>{_e(side_label(r))}</td><td>{_e(line_text(r))}</td>"
-            f"<td>{pct(r.fair)}</td>{model}<td>{_exec_cell(r)}</td>"
+            f"<td>{pct(r.fair)}</td>{model}<td>{_exec_cell(r, exec_sibling(game, r))}</td>"
             f"<td>{_e(ev_text(r))}</td><td>{pct(kel) if kel is not None else '—'}</td>"
             f"<td>{_e(r.tier)}</td><td class='gate'>{_e(gates)}</td></tr>"
         )
@@ -552,6 +579,47 @@ def _record_table(card: SlateCard) -> str:
     )
 
 
+def _integrity_line(card: SlateCard) -> str:
+    """One line on the graded ledger's plumbing; silent when nothing is graded."""
+    i = card.integrity
+    if i is None:
+        return ""
+    flags = [
+        (i.duplicates, "duplicate"),
+        (i.priced_after_tip, "priced after tip"),
+        (i.close_before_price, "close before price"),
+        (i.ungraded, "ungraded"),
+        (i.no_close, "no close"),
+    ]
+    bad = ", ".join(f"{n} {label}" for n, label in flags if n)
+    ok = "no duplicates, nothing priced after tip, every priced row closed"
+    return (
+        f"<p class='muted'>Ledger integrity: {i.rows} rows, {i.positions} positions; "
+        f"{bad or ok}; {i.voids} void, {i.stale_close} stale close, {i.pulled} pulled, "
+        f"{i.moved} moved.</p>"
+    )
+
+
+def _bands_table(card: SlateCard) -> str:
+    """The schedule bands, graded only: flat 1u on the main line at the card's price."""
+    if not card.bands:
+        return ""
+    rows = "".join(
+        f"<tr><td>{_e(b.name)}</td><td>{b.n}</td><td>{_e(b.record)}</td><td>{b.units:+.1f}</td>"
+        f"<td>{signed_pct(b.roi)}</td><td>{f'{b.se:.1f}' if b.n > 1 else 'n/a'}</td>"
+        f"<td>{b.halves[0]:+.1f} / {b.halves[1]:+.1f}</td><td>{_e(b.verdict)}</td></tr>"
+        for b in card.bands
+    )
+    return (
+        "<h2>Schedule bands</h2>"
+        "<p class='muted'>Graded only, never a bet: flat 1u on the main line at the card's"
+        f" price; a call needs {MIN_N}+ games and {CALL_SE:g} SE with both halves agreeing.</p>"
+        "<table class='record'><thead><tr><th>Band</th><th>Games</th><th>W-L-P</th><th>Units</th>"
+        "<th>ROI</th><th>SE (u)</th><th>Halves</th><th>Verdict</th></tr></thead>"
+        f"<tbody>{rows}</tbody></table>"
+    )
+
+
 def render_html(card: SlateCard, podcast: PodcastView | None = None) -> str:
     """The card as HTML. ``podcast`` adds the shows' bets under each game and their
     records at the back; it never changes a row."""
@@ -598,6 +666,7 @@ def render_html(card: SlateCard, podcast: PodcastView | None = None) -> str:
         f"<style>{_STYLE}{PODCAST_CSS if podcast else ''}</style></head>"
         f"<body>{masthead}<p class='lead'>{lead}</p>{''.join(notes)}{body}"
         f"{_slate_bets(card)}{_summary_table(card)}{_record_table(card)}"
+        f"{_integrity_line(card)}{_bands_table(card)}"
         f"{podcast_records_block(podcast, [g.matchup for g in card.games])}{fine}</body></html>"
     )
 

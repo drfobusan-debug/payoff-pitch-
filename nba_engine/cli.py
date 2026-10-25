@@ -579,7 +579,14 @@ def cmd_card(args: argparse.Namespace) -> int:
         ctx = {}
     before = (day - timedelta(days=1)).isoformat()
     graded = ledger.graded_rows(root, _ledger_days(root, None, before))
-    card = build_card(rows, day=day, context=ctx, graded=graded, preseason=cfg.preseason)
+    bands = (
+        schedule_bands.read_bands(graded, schedule_bands.schedule_from(root, graded))
+        if graded
+        else []
+    )
+    card = build_card(
+        rows, day=day, context=ctx, graded=graded, preseason=cfg.preseason, bands=bands
+    )
     if cfg.state_sync and not args.no_sync:
         podcast_state.auto_pull(store_dir())
     page, text = render_html(card, _podcast_view(card)), render_text(card)
