@@ -32,6 +32,7 @@ from nba_engine.data import teamnames
 from nba_engine.data.capture import MARKET_MAP
 from nba_engine.market.board import EXEC_BOOKS
 from nba_engine.output.context import ESPN, OFFICIAL, GameContext, Injury, et_clock
+from nba_engine.output.teamstats import Factors, Rated, Split, TeamStats
 
 PodcastView = podcast_render.PodcastView[list[LedgerRow]]
 MAIN_MARKETS = ("game_ml", "game_ats", "game_total")
@@ -309,6 +310,8 @@ table.board td.nomodel{color:#6b7280;font-style:italic;font-size:7.8pt;}
 table.board td.gate{color:#6b7280;font-size:7.8pt;}
 table.board tr.buy td{background:#fbf7ec;}
 .muted{color:#6b7280;font-style:italic;font-size:8.6pt;}
+.rk{color:#6b7280;font-size:7.2pt;}
+table.board tr.tonight td{font-weight:bold;}
 .ctx{font-size:9.2pt;margin:3px 0;color:#2b2f36;}
 p.bets{margin:10px 0 2px;font-size:11pt;color:#16324f;}
 ul.bets{margin:2px 0 4px 0;font-size:10pt;}
@@ -456,6 +459,84 @@ def _context(game: GameCard) -> str:
     return "".join(out)
 
 
+def _rated(x: Rated, fmt: str) -> str:
+    if x.value is None:
+        return "—"
+    rank = f" <span class='rk'>#{x.rank}</span>" if x.rank is not None else ""
+    return fmt.format(x.value) + rank
+
+
+def _team_stats(game: GameCard) -> dict[str, TeamStats]:
+    return {t: s for t, s in zip((game.away, game.home), game.context.teams, strict=False) if s is not None}
+
+
+_RATINGS_NOTE = (
+    "(points scored and allowed per 100 possessions, season to date, rank among teams"
+    " with games; early on a split rests on a few games, so ranks are noisy)"
+)
+_FACTORS_NOTE = (
+    "(season to date; defense is what opponents did, #1 the stingiest; TOV% per play,"
+    " FT/FGA free throws made per shot)"
+)
+
+
+def _ratings(game: GameCard) -> str:
+    """Each team at home and on the road, tonight's venue first and in bold."""
+    stats = _team_stats(game)
+    if not stats:
+        return (
+            "<p class='ctx'><b>Ratings, home &amp; away</b> — no regular-season box scores"
+            " archived yet</p>"
+        )
+    rows = []
+    for team, tonight in ((game.away, "away"), (game.home, "home")):
+        s = stats.get(team)
+        for where in (tonight, "home" if tonight == "away" else "away"):
+            sp: Split = getattr(s, where) if s else Split()
+            label = "at home" if where == "home" else "on the road"
+            mark = " class='tonight'" if where == tonight else ""
+            rows.append(
+                f"<tr{mark}><td class='mk'>{_e(team)}</td><td>{label}"
+                f"{' (tonight)' if where == tonight else ''}</td><td>{sp.games}</td>"
+                f"<td>{_rated(sp.off, '{:.1f}')}</td><td>{_rated(sp.dfn, '{:.1f}')}</td>"
+                f"<td>{_rated(sp.net, '{:+.1f}')}</td></tr>"
+            )
+    head = "<tr><th>Team</th><th>Where</th><th>G</th><th>Off rtg</th><th>Def rtg</th><th>Net</th></tr>"
+    return (
+        f"<p class='ctx'><b>Ratings, home &amp; away</b> <span class='muted'>{_RATINGS_NOTE}</span></p>"
+        f"<table class='board'><thead>{head}</thead><tbody>{''.join(rows)}</tbody></table>"
+    )
+
+
+def _four_factors(game: GameCard) -> str:
+    """Each offense beside the defense it meets tonight."""
+    stats = _team_stats(game)
+    if not stats:
+        return ""
+    rows = []
+    for team, unit in (
+        (game.away, "offense"),
+        (game.home, "defense"),
+        (game.home, "offense"),
+        (game.away, "defense"),
+    ):
+        s = stats.get(team)
+        f: Factors = getattr(s, unit) if s else Factors()
+        rows.append(
+            f"<tr><td class='mk'>{_e(team)} {unit}</td><td>{s.games if s else 0}</td>"
+            f"<td>{_rated(f.efg, '{:.1%}')}</td><td>{_rated(f.tov, '{:.1%}')}</td>"
+            f"<td>{_rated(f.orb, '{:.1%}')}</td><td>{_rated(f.ftr, '{:.3f}')}</td></tr>"
+        )
+    head = (
+        "<tr><th>Unit</th><th>G</th><th>eFG%</th><th>TOV%</th><th>OREB%</th>"
+        "<th>FT/FGA</th></tr>"
+    )
+    return (
+        f"<p class='ctx'><b>Four factors</b> <span class='muted'>{_FACTORS_NOTE}</span></p>"
+        f"<table class='board'><thead>{head}</thead><tbody>{''.join(rows)}</tbody></table>"
+    )
+
+
 def _others_line(game: GameCard) -> str:
     others = game.others()
     if not others:
@@ -501,7 +582,8 @@ def _game_bets(game: GameCard) -> str:
 def _game_section(game: GameCard, podcast: PodcastView | None = None) -> str:
     return (
         f"<div class='game'><h2>{_e(game.title)}<span class='kick'>{_e(game.tip_et)}</span></h2>"
-        f"{_market_line(game)}{_board_table(game)}{_context(game)}{_others_line(game)}"
+        f"{_market_line(game)}{_board_table(game)}{_ratings(game)}{_four_factors(game)}"
+        f"{_context(game)}{_others_line(game)}"
         f"{_game_bets(game)}{podcast_game_block(podcast, game.matchup)}</div>"
     )
 
