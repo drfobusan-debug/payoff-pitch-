@@ -593,7 +593,7 @@ def _integrity_line(card: SlateCard) -> str:
         (i.no_close, "no close"),
     ]
     bad = ", ".join(f"{n} {label}" for n, label in flags if n)
-    ok = "no duplicates, nothing priced after tip, every priced row closed"
+    ok = "no duplicates, nothing priced after tip, every priced row has a close record"
     return (
         f"<p class='muted'>Ledger integrity: {i.rows} rows, {i.positions} positions; "
         f"{bad or ok}; {i.voids} void, {i.stale_close} stale close, {i.pulled} pulled, "
@@ -615,7 +615,7 @@ def _bands_table(card: SlateCard) -> str:
         "<h2>Schedule bands</h2>"
         "<p class='muted'>Graded only, never a bet: flat 1u on the main line at the card's"
         f" price; a call needs {MIN_N}+ games and {CALL_SE:g} SE with both halves agreeing.</p>"
-        "<table class='record'><thead><tr><th>Band</th><th>Games</th><th>W-L-P</th><th>Units</th>"
+        "<table class='record'><thead><tr><th>Band</th><th>Games</th><th>W-L</th><th>Units</th>"
         "<th>ROI</th><th>SE (u)</th><th>Halves</th><th>Verdict</th></tr></thead>"
         f"<tbody>{rows}</tbody></table>"
     )
