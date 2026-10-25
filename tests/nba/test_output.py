@@ -371,3 +371,53 @@ def test_late_card_sends_while_a_game_is_untipped(scratch, capsys, monkeypatch):
     monkeypatch.setattr(cli, "datetime", Frozen)
     assert run_card("--late") == 0
     assert "sending the late package" in capsys.readouterr().out
+
+
+# -- exec books one line over, integrity and bands on the card -----------------
+
+
+def test_main_line_without_dk_mgm_points_at_the_line_they_did_post():
+    """Consensus main at -3.5 (three books); DK/MGM sit on -4: the card says so instead
+    of 'neither posted it'."""
+    eid, home, away = "late", "NYK", "BOS"
+    rows = []
+    for book in ("fanduel", "bovada", "pointsbetus"):
+        rows += [
+            q(eid, "game_ats", home, -3.5, book, -110, -110),
+            q(eid, "game_ats", away, 3.5, book, -110, -110),
+        ]
+    for book in ("draftkings", "betmgm"):
+        rows += [
+            q(eid, "game_ats", home, -4.0, book, -105, -115),
+            q(eid, "game_ats", away, 4.0, book, -115, -105),
+        ]
+    pre = ledger.pregame(rows, TIPS)
+    priced_rows = ledger.price(
+        selections(pre), ledger.quote_index(pre), tips=TIPS, shift={}, versions="v", pass_tag="t"
+    )
+    card = build_card(priced_rows, day=DAY)
+    (game,) = card.games
+    main = game.main("game_ats")
+    assert [r.line for r in main] == [3.5, -3.5]
+    sib = card_mod.exec_sibling(game, main[0])
+    assert sib is not None and sib.line == 4.0
+    page = render_html(card)
+    assert "not at this number; at +4:" in page and "neither DK nor BetMGM" not in page
+
+
+def test_integrity_line_and_schedule_bands_render_only_with_a_graded_ledger():
+    from engine_common.bands import BandRead
+
+    rows = priced()
+    bare = render_html(build_card(rows, day=DAY))
+    assert "Ledger integrity" not in bare and "Schedule bands" not in bare
+    graded = [
+        replace(r, outcome="win", pnl=0.9, close_status="close", close_captured_at=r.priced_at)
+        for r in rows
+    ]
+    band = BandRead("rest_host_ats", [1.0, -1.0, 0.9], [1.0, -1.0, 0.9])
+    page = render_html(build_card(rows, day=DAY, graded=graded, draws=10, bands=[band]))
+    assert "Ledger integrity:" in page and "no duplicates" in page
+    assert (
+        "Schedule bands" in page and "rest_host_ats" in page and "probation (3/100 games)" in page
+    )
