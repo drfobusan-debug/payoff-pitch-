@@ -7,7 +7,8 @@ from pathlib import Path
 
 import pytest
 
-from cfb_engine.audit.clv import ClosingQuote, close_due, timely_close, timely_only
+from cfb_engine.audit.clv import ClosingQuote, close_due, timely_close, timely_clv, timely_only
+from cfb_engine.audit.ledger import LedgerEntry
 from cfb_engine.audit.snapshot import load, save
 
 KICK = "2026-10-24T16:00:00Z"
@@ -64,3 +65,48 @@ def test_a_game_stays_due_until_every_priced_side_has_its_close() -> None:
         "A @ B|game_ats|B": ClosingQuote(-110.0, 0.5, -3.5, "2026-10-24T15:47:00Z", KICK),
     }
     assert close_due({"A @ B": KICK}, full, now, 15, sides) == []
+
+
+def _row(date: str, matchup: str, market: str, clv: float | None) -> LedgerEntry:
+    return LedgerEntry(
+        date,
+        matchup,
+        "Spread (ATS)",
+        market,
+        "B -3.5",
+        -3.5,
+        "dk",
+        -110.0,
+        "Strong buy",
+        0.6,
+        0.05,
+        "win",
+        0.91,
+        clv=clv,
+        clv_ev=clv,
+        clv_pts=0.5 if clv is not None else None,
+    )
+
+
+def test_reports_read_clv_only_where_the_close_was_timely() -> None:
+    closes = {
+        "2026-10-17": {"A @ B|game_ats|B": ClosingQuote(-110.0, 0.5, -3.5)},  # unstamped
+        "2026-10-24": {
+            "A @ B|game_ats|B": ClosingQuote(-110.0, 0.5, -3.5, "2026-10-24T15:50:00Z", KICK),
+            "C @ D|game_ats|D": ClosingQuote(-110.0, 0.5, -3.5, "2026-10-24T13:00:00Z", KICK),
+        },
+    }
+    rows = [
+        _row("2026-10-17", "A @ B", "game_ats", 0.02),
+        _row("2026-10-24", "A @ B", "game_ats", 0.03),
+        _row("2026-10-24", "C @ D", "game_ats", 0.04),
+        _row("2026-10-24", "E @ F", "game_ats", None),
+    ]
+    out = timely_clv(rows, lambda iso: closes.get(iso, {}))
+    assert [(e.clv, e.clv_pts) for e in out] == [
+        (None, None),
+        (0.03, 0.5),
+        (None, None),
+        (None, None),
+    ]
+    assert rows[0].clv == 0.02  # the ledger's own rows are left alone

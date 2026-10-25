@@ -30,11 +30,13 @@ footing before they can be subtracted. Two steps:
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, replace
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from cfb_engine.audit import snapshot
+from cfb_engine.audit.ledger import LedgerEntry
 from cfb_engine.audit.snapshot import SideQuote as ClosingQuote
 from cfb_engine.market.board import GameOdds
 from cfb_engine.market.ev import ev_per_dollar
@@ -57,6 +59,7 @@ __all__ = [
     "merge_closing",
     "save_closing",
     "timely_close",
+    "timely_clv",
     "timely_only",
 ]
 
@@ -112,6 +115,32 @@ def timely_only(closing: dict[str, ClosingQuote]) -> tuple[dict[str, ClosingQuot
     """The closes CLV may be scored against, and how many sides were left out."""
     kept = {k: q for k, q in closing.items() if timely_close(q)}
     return kept, len(closing) - len(kept)
+
+
+def timely_clv(
+    entries: list[LedgerEntry], closing_for: Callable[[str], dict[str, ClosingQuote]]
+) -> list[LedgerEntry]:
+    """The ledger as the reports read it: CLV only where the close was timely.
+
+    A row keeps its CLV only if its slate's close holds a quote for that market
+    stamped within ``STALE_CLOSE_MIN`` of kickoff. Rows scored on the old
+    fixed-time closes, which carry no stamp, read blank. The ledger file itself
+    is never rewritten; these are copies for reporting.
+    """
+    timely: dict[str, set[str]] = {}
+    out: list[LedgerEntry] = []
+    for e in entries:
+        if e.clv is None and e.clv_ev is None and e.clv_pts is None:
+            out.append(e)
+            continue
+        if e.date not in timely:
+            kept, _ = timely_only(closing_for(e.date))
+            timely[e.date] = {k.rsplit("|", 1)[0] for k in kept}
+        if f"{e.matchup}|{e.market}" in timely[e.date]:
+            out.append(e)
+        else:
+            out.append(replace(e, clv=None, clv_ev=None, clv_pts=None))
+    return out
 
 
 def close_due(
