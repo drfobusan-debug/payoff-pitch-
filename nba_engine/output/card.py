@@ -333,7 +333,8 @@ def exec_sibling(game: GameCard, r: LedgerRow) -> LedgerRow | None:
     Rows are keyed by line, so a consensus main number the two exec books are not
     on (CHA +4 when they sit at +4.5) looks unbettable on the card; the bettable
     row is the sibling one line over."""
-    if exec_prices(r) or r.entity or r.market.endswith("_ml") or r.line is None:
+    line = r.line
+    if exec_prices(r) or r.entity or r.market.endswith("_ml") or line is None:
         return None
     sibs = [
         x
@@ -342,7 +343,7 @@ def exec_sibling(game: GameCard, r: LedgerRow) -> LedgerRow | None:
     ]
     if not sibs:
         return None
-    return min(sibs, key=lambda x: abs((x.line or 0.0) - r.line))
+    return min(sibs, key=lambda x: abs((x.line or 0.0) - line))
 
 
 def _exec_cell(r: LedgerRow, sibling: LedgerRow | None = None) -> str:
