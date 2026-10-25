@@ -120,9 +120,9 @@ def timely_only(closing: dict[str, ClosingQuote]) -> tuple[dict[str, ClosingQuot
 def timely_clv(
     entries: list[LedgerEntry], closing_for: Callable[[str], dict[str, ClosingQuote]]
 ) -> list[LedgerEntry]:
-    """The ledger as the reports read it: CLV only where the close was timely.
+    """The ledger as the reports read it: the close only where it was timely.
 
-    A row keeps its CLV only if its slate's close holds a quote for that market
+    A row keeps its close (odds, prob, CLV) only if its slate's close holds a quote for that market
     stamped within ``STALE_CLOSE_MIN`` of kickoff. Rows scored on the old
     fixed-time closes, which carry no stamp, read blank. The ledger file itself
     is never rewritten; these are copies for reporting.
@@ -130,7 +130,7 @@ def timely_clv(
     timely: dict[str, set[str]] = {}
     out: list[LedgerEntry] = []
     for e in entries:
-        if e.clv is None and e.clv_ev is None and e.clv_pts is None:
+        if all(v is None for v in (e.close_odds, e.close_prob, e.clv, e.clv_ev, e.clv_pts)):
             out.append(e)
             continue
         if e.date not in timely:
@@ -139,7 +139,9 @@ def timely_clv(
         if f"{e.matchup}|{e.market}" in timely[e.date]:
             out.append(e)
         else:
-            out.append(replace(e, clv=None, clv_ev=None, clv_pts=None))
+            out.append(
+                replace(e, close_odds=None, close_prob=None, clv=None, clv_ev=None, clv_pts=None)
+            )
     return out
 
 
