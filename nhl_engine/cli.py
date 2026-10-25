@@ -379,6 +379,7 @@ def cmd_card(args: argparse.Namespace) -> int:
                 sctx = screens.Context(b2b=b2b)
                 reads = {b.name: b for b in bands.read_bands(graded, sctx)}
                 ctx.leans = [reads[n] for n in bands.LEANS if n in reads]
+                ctx.promotions = scorecard.scorecard(graded).promotions()
                 ctx.lean_tonight = bands.tonight(card.rows, sctx)
                 if unread:
                     for name in [n for n in ctx.lean_tonight if "back-to-back" in n]:

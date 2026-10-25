@@ -30,7 +30,9 @@ def _norm(name: str) -> str:
     return "".join(ch for ch in name.lower() if ch.isalnum())
 
 
-def match_final(row: ledger.Row, games: Iterable[Game], home: str, away: str) -> tuple[int, int] | None:
+def match_final(
+    row: ledger.Row, games: Iterable[Game], home: str, away: str
+) -> tuple[int, int] | None:
     for g in games:
         if g.final and _norm(g.home) == _norm(home) and _norm(g.away) == _norm(away):
             a, h = g.final
@@ -70,7 +72,9 @@ def grade(
     for r in current.values():
         if r.outcome or (r.close_status and not games):
             continue
-        g = replace(r, pass_id=pass_id, pass_kind="board", supersedes=r.row_hash, prev_hash="", row_hash="")
+        g = replace(
+            r, pass_id=pass_id, pass_kind="board", supersedes=r.row_hash, prev_hash="", row_hash=""
+        )
         a = by_key.get((r.event_id, r.market, r.line))
         if a is not None and r.p_fair is not None and r.american is not None:
             cf = a.p_fair.get(r.side)
@@ -82,7 +86,9 @@ def grade(
             if ex is not None:
                 g.close_exec_american = ex.american
                 g.close_exec_shard = a.shard
-                g.clv_exec = round((american_to_prob(ex.american) - american_to_prob(r.american)) * 100, 3)
+                g.clv_exec = round(
+                    (american_to_prob(ex.american) - american_to_prob(r.american)) * 100, 3
+                )
         else:
             g.close_status = "pulled"
         home_away = teams.get(r.event_id)
@@ -131,19 +137,40 @@ def v_persist(rows: list[ledger.Row], shards: list[quotes.Quote]) -> list[dict[s
     for (book, market), xs in sorted(acc.items()):
         f = [a for a, _ in xs if a is not None]
         c = [b for _, b in xs if b is not None]
-        out.append({"book": book, "market": market, "n": len(xs), "next_featured": round(sum(f) / len(f), 3) if f else None, "next_card": round(sum(c) / len(c), 3) if c else None})
+        out.append(
+            {
+                "book": book,
+                "market": market,
+                "n": len(xs),
+                "next_featured": round(sum(f) / len(f), 3) if f else None,
+                "next_card": round(sum(c) / len(c), 3) if c else None,
+            }
+        )
     return out
 
 
 def _same(q: quotes.Quote, r: ledger.Row) -> bool:
-    return (q.event_id, q.market, q.side, q.line, q.book) == (r.event_id, r.market, r.side, r.line, r.book) and r.american is not None and q.american >= r.american
+    return (
+        (q.event_id, q.market, q.side, q.line, q.book)
+        == (r.event_id, r.market, r.side, r.line, r.book)
+        and r.american is not None
+        and q.american >= r.american
+    )
 
 
 def _same_row(x: ledger.Row, r: ledger.Row) -> bool:
-    return (x.event_id, x.market, x.side, x.line, x.book) == (r.event_id, r.market, r.side, r.line, r.book) and r.american is not None and x.american is not None and x.american >= r.american
+    return (
+        (x.event_id, x.market, x.side, x.line, x.book)
+        == (r.event_id, r.market, r.side, r.line, r.book)
+        and r.american is not None
+        and x.american is not None
+        and x.american >= r.american
+    )
 
 
-def report(rows: list[ledger.Row], rungs: list[str], shards: list[quotes.Quote] | None = None) -> dict[str, object]:
+def report(
+    rows: list[ledger.Row], rungs: list[str], shards: list[quotes.Quote] | None = None
+) -> dict[str, object]:
     """Page one first: CLV, shape, rung, gate, prior; W-L/ROI underneath."""
     graded = [r for r in rows if r.outcome and r.is_buy and r.status == "live"]
     units = sum(r.pnl or 0.0 for r in graded)
@@ -154,6 +181,7 @@ def report(rows: list[ledger.Row], rungs: list[str], shards: list[quotes.Quote] 
         "v_gate": views.v_gate(rows),
         "v_prior": views.v_prior(rows),
         "v_persist": v_persist(rows, shards or []),
+        "v_promotion": views.v_promotion(rows),
         "record": {
             "n": len(graded),
             "w": sum(1 for r in graded if r.outcome == "win"),
