@@ -38,6 +38,7 @@ from cfb_engine.audit.clv import (
     load_closing,
     merge_closing,
     save_closing,
+    timely_clv,
     timely_only,
 )
 from cfb_engine.audit.grade import ResultIndex, build_result_index, grade, result_for
@@ -671,7 +672,7 @@ def cmd_weekly(cfg: Config, args: argparse.Namespace) -> int:
     if not entries:
         print("Ledger is empty; run `cfb-engine audit` first.")
         return 1
-    report = weekly_audit(entries, _audit_day(args))
+    report = weekly_audit(_timely_clv(cfg, entries), _audit_day(args))
     out = generate_weekly_report(report, cfg, email=not args.no_email, to=args.to)
     for line in report.week.findings + report.ledger.findings:
         print(f"- {line}")
@@ -759,6 +760,7 @@ def cmd_probation(cfg: Config, args: argparse.Namespace) -> int:
     if not entries:
         print("Ledger is empty; run `cfb-engine audit` on graded slates first.")
         return 1
+    entries = _timely_clv(cfg, entries)
     money = [
         engine_priced_stat(entries),
         *priced_stats(entries, lambda k: _MARKET_LABEL.get(k, k)),
@@ -937,6 +939,11 @@ def cmd_stamp_units(cfg: Config, args: argparse.Namespace) -> int:
     return 0
 
 
+def _timely_clv(cfg: Config, entries: list[LedgerEntry]) -> list[LedgerEntry]:
+    """Copies of the rows for the reports, CLV kept only on closes within 45 min of kickoff."""
+    return timely_clv(entries, lambda iso: load_closing(cfg.closing_file(Date.fromisoformat(iso))))
+
+
 def _emit_ledger(
     cfg: Config,
     entries: list[LedgerEntry],
@@ -946,6 +953,7 @@ def _emit_ledger(
     email: bool,
     to: str | None,
 ) -> None:
+    entries = _timely_clv(cfg, entries)
     overall = [engine_metrics(entries), *overall_metrics(entries)]
     daily = daily_rollup(entries)
     markets = market_metrics(entries)
