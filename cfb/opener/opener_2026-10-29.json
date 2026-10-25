@@ -1,0 +1,86 @@
+{
+  "Florida Atlant @ North Texas|game_ats|Florida Atlant": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 11.5,
+    "no_vig_prob": 0.49840966921119595
+  },
+  "Florida Atlant @ North Texas|game_ats|North Texas": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -11.5,
+    "no_vig_prob": 0.5015903307888041
+  },
+  "Florida Atlant @ North Texas|game_ml|Florida Atlant": {
+    "american": 360.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.2091185194456388
+  },
+  "Florida Atlant @ North Texas|game_ml|North Texas": {
+    "american": -465.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.7908814805543612
+  },
+  "Florida Atlant @ North Texas|game_total|Over": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 70.5,
+    "no_vig_prob": 0.5
+  },
+  "Florida Atlant @ North Texas|game_total|Under": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 70.5,
+    "no_vig_prob": 0.5
+  },
+  "Troy @ James Madison|game_ats|James Madison": {
+    "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -18.5,
+    "no_vig_prob": 0.49458288190682553
+  },
+  "Troy @ James Madison|game_ats|Troy": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 18.5,
+    "no_vig_prob": 0.5054171180931744
+  },
+  "Troy @ James Madison|game_ml|James Madison": {
+    "american": -800.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.8748980586207495
+  },
+  "Troy @ James Madison|game_ml|Troy": {
+    "american": 740.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.12510194137925046
+  },
+  "Troy @ James Madison|game_total|Over": {
+    "american": -109.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 51.5,
+    "no_vig_prob": 0.4973489989820156
+  },
+  "Troy @ James Madison|game_total|Under": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 51.5,
+    "no_vig_prob": 0.5026510010179843
+  }
+}
