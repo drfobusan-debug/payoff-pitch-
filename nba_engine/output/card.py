@@ -20,14 +20,17 @@ from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
 from datetime import date as Date
 
+from engine_common import promotion
 from engine_common.bands import CALL_SE, MIN_N, BandRead
 from engine_common.odds import american_to_prob
 from engine_common.podcasts import render as podcast_render
 from engine_common.podcasts.render import CSS as PODCAST_CSS
 from engine_common.podcasts.render import game_block as podcast_game_block
 from engine_common.podcasts.render import records_block as podcast_records_block
+from engine_common.promotion import MIN_BUYS, Promotion
 from nba_engine.audit import scorecard
-from nba_engine.audit.ledger import LedgerRow
+from nba_engine.audit.ledger import CLOSE, LedgerRow, timely_close
+from nba_engine.audit.settle import LOSS, WIN
 from nba_engine.data import teamnames
 from nba_engine.data.capture import MARKET_MAP
 from nba_engine.market.board import EXEC_BOOKS
@@ -218,6 +221,7 @@ class SlateCard:
     graded_rows: int = 0
     integrity: scorecard.Integrity | None = None
     bands: tuple[BandRead, ...] = ()
+    promotions: tuple[Promotion, ...] = ()
 
     @property
     def rows(self) -> list[LedgerRow]:
@@ -282,7 +286,31 @@ def build_card(
         graded_rows=len(graded),
         integrity=scorecard.integrity(graded) if graded else None,
         bands=tuple(bands),
+        promotions=tuple(_promotions(graded)),
     )
+
+
+def _promotions(graded: Sequence[LedgerRow]) -> list[Promotion]:
+    """Each market's graded buys against the shared paper -> Lean (probation) bar."""
+    out = []
+    buys = sorted((r for r in graded if r.is_buy and r.outcome), key=lambda r: r.slate_date)
+    for market in sorted({r.market for r in buys}):
+        rs = [r for r in buys if r.market == market]
+        decided = [
+            r for r in rs if r.outcome in (WIN, LOSS) and r.model_prob is not None and r.fair
+        ]
+        bm: float | None = None
+        bk: float | None = None
+        if decided:
+            won = [1.0 if r.outcome == WIN else 0.0 for r in decided]
+            pairs = list(zip(decided, won, strict=True))
+            bm = sum((float(r.model_prob or 0.0) - w) ** 2 for r, w in pairs) / len(pairs)
+            bk = sum((float(r.fair or 0.0) - w) ** 2 for r, w in pairs) / len(pairs)
+        clvs = [
+            r.clv for r in rs if r.close_status == CLOSE and r.clv is not None and timely_close(r)
+        ]
+        out.append(promotion.read(market, [r.pnl or 0.0 for r in rs], clvs, bm, bk))
+    return out
 
 
 # -- HTML --------------------------------------------------------------------
@@ -479,7 +507,11 @@ def _rated(x: Rated, fmt: str) -> str:
 
 
 def _team_stats(game: GameCard) -> dict[str, TeamStats]:
-    return {t: s for t, s in zip((game.away, game.home), game.context.teams, strict=False) if s is not None}
+    return {
+        t: s
+        for t, s in zip((game.away, game.home), game.context.teams, strict=False)
+        if s is not None
+    }
 
 
 _TN = " class='tn'"
@@ -710,6 +742,21 @@ def _integrity_line(card: SlateCard) -> str:
     )
 
 
+def _promotion_line(card: SlateCard) -> str:
+    """Which markets have cleared the stake bar; silent with no graded buys."""
+    if not card.promotions:
+        return ""
+    lean = [p for p in card.promotions if p.cleared]
+    if lean:
+        items = "; ".join(f"<b>{_e(p.market)}</b> — {_e(p.status)}, {p.stake:g} unit" for p in lean)
+        return f"<p class='ctx'>Stake bar: {items}. Every other market stays paper.</p>"
+    waits = "; ".join(f"{_e(p.market)} ({_e(p.why_not)})" for p in card.promotions)
+    return (
+        f"<p class='muted'>Stake bar: no market has cleared paper ({MIN_BUYS} graded buys, ROI ≥ 0"
+        f" in both halves, CLV lower bound > 0, Brier ≤ market). Waiting on: {waits}.</p>"
+    )
+
+
 def _bands_table(card: SlateCard) -> str:
     """The schedule bands, graded only: flat 1u on the main line at the card's price."""
     if not card.bands:
@@ -776,7 +823,7 @@ def render_html(card: SlateCard, podcast: PodcastView | None = None) -> str:
         f"<style>{_STYLE}{PODCAST_CSS if podcast else ''}</style></head>"
         f"<body>{masthead}<p class='lead'>{lead}</p>{''.join(notes)}{body}"
         f"{_slate_bets(card)}{_summary_table(card)}{_record_table(card)}"
-        f"{_integrity_line(card)}{_bands_table(card)}"
+        f"{_integrity_line(card)}{_promotion_line(card)}{_bands_table(card)}"
         f"{podcast_records_block(podcast, [g.matchup for g in card.games])}{fine}</body></html>"
     )
 

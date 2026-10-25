@@ -21,6 +21,7 @@ import pandas as pd
 from engine_common.bands import BandRead
 from engine_common.podcasts.extract import Pick as ArticlePick
 from engine_common.podcasts.render import bet_line
+from engine_common.promotion import MIN_BUYS, Promotion
 from nhl_engine.audit.ledger import LedgerRow
 from nhl_engine.audit.podcast_picks import HOSTS, UNATTRIBUTED, Pick, StatedRecord, Tally, tally
 from nhl_engine.data.availability import current_out, read_log
@@ -141,6 +142,7 @@ class ReportContext:
     vsin_other: list[ArticlePick] = field(default_factory=list)  # tonight's VSiN props, as written
     vsin_history: list[Pick] = field(default_factory=list)  # every VSiN game bet, graded or not
     leans: list[BandRead] = field(default_factory=list)  # graded-only study leans, to date
+    promotions: list[Promotion] = field(default_factory=list)  # live markets vs the stake bar
     lean_tonight: dict[str, list[str]] = field(default_factory=dict)  # lean -> tonight's sides
     lean_note: str = ""  # why tonight's sides could not be read, when they could not
 
@@ -555,6 +557,23 @@ def _game_block(g: GameCard, ctx: ReportContext) -> str:
     return "".join(parts)
 
 
+def _stake_block(ctx: ReportContext) -> str:
+    """Which live markets have cleared paper; the card labels a stake, it never picks a bet."""
+    if not ctx.promotions:
+        return ""
+    lean = [p for p in ctx.promotions if p.cleared]
+    if lean:
+        items = "; ".join(
+            f"<b>{escape(p.market)}</b> — {escape(p.status)}, {p.stake:g} unit" for p in lean
+        )
+        return f"<p class='muted'>Stake bar: {items}. Every other market stays paper.</p>"
+    waits = "; ".join(f"{escape(p.market)} ({escape(p.why_not)})" for p in ctx.promotions)
+    return (
+        f"<p class='muted'>Stake bar: every market is still paper ({MIN_BUYS} graded buys, ROI ≥ 0 in"
+        f" both halves, CLV lower bound > 0, Brier ≤ market). Waiting on: {waits}.</p>"
+    )
+
+
 def _leans_block(ctx: ReportContext) -> str:
     """The 2023-25 close-study leans: tonight's qualifying sides and the record so far."""
     if not ctx.leans and not ctx.lean_tonight:
@@ -674,7 +693,7 @@ def render_html(card: SlateCard, ctx: ReportContext) -> str:
     )
     return (
         f"<!DOCTYPE html><html><head><meta charset='utf-8'><style>{CSS}</style></head>"
-        f"<body>{head}{slate}{_leans_block(ctx)}{games}{unpriced}{fine}</body></html>"
+        f"<body>{head}{slate}{_stake_block(ctx)}{_leans_block(ctx)}{games}{unpriced}{fine}</body></html>"
     )
 
 
