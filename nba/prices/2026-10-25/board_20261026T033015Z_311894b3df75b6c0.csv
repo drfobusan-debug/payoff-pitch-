@@ -1,0 +1,27 @@
+captured_at,game_date,matchup,event_id,market,side,entity,line,book,american,opposite_american,source
+2026-10-26T03:30:15Z,2026-10-25,MEM @ SAC,dcc4a1c7f0427d8e1b2ee7d3f1d48e8a,game_total,over,,237.5,bovada,115,-150,oddsapi
+2026-10-26T03:30:15Z,2026-10-25,MEM @ SAC,dcc4a1c7f0427d8e1b2ee7d3f1d48e8a,game_total,under,,237.5,bovada,-150,115,oddsapi
+2026-10-26T03:30:15Z,2026-10-25,MEM @ SAC,dcc4a1c7f0427d8e1b2ee7d3f1d48e8a,game_ats,MEM,,-13.5,betrivers,140,-190,oddsapi
+2026-10-26T03:30:15Z,2026-10-25,MEM @ SAC,dcc4a1c7f0427d8e1b2ee7d3f1d48e8a,game_ats,SAC,,13.5,betrivers,-190,140,oddsapi
+2026-10-26T03:30:15Z,2026-10-25,MEM @ SAC,dcc4a1c7f0427d8e1b2ee7d3f1d48e8a,game_total,over,,235.5,betrivers,-130,-103,oddsapi
+2026-10-26T03:30:15Z,2026-10-25,MEM @ SAC,dcc4a1c7f0427d8e1b2ee7d3f1d48e8a,game_total,under,,235.5,betrivers,-103,-130,oddsapi
+2026-10-26T03:30:15Z,2026-10-25,MEM @ SAC,dcc4a1c7f0427d8e1b2ee7d3f1d48e8a,game_ats,MEM,,-11.5,draftkings,150,-200,oddsapi
+2026-10-26T03:30:15Z,2026-10-25,MEM @ SAC,dcc4a1c7f0427d8e1b2ee7d3f1d48e8a,game_ats,SAC,,11.5,draftkings,-200,150,oddsapi
+2026-10-26T03:30:15Z,2026-10-25,MEM @ SAC,dcc4a1c7f0427d8e1b2ee7d3f1d48e8a,game_total,over,,235.5,draftkings,-115,-115,oddsapi
+2026-10-26T03:30:15Z,2026-10-25,MEM @ SAC,dcc4a1c7f0427d8e1b2ee7d3f1d48e8a,game_total,under,,235.5,draftkings,-115,-115,oddsapi
+2026-10-26T03:30:15Z,2026-10-25,MEM @ SAC,dcc4a1c7f0427d8e1b2ee7d3f1d48e8a,game_ats,MEM,,-13.5,betmgm,525,-900,oddsapi
+2026-10-26T03:30:15Z,2026-10-25,MEM @ SAC,dcc4a1c7f0427d8e1b2ee7d3f1d48e8a,game_ats,SAC,,13.5,betmgm,-900,525,oddsapi
+2026-10-26T03:30:15Z,2026-10-25,MEM @ SAC,dcc4a1c7f0427d8e1b2ee7d3f1d48e8a,game_total,over,,233.5,betmgm,290,-425,oddsapi
+2026-10-26T03:30:15Z,2026-10-25,MEM @ SAC,dcc4a1c7f0427d8e1b2ee7d3f1d48e8a,game_total,under,,233.5,betmgm,-425,290,oddsapi
+2026-10-26T03:30:15Z,2026-10-25,MEM @ SAC,dcc4a1c7f0427d8e1b2ee7d3f1d48e8a,game_ats,MEM,,-12.5,williamhill_us,215,-280,oddsapi
+2026-10-26T03:30:15Z,2026-10-25,MEM @ SAC,dcc4a1c7f0427d8e1b2ee7d3f1d48e8a,game_ats,SAC,,12.5,williamhill_us,-280,215,oddsapi
+2026-10-26T03:30:15Z,2026-10-25,MEM @ SAC,dcc4a1c7f0427d8e1b2ee7d3f1d48e8a,game_total,over,,233.5,williamhill_us,-320,240,oddsapi
+2026-10-26T03:30:15Z,2026-10-25,MEM @ SAC,dcc4a1c7f0427d8e1b2ee7d3f1d48e8a,game_total,under,,233.5,williamhill_us,240,-320,oddsapi
+2026-10-26T03:30:15Z,2026-10-25,MEM @ SAC,dcc4a1c7f0427d8e1b2ee7d3f1d48e8a,game_ats,MEM,,-12.5,fanduel,-200,148,oddsapi
+2026-10-26T03:30:15Z,2026-10-25,MEM @ SAC,dcc4a1c7f0427d8e1b2ee7d3f1d48e8a,game_ats,SAC,,12.5,fanduel,148,-200,oddsapi
+2026-10-26T03:30:15Z,2026-10-25,MEM @ SAC,dcc4a1c7f0427d8e1b2ee7d3f1d48e8a,game_total,over,,236.5,fanduel,-136,102,oddsapi
+2026-10-26T03:30:15Z,2026-10-25,MEM @ SAC,dcc4a1c7f0427d8e1b2ee7d3f1d48e8a,game_total,under,,236.5,fanduel,102,-136,oddsapi
+2026-10-26T03:30:15Z,2026-10-25,MEM @ SAC,dcc4a1c7f0427d8e1b2ee7d3f1d48e8a,game_ats,MEM,,-11.5,fanatics,-120,-110,oddsapi
+2026-10-26T03:30:15Z,2026-10-25,MEM @ SAC,dcc4a1c7f0427d8e1b2ee7d3f1d48e8a,game_ats,SAC,,11.5,fanatics,-110,-120,oddsapi
+2026-10-26T03:30:15Z,2026-10-25,MEM @ SAC,dcc4a1c7f0427d8e1b2ee7d3f1d48e8a,game_total,over,,235.5,fanatics,110,-145,oddsapi
+2026-10-26T03:30:15Z,2026-10-25,MEM @ SAC,dcc4a1c7f0427d8e1b2ee7d3f1d48e8a,game_total,under,,235.5,fanatics,-145,110,oddsapi
