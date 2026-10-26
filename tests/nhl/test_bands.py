@@ -99,7 +99,7 @@ def test_verdict_needs_the_sample_and_both_halves():
     assert win.verdict == "wins: clears the bar"
     lose = bands.BandRead("x", [-1.0, -1.0, 1.0] * 40)
     assert lose.verdict == "loses: refusal candidate"
-    assert bands.BandRead("x", [1.0] * 50).verdict == "probation (50/100 games)"
+    assert bands.BandRead("x", [1.0] * 50).verdict == "probation (50/150 games)"
 
 
 def test_heavy_favourite_band_cannot_lose_on_vig_alone():
