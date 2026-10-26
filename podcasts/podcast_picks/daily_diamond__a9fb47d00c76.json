@@ -1,0 +1,50 @@
+{
+ "episode_guid": "abcf1c3b-6c2d-4ee2-9079-1f327e936860",
+ "model": "gpt-4o-mini",
+ "prompt_version": "picks-v2",
+ "transcript_sha": "492803a3d7511d5aea9b9fcf51b0415e7b7d0d65",
+ "picks": [],
+ "rejected": [
+  {
+   "league": "mlb",
+   "kind": "lean",
+   "host": "Jensen Lewis",
+   "team": "Rays",
+   "opponent": "Brewers",
+   "market": "game_ml",
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "stamp": "[02:26]",
+   "quote": "If you needed a must-win, it looks like it's set up here for the Rays tonight.",
+   "edge": "Rays have won all 10 of Freddie Peralta's starts.",
+   "fair_line": null,
+   "reason": "The Rays are in a must-win situation at home with a favorable pitcher matchup.",
+   "description": "Rays to win Game 3.",
+   "why": "bad stamp"
+  },
+  {
+   "league": "mlb",
+   "kind": "lean",
+   "host": "Dave Ross",
+   "team": "Brewers",
+   "opponent": "Rays",
+   "market": "game_ml",
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "stamp": "[03:38]",
+   "quote": "The books are saying that too, CJ. They've got Milwaukee now minus 750 to win this World Series.",
+   "edge": "Brewers are heavily favored to win the World Series after winning the first two games.",
+   "fair_line": null,
+   "reason": "The Brewers have a strong position in the series and are favored to win the World Series.",
+   "description": "Brewers to win Game 3.",
+   "why": "bad stamp"
+  }
+ ],
+ "leagues": [
+  "mlb"
+ ]
+}
