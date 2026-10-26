@@ -274,11 +274,13 @@ def cmd_audit(args: argparse.Namespace) -> int:
     ]
     shards = quotes.read_day(root, SPORT, day.isoformat())
     rep = audit.report(rows, rungs, shards)
-    # The stake bar is season-to-date: eight live buys a day never reach 100 in one slate.
+    # The stake bar is season-to-date: eight live buys a day never reach 100 in one slate,
+    # and a prior season's buys may not vouch for this one (seasons turn over 1 July).
+    start = Date(day.year if day.month >= 7 else day.year - 1, 7, 1).isoformat()
     season = [
         r
         for d in sorted(p.name for p in (root / "ledger" / SPORT).glob("*") if p.is_dir())
-        if d <= day.isoformat()
+        if start <= d <= day.isoformat()
         for r in ledger.record(root, SPORT, d).values()
     ]
     rep["v_promotion"] = views.v_promotion(season)
