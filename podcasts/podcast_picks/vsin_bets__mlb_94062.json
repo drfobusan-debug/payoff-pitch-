@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-94062",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "0ada3119a340038a9ba42b8523be0f4200a34ba5",
+ "picks": [
+  {
+   "pick_id": "441ca5f11539",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-94062",
+   "episode_title": "Rays vs. Brewers Game 2 World Series Prediction and Preview",
+   "published": "2026-10-24T17:26:13+00:00",
+   "kind": "official",
+   "market": "other",
+   "team": null,
+   "opponent": null,
+   "side": null,
+   "line": null,
+   "price": -115.0,
+   "units": null,
+   "seconds": 0,
+   "quote": "Rays 1st 5 (-115)",
+   "reason": "https://vsin.com/mlb/rays-vs-brewers-game-2-world-series-prediction-and-preview/",
+   "description": "Rays 1st 5 (-115)",
+   "league": "mlb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "mlb"
+ ]
+}

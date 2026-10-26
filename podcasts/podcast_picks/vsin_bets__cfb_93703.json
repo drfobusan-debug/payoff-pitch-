@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-93703",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "91a14c10df1cf17c75eca2aba39e49834fea504c",
+ "picks": [
+  {
+   "pick_id": "1d352a0596dc",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-93703",
+   "episode_title": "College Football Week 8 Picks: New Mexico State vs. Sam Houston",
+   "published": "2026-10-21T01:01:00+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "New Mexico State",
+   "opponent": "Sam Houston State",
+   "side": null,
+   "line": -3.0,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "New Mexico State -3",
+   "reason": "https://vsin.com/college-football/college-football-week-8-picks-new-mexico-state-vs-sam-houston/",
+   "description": "New Mexico State -3",
+   "league": "cfb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cfb"
+ ]
+}

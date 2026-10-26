@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-93672",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "22e1fd2efcdd15aaffd2380ac03d273334e83c29",
+ "picks": [
+  {
+   "pick_id": "f59a017048ac",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Zachary Cohen",
+   "episode_guid": "vsin-93672",
+   "episode_title": "Commanders vs. 49ers Predictions: Week 6 Monday Night Football odds, picks, and player props",
+   "published": "2026-10-19T18:28:14+00:00",
+   "kind": "official",
+   "market": "other",
+   "team": null,
+   "opponent": null,
+   "side": null,
+   "line": null,
+   "price": -109.0,
+   "units": null,
+   "seconds": 0,
+   "quote": "Over 51.5 (-109)",
+   "reason": "https://vsin.com/nfl/commanders-vs-49ers-predictions-week-6-monday-night-football-odds-picks-and-player-props/",
+   "description": "Over 51.5 (-109)",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "nfl"
+ ]
+}

@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-93901",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "58ba88a834bd8f4dc979542c6d7d04e511afe981",
+ "picks": [
+  {
+   "pick_id": "1e70d05b7cd1",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-93901",
+   "episode_title": "College Football Week 8 Picks: Duke vs. Virginia",
+   "published": "2026-10-23T00:58:00+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Duke",
+   "opponent": "Virginia",
+   "side": null,
+   "line": 2.0,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Duke +2",
+   "reason": "https://vsin.com/college-football/college-football-week-8-picks-duke-vs-virginia/",
+   "description": "Duke +2",
+   "league": "cfb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cfb"
+ ]
+}

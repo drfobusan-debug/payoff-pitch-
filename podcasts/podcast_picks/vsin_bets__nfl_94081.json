@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-94081",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "4f61b957c81afec8e0cc0e1481f06c784cf398e8",
+ "picks": [
+  {
+   "pick_id": "fd39c298f661",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Zachary Cohen",
+   "episode_guid": "vsin-94081",
+   "episode_title": "Chiefs vs. Seahawks Predictions: Week 7 Sunday Night Football odds, picks, and player props",
+   "published": "2026-10-25T04:29:34+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Seahawks",
+   "opponent": "Chiefs",
+   "side": null,
+   "line": -2.5,
+   "price": -115.0,
+   "units": null,
+   "seconds": 0,
+   "quote": "Seahawks -2.5 (-115)",
+   "reason": "https://vsin.com/nfl/chiefs-vs-seahawks-predictions-week-7-sunday-night-football-odds-picks-and-player-props/",
+   "description": "Seahawks -2.5 (-115)",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "nfl"
+ ]
+}

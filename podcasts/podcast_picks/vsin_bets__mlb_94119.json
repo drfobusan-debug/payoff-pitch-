@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-94119",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "363b711bc90eda2f15c61bbb6f7fa4204755a12e",
+ "picks": [
+  {
+   "pick_id": "8b4afbbeaaa9",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-94119",
+   "episode_title": "Brewers vs. Rays Game 3 World Series Prediction and Preview",
+   "published": "2026-10-25T21:29:13+00:00",
+   "kind": "official",
+   "market": "game_ml",
+   "team": "Brewers",
+   "opponent": "Rays World Series",
+   "side": null,
+   "line": null,
+   "price": -101.0,
+   "units": null,
+   "seconds": 0,
+   "quote": "Brewers -101",
+   "reason": "https://vsin.com/mlb/brewers-vs-rays-game-3-world-series-prediction-and-preview/",
+   "description": "Brewers -101",
+   "league": "mlb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "mlb"
+ ]
+}
