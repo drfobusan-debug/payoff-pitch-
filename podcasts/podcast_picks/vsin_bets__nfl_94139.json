@@ -1,0 +1,60 @@
+{
+ "episode_guid": "vsin-94139",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "5e8246c8f216d941abcf41651b1e30224b4a8dbd",
+ "picks": [
+  {
+   "pick_id": "68d415ba10d6",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Zachary Cohen",
+   "episode_guid": "vsin-94139",
+   "episode_title": "Cowboys vs. Eagles Predictions: Week 7 Monday Night Football odds, picks, and player props",
+   "published": "2026-10-26T04:18:06+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Eagles",
+   "opponent": "Cowboys",
+   "side": null,
+   "line": 5.0,
+   "price": -110.0,
+   "units": null,
+   "seconds": 0,
+   "quote": "Eagles +5 (-110)",
+   "reason": "https://vsin.com/nfl/cowboys-vs-eagles-predictions-week-7-monday-night-football-odds-picks-and-player-props/",
+   "description": "Eagles +5 (-110)",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  },
+  {
+   "pick_id": "fed6b55c6b85",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Zachary Cohen",
+   "episode_guid": "vsin-94139",
+   "episode_title": "Cowboys vs. Eagles Predictions: Week 7 Monday Night Football odds, picks, and player props",
+   "published": "2026-10-26T04:18:06+00:00",
+   "kind": "official",
+   "market": "game_ml",
+   "team": "Eagles",
+   "opponent": "Cowboys",
+   "side": null,
+   "line": null,
+   "price": 190.0,
+   "units": 0.5,
+   "seconds": 1,
+   "quote": "Eagles ML (+190 - 0.5 units)",
+   "reason": "https://vsin.com/nfl/cowboys-vs-eagles-predictions-week-7-monday-night-football-odds-picks-and-player-props/",
+   "description": "Eagles ML (+190 - 0.5 units)",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "nfl"
+ ]
+}
