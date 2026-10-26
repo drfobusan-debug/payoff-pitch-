@@ -240,6 +240,20 @@
   {
     "matchup": "MIL @ TB",
     "market": "batter_1b",
+    "selection": "Victor Mesa Jr. 1B o0.5",
+    "american": 140.0,
+    "no_vig_prob": 0.397634
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_1b",
+    "selection": "Victor Mesa Jr. 1B u0.5",
+    "american": -178.0,
+    "no_vig_prob": 0.602366
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_1b",
     "selection": "William Contreras 1B o0.5",
     "american": 100.0,
     "no_vig_prob": 0.47532
@@ -506,6 +520,20 @@
   {
     "matchup": "MIL @ TB",
     "market": "batter_2b",
+    "selection": "Victor Mesa Jr. 2B o0.5",
+    "american": 551.0,
+    "no_vig_prob": 0.145197
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_2b",
+    "selection": "Victor Mesa Jr. 2B u0.5",
+    "american": -910.0,
+    "no_vig_prob": 0.854803
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_2b",
     "selection": "William Contreras 2B o0.5",
     "american": 430.0,
     "no_vig_prob": 0.187551
@@ -758,6 +786,20 @@
   {
     "matchup": "MIL @ TB",
     "market": "batter_bb",
+    "selection": "Victor Mesa Jr. BB o0.5",
+    "american": 310.0,
+    "no_vig_prob": 0.260732
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_bb",
+    "selection": "Victor Mesa Jr. BB u0.5",
+    "american": -310.0,
+    "no_vig_prob": 0.739268
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_bb",
     "selection": "William Contreras BB o0.5",
     "american": 155.0,
     "no_vig_prob": 0.377395
@@ -982,6 +1024,20 @@
   {
     "matchup": "MIL @ TB",
     "market": "batter_hrr",
+    "selection": "Nick Fortes H+R+RBI o0.5",
+    "american": -154.0,
+    "no_vig_prob": 0.566199
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_hrr",
+    "selection": "Nick Fortes H+R+RBI u0.5",
+    "american": 115.0,
+    "no_vig_prob": 0.433801
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_hrr",
     "selection": "Ryan Vilade H+R+RBI o0.5",
     "american": -135.0,
     "no_vig_prob": 0.55543
@@ -1034,6 +1090,34 @@
     "selection": "Taylor Walls H+R+RBI u0.5",
     "american": 105.0,
     "no_vig_prob": 0.463367
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_hrr",
+    "selection": "Victor Mesa Jr. H+R+RBI o0.5",
+    "american": -162.0,
+    "no_vig_prob": 0.581299
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_hrr",
+    "selection": "Victor Mesa Jr. H+R+RBI o1.5",
+    "american": 120.0,
+    "no_vig_prob": 0.424837
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_hrr",
+    "selection": "Victor Mesa Jr. H+R+RBI u0.5",
+    "american": 125.0,
+    "no_vig_prob": 0.418701
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_hrr",
+    "selection": "Victor Mesa Jr. H+R+RBI u1.5",
+    "american": -160.0,
+    "no_vig_prob": 0.575163
   },
   {
     "matchup": "MIL @ TB",
@@ -1241,6 +1325,13 @@
   {
     "matchup": "MIL @ TB",
     "market": "batter_hr",
+    "selection": "Nick Fortes HR o0.5",
+    "american": 950.0,
+    "no_vig_prob": 0.095238
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_hr",
     "selection": "Ryan Vilade HR o0.5",
     "american": 700.0,
     "no_vig_prob": 0.125
@@ -1279,6 +1370,20 @@
     "selection": "Taylor Walls HR o1.5",
     "american": 35000.0,
     "no_vig_prob": 0.002849
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_hr",
+    "selection": "Victor Mesa Jr. HR o0.5",
+    "american": 750.0,
+    "no_vig_prob": 0.117647
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_hr",
+    "selection": "Victor Mesa Jr. HR o1.5",
+    "american": 15000.0,
+    "no_vig_prob": 0.006623
   },
   {
     "matchup": "MIL @ TB",
@@ -1346,9 +1451,23 @@
   {
     "matchup": "MIL @ TB",
     "market": "batter_h",
+    "selection": "Chandler Simpson H o1.5",
+    "american": 194.0,
+    "no_vig_prob": 0.323946
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_h",
     "selection": "Chandler Simpson H u0.5",
     "american": 194.0,
     "no_vig_prob": 0.323178
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_h",
+    "selection": "Chandler Simpson H u1.5",
+    "american": -250.0,
+    "no_vig_prob": 0.676054
   },
   {
     "matchup": "MIL @ TB",
@@ -1545,6 +1664,20 @@
     "selection": "Taylor Walls H u0.5",
     "american": -134.0,
     "no_vig_prob": 0.540831
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_h",
+    "selection": "Victor Mesa Jr. H o0.5",
+    "american": -120.0,
+    "no_vig_prob": 0.524305
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_h",
+    "selection": "Victor Mesa Jr. H u0.5",
+    "american": 101.0,
+    "no_vig_prob": 0.475695
   },
   {
     "matchup": "MIL @ TB",
@@ -1829,6 +1962,20 @@
   {
     "matchup": "MIL @ TB",
     "market": "batter_rbi",
+    "selection": "Victor Mesa Jr. RBI o0.5",
+    "american": 261.0,
+    "no_vig_prob": 0.271402
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_rbi",
+    "selection": "Victor Mesa Jr. RBI u0.5",
+    "american": -325.0,
+    "no_vig_prob": 0.728598
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_rbi",
     "selection": "William Contreras RBI o0.5",
     "american": 207.0,
     "no_vig_prob": 0.328147
@@ -2091,6 +2238,20 @@
     "selection": "Taylor Walls R u0.5",
     "american": -295.0,
     "no_vig_prob": 0.705179
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_r",
+    "selection": "Victor Mesa Jr. R o0.5",
+    "american": 200.0,
+    "no_vig_prob": 0.314678
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_r",
+    "selection": "Victor Mesa Jr. R u0.5",
+    "american": -275.0,
+    "no_vig_prob": 0.685322
   },
   {
     "matchup": "MIL @ TB",
@@ -2543,6 +2704,20 @@
   {
     "matchup": "MIL @ TB",
     "market": "batter_tb",
+    "selection": "Victor Mesa Jr. TB o0.5",
+    "american": -120.0,
+    "no_vig_prob": 0.519729
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_tb",
+    "selection": "Victor Mesa Jr. TB u0.5",
+    "american": -102.0,
+    "no_vig_prob": 0.480271
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_tb",
     "selection": "William Contreras TB o1.5",
     "american": 155.0,
     "no_vig_prob": 0.376956
@@ -2809,9 +2984,23 @@
   {
     "matchup": "MIL @ TB",
     "market": "pitcher_k",
+    "selection": "Robert Gasser Ks o2.5",
+    "american": -200.0,
+    "no_vig_prob": 0.620253
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "pitcher_k",
     "selection": "Robert Gasser Ks o3.5",
     "american": 125.0,
     "no_vig_prob": 0.44445
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "pitcher_k",
+    "selection": "Robert Gasser Ks u2.5",
+    "american": 145.0,
+    "no_vig_prob": 0.379747
   },
   {
     "matchup": "MIL @ TB",
