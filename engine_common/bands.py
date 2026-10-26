@@ -15,7 +15,9 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass, field
 
-MIN_N = 100
+MIN_N = (
+    150  # 30 bands run at once: at 100 games one 2-SE draw a month is expected; 150 asks for more
+)
 CALL_SE = 2.0
 
 

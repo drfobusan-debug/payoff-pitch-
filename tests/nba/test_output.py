@@ -420,7 +420,7 @@ def test_integrity_line_and_schedule_bands_render_only_with_a_graded_ledger():
     page = render_html(build_card(rows, day=DAY, graded=graded, draws=10, bands=[band]))
     assert "Ledger integrity:" in page and "no duplicates" in page
     assert (
-        "Schedule bands" in page and "rest_host_ats" in page and "probation (3/100 games)" in page
+        "Schedule bands" in page and "rest_host_ats" in page and "probation (3/150 games)" in page
     )
 
 
