@@ -102,6 +102,6 @@ def test_bands_take_the_main_line_once_per_game_and_only_when_the_spot_holds(
     ats, under = schedule_bands.read_bands(rows, sched)
     assert (ats.n, ats.record, round(ats.units, 2)) == (1, "1-0", round(pnl("win", -110.0) or 0, 2))
     assert (under.n, under.record) == (1, "0-1")
-    assert ats.verdict.startswith("probation (1/100")
+    assert ats.verdict.startswith("probation (1/150")
     text = "\n".join(schedule_bands.lines([ats, under]))
     assert "graded only" in text and "rest_host_ats" in text and "-> probation" in text

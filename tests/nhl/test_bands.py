@@ -95,9 +95,9 @@ def test_sixty_minute_favourite_underdog_draw():
 
 
 def test_verdict_needs_the_sample_and_both_halves():
-    win = bands.BandRead("x", [1.0, -1.0, 1.0] * 40)
+    win = bands.BandRead("x", [1.0, -1.0, 1.0] * 60)
     assert win.verdict == "wins: clears the bar"
-    lose = bands.BandRead("x", [-1.0, -1.0, 1.0] * 40)
+    lose = bands.BandRead("x", [-1.0, -1.0, 1.0] * 60)
     assert lose.verdict == "loses: refusal candidate"
     assert bands.BandRead("x", [1.0] * 50).verdict == "probation (50/150 games)"
 
@@ -106,8 +106,8 @@ def test_heavy_favourite_band_cannot_lose_on_vig_alone():
     # -320 Unders at a 70% consensus: each flat unit expects -0.081u; 120 of them, won at the
     # market's own rate, lose ~9.8u yet are exactly what the price predicted.
     pays = 100 / 320
-    pnls = [pays if i % 10 < 7 else -1.0 for i in range(120)]
-    expected = [0.70 * pays - 0.30] * 120
+    pnls = [pays if i % 10 < 7 else -1.0 for i in range(160)]
+    expected = [0.70 * pays - 0.30] * 160
     read = bands.BandRead("x", pnls, expected=expected)
     assert read.units < -2 and abs(read.excess) < 1.0
     assert read.verdict == "no edge"
@@ -194,9 +194,9 @@ def test_tonight_lists_each_lean_on_an_ungraded_card():
 def test_halves_and_se_read_each_game_against_its_own_price():
     # First half: coin-flip bets at -110 that went 50/50 (market expected -0.045 each).
     # Second half: -400 favourites at 80% consensus, won at the market's rate.
-    flips = [100 / 110 if i % 2 == 0 else -1.0 for i in range(60)]
-    chalk = [0.25 if i % 5 < 4 else -1.0 for i in range(60)]
-    expected = [0.5 * 100 / 110 - 0.5] * 60 + [0.8 * 0.25 - 0.2] * 60
+    flips = [100 / 110 if i % 2 == 0 else -1.0 for i in range(80)]
+    chalk = [0.25 if i % 5 < 4 else -1.0 for i in range(80)]
+    expected = [0.5 * 100 / 110 - 0.5] * 80 + [0.8 * 0.25 - 0.2] * 80
     read = bands.BandRead("x", flips + chalk, expected=expected)
     assert all(abs(h) < 1.0 for h in read.halves)
     assert read.verdict == "no edge"
