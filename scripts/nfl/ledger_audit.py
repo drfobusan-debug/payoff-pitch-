@@ -29,7 +29,13 @@ import statistics as st
 from collections import defaultdict
 from collections.abc import Callable
 
-from nfl_engine.audit.graduation import CLOSE_WINDOW, MIN_N, graduation_lines, has_true_close
+from nfl_engine.audit.graduation import (
+    CLOSE_WINDOW,
+    MIN_N,
+    graduation_lines,
+    has_true_close,
+    priced_before_kickoff,
+)
 from nfl_engine.audit.ledger import ENGINE, LOSS, PUSH, WIN, LedgerEntry, grade, load_ledger
 from nfl_engine.audit.tracked import tracked_lines
 from nfl_engine.cli import _final_scores, current_week, ledger_path, report_lines
@@ -85,10 +91,17 @@ def _quote_rank(entry: LedgerEntry) -> tuple[int, float]:
     return entry.paired_books, rung
 
 
+def in_game(entries: list[LedgerEntry]) -> list[LedgerEntry]:
+    """Rows priced after kickoff: live lines, not prices anyone could have bet into."""
+    return [e for e in entries if e.captured_at and e.kickoff_utc and not priced_before_kickoff(e)]
+
+
 def model_leans(graded: list[LedgerEntry]) -> list[LedgerEntry]:
+    """One lean per game-market, from rows priced before kickoff only."""
+    live = set(map(id, in_game(graded)))
     groups: dict[tuple[int, str, str, str], list[LedgerEntry]] = defaultdict(list)
     for e in graded:
-        if e.fair_prob is not None and e.result != PUSH:
+        if e.fair_prob is not None and e.result != PUSH and id(e) not in live:
             groups[(e.season, e.matchup, e.date, e.market)].append(e)
     leans = []
     for rows in groups.values():
@@ -236,7 +249,14 @@ def report(entries: list[LedgerEntry], filled: int) -> list[str]:
         )
     )
     leans = model_leans(graded)
-    out += ["", "2) One model lean per game-market (side with model > fair)", *lean_lines(leans)]
+    live = in_game(graded)
+    out += [
+        "",
+        "2) One model lean per game-market (side with model > fair)",
+        f"  {len(live)} graded row(s) priced after kickoff are excluded from every lean figure"
+        " below: in-game lines are not prices anyone could have bet",
+        *lean_lines(leans),
+    ]
     out += [
         "",
         "3) What each screen refused, graded on the model leans it blocked",

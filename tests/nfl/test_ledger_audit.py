@@ -130,3 +130,22 @@ def test_clv_counts_only_closes_seen_near_kickoff(ledger, capsys) -> None:
     assert "2026 wk1: 1 of 2 rows have a timely close (2 stamped at any age)" in text
     lean = next(line for line in text.splitlines() if line.strip().startswith("all leans"))
     assert "CLV -0.0200 (n 1)" in lean
+
+
+def test_rows_priced_after_kickoff_are_not_leans(ledger, capsys) -> None:
+    live = row(
+        market="moneyline",
+        side="BUF",
+        odds=775.0,
+        opposite_odds=-1400.0,
+        model_prob=0.23,
+        fair_prob=0.09,
+        screens="no_execution_edge;longshot",
+        captured_at="2026-09-13T19:04:00Z",
+        kickoff_utc="2026-09-13T17:02:00Z",
+    )
+    save_ledger(ledger, [live])
+    ledger_audit.main(["--season", "2026"])
+    out = capsys.readouterr().out
+    assert "1 graded row(s) priced after kickoff are excluded" in out
+    assert "all leans" in out and "n     0" in next(x for x in out.splitlines() if "all leans" in x)
