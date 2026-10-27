@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-94192",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "b090e78341e021e6a210121d16df1a46075371db",
+ "picks": [
+  {
+   "pick_id": "573afccbe09d",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-94192",
+   "episode_title": "College Football Week 9 Picks: Troy vs. James Madison",
+   "published": "2026-10-27T01:06:00+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "James Madison",
+   "opponent": "Troy",
+   "side": null,
+   "line": -21.0,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "James Madison -21",
+   "reason": "https://vsin.com/college-football/college-football-week-9-picks-troy-vs-james-madison/",
+   "description": "James Madison -21",
+   "league": "cfb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cfb"
+ ]
+}
