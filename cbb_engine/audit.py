@@ -66,15 +66,16 @@ def _closes(quotes_: Iterable[quotes.Quote]) -> tuple[dict[str, list[quotes.Quot
 
 def outcome(row: ledger.Row, final: tuple[int, int]) -> str:
     """Full-game total, spread or moneyline graded on the (away, home) final; other markets ""."""
-    if row.market == "game_total":
+    market = row.market.removesuffix("_alt")  # alternate lines settle like the main line
+    if market == "game_total":
         return outcome_total(row, final)
     away, home = final
     mine, theirs = (home, away) if row.side == "home" else (away, home) if row.side == "away" else (None, None)
     if mine is None or theirs is None:
         return ""
-    if row.market == "game_ml":
+    if market == "game_ml":
         return "win" if mine > theirs else "loss"
-    if row.market == "game_ats" and row.line is not None:
+    if market == "game_ats" and row.line is not None:
         margin = mine - theirs + row.line
         return "push" if margin == 0 else "win" if margin > 0 else "loss"
     return ""
