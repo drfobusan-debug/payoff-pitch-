@@ -245,6 +245,16 @@ def _starting_within(games: list[Game], now: datetime, minutes: int) -> list[Gam
     return out
 
 
+def _not_started(games: list[Game], now: datetime) -> list[Game]:
+    """Games whose kickoff has not passed; a game under way has no pregame price."""
+    out = []
+    for game in games:
+        kickoff = _parse_utc(game.kickoff_utc)
+        if kickoff is None or now < kickoff:
+            out.append(game)
+    return out
+
+
 def cmd_price(args: argparse.Namespace) -> int:
     """Price the board and append new positions.
 
@@ -261,6 +271,10 @@ def cmd_price(args: argparse.Namespace) -> int:
         print(f"no game kicks off in the next {within} min; nothing fetched")
         return 0
     fetched = _fetch(args.days)
+    started = len(fetched.games) - len(_not_started(fetched.games, now))
+    fetched.games = _not_started(fetched.games, now)
+    if started:
+        print(f"  {started} game(s) already kicked off: not priced (in-game lines are not prices)")
     if within is not None:
         fetched.games = _starting_within(fetched.games, now, within)
         print(f"  pre-kickoff pass: {len(fetched.games)} games kick off within {within} min")

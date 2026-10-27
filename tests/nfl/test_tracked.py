@@ -8,9 +8,11 @@ from nfl_engine.audit.tracked import (
     ML_LONGSHOT_RULE,
     SPREAD_DOG_GAP_RULE,
     SPREAD_DOG_REFUSED_RULE,
+    SPREAD_LEAN_RULE,
     ml_longshot,
     spread_dog_gap,
     spread_dog_refused,
+    spread_lean,
     tracked,
     tracked_lines,
 )
@@ -104,3 +106,17 @@ def test_refused_twin_drops_the_zone_leans_the_engine_bought() -> None:
     rows = {t.name: t for t in tracked([lean(0), lean(1, tier="Moderate buy")], min_n=2)}
     assert rows[SPREAD_DOG_GAP_RULE].wins == 2
     assert rows[SPREAD_DOG_REFUSED_RULE].wins == 1
+
+
+def test_spread_lean_takes_any_positive_gap_and_waits_for_the_band_bar() -> None:
+    assert spread_lean(lean(model_prob=0.505, fair_prob=0.50))
+    assert spread_lean(lean(line=-6.5, model_prob=0.58, fair_prob=0.50))  # favourites too
+    assert not spread_lean(lean(model_prob=0.49, fair_prob=0.50))
+    assert not spread_lean(lean(market="total"))
+    rows = [lean(i) for i in range(120)]
+    by_name = {t.name: t for t in tracked(rows)}
+    assert by_name[SPREAD_LEAN_RULE].min_n == 150
+    assert by_name[SPREAD_LEAN_RULE].verdict.status == WATCHING
+    assert by_name[SPREAD_DOG_GAP_RULE].min_n == 100
+    line = next(x for x in tracked_lines(rows) if SPREAD_LEAN_RULE in x)
+    assert "need 150" in line and "120-0" in line
