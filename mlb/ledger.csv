@@ -385685,3 +385685,7 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-10-26,MIL @ TB,Totals,game_total,Under 7.5,7.5,fanduel,-138.0,112.0,Pass,0.447,-0.0886,loss,-1.0,,,ev_floor,0.447,0.5514,0.5284,-130.0,0.537967,-0.013433,-0.072202,projected,8.4,,engine,clean
 2026-10-26,MIL @ TB,Totals,game_total,Under 8.5,8.5,,,,Pass,0.5205,,loss,-1.0,,,unpriced,0.5205,,,,,,,projected,8.4,,engine,
 2026-10-26,MIL @ TB,Totals,game_total,Under 9.5,9.5,,,,Pass,0.6205,,loss,-1.0,,,unpriced,0.6205,,,,,,,projected,8.4,,engine,
+2026-10-26,MIL @ TB,game,game_ml,MIL ML,,teamrankings,100.0,,2 stars,0.0,0.0359,win,1.0,,,,,,,,,,,,,,teamrankings,
+2026-10-26,MIL @ TB,game,game_rl,MIL -1.5,-1.5,teamrankings,173.0,,2 stars,0.0,0.0359,win,1.73,9.0,,,,,,,,,,,,,teamrankings,
+2026-10-26,MIL @ TB,game,game_total,Under 7.0,7.0,teamrankings,,,1 star,0.5018,,loss,-1.0,,,,,,,,,,,,,,teamrankings,
+2026-10-26,MIL @ TB,game,game_winner,MIL ML,,teamrankings,,,1 star,0.5359,,win,0.0,,,,,,,,,,,,,,teamrankings,
