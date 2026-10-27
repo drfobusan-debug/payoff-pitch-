@@ -112,7 +112,7 @@ def _ratings(away: TeamStats | None, home: TeamStats | None, an: str, hn: str) -
     for label, attr in (("Off rtg", "off"), ("Def rtg", "dfn"), ("Net", "net")):
         fmt = "{:+.1f}" if attr == "net" else "{:.1f}"
         cells = "".join(
-            f"<td class='{'on' if on else ''}'>{_rk(getattr(s, attr), fmt) if s else '—'}</td>"
+            f"<td class='{'on' if on else ''}'>{_bold(_rk(getattr(s, attr), fmt) if s else '—', on and attr == 'net' and s is not None)}</td>"
             for _, s, on in cols
         )
         rows.append(f"<tr><td class='l'>{label}</td>{cells}</tr>")
@@ -146,11 +146,35 @@ def _factors(away: TeamStats | None, home: TeamStats | None, an: str, hn: str) -
     )
     rows = []
     for label, attr in (("eFG%", "efg"), ("TOV%", "tov"), ("OREB%", "orb"), ("FT rate", "ftr")):
+        vals = [getattr(f, attr) if f else Rated() for _, f in cols]
+        win = [False] * 4
+        for o, d in ((0, 1), (2, 3)):
+            side = factor_winner(attr, vals[o].value, vals[d].value)
+            if side is not None:
+                win[o if side == "O" else d] = True
         cells = "".join(
-            f"<td>{_rk(getattr(f, attr), '{:.1%}') if f else '—'}</td>" for _, f in cols
+            f"<td>{_bold(_rk(v, '{:.1%}') if f else '—', w)}</td>"
+            for (_, f), v, w in zip(cols, vals, win, strict=True)
         )
         rows.append(f"<tr><td class='l'>{label}</td>{cells}</tr>")
     return f"<table class='inner'>{head}{''.join(rows)}</table>"
+
+
+def _bold(cell: str, on: bool) -> str:
+    return f"<b>{cell}</b>" if on else cell
+
+
+def factor_winner(attr: str, off: float | None, dfn: float | None) -> str | None:
+    """ "O" or "D": who has the edge on one factor; None if tied or missing.
+
+    eFG%, OREB%, FT rate: the greater number has the edge. TOV%: the lower number
+    does -- an offense that turns it over less than this defense forces is ahead.
+    """
+    if off is None or dfn is None or off == dfn:
+        return None
+    if attr == "tov":
+        return "O" if off < dfn else "D"
+    return "O" if off > dfn else "D"
 
 
 def _rest_days(t: TeamStats | None, day: Date) -> int | None:
@@ -195,17 +219,15 @@ def unit_edge(
     else:
         lead = on if o.off.rank < d.dfn.rank else dn if d.dfn.rank < o.off.rank else None
         rating = f"off rtg #{o.off.rank} vs def rtg #{d.dfn.rank}"
-    wins = [
-        lab
-        for k, lab in _FACTORS
-        if (ra := getattr(off.offense, k).rank) is not None
-        and (rb := getattr(dfn.defense, k).rank) is not None
-        and ra < rb
-    ]
+    sides = {
+        k: factor_winner(k, getattr(off.offense, k).value, getattr(dfn.defense, k).value)
+        for k, _ in _FACTORS
+    }
+    wins = [lab for k, lab in _FACTORS if sides[k] == "O"]
     n = sum(
         1
         for k, _ in _FACTORS
-        if getattr(off.offense, k).rank is not None and getattr(dfn.defense, k).rank is not None
+        if getattr(off.offense, k).value is not None and getattr(dfn.defense, k).value is not None
     )
     who = f"edge {on} offense" if lead == on else f"edge {dn} defense" if lead == dn else "even"
     return f"{on} O vs {dn} D: {who} ({rating}); offense better in {len(wins)} of {n} factors" + (
@@ -255,7 +277,7 @@ KEY = (
     " season to date, raw; Adj O / D = Torvik's opponent-adjusted ratings. Four factors pool every game: eFG%,"
     " TOV% = turnovers per possession, OREB% = share of own misses rebounded, FT rate = FTA/FGA; each offense sits"
     " beside the defense it meets tonight. Grey # = rank among D-I teams (1 = best); tonight's venue shaded."
-    " Unit edge compares those ranks at tonight's venues. Early-season splits rest on few games, so ranks are noisy."
+    " Bold = the edge: tonight's-venue net rating, and in each offense-vs-defense factor pair the side ahead (higher eFG%, OREB%, FT rate; lower TOV%). Unit edge compares off vs def rating ranks at tonight's venues and counts the bold factors. Early-season splits rest on few games, so ranks are noisy."
 )
 
 

@@ -188,3 +188,11 @@ def test_unit_edge_rest_and_injuries_lines() -> None:
     )
     assert "Duke: A Guard (G, Ankle) Out" in body and "Army: none listed" in body
     assert "not matched to a Torvik team (not shown): Oklahoma State" in body
+
+
+def test_factor_winner_and_bold_marks_the_edge() -> None:
+    assert pdf.factor_winner("efg", 0.569, 0.459) == "O"
+    assert pdf.factor_winner("tov", 0.122, 0.156) == "O"
+    assert pdf.factor_winner("tov", 0.20, 0.15) == "D"
+    assert pdf.factor_winner("orb", 0.30, 0.30) is None
+    assert pdf.factor_winner("ftr", None, 0.3) is None
