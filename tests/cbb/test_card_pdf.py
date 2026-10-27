@@ -2,6 +2,7 @@ import json
 from datetime import date
 
 from cbb_engine.output import pdf, teamstats
+from cbb_engine.output.teamstats import Rated
 from engine_runtime import ledger
 
 ZERO = [0] * 15
@@ -221,3 +222,11 @@ def test_unit_edge_uses_adjusted_margins() -> None:
     assert "adjusted ratings unavailable" in pdf.unit_edge(
         pdf.League({}), ark, fla, "Arkansas", "Florida"
     )
+
+
+def test_factor_cells_show_signed_z_with_raw_rate() -> None:
+    lg = pdf.League({("offense", "tov"): (0.17, 0.02), ("defense", "tov"): (0.17, 0.02)})
+    assert pdf._zcell(lg, "offense", "tov", Rated(0.13)).startswith("+2.0 ")
+    assert pdf._zcell(lg, "defense", "tov", Rated(0.13)).startswith("-2.0 ")
+    assert "13.0%" in pdf._zcell(lg, "defense", "tov", Rated(0.13))
+    assert pdf._zcell(lg, "offense", "efg", Rated(0.5)).startswith("—")

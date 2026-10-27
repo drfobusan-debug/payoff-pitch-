@@ -154,12 +154,22 @@ def _factors(lg: League, away: TeamStats | None, home: TeamStats | None, an: str
             side = factor_winner(lg, attr, vals[o].value, vals[d].value)
             if side is not None:
                 win[o if side == "O" else d] = True
+        units = ("offense", "defense", "offense", "defense")
         cells = "".join(
-            f"<td>{_bold(_rk(v, '{:.1%}') if f else '—', w)}</td>"
-            for (_, f), v, w in zip(cols, vals, win, strict=True)
+            f"<td>{_bold(_zcell(lg, u, attr, v), w)}</td>"
+            for u, v, w in zip(units, vals, win, strict=True)
         )
         rows.append(f"<tr><td class='l'>{label}</td>{cells}</tr>")
     return f"<table class='inner'>{head}{''.join(rows)}</table>"
+
+
+def _zcell(lg: League, unit: str, attr: str, r: Rated) -> str:
+    """z-score (+ = better than the D-I average for this unit), raw rate in small grey."""
+    z = _z(lg, unit, attr, r.value)
+    if r.value is None:
+        return "—"
+    raw = f" <span class='rk'>{r.value:.1%}</span>"
+    return f"{z:+.1f}{raw}" if z is not None else f"—{raw}"
 
 
 def _bold(cell: str, on: bool) -> str:
@@ -321,10 +331,11 @@ KEY = (
     "Team panels (display only, from Torvik game logs): off/def rtg = points scored/allowed per 100 possessions,"
     " season to date, raw; Adj O / D = Torvik's opponent-adjusted ratings. Four factors pool every game: eFG%,"
     " TOV% = turnovers per possession, OREB% = share of own misses rebounded, FT rate = FTA/FGA; each offense sits"
-    " beside the defense it meets tonight. Grey # = rank among D-I teams (1 = best); tonight's venue shaded."
-    " Bold = the edge. Ratings: tonight's-venue net (raw). Four factors (all games, not opponent-adjusted):"
-    " the side further better than the D-I average, measured in D-I standard deviations (higher eFG%, OREB%,"
-    " FT rate and lower TOV% are good for an offense; the reverse for a defense); no bold when within 0.25 SD."
+    " beside the defense it meets tonight. In ratings, grey # = rank among D-I teams (1 = best); tonight's venue shaded."
+    " Four factors (all games, not opponent-adjusted) are z-scores: standard deviations better (+) or worse (−)"
+    " than the D-I average for that unit, raw rate in grey (higher eFG%, OREB%, FT rate and lower TOV% are good"
+    " for an offense; the reverse for a defense). Bold = the edge: tonight's-venue net rating (raw), and in each"
+    " offense-vs-defense pair the higher z (none when within 0.25)."
     " Unit edge: Adj O's margin above the D-I average vs Adj D's margin below it, in points per 100"
     " ('even' within 1 pt). Early-season numbers rest on few games, so treat them as noisy."
 )
