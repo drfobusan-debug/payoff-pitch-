@@ -16,7 +16,7 @@ from datetime import date as Date
 from datetime import datetime, timezone
 from pathlib import Path
 
-from cbb_engine import audit, cadence, card, checklist, email, history, pilot, study
+from cbb_engine import audit, cadence, card, checklist, email, history, pilot, state, study
 from cbb_engine.config import SPORT, SPORT_KEY, data_dir, dry_run, load_config, runtime_root
 from cbb_engine.data import capture, espn, torvik, watch
 from cbb_engine.markets import EVENT_MARKETS, FEATURED
@@ -55,7 +55,13 @@ def _last_pass(manifest: list[dict[str, object]], kind: str) -> datetime | None:
 
 
 def _closes_taken(manifest: list[dict[str, object]]) -> set[str]:
-    return {str(m.get("event_id", "")) for m in manifest if m.get("pass_kind") == "close"}
+    out: set[str] = set()
+    for m in manifest:
+        if m.get("pass_kind") != "close":
+            continue
+        ids = m.get("event_ids")
+        out.update(str(e) for e in ids) if isinstance(ids, list) else out.add(str(m.get("event_id", "")))
+    return out
 
 
 def cmd_capture(args: argparse.Namespace) -> int:
@@ -65,6 +71,7 @@ def cmd_capture(args: argparse.Namespace) -> int:
     client = _client()
     if client is None:
         return 2
+    state.auto_pull(trees=("quotes",))
     now = datetime.now(timezone.utc)
     at = now.strftime("%Y-%m-%dT%H:%M:%SZ")
     events = client.events(commenceTimeFrom=now.strftime("%Y-%m-%dT%H:%M:%SZ"))
@@ -149,26 +156,23 @@ def cmd_capture(args: argparse.Namespace) -> int:
         ps.run("featured", featured)
 
     taken = _closes_taken(manifest)
-    for eid in cadence.close_due(tips, now, cfg.cadence):
-        if eid in taken and not args.force:
-            continue
+    closing = {e for e in cadence.close_due(tips, now, cfg.cadence) if args.force or e not in taken}
+    if closing:
         ps = runner.start(SPORT, day.isoformat(), "close", root, started_at=at)
 
-        def close(p: runner.Pass, eid: str = eid) -> None:
-            ev = client.event(eid, FEATURED, pass_id=p.pass_id)
+        def close(p: runner.Pass) -> None:
+            evs = [e for e in client.board(FEATURED, pass_id=p.pass_id) if str(e.get("id", "")) in closing]
             p.spend(client.spent - p.credits)
-            if ev is not None:
-                shard(
-                    "close",
-                    capture.rows_from_events(
-                        [ev], captured_at=p.started_at, pass_id=p.pass_id, pass_kind="close"
-                    ),
-                    p.pass_id,
-                    event_id=eid,
-                )
+            rows = capture.rows_from_events(evs, captured_at=p.started_at, pass_id=p.pass_id, pass_kind="close")
+            shard(
+                "close", rows, p.pass_id,
+                event_ids=sorted({q.event_id for q in rows}), teams=capture.teams(evs),
+            )
 
         ps.run("close", close)
 
+    if written:
+        state.auto_push(f"cbb capture {day} {len(written)} shard(s)", trees=("quotes",))
     print(
         f"{day}: {len(tips)} game(s); wrote {written}; spent {client.spent}; remaining {client.credits_remaining}"
     )
@@ -211,6 +215,7 @@ def cmd_price(args: argparse.Namespace) -> int:
     """Write the card pass (bet of record) from the latest board/featured shard."""
     day = _parse_date(args.date)
     root = runtime_root()
+    state.auto_pull(trees=("quotes", "ledger"))
     ps = runner.start(SPORT, day.isoformat(), "featured", root)
     hits_path = data_dir() / "watch" / day.isoformat() / "hits.jsonl"
     pending = set()
@@ -245,6 +250,8 @@ def cmd_price(args: argparse.Namespace) -> int:
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(text)
     print(text)
+    if not args.dry_run:
+        state.auto_push(f"cbb card {day} {ps.pass_id}", trees=("ledger", "cards"))
     if args.email and not args.dry_run:
         print(
             f"emailed {email.send(cfg, subject=f'CBB card {day} ({ps.pass_id})', text=text, paths={'card': out}, to=args.to)}"
@@ -256,6 +263,7 @@ def cmd_audit(args: argparse.Namespace) -> int:
     """Grade yesterday's bet-of-record rows against close shards + ESPN finals; print the views."""
     day = _parse_date(args.date)
     root = runtime_root()
+    state.auto_pull(trees=("quotes", "ledger"))
     games = espn.ESPNClient().scoreboard(day, archive=data_dir()) if not args.offline else []
     teams: dict[str, tuple[str, str]] = {}
     for m in quotes.read_manifest(root, SPORT, day.isoformat()):
@@ -263,7 +271,9 @@ def cmd_audit(args: argparse.Namespace) -> int:
         if isinstance(extra, dict) and isinstance(extra.get("teams"), dict):
             teams.update({str(k): (str(v[0]), str(v[1])) for k, v in extra["teams"].items()})
     ps = runner.start(SPORT, day.isoformat(), "board", root)
-    written = audit.grade(root, day.isoformat(), games, teams, pass_id=ps.pass_id)
+    written = audit.grade(root, day.isoformat(), games, teams, pass_id=ps.pass_id, width=dist.load_width())
+    if written:
+        state.auto_push(f"cbb grade {day}", trees=("ledger",))
     rows = list(ledger.record(root, SPORT, day.isoformat()).values())
     rungs = [
         "v0_shape",

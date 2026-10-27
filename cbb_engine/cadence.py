@@ -42,7 +42,7 @@ def featured_due(tips: Iterable[datetime], now: datetime, cad: Cadence) -> bool:
 
 
 def close_due(tips: Mapping[str, datetime], now: datetime, cad: Cadence) -> list[str]:
-    """Event ids inside the T-60 -> T-5 close window."""
+    """Event ids inside the close window (T-12 -> T-3): every 5-minute tick lands in it once."""
     lo, hi = timedelta(minutes=cad.close_last_min), timedelta(minutes=cad.close_first_min)
     return sorted(e for e, t in tips.items() if lo <= t - now <= hi)
 
@@ -57,9 +57,10 @@ def daily_budget(
     """Credits one slate day costs under the cadence table, by pass_kind.
 
     A typical game is posted ~30h out: 24 board passes at 60 min, 6 at 30 min,
-    12 at 15 min; 18 featured passes inside T-3h; 12 close passes per game.
-    Board/featured passes are one request for the whole slate; per-event
-    markets and close passes are per game.
+    12 at 15 min; 18 featured passes inside T-3h. Board, featured and close
+    passes are one request for the whole slate; a close pass covers every game
+    tipping in its window, so one per game is the ceiling. Per-event markets
+    are per game.
     """
     board_passes = (
         (cad.horizon_hours - cad.mid_window_h) * 60 / cad.board_far
@@ -67,11 +68,10 @@ def daily_budget(
         + cad.featured_window_h * 60 / cad.board_near
     )
     featured_passes = cad.featured_window_h * 60 / cad.featured
-    close_passes = (cad.close_first_min - cad.close_last_min) / cad.close_last_min + 1
     out = {
         "board": int(round(board_passes * featured_cost * regions)),
         "featured": int(round(featured_passes * featured_cost * regions)),
-        "close": int(round(close_passes * featured_cost * regions)) * n_games,
+        "close": featured_cost * regions * n_games,
         "event_markets": int(event_cost * regions * n_games * board_passes) if event_cost else 0,
     }
     out["total"] = sum(out.values())
