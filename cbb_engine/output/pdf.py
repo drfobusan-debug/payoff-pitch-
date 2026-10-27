@@ -9,8 +9,10 @@ from __future__ import annotations
 import html
 from collections import defaultdict
 from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
 from datetime import date as Date
 from datetime import datetime
+from statistics import fmean, pstdev
 from zoneinfo import ZoneInfo
 
 from cbb_engine.data.injuries import Injury
@@ -130,7 +132,7 @@ def _ratings(away: TeamStats | None, home: TeamStats | None, an: str, hn: str) -
     return f"<table class='inner'>{head}{''.join(rows)}</table>"
 
 
-def _factors(away: TeamStats | None, home: TeamStats | None, an: str, hn: str) -> str:
+def _factors(lg: League, away: TeamStats | None, home: TeamStats | None, an: str, hn: str) -> str:
     """Each offense beside the defense it meets tonight."""
     cols: list[tuple[str, Factors | None]] = [
         (f"{an} O", away.offense if away else None),
@@ -149,7 +151,7 @@ def _factors(away: TeamStats | None, home: TeamStats | None, an: str, hn: str) -
         vals = [getattr(f, attr) if f else Rated() for _, f in cols]
         win = [False] * 4
         for o, d in ((0, 1), (2, 3)):
-            side = factor_winner(attr, vals[o].value, vals[d].value)
+            side = factor_winner(lg, attr, vals[o].value, vals[d].value)
             if side is not None:
                 win[o if side == "O" else d] = True
         cells = "".join(
@@ -164,17 +166,54 @@ def _bold(cell: str, on: bool) -> str:
     return f"<b>{cell}</b>" if on else cell
 
 
-def factor_winner(attr: str, off: float | None, dfn: float | None) -> str | None:
-    """ "O" or "D": who has the edge on one factor; None if tied or missing.
+_FACTORS = (("efg", "eFG%"), ("tov", "TOV%"), ("orb", "OREB%"), ("ftr", "FT rate"))
+FACTOR_EVEN_SD = 0.25
+ADJ_EVEN_PTS = 1.0
 
-    eFG%, OREB%, FT rate: the greater number has the edge. TOV%: the lower number
-    does -- an offense that turns it over less than this defense forces is ahead.
-    """
-    if off is None or dfn is None or off == dfn:
+
+@dataclass(frozen=True)
+class League:
+    """D-I mean and spread of each factor (offenses and defenses), and the mean Adj O / Adj D."""
+
+    factors: Mapping[tuple[str, str], tuple[float, float]]
+    adj_off: float | None = None
+    adj_def: float | None = None
+
+
+def league(stats: Mapping[str, TeamStats]) -> League:
+    out: dict[tuple[str, str], tuple[float, float]] = {}
+    for unit in ("offense", "defense"):
+        for k, _ in _FACTORS:
+            vals = [
+                v for t in stats.values() if (v := getattr(getattr(t, unit), k).value) is not None
+            ]
+            if len(vals) >= 2 and pstdev(vals) > 0:
+                out[(unit, k)] = (fmean(vals), pstdev(vals))
+    ao = [t.adj_off.value for t in stats.values() if t.adj_off.value is not None]
+    ad = [t.adj_def.value for t in stats.values() if t.adj_def.value is not None]
+    return League(out, fmean(ao) if ao else None, fmean(ad) if ad else None)
+
+
+def _z(lg: League, unit: str, attr: str, v: float | None) -> float | None:
+    """How far a unit is better than the D-I average, in D-I standard deviations."""
+    if v is None or (unit, attr) not in lg.factors:
         return None
-    if attr == "tov":
-        return "O" if off < dfn else "D"
-    return "O" if off > dfn else "D"
+    mean, sd = lg.factors[(unit, attr)]
+    good_high = (attr == "tov") == (unit == "defense")
+    return (v - mean) / sd if good_high else (mean - v) / sd
+
+
+def factor_winner(lg: League, attr: str, off: float | None, dfn: float | None) -> str | None:
+    """ "O" or "D": whose margin from the D-I average is bigger; None if within FACTOR_EVEN_SD or missing.
+
+    An offense is good when its eFG%/OREB%/FT rate is high and TOV% low; a defense when
+    it holds eFG%/OREB%/FT rate low and forces TOV% high. Comparing margins rather than
+    raw numbers keeps a good offense from always beating a good defense.
+    """
+    zo, zd = _z(lg, "offense", attr, off), _z(lg, "defense", attr, dfn)
+    if zo is None or zd is None or abs(zo - zd) < FACTOR_EVEN_SD:
+        return None
+    return "O" if zo > zd else "D"
 
 
 def _rest_days(t: TeamStats | None, day: Date) -> int | None:
@@ -202,37 +241,40 @@ def rest_edge(away: TeamStats | None, home: TeamStats | None, day: Date, an: str
     )
 
 
-_FACTORS = (("efg", "eFG%"), ("tov", "TOV%"), ("orb", "OREB%"), ("ftr", "FT rate"))
-
-
-def unit_edge(
-    off: TeamStats | None, dfn: TeamStats | None, off_venue: str, dfn_venue: str, on: str, dn: str
-) -> str:
-    """Which unit has the edge: offense rank vs defense rank (1 = best), tonight's venues."""
+def unit_edge(lg: League, off: TeamStats | None, dfn: TeamStats | None, on: str, dn: str) -> str:
+    """Adj O's margin above the D-I mean vs Adj D's margin below it, in points per 100; plus the factor tally."""
     if off is None or dfn is None:
         return f"{on} O vs {dn} D: no games logged yet"
-    o: Split = getattr(off, off_venue)
-    d: Split = getattr(dfn, dfn_venue)
-    if o.off.rank is None or d.dfn.rank is None:
-        rating = "venue split not played yet"
-        lead = None
+    ao, ad = off.adj_off.value, dfn.adj_def.value
+    if ao is None or ad is None or lg.adj_off is None or lg.adj_def is None:
+        head = f"{on} O vs {dn} D: adjusted ratings unavailable"
     else:
-        lead = on if o.off.rank < d.dfn.rank else dn if d.dfn.rank < o.off.rank else None
-        rating = f"off rtg #{o.off.rank} vs def rtg #{d.dfn.rank}"
-    sides = {
-        k: factor_winner(k, getattr(off.offense, k).value, getattr(dfn.defense, k).value)
+        mo, md = ao - lg.adj_off, lg.adj_def - ad
+        gap = mo - md
+        who = (
+            "even"
+            if abs(gap) < ADJ_EVEN_PTS
+            else f"edge {on} offense by {gap:.1f}"
+            if gap > 0
+            else f"edge {dn} defense by {-gap:.1f}"
+        )
+        head = (
+            f"{on} O vs {dn} D: {who}{' pts/100' if who != 'even' else ''} "
+            f"(Adj O {ao:.1f}, {mo:+.1f} vs D-I avg; Adj D {ad:.1f}, {md:+.1f} better than avg)"
+        )
+    sides = [
+        factor_winner(lg, k, getattr(off.offense, k).value, getattr(dfn.defense, k).value)
         for k, _ in _FACTORS
-    }
-    wins = [lab for k, lab in _FACTORS if sides[k] == "O"]
-    n = sum(
-        1
-        for k, _ in _FACTORS
-        if getattr(off.offense, k).value is not None and getattr(dfn.defense, k).value is not None
+    ]
+    o = [lab for (_, lab), w in zip(_FACTORS, sides, strict=True) if w == "O"]
+    d = [lab for (_, lab), w in zip(_FACTORS, sides, strict=True) if w == "D"]
+    tally = f"factors: offense {len(o)}" + (f" ({', '.join(o)})" if o else "")
+    tally += (
+        f", defense {len(d)}"
+        + (f" ({', '.join(d)})" if d else "")
+        + f", even {4 - len(o) - len(d)}"
     )
-    who = f"edge {on} offense" if lead == on else f"edge {dn} defense" if lead == dn else "even"
-    return f"{on} O vs {dn} D: {who} ({rating}); offense better in {len(wins)} of {n} factors" + (
-        f" ({', '.join(wins)})" if wins else ""
-    )
+    return f"{head}; {tally}"
 
 
 def _injuries(items: Sequence[tuple[str | None, Injury]], team: str | None, label: str) -> str:
@@ -261,14 +303,17 @@ def _movement(ms: Sequence[Move], an: str, hn: str) -> str:
     )
 
 
-def team_panel(away: TeamStats | None, home: TeamStats | None, an: str, hn: str) -> str:
+def team_panel(
+    away: TeamStats | None, home: TeamStats | None, an: str, hn: str, lg: League | None = None
+) -> str:
+    lg = lg or League({})
     if away is None and home is None:
         return (
             "<p class='note'><b>Team ratings</b> — no Torvik games logged yet for either team.</p>"
         )
     return (
         "<table class='panel'><tr>"
-        f"<td>{_ratings(away, home, an, hn)}</td><td>{_factors(away, home, an, hn)}</td></tr></table>"
+        f"<td>{_ratings(away, home, an, hn)}</td><td>{_factors(lg, away, home, an, hn)}</td></tr></table>"
     )
 
 
@@ -277,7 +322,11 @@ KEY = (
     " season to date, raw; Adj O / D = Torvik's opponent-adjusted ratings. Four factors pool every game: eFG%,"
     " TOV% = turnovers per possession, OREB% = share of own misses rebounded, FT rate = FTA/FGA; each offense sits"
     " beside the defense it meets tonight. Grey # = rank among D-I teams (1 = best); tonight's venue shaded."
-    " Bold = the edge: tonight's-venue net rating, and in each offense-vs-defense factor pair the side ahead (higher eFG%, OREB%, FT rate; lower TOV%). Unit edge compares off vs def rating ranks at tonight's venues and counts the bold factors. Early-season splits rest on few games, so ranks are noisy."
+    " Bold = the edge. Ratings: tonight's-venue net (raw). Four factors (all games, not opponent-adjusted):"
+    " the side further better than the D-I average, measured in D-I standard deviations (higher eFG%, OREB%,"
+    " FT rate and lower TOV% are good for an offense; the reverse for a defense); no bold when within 0.25 SD."
+    " Unit edge: Adj O's margin above the D-I average vs Adj D's margin below it, in points per 100"
+    " ('even' within 1 pt). Early-season numbers rest on few games, so treat them as noisy."
 )
 
 
@@ -294,6 +343,7 @@ def build_html(
 ) -> str:
     """``teams`` maps event_id -> (home, away) as named by the Odds API."""
     names = list(stats)
+    lg = league(stats)
     listed = [(match_team(i.team, names), i) for i in injuries]
     unmatched = sorted({i.team for t, i in listed if t is None})
     by_event: dict[str, list[ledger.Row]] = defaultdict(list)
@@ -315,9 +365,9 @@ def build_html(
             f"<span>{tip} · {an} {_rest(away, day)}, {hn} {_rest(home, day)}</span></div>"
             f"{_board(by_event[eid])}"
             f"<p class='ctx'><b>Line movement</b> — {_movement((moves or {}).get(eid, ()), an, hn)}</p>"
-            f"{team_panel(away, home, an, hn)}"
-            f"<p class='ctx'><b>Unit edge</b> — {html.escape(unit_edge(away, home, 'away', 'home', an, hn))}"
-            f"<br>{html.escape(unit_edge(home, away, 'home', 'away', hn, an))}</p>"
+            f"{team_panel(away, home, an, hn, lg)}"
+            f"<p class='ctx'><b>Unit edge</b> — {html.escape(unit_edge(lg, away, home, an, hn))}"
+            f"<br>{html.escape(unit_edge(lg, home, away, hn, an))}</p>"
             f"<p class='ctx'><b>Rest</b> — {html.escape(rest_edge(away, home, day, an, hn))}</p>"
             f"<p class='ctx'><b>Injuries</b> {html.escape(injuries_source)}— "
             f"{html.escape(_injuries(listed, away.team if away else None, an))} · "

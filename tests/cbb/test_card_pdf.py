@@ -170,12 +170,6 @@ def test_unit_edge_rest_and_injuries_lines() -> None:
         70,
     )
     s = teamstats.season(logs, date(2025, 11, 9))
-    assert pdf.unit_edge(s["Duke"], s["Army"], "home", "away", "Duke", "Army").startswith(
-        "Duke O vs Army D: even (off rtg #1 vs def rtg #1); offense better in 4 of 4 factors"
-    )
-    assert pdf.unit_edge(s["Army"], s["Duke"], "away", "home", "Army", "Duke").startswith(
-        "Army O vs Duke D: edge Army offense (off rtg #1 vs def rtg #2)"
-    )
     assert pdf.rest_edge(s["Army"], s["Duke"], date(2025, 11, 9), "Army", "Duke") == (
         "Duke +4 days rest (Army on a back-to-back)"
     )
@@ -190,9 +184,40 @@ def test_unit_edge_rest_and_injuries_lines() -> None:
     assert "not matched to a Torvik team (not shown): Oklahoma State" in body
 
 
-def test_factor_winner_and_bold_marks_the_edge() -> None:
-    assert pdf.factor_winner("efg", 0.569, 0.459) == "O"
-    assert pdf.factor_winner("tov", 0.122, 0.156) == "O"
-    assert pdf.factor_winner("tov", 0.20, 0.15) == "D"
-    assert pdf.factor_winner("orb", 0.30, 0.30) is None
-    assert pdf.factor_winner("ftr", None, 0.3) is None
+def test_factor_winner_compares_margins_from_the_d1_average() -> None:
+    lg = pdf.League(
+        {
+            ("offense", "efg"): (0.51, 0.03),
+            ("defense", "efg"): (0.51, 0.03),
+            ("offense", "tov"): (0.17, 0.02),
+            ("defense", "tov"): (0.17, 0.02),
+        }
+    )
+    # +2.0 SD offense vs a defense holding teams 2.7 SD under: the defense, though 56.9% > 45.9%
+    assert pdf.factor_winner(lg, "efg", 0.569, 0.429) == "D"
+    assert pdf.factor_winner(lg, "efg", 0.60, 0.48) == "O"
+    assert pdf.factor_winner(lg, "efg", 0.57, 0.45) is None  # 2.0 vs 2.0 SD
+    # TOV%: low is good for an offense, high is good for a defense
+    assert pdf.factor_winner(lg, "tov", 0.13, 0.18) == "O"
+    assert pdf.factor_winner(lg, "tov", 0.18, 0.21) == "D"
+    assert pdf.factor_winner(lg, "orb", 0.3, 0.3) is None  # no league spread known
+
+
+def test_unit_edge_uses_adjusted_margins() -> None:
+    from cbb_engine.output.teamstats import Factors, Rated, Split, TeamStats
+
+    def team(name: str, ao: float, ad: float) -> TeamStats:
+        return TeamStats(name, 5, Split(), Split(), Factors(), Factors(), Rated(ao), Rated(ad))
+
+    lg = pdf.League({}, adj_off=105.0, adj_def=105.0)
+    ark, fla = team("Arkansas", 128.5, 102.7), team("Florida", 126.9, 93.2)
+    assert pdf.unit_edge(lg, ark, fla, "Arkansas", "Florida").startswith(
+        "Arkansas O vs Florida D: edge Arkansas offense by 11.7 pts/100 (Adj O 128.5, +23.5 vs D-I avg;"
+        " Adj D 93.2, +11.8 better than avg); factors: offense 0, defense 0, even 4"
+    )
+    assert pdf.unit_edge(lg, team("A", 105.5, 105), team("B", 105, 105), "A", "B").startswith(
+        "A O vs B D: even ("
+    )
+    assert "adjusted ratings unavailable" in pdf.unit_edge(
+        pdf.League({}), ark, fla, "Arkansas", "Florida"
+    )
