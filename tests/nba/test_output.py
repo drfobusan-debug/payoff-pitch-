@@ -510,3 +510,17 @@ def test_espn_fetch_archives_a_day_without_games(monkeypatch, tmp_path):
     assert len(calls) == 5  # Oct 1-4 asked once; Oct 5 already archived
     teamstats.season_finals(tmp_path, idle + timedelta(days=1), fetch)
     assert len(calls) == 5
+
+
+def test_espn_fetch_does_not_archive_a_scoreboard_without_events(monkeypatch, tmp_path):
+    class _Resp:
+        def raise_for_status(self) -> None:
+            pass
+
+        def json(self) -> dict[str, object]:
+            return {"code": 500, "message": "upstream"}
+
+    monkeypatch.setattr(context.requests, "get", lambda *a, **k: _Resp())
+    day = date(2025, 10, 5)
+    assert context.espn_fetch(tmp_path)(day) is None
+    assert boxes.read_results(tmp_path, day) is None
