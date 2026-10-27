@@ -16,8 +16,10 @@ import json
 import math
 import re
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 
+from cbb_engine.cadence import parse_utc
 from cbb_engine.config import SPORT
 from cbb_engine.market import consensus
 from cbb_engine.market.gates import Thresholds, implied, market_gates, tier
@@ -68,7 +70,10 @@ def price(
     previous: list[consensus.Anchor] | None = None,
     max_live_buys: int = 8,
     max_per_book: int = 6,
+    now: datetime | None = None,
 ) -> Priced | None:
+    """Price the latest board/featured shard; a game whose tip has passed is left out."""
+    now = now or datetime.now(timezone.utc)
     shard = latest_pricing_shard(root, day)
     if shard is None:
         return None
@@ -83,7 +88,8 @@ def price(
     out: list[ledger.Row] = []
     bet_of_record = pass_kind != "close"
     for a in anchors:
-        if not a.exec_quotes:
+        tip = parse_utc(a.tip_utc)
+        if not a.exec_quotes or tip is None or tip <= now:
             continue
         status = status_of(a.market)
         spread_line = consensus.consensus_line(anchors, a.event_id, "game_ats")

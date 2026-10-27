@@ -187,11 +187,12 @@ def expected_passes(
     for kind, stamps in times.items():
         stamps.sort()
         missing = 0
+        if kind == "close":  # one pass per tip cluster, not a clock: no gap to count
+            out[kind] = {"passes": len(stamps), "missing": 0}
+            continue
         for a, b in zip(stamps, stamps[1:], strict=False):
             if kind == "featured":
                 expect = featured_minutes
-            elif kind == "close":
-                expect = 5
             else:
                 hours_out = (tip_dt - a).total_seconds() / 3600 if tip_dt else 6.0
                 expect = (

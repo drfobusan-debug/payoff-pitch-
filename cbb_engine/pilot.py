@@ -53,17 +53,27 @@ def close_mus(shards: Sequence[Quote], sd: float) -> dict[str, float]:
     mus: dict[str, float] = {}
     for eid, qs in by_event.items():
         last = max(q.pass_id for q in qs)
-        anchors = consensus.build([q for q in qs if q.pass_id == last])
-        line = consensus.consensus_line(anchors, eid, LIVE_MARKET)
-        if line is None:
-            continue
-        priced = [a for a in anchors if a.line is not None and a.paired_books and "over" in a.p_fair]
-        if not priced:
-            continue
-        a = min(priced, key=lambda a: (abs((a.line or 0.0) - line), -a.paired_books))
-        p_over = min(max(a.p_fair["over"], 1e-6), 1 - 1e-6)
-        mus[eid] = (a.line or 0.0) + sd * NormalDist().inv_cdf(p_over)
+        mu = close_mu(consensus.build([q for q in qs if q.pass_id == last]), eid, sd)
+        if mu is not None:
+            mus[eid] = mu
     return mus
+
+
+def close_mu(anchors: Sequence[consensus.Anchor], event_id: str, sd: float) -> float | None:
+    """Fair close total for one game: the paired anchor nearest the consensus line, shifted by its
+    devigged Over lean under N(·, sd)."""
+    line = consensus.consensus_line(anchors, event_id, LIVE_MARKET)
+    if line is None:
+        return None
+    priced = [
+        a for a in anchors
+        if a.event_id == event_id and a.market == LIVE_MARKET and a.line is not None and a.paired_books and "over" in a.p_fair
+    ]
+    if not priced:
+        return None
+    a = min(priced, key=lambda a: (abs((a.line or 0.0) - line), -a.paired_books))
+    p_over = min(max(a.p_fair["over"], 1e-6), 1 - 1e-6)
+    return (a.line or 0.0) + sd * NormalDist().inv_cdf(p_over)
 
 
 def p_close(mu: float, sd: float, side: str, line: float) -> float:
@@ -262,4 +272,4 @@ def write_prereg(path: Path, prereg: dict[str, object], *, note: str) -> list[st
     return written
 
 
-__all__ = ["cents", "close_mus", "clv", "clv_rows", "p_close", "featured_deltas", "log_scores", "summarize", "write_prereg"]
+__all__ = ["cents", "close_mu", "close_mus", "clv", "clv_rows", "p_close", "featured_deltas", "log_scores", "summarize", "write_prereg"]

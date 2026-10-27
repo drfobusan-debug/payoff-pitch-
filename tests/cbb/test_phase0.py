@@ -60,9 +60,9 @@ def test_cadence_clocks() -> None:
     assert cadence.slate_board_interval([], now, cad) == 60
     assert cadence.featured_due([far], now, cad) is False and cadence.featured_due([near], now, cad)
     tips = {
-        "a": now + timedelta(minutes=45),
-        "b": now + timedelta(minutes=3),
-        "c": now + timedelta(minutes=90),
+        "a": now + timedelta(minutes=10),
+        "b": now + timedelta(minutes=2),
+        "c": now + timedelta(minutes=45),
     }
     assert cadence.close_due(tips, now, cad) == ["a"]
     assert cadence.due(None, 10, now) and not cadence.due(now - timedelta(minutes=9), 10, now)
@@ -70,9 +70,9 @@ def test_cadence_clocks() -> None:
 
 def test_daily_budget_from_cadence_table() -> None:
     out = cadence.daily_budget(60, Cadence())
-    # 24 + 6 + 12 board passes x 3 credits; 18 featured x 3; 12 closes x 3 x 60 games
-    assert out["board"] == 126 and out["featured"] == 54 and out["close"] == 2160
-    assert out["event_markets"] == 0 and out["total"] == 2340
+    # 24 + 6 + 12 board passes x 3 credits; 18 featured x 3; at most one 3-credit close per game
+    assert out["board"] == 126 and out["featured"] == 54 and out["close"] == 180
+    assert out["event_markets"] == 0 and out["total"] == 360
 
 
 def _event() -> dict[str, object]:
@@ -166,13 +166,15 @@ def test_capture_tick_runs_only_due_passes(tmp_path: Path, monkeypatch: pytest.M
     class Clock(datetime):
         @classmethod
         def now(cls, tz=None):  # type: ignore[override]
-            return cls(2026, 11, 10, 23, 15, tzinfo=UTC)  # T-45 for the 00:00Z tip
+            return cls(2026, 11, 10, 23, 50, tzinfo=UTC)  # T-10 for the 00:00Z tip
 
     monkeypatch.setattr(cli, "datetime", Clock)
     assert cli.main(["capture", "--date", "2026-11-10"]) == 0
     man = quotes.read_manifest(tmp_path / "rt", "cbb", "2026-11-10")
     assert sorted(m["pass_kind"] for m in man) == ["board", "close", "featured"]
-    assert fake.calls == ["events", "board", "board", "event:ev1"]
+    assert fake.calls == ["events", "board", "board", "board"]
+    close = next(m for m in man if m["pass_kind"] == "close")
+    assert close["event_ids"] == ["ev1"]
     # second tick a minute later: nothing due (board 15, featured 10, close already taken)
     assert cli.main(["capture", "--date", "2026-11-10"]) == 0
     assert fake.calls[4:] == ["events"]
