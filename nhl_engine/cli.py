@@ -56,7 +56,7 @@ from nhl_engine.audit import (
 )
 from nhl_engine.calibration import Calibrator, calibration_path
 from nhl_engine.config import cache_dir, data_dir, load_config, output_dir, priors_dir
-from nhl_engine.data import availability, capture, podcast, preseason, rotowire
+from nhl_engine.data import availability, capture, dailyfaceoff, podcast, preseason, rotowire
 from nhl_engine.data.book_rules import BookRule, BookRules, rules_path
 from nhl_engine.data.moneypuck import MoneyPuckClient, season_of
 from nhl_engine.data.nhlapi import FOREVER, NHLAPIClient
@@ -426,10 +426,14 @@ def cmd_starter(args: argparse.Namespace) -> int:
 
 
 def cmd_lineups(args: argparse.Namespace) -> int:
+    """RotoWire goalies + injuries, then Daily Faceoff goalies, into the starter ladder."""
     root = data_dir()
     today = _today()
     slate = _parse_date(args.date)
     season = args.season or season_of(slate)
+    mp = MoneyPuckClient(cache_dir=cache_dir())
+    quotes = capture.read_day(root, slate)
+    applied = 0
     try:
         roto = rotowire.fetch(slate, today=today, data_dir=root)
     except ValueError as exc:
@@ -437,17 +441,34 @@ def cmd_lineups(args: argparse.Namespace) -> int:
         return 2
     except Exception as exc:  # network / HTTP: the card still runs on projected goalies
         print(f"rotowire unavailable: {exc}", file=sys.stderr)
+    else:
+        if not roto.games:
+            print(f"rotowire: no NHL games parsed for {slate} (raw: {roto.raw_path})")
+        else:
+            summary = lineup_feed.apply_slate(
+                roto, mp=mp, data_dir=root, season=season, quotes=quotes
+            )
+            print(f"rotowire {slate}: {len(roto.games)} game(s) parsed -> {roto.raw_path}")
+            for line in summary.lines():
+                print(line)
+            applied += 1
+    try:
+        dfo = dailyfaceoff.fetch(slate, today=today, data_dir=root)
+    except Exception as exc:
+        print(f"dailyfaceoff unavailable: {exc}", file=sys.stderr)
+    else:
+        if not dfo.games:
+            print(f"dailyfaceoff: no NHL games parsed for {slate} (raw: {dfo.raw_path})")
+        else:
+            summary = lineup_feed.apply_slate(
+                dfo, mp=mp, data_dir=root, season=season, quotes=quotes, source=dailyfaceoff.SOURCE
+            )
+            print(f"dailyfaceoff {slate}: {len(dfo.games)} game(s) parsed -> {dfo.raw_path}")
+            for line in summary.lines():
+                print(line)
+            applied += 1
+    if not applied:
         return 1
-    if not roto.games:
-        print(f"rotowire: no NHL games parsed for {slate} (raw: {roto.raw_path})")
-        return 0
-    mp = MoneyPuckClient(cache_dir=cache_dir())
-    summary = lineup_feed.apply_slate(
-        roto, mp=mp, data_dir=root, season=season, quotes=capture.read_day(root, slate)
-    )
-    print(f"rotowire {slate}: {len(roto.games)} game(s) parsed -> {roto.raw_path}")
-    for line in summary.lines():
-        print(line)
     if load_config().state_sync and not args.no_sync:
         state.auto_push(root, f"nhl lineups {slate}")
     return 0
@@ -958,7 +979,10 @@ def build_parser() -> argparse.ArgumentParser:
     sr.add_argument("--date")
     sr.set_defaults(func=cmd_starter)
 
-    lu = sub.add_parser("lineups", help="RotoWire goalies + injuries -> overrides/availability")
+    lu = sub.add_parser(
+        "lineups",
+        help="RotoWire + Daily Faceoff goalies, RotoWire injuries -> overrides/availability",
+    )
     lu.add_argument("--date", help="today (default) or tomorrow")
     lu.add_argument("--season", type=int)
     lu.add_argument("--no-sync", action="store_true")
