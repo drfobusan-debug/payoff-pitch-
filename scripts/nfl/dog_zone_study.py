@@ -132,7 +132,7 @@ def main() -> None:
     closed = [replace(e, fair_prob=e.close_prob) for e in rows if e.close_prob is not None]
     leans = [e for e in model_leans(closed) if args.first <= e.season <= args.last]
     print(f"\n{args.first}-{args.last}: {len(leans)} model leans, graded at the closing price")
-    for _, label, rule in RULES:
+    for _, label, rule, _need in RULES:
         print(summary(label, [e for e in leans if rule(e)]))
         mid = (args.first + args.last) // 2
         for lo, hi in ((args.first, mid), (mid + 1, args.last)):

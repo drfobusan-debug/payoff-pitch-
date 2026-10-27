@@ -271,6 +271,7 @@ def cmd_price(args: argparse.Namespace) -> int:
         print(f"no game kicks off in the next {within} min; nothing fetched")
         return 0
     fetched = _fetch(args.days)
+    now = datetime.now(tz=timezone.utc)  # re-read: a kickoff can pass during the fetch
     started = len(fetched.games) - len(_not_started(fetched.games, now))
     fetched.games = _not_started(fetched.games, now)
     if started:
