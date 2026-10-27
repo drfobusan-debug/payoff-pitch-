@@ -359,9 +359,11 @@ def espn_fetch(root: Path) -> Fetch:
         except (requests.RequestException, ValueError) as exc:
             log.warning("ESPN scoreboard %s not read: %s", d, exc)
             return None
-        if not isinstance(payload, dict):
+        events = payload.get("events") if isinstance(payload, dict) else None
+        if not isinstance(events, list):
+            log.warning("ESPN scoreboard %s has no events list; not archived", d)
             return None
-        if not payload.get("events"):
+        if not events:
             boxes.write_results(root, d, [])
             return []
         return boxes.ensure_results(root, d, client) or None
