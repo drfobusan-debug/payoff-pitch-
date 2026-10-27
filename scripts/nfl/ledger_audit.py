@@ -250,6 +250,7 @@ def report(entries: list[LedgerEntry], filled: int) -> list[str]:
     )
     leans = model_leans(graded)
     live = in_game(graded)
+    pregame = [e for e in graded if id(e) not in set(map(id, live))]
     out += [
         "",
         "2) One model lean per game-market (side with model > fair)",
@@ -262,7 +263,7 @@ def report(entries: list[LedgerEntry], filled: int) -> list[str]:
         "3) What each screen refused, graded on the model leans it blocked",
         *screen_lines(leans),
     ]
-    out += ["", "4) CLV / drift on the leans", *close_coverage_lines(graded)]
+    out += ["", "4) CLV / drift on the leans", *close_coverage_lines(pregame)]
     out.append(record_line("all leans", leans))
     out += [record_line(f"leans {m}", [e for e in leans if e.market == m]) for m in MARKETS]
     out += ["", "5) Underdog vs favourite leans (ML: fair < .5; spread: getting points)"]
