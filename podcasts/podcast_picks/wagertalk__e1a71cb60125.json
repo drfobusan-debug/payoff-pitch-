@@ -1,0 +1,80 @@
+{
+ "episode_guid": "https://api.spreaker.com/episode/76001587",
+ "model": "gpt-4o-mini",
+ "prompt_version": "picks-v2",
+ "transcript_sha": "b407fdebaf42fd3215d61bbc4d024e295b32acb2",
+ "picks": [
+  {
+   "pick_id": "1b49f8a2ca40",
+   "show": "wagertalk",
+   "show_name": "WagerTalk",
+   "host": null,
+   "episode_guid": "https://api.spreaker.com/episode/76001587",
+   "episode_title": "TOTAL BASES | Monday World Series Game 3 Picks & Best Bets | Brewers vs Rays | 10/26",
+   "published": "2026-10-26T11:59:46-04:00",
+   "kind": "lean",
+   "market": "game_ml",
+   "team": "Tampa Bay",
+   "opponent": "Milwaukee",
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "seconds": 1097,
+   "quote": "I am telling you what my play is. It would be Tampa Bay.",
+   "reason": "The host believes Tampa Bay has the advantage of home field.",
+   "description": "Tampa Bay to win",
+   "league": "mlb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [
+  {
+   "league": "mlb",
+   "kind": "official",
+   "host": "null",
+   "team": "Rays",
+   "opponent": "Brewers",
+   "market": "game_ml",
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "stamp": "[18:17]",
+   "quote": "I like TV. I am telling you what my play is. It would be Tampa Bay.",
+   "edge": "Tampa Bay has the home field advantage, which could be significant in this matchup.",
+   "fair_line": null,
+   "reason": "The Rays are playing at home and need to win to stay in the series.",
+   "description": "Rays to win against the Brewers.",
+   "why": "bad stamp"
+  },
+  {
+   "league": "mlb",
+   "kind": "lean",
+   "host": "null",
+   "team": "Brewers",
+   "opponent": "Rays",
+   "market": "game_ml",
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "stamp": "[18:19]",
+   "quote": "If I had to bed aside, I would take Milwaukee.",
+   "edge": "The Brewers are considered a slightly better team overall.",
+   "fair_line": null,
+   "reason": "The Brewers have been more consistent and have a deeper roster.",
+   "description": "Lean on Brewers to win against the Rays.",
+   "why": "bad stamp"
+  }
+ ],
+ "leagues": [
+  "cfb",
+  "nfl",
+  "mlb",
+  "nba",
+  "cbb",
+  "nhl"
+ ]
+}

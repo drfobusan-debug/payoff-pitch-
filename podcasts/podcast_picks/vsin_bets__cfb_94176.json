@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-94176",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "a417ed3ec817e141e74ecc1a3ddb626f8099ce35",
+ "picks": [
+  {
+   "pick_id": "2fe822add320",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-94176",
+   "episode_title": "College Football Week 9 Picks: Kennesaw State vs. Middle Tennessee",
+   "published": "2026-10-26T19:46:12+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Middle Tennessee",
+   "opponent": "Kennesaw State",
+   "side": null,
+   "line": -3.0,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Middle Tennessee -3",
+   "reason": "https://vsin.com/college-football/college-football-week-9-picks-kennesaw-state-vs-middle-tennessee/",
+   "description": "Middle Tennessee -3",
+   "league": "cfb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cfb"
+ ]
+}

@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-94157",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "fd1858ec4ad93abad55b6fb7ca084493dca22f69",
+ "picks": [
+  {
+   "pick_id": "7337644fc18c",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-94157",
+   "episode_title": "College Football Week 9 Picks: Delaware vs. Western Kentucky",
+   "published": "2026-10-26T15:50:23+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Western Kentucky",
+   "opponent": "Delaware",
+   "side": null,
+   "line": 1.0,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Western Kentucky +1",
+   "reason": "https://vsin.com/college-football/college-football-week-9-picks-delaware-vs-western-kentucky/",
+   "description": "Western Kentucky +1",
+   "league": "cfb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cfb"
+ ]
+}
