@@ -210,3 +210,27 @@ def test_state_copy_unions_manifest_lines_and_keeps_existing_files(tmp_path: Pat
     assert f"quotes/{DAY}/b1.parquet" in copied and f"quotes/{DAY}/manifest.jsonl" in copied
     assert sorted(m["pass_id"] for m in quotes.read_manifest(b, SPORT, DAY)) == ["b1", "b2"]
     assert quotes.verify(b, SPORT, DAY) == [] and state._copy(src, dest, ("quotes",)) == []
+
+
+def test_state_copy_restamps_ledger_passes_in_chain_order(tmp_path: Path) -> None:
+    import os
+
+    from cbb_engine import state
+
+    a, b = tmp_path / "a", tmp_path / "b"
+    _priced(a)
+    written = audit.grade(a, DAY, [], {}, pass_id="audit_x")
+    assert written
+    day_a = a / "ledger" / SPORT / DAY
+    os.utime(day_a / "audit_x.jsonl", (1, 1))  # correction looks older than the card it corrects
+    os.utime(day_a / "card1.jsonl", (2, 2))
+    state._copy(state.local_trees(a, a), state.local_trees(b, b), ("ledger",))
+    assert ledger.verify_chain(ledger.read_day(b, SPORT, DAY))
+    assert all(r.supersedes for r in ledger.record(b, SPORT, DAY).values())
+
+
+def test_alternate_lines_settle_like_the_main_line() -> None:
+    row = ledger.Row(slate_date=DAY, event_id="e1", tip_utc="", market="game_total_alt", side="over", line=140.5,
+                     book="draftkings", pass_id="p", pass_kind="featured", bet_of_record=True, status="shadow")
+    assert audit.outcome(row, (70, 73)) == "win"
+    assert audit.outcome(ledger.Row(**{**row.__dict__, "market": "game_ats_alt", "side": "away", "line": 2.5}), (70, 73)) == "loss"
