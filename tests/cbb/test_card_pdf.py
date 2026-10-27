@@ -240,8 +240,21 @@ def test_manifest_teams_reads_the_top_level_teams_written_by_capture(tmp_path) -
     q = _q("2025-11-10T14:00:00Z", "game_total", "over", 140.5, -110, "dk")
     quotes.write_shard(
         tmp_path, SPORT, "2025-11-10", [q], pass_id="p1", pass_kind="board",  # type: ignore[list-item]
-        teams={"e1": ["Duke Blue Devils", "Army Black Knights"]},
+        extra={"teams": {"e1": ["Duke Blue Devils", "Army Black Knights"]}},
     )
     assert _manifest_teams(tmp_path, date(2025, 11, 10)) == {
         "e1": ("Duke Blue Devils", "Army Black Knights")
     }
+
+
+def test_board_shows_the_live_buy_over_a_capped_higher_edge_book() -> None:
+    from dataclasses import replace
+
+    base = ledger.Row(
+        slate_date="2025-11-10", event_id="e1", tip_utc="2025-11-11T00:00:00Z", market="game_total",
+        side="over", line=141.5, book="betmgm", pass_id="p", pass_kind="featured", bet_of_record=True,
+        status="live", american=-105, p_fair=0.56, edge=0.06, tier="Pass", gates=["exposure_cap"],
+    )
+    buy = replace(base, book="draftkings", american=-110, edge=0.04, tier="Lean", gates=[])
+    body = pdf._board([base, buy])
+    assert "draftkings" in body and "betmgm" not in body and "class='buy'" in body

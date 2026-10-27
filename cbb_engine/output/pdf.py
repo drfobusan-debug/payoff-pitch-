@@ -56,6 +56,11 @@ def _rk(r: Rated, fmt: str) -> str:
     return f"{fmt.format(r.value)}{rank}"
 
 
+def _board_key(r: ledger.Row) -> tuple[bool, float]:
+    """A live buy beats any refused row at the same number (e.g. a higher-edge book capped by exposure)."""
+    return (r.is_buy and r.status == "live", r.edge if r.edge is not None else -9.0)
+
+
 def _board(rows: Sequence[ledger.Row]) -> str:
     """One line per market/side/number: the best-priced execution book."""
     best: dict[tuple[str, str, float | None], ledger.Row] = {}
@@ -63,7 +68,7 @@ def _board(rows: Sequence[ledger.Row]) -> str:
         if r.market not in _MARKETS or r.american is None:
             continue
         k = (r.market, r.side, r.line)
-        if k not in best or (r.edge or -9) > (best[k].edge or -9):
+        if k not in best or _board_key(r) > _board_key(best[k]):
             best[k] = r
     if not best:
         return "<p class='note'>No full-game prices on this pass.</p>"
