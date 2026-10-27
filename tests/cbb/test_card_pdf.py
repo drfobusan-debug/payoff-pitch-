@@ -230,3 +230,18 @@ def test_factor_cells_show_signed_z_with_raw_rate() -> None:
     assert pdf._zcell(lg, "defense", "tov", Rated(0.13)).startswith("-2.0 ")
     assert "13.0%" in pdf._zcell(lg, "defense", "tov", Rated(0.13))
     assert pdf._zcell(lg, "offense", "efg", Rated(0.5)).startswith("—")
+
+
+def test_manifest_teams_reads_the_top_level_teams_written_by_capture(tmp_path) -> None:  # type: ignore[no-untyped-def]
+    from cbb_engine.cli import _manifest_teams
+    from cbb_engine.config import SPORT
+    from engine_runtime import quotes
+
+    q = _q("2025-11-10T14:00:00Z", "game_total", "over", 140.5, -110, "dk")
+    quotes.write_shard(
+        tmp_path, SPORT, "2025-11-10", [q], pass_id="p1", pass_kind="board",  # type: ignore[list-item]
+        teams={"e1": ["Duke Blue Devils", "Army Black Knights"]},
+    )
+    assert _manifest_teams(tmp_path, date(2025, 11, 10)) == {
+        "e1": ("Duke Blue Devils", "Army Black Knights")
+    }
