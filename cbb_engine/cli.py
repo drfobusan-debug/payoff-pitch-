@@ -270,9 +270,9 @@ def cmd_price(args: argparse.Namespace) -> int:
 def _manifest_teams(root: Path, day: Date) -> dict[str, tuple[str, str]]:
     teams: dict[str, tuple[str, str]] = {}
     for m in quotes.read_manifest(root, SPORT, day.isoformat()):
-        extra = m.get("extra")
-        if isinstance(extra, dict) and isinstance(extra.get("teams"), dict):
-            teams.update({str(k): (str(v[0]), str(v[1])) for k, v in extra["teams"].items()})
+        tm = m.get("teams")
+        if isinstance(tm, dict):
+            teams.update({str(k): (str(v[0]), str(v[1])) for k, v in tm.items()})
     return teams
 
 

@@ -230,3 +230,68 @@ def test_factor_cells_show_signed_z_with_raw_rate() -> None:
     assert pdf._zcell(lg, "defense", "tov", Rated(0.13)).startswith("-2.0 ")
     assert "13.0%" in pdf._zcell(lg, "defense", "tov", Rated(0.13))
     assert pdf._zcell(lg, "offense", "efg", Rated(0.5)).startswith("—")
+
+
+def test_manifest_teams_reads_the_top_level_teams_written_by_capture(tmp_path) -> None:  # type: ignore[no-untyped-def]
+    from cbb_engine.cli import _manifest_teams
+    from cbb_engine.config import SPORT
+    from engine_runtime import quotes
+
+    q = _q("2025-11-10T14:00:00Z", "game_total", "over", 140.5, -110, "dk")
+    quotes.write_shard(
+        tmp_path,
+        SPORT,
+        "2025-11-10",
+        [q],
+        pass_id="p1",
+        pass_kind="board",  # type: ignore[list-item]
+        extra={"teams": {"e1": ["Duke Blue Devils", "Army Black Knights"]}},
+    )
+    assert _manifest_teams(tmp_path, date(2025, 11, 10)) == {
+        "e1": ("Duke Blue Devils", "Army Black Knights")
+    }
+
+
+def test_board_shows_the_live_buy_over_a_capped_higher_edge_book() -> None:
+    from dataclasses import replace
+
+    base = ledger.Row(
+        slate_date="2025-11-10",
+        event_id="e1",
+        tip_utc="2025-11-11T00:00:00Z",
+        market="game_total",
+        side="over",
+        line=141.5,
+        book="betmgm",
+        pass_id="p",
+        pass_kind="featured",
+        bet_of_record=True,
+        status="live",
+        american=-105,
+        p_fair=0.56,
+        edge=0.06,
+        tier="Pass",
+        gates=["exposure_cap"],
+    )
+    buy = replace(base, book="draftkings", american=-110, edge=0.04, tier="Lean", gates=[])
+    body = pdf._board([base, buy])
+    assert "draftkings" in body and "betmgm" not in body and "class='buy'" in body
+
+
+def test_injury_parse_reads_either_rotowire_field_names() -> None:
+    from cbb_engine.data import injuries
+
+    a, b = injuries.parse(
+        [
+            {"player": "A", "team": "Duke", "position": "G", "injury": "Knee", "status": "Out"},
+            {
+                "player": "B",
+                "team": "Duke",
+                "position": "F",
+                "injury_type": "Ankle",
+                "IR": "Game Time Decision",
+            },
+        ]
+    )
+    assert (a.injury, a.status) == ("Knee", "Out")
+    assert (b.injury, b.status) == ("Ankle", "Game Time Decision")

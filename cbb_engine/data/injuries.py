@@ -57,6 +57,11 @@ def latest(root: Path, day: Date) -> tuple[Path | None, list[Injury]]:
     return files[-1], parse(json.loads(files[-1].read_text()))
 
 
+def _first(p: dict[object, object], *keys: str) -> str:
+    """RotoWire's tables name these fields either way (the CFB table uses ``injury_type``/``IR``)."""
+    return next((str(p[k]).strip() for k in keys if p.get(k) not in (None, "")), "")
+
+
 def parse(payload: Iterable[object]) -> list[Injury]:
     out = []
     for p in payload:
@@ -67,8 +72,8 @@ def parse(payload: Iterable[object]) -> list[Injury]:
                 player=str(p["player"]),
                 team=str(p["team"]),
                 position=str(p.get("position", "")),
-                injury=str(p.get("injury", "")),
-                status=str(p.get("status", "")),
+                injury=_first(p, "injury", "injury_type"),
+                status=_first(p, "status", "IR"),
             )
         )
     return out
