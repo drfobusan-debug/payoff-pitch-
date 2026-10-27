@@ -12,9 +12,11 @@ import json
 import logging
 import os
 import shutil
+import time
 from pathlib import Path
 
 from cbb_engine.config import SPORT, data_dir, runtime_root
+from engine_runtime.ledger import GENESIS
 from mlb_engine.state import (
     STATE_BRANCH,
     SyncReport,
@@ -76,7 +78,33 @@ def _copy(src: dict[str, Path], dest: dict[str, Path], trees: tuple[str, ...]) -
                 copied.append(f"{tree}/{f.relative_to(s)}")
         if tree == "quotes":
             copied += [f"quotes/{x}" for x in _union_manifests(s, d)]
+        if tree == "ledger":
+            for day in {(d / c.split("/", 1)[1]).parent for c in copied if c.startswith("ledger/")}:
+                _restamp_chain(day)
     return copied
+
+
+def _restamp_chain(day: Path) -> None:
+    """Give a day's ledger passes mtimes in hash-chain order: ``ledger.read_day`` and
+    ``ledger.last_hash`` order passes by mtime, and a copy stamps them in copy order."""
+    heads: dict[str, Path] = {}
+    tails: dict[Path, str] = {}
+    for f in day.glob("*.jsonl"):
+        lines = [x for x in f.read_text().splitlines() if x.strip()]
+        if lines:
+            heads[json.loads(lines[0])["prev_hash"]] = f
+            tails[f] = json.loads(lines[-1])["row_hash"]
+    order: list[Path] = []
+    prev = GENESIS
+    while prev in heads and heads[prev] not in order:
+        order.append(heads[prev])
+        prev = tails[heads[prev]]
+    if len(order) != len(tails):
+        log.warning("ledger chain for %s is broken; mtimes left as copied", day)
+        return
+    base = time.time() - len(order)
+    for i, f in enumerate(order):
+        os.utime(f, (base + i, base + i))
 
 
 def _branch_trees(state: Path) -> dict[str, Path]:
