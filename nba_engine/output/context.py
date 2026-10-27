@@ -344,7 +344,8 @@ def espn_fetch(root: Path) -> Fetch:
     """Finals for a past day from ESPN (free), archived once the day is settled.
 
     The scoreboard is read first so a day without games ([]) is told apart
-    from a feed that failed (None).
+    from a feed that failed (None); a past day without games is archived empty
+    so later cards do not ask ESPN for it again.
     """
     client = ESPNClient()
 
@@ -358,8 +359,11 @@ def espn_fetch(root: Path) -> Fetch:
         except (requests.RequestException, ValueError) as exc:
             log.warning("ESPN scoreboard %s not read: %s", d, exc)
             return None
-        if not isinstance(payload, dict) or not payload.get("events"):
-            return [] if isinstance(payload, dict) else None
+        if not isinstance(payload, dict):
+            return None
+        if not payload.get("events"):
+            boxes.write_results(root, d, [])
+            return []
         return boxes.ensure_results(root, d, client) or None
 
     return fetch
