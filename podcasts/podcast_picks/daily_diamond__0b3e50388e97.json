@@ -1,0 +1,36 @@
+{
+ "episode_guid": "274ade1e-700d-467a-871c-3a8fe66dc80f",
+ "model": "gpt-4o-mini",
+ "prompt_version": "picks-v2",
+ "transcript_sha": "75b3e8b0102fa18270b9a76de9a9b7b48128b268",
+ "picks": [
+  {
+   "pick_id": "9d7ff16a17b6",
+   "show": "daily_diamond",
+   "show_name": "The VSiN Daily Diamond",
+   "host": "Jensen Lewis",
+   "episode_guid": "274ade1e-700d-467a-871c-3a8fe66dc80f",
+   "episode_title": "The VSiN Daily Diamond | October 27, 2026",
+   "published": "2026-10-27T10:19:26-04:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Brewers",
+   "opponent": "Rays",
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "seconds": 51,
+   "quote": "For me, I laid the run and a half plus $1.35 at circa right now.",
+   "reason": "The Brewers are favored and have shown strong offensive performance recently.",
+   "description": "Brewers -1.5",
+   "league": "mlb",
+   "edge": "The Brewers have momentum after a strong performance in the previous game.",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "mlb"
+ ]
+}
