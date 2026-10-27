@@ -13,6 +13,8 @@ from datetime import date as Date
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+from cbb_engine.data.injuries import Injury
+from cbb_engine.output.movement import Move
 from cbb_engine.output.teamstats import Factors, Rated, Split, TeamStats, match_team
 from engine_runtime import ledger
 
@@ -31,7 +33,7 @@ tr.buy td { background: #e6f4e6; font-weight: bold; }
 table.panel { width: 100%; } table.panel > tbody > tr > td { vertical-align: top; padding: 0 6px 0 0; width: 50%; }
 table.inner th { font-size: 7.5pt; } table.inner td { white-space: nowrap; }
 table.inner { width: 100%; } .rk { color: #999; font-size: 6.5pt; } .on { background: #eef2fa; }
-.cap { font-weight: bold; text-align: left; vertical-align: bottom; } .note { color: #777; font-size: 7pt; margin: 2px 0 0; }
+.ctx { margin: 2px 0; } .cap { font-weight: bold; text-align: left; vertical-align: bottom; } .note { color: #777; font-size: 7pt; margin: 2px 0 0; }
 """
 
 _MARKETS = {"game_total": "Total", "game_ats": "Spread", "game_ml": "Moneyline"}
@@ -151,10 +153,90 @@ def _factors(away: TeamStats | None, home: TeamStats | None, an: str, hn: str) -
     return f"<table class='inner'>{head}{''.join(rows)}</table>"
 
 
+def _rest_days(t: TeamStats | None, day: Date) -> int | None:
+    return None if t is None or t.last_game is None else (day - t.last_game).days - 1
+
+
 def _rest(t: TeamStats | None, day: Date) -> str:
-    if t is None or t.last_game is None:
+    n = _rest_days(t, day)
+    if n is None:
         return "first game"
-    return f"{(day - t.last_game).days - 1}d rest"
+    return "back-to-back" if n == 0 else f"{n}d rest"
+
+
+def rest_edge(away: TeamStats | None, home: TeamStats | None, day: Date, an: str, hn: str) -> str:
+    """ "Duke +2 days rest"; a back-to-back is called out."""
+    a, h = _rest_days(away, day), _rest_days(home, day)
+    if a is None or h is None:
+        return "rest unknown (a team has no game logged yet)"
+    if a == h:
+        return f"even ({a}d each)"
+    team, diff = (an, a - h) if a > h else (hn, h - a)
+    tired = [n for n, d in ((an, a), (hn, h)) if d == 0]
+    return f"{team} +{diff} day{'s' if diff > 1 else ''} rest" + (
+        f" ({', '.join(tired)} on a back-to-back)" if tired else ""
+    )
+
+
+_FACTORS = (("efg", "eFG%"), ("tov", "TOV%"), ("orb", "OREB%"), ("ftr", "FT rate"))
+
+
+def unit_edge(
+    off: TeamStats | None, dfn: TeamStats | None, off_venue: str, dfn_venue: str, on: str, dn: str
+) -> str:
+    """Which unit has the edge: offense rank vs defense rank (1 = best), tonight's venues."""
+    if off is None or dfn is None:
+        return f"{on} O vs {dn} D: no games logged yet"
+    o: Split = getattr(off, off_venue)
+    d: Split = getattr(dfn, dfn_venue)
+    if o.off.rank is None or d.dfn.rank is None:
+        rating = "venue split not played yet"
+        lead = None
+    else:
+        lead = on if o.off.rank < d.dfn.rank else dn if d.dfn.rank < o.off.rank else None
+        rating = f"off rtg #{o.off.rank} vs def rtg #{d.dfn.rank}"
+    wins = [
+        lab
+        for k, lab in _FACTORS
+        if (ra := getattr(off.offense, k).rank) is not None
+        and (rb := getattr(dfn.defense, k).rank) is not None
+        and ra < rb
+    ]
+    n = sum(
+        1
+        for k, _ in _FACTORS
+        if getattr(off.offense, k).rank is not None and getattr(dfn.defense, k).rank is not None
+    )
+    who = f"edge {on} offense" if lead == on else f"edge {dn} defense" if lead == dn else "even"
+    return f"{on} O vs {dn} D: {who} ({rating}); offense better in {len(wins)} of {n} factors" + (
+        f" ({', '.join(wins)})" if wins else ""
+    )
+
+
+def _injuries(items: Sequence[tuple[str | None, Injury]], team: str | None, label: str) -> str:
+    mine = [i for t, i in items if team is not None and t == team]
+    if not mine:
+        return f"{label}: none listed"
+    return f"{label}: " + "; ".join(
+        f"{i.player} ({i.position}, {i.injury}) {i.status}" for i in mine
+    )
+
+
+def _movement(ms: Sequence[Move], an: str, hn: str) -> str:
+    if not ms:
+        return "no movement yet (one pass or none captured)"
+    parts = []
+    for m in ms:
+        if m.market == "game_total":
+            parts.append(f"Total {m.opened:g} → {m.now:g} ({m.delta:+g})")
+        elif m.market == "game_ats":
+            parts.append(f"Spread {hn} {m.opened:+g} → {m.now:+g} ({m.delta:+g})")
+        else:
+            parts.append(f"ML {hn} {m.opened:+.0f} → {m.now:+.0f}")
+    return (
+        " · ".join(parts)
+        + f" <span class='rk'>(median of {ms[0].books} books, open {_tip(ms[0].opened_at)})</span>"
+    )
 
 
 def team_panel(away: TeamStats | None, home: TeamStats | None, an: str, hn: str) -> str:
@@ -173,7 +255,7 @@ KEY = (
     " season to date, raw; Adj O / D = Torvik's opponent-adjusted ratings. Four factors pool every game: eFG%,"
     " TOV% = turnovers per possession, OREB% = share of own misses rebounded, FT rate = FTA/FGA; each offense sits"
     " beside the defense it meets tonight. Grey # = rank among D-I teams (1 = best); tonight's venue shaded."
-    " Early-season splits rest on few games, so ranks are noisy."
+    " Unit edge compares those ranks at tonight's venues. Early-season splits rest on few games, so ranks are noisy."
 )
 
 
@@ -184,8 +266,14 @@ def build_html(
     stats: Mapping[str, TeamStats],
     *,
     title: str = "",
+    injuries: Sequence[Injury] = (),
+    injuries_source: str = "",
+    moves: Mapping[str, Sequence[Move]] | None = None,
 ) -> str:
     """``teams`` maps event_id -> (home, away) as named by the Odds API."""
+    names = list(stats)
+    listed = [(match_team(i.team, names), i) for i in injuries]
+    unmatched = sorted({i.team for t, i in listed if t is None})
     by_event: dict[str, list[ledger.Row]] = defaultdict(list)
     for r in rows:
         by_event[r.event_id].append(r)
@@ -203,12 +291,28 @@ def build_html(
         blocks.append(
             f"<div class='game'><div class='gh'>{html.escape(away_name)} at {html.escape(home_name)} "
             f"<span>{tip} · {an} {_rest(away, day)}, {hn} {_rest(home, day)}</span></div>"
-            f"{_board(by_event[eid])}{team_panel(away, home, an, hn)}</div>"
+            f"{_board(by_event[eid])}"
+            f"<p class='ctx'><b>Line movement</b> — {_movement((moves or {}).get(eid, ()), an, hn)}</p>"
+            f"{team_panel(away, home, an, hn)}"
+            f"<p class='ctx'><b>Unit edge</b> — {html.escape(unit_edge(away, home, 'away', 'home', an, hn))}"
+            f"<br>{html.escape(unit_edge(home, away, 'home', 'away', hn, an))}</p>"
+            f"<p class='ctx'><b>Rest</b> — {html.escape(rest_edge(away, home, day, an, hn))}</p>"
+            f"<p class='ctx'><b>Injuries</b> {html.escape(injuries_source)}— "
+            f"{html.escape(_injuries(listed, away.team if away else None, an))} · "
+            f"{html.escape(_injuries(listed, home.team if home else None, hn))}</p></div>"
         )
     return (
         f"<html><head><meta charset='utf-8'><style>{_STYLE}</style></head><body>"
         f"<h1>CBB card — {day.isoformat()}</h1><p class='sub'>{html.escape(title)} {buys} live buy(s) · "
-        f"{len(blocks)} games · paper only</p><p class='note'>{KEY}</p>{''.join(blocks)}</body></html>"
+        f"{len(blocks)} games · paper only</p><p class='note'>{KEY}{_unmatched(unmatched)}</p>{''.join(blocks)}</body></html>"
+    )
+
+
+def _unmatched(teams: Sequence[str]) -> str:
+    if not teams:
+        return ""
+    return html.escape(
+        f" Injury-list schools not matched to a Torvik team (not shown): {', '.join(teams)}."
     )
 
 

@@ -106,3 +106,85 @@ def test_card_html_has_board_and_panel_for_each_game() -> None:
     assert "Duke 5d rest" in body
     bare = pdf.build_html(date(2025, 11, 10), [], {"e2": ("Gonzaga Bulldogs", "Utah Utes")}, {})
     assert "no Torvik games logged yet" in bare
+
+
+def _q(at: str, market: str, side: str, line: float | None, american: float, book: str) -> object:
+    from engine_runtime.quotes import Quote
+
+    return Quote(
+        captured_at=at,
+        game_date="2025-11-10",
+        event_id="e1",
+        tip_utc="2025-11-11T00:00:00Z",
+        market=market,
+        side=side,
+        entity="",
+        line=line,
+        book=book,
+        american=american,
+        opposite_american=None,
+        pass_id="p",
+        pass_kind="board",
+    )
+
+
+def test_line_movement_is_median_first_to_last_pass_before_the_card() -> None:
+    from cbb_engine.output import movement
+
+    t0, t1, t2 = "2025-11-10T14:00:00Z", "2025-11-10T20:00:00Z", "2025-11-10T23:00:00Z"
+    qs = [
+        _q(t0, "game_total", "over", 140.5, -110, "dk"),
+        _q(t0, "game_total", "over", 141.5, -110, "mgm"),
+        _q(t0, "game_total", "under", 141.5, -110, "mgm"),
+        _q(t1, "game_total", "over", 139.5, -110, "dk"),
+        _q(t1, "game_total", "over", 139.5, -110, "mgm"),
+        _q(t0, "game_ats", "home", -3.5, -110, "dk"),
+        _q(t1, "game_ats", "home", -5.0, -110, "dk"),
+        _q(t2, "game_ats", "home", -7.0, -110, "dk"),  # after the card
+        _q(t0, "game_ml", "home", -160, 0, "dk"),
+    ]
+    m = movement.moves(qs, until=t1)["e1"]  # type: ignore[arg-type]
+    assert [(x.market, x.opened, x.now) for x in m] == [
+        ("game_total", 141.0, 139.5),
+        ("game_ats", -3.5, -5.0),
+    ]
+
+
+def test_unit_edge_rest_and_injuries_lines() -> None:
+    from cbb_engine.data.injuries import Injury
+
+    logs = _rows(
+        "11/4/25",
+        "Duke",
+        "Army",
+        _box(30, 60, 6, 20, 10, 25, 10, 80),
+        _box(25, 60, 4, 10, 8, 20, 15, 60),
+        70,
+    )
+    logs += _rows(
+        "11/8/25",
+        "Navy",
+        "Army",
+        _box(20, 60, 2, 5, 5, 20, 15, 50),
+        _box(20, 60, 2, 5, 5, 20, 15, 52),
+        70,
+    )
+    s = teamstats.season(logs, date(2025, 11, 9))
+    assert pdf.unit_edge(s["Duke"], s["Army"], "home", "away", "Duke", "Army").startswith(
+        "Duke O vs Army D: even (off rtg #1 vs def rtg #1); offense better in 4 of 4 factors"
+    )
+    assert pdf.unit_edge(s["Army"], s["Duke"], "away", "home", "Army", "Duke").startswith(
+        "Army O vs Duke D: edge Army offense (off rtg #1 vs def rtg #2)"
+    )
+    assert pdf.rest_edge(s["Army"], s["Duke"], date(2025, 11, 9), "Army", "Duke") == (
+        "Duke +4 days rest (Army on a back-to-back)"
+    )
+    inj = [
+        Injury("A Guard", "Duke", "G", "Ankle", "Out"),
+        Injury("B Big", "Oklahoma State", "F", "Knee", "Out"),
+    ]
+    body = pdf.build_html(
+        date(2025, 11, 9), [], {"e1": ("Duke Blue Devils", "Army Black Knights")}, s, injuries=inj
+    )
+    assert "Duke: A Guard (G, Ankle) Out" in body and "Army: none listed" in body
+    assert "not matched to a Torvik team (not shown): Oklahoma State" in body

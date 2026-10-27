@@ -19,10 +19,10 @@ from pathlib import Path
 
 from cbb_engine import audit, cadence, card, checklist, email, history, pilot, state, study
 from cbb_engine.config import SPORT, SPORT_KEY, data_dir, dry_run, load_config, runtime_root
-from cbb_engine.data import capture, espn, torvik, watch
+from cbb_engine.data import capture, espn, injuries, torvik, watch
 from cbb_engine.markets import EVENT_MARKETS, FEATURED
 from cbb_engine.models import distribution as dist
-from cbb_engine.output import pdf, teamstats
+from cbb_engine.output import movement, pdf, teamstats
 from engine_runtime import ledger, quotes, runner, views
 from engine_runtime.odds_client import OddsClient
 
@@ -282,7 +282,20 @@ def _card_pdf(root: Path, day: Date, pass_id: str, rows: list[ledger.Row], out: 
         logs = torvik.as_of(data_dir(), "game_logs", day).path
         adj = torvik.as_of(data_dir(), "team_results", day).path
         stats = teamstats.season(teamstats.read_logs(logs), day, torvik.read_csv(adj) if adj else ())
-        body = pdf.build_html(day, rows, _manifest_teams(root, day), stats, title=f"pass {pass_id} ·")
+        payload = injuries.fetch()
+        if payload is not None:
+            injuries.archive(data_dir(), day, payload, at=quotes.now_utc())
+        src, listed = injuries.latest(data_dir(), day)
+        body = pdf.build_html(
+            day,
+            rows,
+            _manifest_teams(root, day),
+            stats,
+            title=f"pass {pass_id} ·",
+            injuries=listed,
+            injuries_source=f"(RotoWire {src.stem[-6:-2]} UTC) " if src else "(RotoWire: none fetched) ",
+            moves=movement.moves(quotes.read_day(root, SPORT, day.isoformat()), until=quotes.now_utc()),
+        )
         out.write_bytes(pdf.render_pdf(body))
     except Exception:
         log.warning("CBB card PDF failed; sending the text card only", exc_info=True)
