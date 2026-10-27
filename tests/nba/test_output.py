@@ -485,3 +485,8 @@ def test_card_prints_ratings_and_four_factors_or_says_none_are_archived(scratch)
     assert "BOS O vs NYK D" in page and "NYK O vs BOS D" in page and "class='tn'" in page
     bare = render_html(build_card(rows, day=DAY))
     assert "no regular-season box scores archived yet" in bare and "Four factors" not in bare
+
+
+def test_tied_values_share_a_rank():
+    r = teamstats._ranks({"A": 1.0, "B": 2.0, "C": 2.0, "D": None}, high_is_good=True)
+    assert (r["B"].rank, r["C"].rank, r["A"].rank, r["D"].rank) == (1, 1, 3, None)
