@@ -184,6 +184,20 @@
   {
     "matchup": "MIL @ TB",
     "market": "batter_1b",
+    "selection": "Ryan Vilade 1B o0.5",
+    "american": 145.0,
+    "no_vig_prob": 0.392127
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_1b",
+    "selection": "Ryan Vilade 1B u0.5",
+    "american": -180.0,
+    "no_vig_prob": 0.607873
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_1b",
     "selection": "Sal Frelick 1B o0.5",
     "american": 100.0,
     "no_vig_prob": 0.478268
@@ -436,6 +450,20 @@
   {
     "matchup": "MIL @ TB",
     "market": "batter_2b",
+    "selection": "Ryan Vilade 2B o0.5",
+    "american": 550.0,
+    "no_vig_prob": 0.149745
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_2b",
+    "selection": "Ryan Vilade 2B u0.5",
+    "american": -830.0,
+    "no_vig_prob": 0.850255
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_2b",
     "selection": "Sal Frelick 2B o0.5",
     "american": 519.0,
     "no_vig_prob": 0.161979
@@ -516,6 +544,20 @@
     "selection": "Brice Turang BB u0.5",
     "american": -210.0,
     "no_vig_prob": 0.631815
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_bb",
+    "selection": "Chandler Simpson BB o0.5",
+    "american": 312.0,
+    "no_vig_prob": 0.227749
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_bb",
+    "selection": "Chandler Simpson BB u0.5",
+    "american": -465.0,
+    "no_vig_prob": 0.772251
   },
   {
     "matchup": "MIL @ TB",
@@ -618,6 +660,20 @@
   {
     "matchup": "MIL @ TB",
     "market": "batter_bb",
+    "selection": "Jonny Deluca BB o0.5",
+    "american": 325.0,
+    "no_vig_prob": 0.227177
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_bb",
+    "selection": "Jonny Deluca BB u0.5",
+    "american": -444.0,
+    "no_vig_prob": 0.772823
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_bb",
     "selection": "Junior Caminero BB o0.5",
     "american": 175.0,
     "no_vig_prob": 0.341373
@@ -656,6 +712,20 @@
     "selection": "Richie Palacios BB u0.5",
     "american": -378.0,
     "no_vig_prob": 0.753595
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_bb",
+    "selection": "Ryan Vilade BB o0.5",
+    "american": 230.0,
+    "no_vig_prob": 0.283923
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_bb",
+    "selection": "Ryan Vilade BB u0.5",
+    "american": -328.0,
+    "no_vig_prob": 0.716077
   },
   {
     "matchup": "MIL @ TB",
@@ -800,9 +870,23 @@
   {
     "matchup": "MIL @ TB",
     "market": "batter_hrr",
+    "selection": "Garrett Mitchell H+R+RBI o0.5",
+    "american": -160.0,
+    "no_vig_prob": 0.584323
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_hrr",
     "selection": "Garrett Mitchell H+R+RBI o1.5",
     "american": 125.0,
     "no_vig_prob": 0.429452
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_hrr",
+    "selection": "Garrett Mitchell H+R+RBI u0.5",
+    "american": 135.0,
+    "no_vig_prob": 0.415677
   },
   {
     "matchup": "MIL @ TB",
@@ -922,6 +1006,20 @@
     "selection": "Richie Palacios H+R+RBI u0.5",
     "american": 120.0,
     "no_vig_prob": 0.426269
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_hrr",
+    "selection": "Ryan Vilade H+R+RBI o0.5",
+    "american": -155.0,
+    "no_vig_prob": 0.579814
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_hrr",
+    "selection": "Ryan Vilade H+R+RBI u0.5",
+    "american": 125.0,
+    "no_vig_prob": 0.420186
   },
   {
     "matchup": "MIL @ TB",
@@ -1171,9 +1269,30 @@
   {
     "matchup": "MIL @ TB",
     "market": "batter_hr",
+    "selection": "Ryan Vilade HR o0.5",
+    "american": 850.0,
+    "no_vig_prob": 0.105263
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_hr",
+    "selection": "Ryan Vilade HR o1.5",
+    "american": 18000.0,
+    "no_vig_prob": 0.005525
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_hr",
     "selection": "Sal Frelick HR o0.5",
     "american": 1300.0,
     "no_vig_prob": 0.071429
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_hr",
+    "selection": "Sal Frelick HR o1.5",
+    "american": 30000.0,
+    "no_vig_prob": 0.003322
   },
   {
     "matchup": "MIL @ TB",
@@ -1430,6 +1549,20 @@
   {
     "matchup": "MIL @ TB",
     "market": "batter_h",
+    "selection": "Ryan Vilade H o0.5",
+    "american": -105.0,
+    "no_vig_prob": 0.509027
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_h",
+    "selection": "Ryan Vilade H u0.5",
+    "american": 102.0,
+    "no_vig_prob": 0.490973
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_h",
     "selection": "Sal Frelick H o0.5",
     "american": -155.0,
     "no_vig_prob": 0.579027
@@ -1493,9 +1626,23 @@
   {
     "matchup": "MIL @ TB",
     "market": "batter_h",
+    "selection": "Yandy Diaz H o1.5",
+    "american": 191.0,
+    "no_vig_prob": 0.322407
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_h",
     "selection": "Yandy Diaz H u0.5",
     "american": 185.0,
     "no_vig_prob": 0.332018
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_h",
+    "selection": "Yandy Diaz H u1.5",
+    "american": -260.0,
+    "no_vig_prob": 0.677593
   },
   {
     "matchup": "MIL @ TB",
@@ -1678,6 +1825,20 @@
     "selection": "Richie Palacios RBI u0.5",
     "american": -450.0,
     "no_vig_prob": 0.769629
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_rbi",
+    "selection": "Ryan Vilade RBI o0.5",
+    "american": 275.0,
+    "no_vig_prob": 0.257368
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_rbi",
+    "selection": "Ryan Vilade RBI u0.5",
+    "american": -369.0,
+    "no_vig_prob": 0.742632
   },
   {
     "matchup": "MIL @ TB",
@@ -1934,6 +2095,20 @@
   {
     "matchup": "MIL @ TB",
     "market": "batter_r",
+    "selection": "Ryan Vilade R o0.5",
+    "american": 211.0,
+    "no_vig_prob": 0.300239
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_r",
+    "selection": "Ryan Vilade R u0.5",
+    "american": -300.0,
+    "no_vig_prob": 0.699761
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_r",
     "selection": "Sal Frelick R o0.5",
     "american": 212.0,
     "no_vig_prob": 0.300091
@@ -2018,9 +2193,23 @@
   {
     "matchup": "MIL @ TB",
     "market": "batter_tb",
+    "selection": "Chandler Simpson TB o0.5",
+    "american": -224.0,
+    "no_vig_prob": 0.648808
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_tb",
     "selection": "Chandler Simpson TB o1.5",
     "american": 165.0,
     "no_vig_prob": 0.365494
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_tb",
+    "selection": "Chandler Simpson TB u0.5",
+    "american": 170.0,
+    "no_vig_prob": 0.351192
   },
   {
     "matchup": "MIL @ TB",
@@ -2214,6 +2403,20 @@
   {
     "matchup": "MIL @ TB",
     "market": "batter_tb",
+    "selection": "Ryan Vilade TB o0.5",
+    "american": -105.0,
+    "no_vig_prob": 0.495413
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_tb",
+    "selection": "Ryan Vilade TB u0.5",
+    "american": -112.0,
+    "no_vig_prob": 0.504587
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "batter_tb",
     "selection": "Sal Frelick TB o0.5",
     "american": -155.0,
     "no_vig_prob": 0.570977
@@ -2319,9 +2522,23 @@
   {
     "matchup": "MIL @ TB",
     "market": "f5_total",
+    "selection": "F5 Over 4.0",
+    "american": 103.0,
+    "no_vig_prob": 0.475303
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "f5_total",
     "selection": "F5 Under 3.5",
     "american": 105.0,
     "no_vig_prob": 0.474874
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "f5_total",
+    "selection": "F5 Under 4.0",
+    "american": -125.0,
+    "no_vig_prob": 0.524697
   },
   {
     "matchup": "MIL @ TB",
@@ -2382,6 +2599,20 @@
   {
     "matchup": "MIL @ TB",
     "market": "pitcher_bb",
+    "selection": "Dustin May Walks o0.5",
+    "american": -159.0,
+    "no_vig_prob": 0.574868
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "pitcher_bb",
+    "selection": "Dustin May Walks u0.5",
+    "american": 120.0,
+    "no_vig_prob": 0.425132
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "pitcher_bb",
     "selection": "Griffin Jax Walks o1.5",
     "american": 155.0,
     "no_vig_prob": 0.366763
@@ -2396,6 +2627,20 @@
   {
     "matchup": "MIL @ TB",
     "market": "pitcher_er",
+    "selection": "Dustin May ER o0.5",
+    "american": -160.0,
+    "no_vig_prob": 0.576287
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "pitcher_er",
+    "selection": "Dustin May ER u0.5",
+    "american": 122.0,
+    "no_vig_prob": 0.423713
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "pitcher_er",
     "selection": "Griffin Jax ER o1.5",
     "american": 110.0,
     "no_vig_prob": 0.453657
@@ -2406,6 +2651,20 @@
     "selection": "Griffin Jax ER u1.5",
     "american": -140.0,
     "no_vig_prob": 0.546343
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "pitcher_h",
+    "selection": "Dustin May Hits o2.5",
+    "american": -140.0,
+    "no_vig_prob": 0.556742
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "pitcher_h",
+    "selection": "Dustin May Hits u2.5",
+    "american": 115.0,
+    "no_vig_prob": 0.443258
   },
   {
     "matchup": "MIL @ TB",
@@ -2438,6 +2697,20 @@
   {
     "matchup": "MIL @ TB",
     "market": "pitcher_k",
+    "selection": "Dustin May Ks o2.5",
+    "american": 122.0,
+    "no_vig_prob": 0.430034
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "pitcher_k",
+    "selection": "Dustin May Ks u2.5",
+    "american": -150.0,
+    "no_vig_prob": 0.569966
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "pitcher_k",
     "selection": "Griffin Jax Ks o3.5",
     "american": -102.0,
     "no_vig_prob": 0.505581
@@ -2448,6 +2721,20 @@
     "selection": "Griffin Jax Ks u3.5",
     "american": -105.0,
     "no_vig_prob": 0.494419
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "pitcher_outs",
+    "selection": "Dustin May Outs o8.5",
+    "american": -130.0,
+    "no_vig_prob": 0.543478
+  },
+  {
+    "matchup": "MIL @ TB",
+    "market": "pitcher_outs",
+    "selection": "Dustin May Outs u8.5",
+    "american": 110.0,
+    "no_vig_prob": 0.456522
   },
   {
     "matchup": "MIL @ TB",
