@@ -1,0 +1,86 @@
+{
+  "Delaware @ Western Kentuc|game_ats|Delaware": {
+    "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -1.5,
+    "no_vig_prob": 0.49855146666378014
+  },
+  "Delaware @ Western Kentuc|game_ats|Western Kentuc": {
+    "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 1.5,
+    "no_vig_prob": 0.5014485333362197
+  },
+  "Delaware @ Western Kentuc|game_ml|Delaware": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.5137805944668121
+  },
+  "Delaware @ Western Kentuc|game_ml|Western Kentuc": {
+    "american": 100.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.4862194055331879
+  },
+  "Delaware @ Western Kentuc|game_total|Over": {
+    "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 57.5,
+    "no_vig_prob": 0.5016223269224476
+  },
+  "Delaware @ Western Kentuc|game_total|Under": {
+    "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 57.5,
+    "no_vig_prob": 0.4983776730775524
+  },
+  "Sam Houston St @ Missouri State|game_ats|Missouri State": {
+    "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -5.0,
+    "no_vig_prob": 0.4998562999213386
+  },
+  "Sam Houston St @ Missouri State|game_ats|Sam Houston St": {
+    "american": -104.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 5.0,
+    "no_vig_prob": 0.5001437000786614
+  },
+  "Sam Houston St @ Missouri State|game_ml|Missouri State": {
+    "american": -200.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.6498004733147764
+  },
+  "Sam Houston St @ Missouri State|game_ml|Sam Houston St": {
+    "american": 180.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.3501995266852237
+  },
+  "Sam Houston St @ Missouri State|game_total|Over": {
+    "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 50.5,
+    "no_vig_prob": 0.5065811800180685
+  },
+  "Sam Houston St @ Missouri State|game_total|Under": {
+    "american": -102.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 50.5,
+    "no_vig_prob": 0.49341881998193166
+  }
+}
