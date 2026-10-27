@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import logging
 import sys
 from datetime import date as Date
 from datetime import datetime, timezone
@@ -18,11 +19,14 @@ from pathlib import Path
 
 from cbb_engine import audit, cadence, card, checklist, email, history, pilot, state, study
 from cbb_engine.config import SPORT, SPORT_KEY, data_dir, dry_run, load_config, runtime_root
-from cbb_engine.data import capture, espn, torvik, watch
+from cbb_engine.data import capture, espn, injuries, torvik, watch
 from cbb_engine.markets import EVENT_MARKETS, FEATURED
 from cbb_engine.models import distribution as dist
+from cbb_engine.output import movement, pdf, teamstats
 from engine_runtime import ledger, quotes, runner, views
 from engine_runtime.odds_client import OddsClient
+
+log = logging.getLogger(__name__)
 
 
 def _parse_date(raw: str | None) -> Date:
@@ -250,13 +254,53 @@ def cmd_price(args: argparse.Namespace) -> int:
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(text)
     print(text)
+    paths = {"card": out}
+    card_pdf = _card_pdf(root, day, ps.pass_id, priced.rows, out.with_suffix(".pdf"))
+    if card_pdf is not None:
+        paths["card_pdf"] = card_pdf
     if not args.dry_run:
         state.auto_push(f"cbb card {day} {ps.pass_id}", trees=("ledger", "cards"))
     if args.email and not args.dry_run:
         print(
-            f"emailed {email.send(cfg, subject=f'CBB card {day} ({ps.pass_id})', text=text, paths={'card': out}, to=args.to)}"
+            f"emailed {email.send(cfg, subject=f'CBB card {day} ({ps.pass_id})', text=text, paths=paths, to=args.to)}"
         )
     return 0
+
+
+def _manifest_teams(root: Path, day: Date) -> dict[str, tuple[str, str]]:
+    teams: dict[str, tuple[str, str]] = {}
+    for m in quotes.read_manifest(root, SPORT, day.isoformat()):
+        extra = m.get("extra")
+        if isinstance(extra, dict) and isinstance(extra.get("teams"), dict):
+            teams.update({str(k): (str(v[0]), str(v[1])) for k, v in extra["teams"].items()})
+    return teams
+
+
+def _card_pdf(root: Path, day: Date, pass_id: str, rows: list[ledger.Row], out: Path) -> Path | None:
+    """Display-only PDF beside the text card; any failure leaves the text card as the card."""
+    try:
+        logs = torvik.as_of(data_dir(), "game_logs", day).path
+        adj = torvik.as_of(data_dir(), "team_results", day).path
+        stats = teamstats.season(teamstats.read_logs(logs), day, torvik.read_csv(adj) if adj else ())
+        payload = injuries.fetch()
+        if payload is not None:
+            injuries.archive(data_dir(), day, payload, at=quotes.now_utc())
+        src, listed = injuries.latest(data_dir(), day)
+        body = pdf.build_html(
+            day,
+            rows,
+            _manifest_teams(root, day),
+            stats,
+            title=f"pass {pass_id} ·",
+            injuries=listed,
+            injuries_source=f"(RotoWire {src.stem[-6:-2]} UTC) " if src else "(RotoWire: none fetched) ",
+            moves=movement.moves(quotes.read_day(root, SPORT, day.isoformat()), until=quotes.now_utc()),
+        )
+        out.write_bytes(pdf.render_pdf(body))
+    except Exception:
+        log.warning("CBB card PDF failed; sending the text card only", exc_info=True)
+        return None
+    return out
 
 
 def cmd_audit(args: argparse.Namespace) -> int:
@@ -265,11 +309,7 @@ def cmd_audit(args: argparse.Namespace) -> int:
     root = runtime_root()
     state.auto_pull(trees=("quotes", "ledger"))
     games = espn.ESPNClient().scoreboard(day, archive=data_dir()) if not args.offline else []
-    teams: dict[str, tuple[str, str]] = {}
-    for m in quotes.read_manifest(root, SPORT, day.isoformat()):
-        extra = m.get("extra")
-        if isinstance(extra, dict) and isinstance(extra.get("teams"), dict):
-            teams.update({str(k): (str(v[0]), str(v[1])) for k, v in extra["teams"].items()})
+    teams = _manifest_teams(root, day)
     ps = runner.start(SPORT, day.isoformat(), "board", root)
     written = audit.grade(root, day.isoformat(), games, teams, pass_id=ps.pass_id, width=dist.load_width())
     if written:
