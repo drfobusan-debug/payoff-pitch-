@@ -33,7 +33,7 @@ PREFIX = "cbb"
 TREES: dict[str, tuple[str, ...]] = {
     "quotes": ("*/*.parquet",),
     "ledger": ("*/*.jsonl",),
-    "cards": ("*.txt",),
+    "cards": ("*.txt", "*.pdf"),
 }
 LIVE: tuple[str, ...] = ("quotes", "ledger", "cards")
 _PUSH_ATTEMPTS = 3
