@@ -42,45 +42,45 @@
     "no_vig_prob": 0.49823513206536035
   },
   "Sam Houston St @ Missouri State|game_ats|Missouri State": {
-    "american": -105.0,
-    "captured_at": "2026-10-27T22:45:18Z",
+    "american": -106.0,
+    "captured_at": "2026-10-27T23:45:17Z",
     "kickoff_utc": "2026-10-28T00:00:00Z",
-    "line": -6.0,
-    "no_vig_prob": 0.5000025444671355
+    "line": -5.5,
+    "no_vig_prob": 0.5012176770093665
   },
   "Sam Houston St @ Missouri State|game_ats|Sam Houston St": {
-    "american": -106.0,
-    "captured_at": "2026-10-27T22:45:18Z",
+    "american": -105.0,
+    "captured_at": "2026-10-27T23:45:17Z",
     "kickoff_utc": "2026-10-28T00:00:00Z",
-    "line": 6.0,
-    "no_vig_prob": 0.49999745553286457
+    "line": 5.5,
+    "no_vig_prob": 0.49878232299063363
   },
   "Sam Houston St @ Missouri State|game_ml|Missouri State": {
-    "american": -215.0,
-    "captured_at": "2026-10-27T22:45:18Z",
+    "american": -200.0,
+    "captured_at": "2026-10-27T23:45:17Z",
     "kickoff_utc": "2026-10-28T00:00:00Z",
     "line": null,
-    "no_vig_prob": 0.6627285456841175
+    "no_vig_prob": 0.65076483668935
   },
   "Sam Houston St @ Missouri State|game_ml|Sam Houston St": {
-    "american": 189.0,
-    "captured_at": "2026-10-27T22:45:18Z",
+    "american": 181.0,
+    "captured_at": "2026-10-27T23:45:17Z",
     "kickoff_utc": "2026-10-28T00:00:00Z",
     "line": null,
-    "no_vig_prob": 0.3372714543158825
+    "no_vig_prob": 0.3492351633106501
   },
   "Sam Houston St @ Missouri State|game_total|Over": {
-    "american": -103.0,
-    "captured_at": "2026-10-27T22:45:18Z",
+    "american": -108.0,
+    "captured_at": "2026-10-27T23:45:17Z",
     "kickoff_utc": "2026-10-28T00:00:00Z",
-    "line": 52.0,
-    "no_vig_prob": 0.494962689829761
+    "line": 51.5,
+    "no_vig_prob": 0.5008092998261624
   },
   "Sam Houston St @ Missouri State|game_total|Under": {
-    "american": -110.0,
-    "captured_at": "2026-10-27T22:45:18Z",
+    "american": -108.0,
+    "captured_at": "2026-10-27T23:45:17Z",
     "kickoff_utc": "2026-10-28T00:00:00Z",
-    "line": 52.0,
-    "no_vig_prob": 0.505037310170239
+    "line": 51.5,
+    "no_vig_prob": 0.49919070017383765
   }
 }
