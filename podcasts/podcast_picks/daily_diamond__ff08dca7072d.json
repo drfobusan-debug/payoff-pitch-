@@ -1,0 +1,31 @@
+{
+ "episode_guid": "4549c05e-f877-4d44-adda-ec9d4e5dd250",
+ "model": "gpt-4o-mini",
+ "prompt_version": "picks-v2",
+ "transcript_sha": "7955f33695c4448b25ba2c6bb573f166405fe158",
+ "picks": [],
+ "rejected": [
+  {
+   "league": "mlb",
+   "kind": "official",
+   "host": "Jensen Lewis",
+   "team": "Brewers",
+   "opponent": null,
+   "market": "game_ats",
+   "side": null,
+   "line": 1.5,
+   "price": 125,
+   "units": null,
+   "stamp": "[08:03]",
+   "quote": "I have to go back to the well on Milwaukee laying the run and a half. I see a plus a dollar 25 at circa",
+   "edge": "The Rays expended significant resources on pitching in the previous game, giving the Brewers an advantage.",
+   "fair_line": null,
+   "reason": "The Brewers have a strong lineup against a depleted Rays pitching staff.",
+   "description": "Brewers -1.5",
+   "why": "bad stamp"
+  }
+ ],
+ "leagues": [
+  "mlb"
+ ]
+}
