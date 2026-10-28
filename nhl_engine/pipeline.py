@@ -545,7 +545,11 @@ def _per_book_rules(board: Iterable[Selection]) -> Iterator[Selection]:
             continue
         for book, american in sorted(sel.per_book.items()):
             yield replace(
-                sel, best_american=american, best_book=book, executable=book in EXEC_BOOKS
+                sel,
+                best_american=american,
+                best_book=book,
+                best_captured_at=sel.per_book_at.get(book, sel.best_captured_at),
+                executable=book in EXEC_BOOKS,
             )
 
 
