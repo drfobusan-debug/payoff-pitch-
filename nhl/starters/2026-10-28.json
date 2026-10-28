@@ -1,0 +1,50 @@
+{
+  "CGY": {
+    "name": "Devin Cooley",
+    "player_id": 8482445,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "COL": {
+    "name": "Mackenzie Blackwood",
+    "player_id": 8478406,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "EDM": {
+    "name": "Tristan Jarry",
+    "player_id": 8477465,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "NJD": {
+    "name": "Jake Allen",
+    "player_id": 8474596,
+    "source": "rotowire",
+    "status": "confirmed"
+  },
+  "PHI": {
+    "name": "Joseph Woll",
+    "player_id": 8479361,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "SEA": {
+    "name": "Philipp Grubauer",
+    "player_id": 8475831,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "TOR": {
+    "name": "Sergei Bobrovsky",
+    "player_id": 8475683,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "WSH": {
+    "name": "Logan Thompson",
+    "player_id": 8480313,
+    "source": "rotowire",
+    "status": "probable"
+  }
+}
