@@ -1,0 +1,60 @@
+{
+ "episode_guid": "vsin-94267",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "b7212841bff21cf0dc516cdc910d899465cfcabb",
+ "picks": [
+  {
+   "pick_id": "b03ce18792fd",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Zachary Cohen",
+   "episode_guid": "vsin-94267",
+   "episode_title": "Panthers vs. Packers Predictions: Week 8 Thursday Night Football odds, picks, and player props",
+   "published": "2026-10-28T04:15:41+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Panthers",
+   "opponent": "Packers",
+   "side": null,
+   "line": 4.0,
+   "price": -110.0,
+   "units": 1.5,
+   "seconds": 0,
+   "quote": "Panthers +4 (-110 - 1.5 units)",
+   "reason": "https://vsin.com/nfl/panthers-vs-packers-predictions-week-8-thursday-night-football-odds-picks-and-player-props/",
+   "description": "Panthers +4 (-110 - 1.5 units)",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  },
+  {
+   "pick_id": "abd027f799a3",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Zachary Cohen",
+   "episode_guid": "vsin-94267",
+   "episode_title": "Panthers vs. Packers Predictions: Week 8 Thursday Night Football odds, picks, and player props",
+   "published": "2026-10-28T04:15:41+00:00",
+   "kind": "official",
+   "market": "game_ml",
+   "team": "Panthers",
+   "opponent": "Packers",
+   "side": null,
+   "line": null,
+   "price": 170.0,
+   "units": 0.5,
+   "seconds": 1,
+   "quote": "Panthers ML (+170 - 0.5 units)",
+   "reason": "https://vsin.com/nfl/panthers-vs-packers-predictions-week-8-thursday-night-football-odds-picks-and-player-props/",
+   "description": "Panthers ML (+170 - 0.5 units)",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "nfl"
+ ]
+}

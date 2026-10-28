@@ -1,0 +1,60 @@
+{
+ "episode_guid": "vsin-94286",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "61b8a65504650b65696eed66874e25328b66e4af",
+ "picks": [
+  {
+   "pick_id": "4803cd87ab08",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Zachary Cohen",
+   "episode_guid": "vsin-94286",
+   "episode_title": "Expert College Football Picks: Week 9 best bets and predictions from Zachary Cohen",
+   "published": "2026-10-28T06:14:02+00:00",
+   "kind": "official",
+   "market": "game_total",
+   "team": "Northwestern Wildcats",
+   "opponent": "Oregon Ducks",
+   "side": "over",
+   "line": 47.5,
+   "price": -110.0,
+   "units": null,
+   "seconds": 0,
+   "quote": "Over 47.5 (-110)",
+   "reason": "https://vsin.com/college-football/expert-college-football-picks-week-9-best-bets-and-predictions-from-zachary-cohen/",
+   "description": "Over 47.5 (-110)",
+   "league": "cfb",
+   "edge": "",
+   "fair_line": null
+  },
+  {
+   "pick_id": "7d0f84a187ae",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Zachary Cohen",
+   "episode_guid": "vsin-94286",
+   "episode_title": "Expert College Football Picks: Week 9 best bets and predictions from Zachary Cohen",
+   "published": "2026-10-28T06:14:02+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Boston College",
+   "opponent": "Duke Blue Devils",
+   "side": null,
+   "line": 7.5,
+   "price": -115.0,
+   "units": null,
+   "seconds": 1,
+   "quote": "Boston College +7.5 (-115)",
+   "reason": "https://vsin.com/college-football/expert-college-football-picks-week-9-best-bets-and-predictions-from-zachary-cohen/",
+   "description": "Boston College +7.5 (-115)",
+   "league": "cfb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cfb"
+ ]
+}

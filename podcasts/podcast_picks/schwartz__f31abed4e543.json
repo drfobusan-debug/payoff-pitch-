@@ -1,0 +1,32 @@
+{
+ "episode_guid": "TGrEGCMiWNwpejlUG5G35kt89eEQMtoA",
+ "model": "gpt-4o-mini",
+ "prompt_version": "picks-v2",
+ "transcript_sha": "cf227d817abc69dfb2991b18a114eb14d7af990e",
+ "picks": [],
+ "rejected": [
+  {
+   "league": "nfl",
+   "kind": "official",
+   "host": "Geoff Schwartz",
+   "team": "Eagles",
+   "opponent": null,
+   "market": "other",
+   "side": null,
+   "line": 5.5,
+   "price": -104,
+   "units": null,
+   "stamp": "[01:37]",
+   "quote": "Eagles under five and a half wins minus 104.",
+   "edge": "",
+   "fair_line": null,
+   "reason": "The Eagles are struggling and unlikely to win more than five games this season.",
+   "description": "Eagles under 5.5 wins",
+   "why": "bad stamp"
+  }
+ ],
+ "leagues": [
+  "nfl",
+  "cfb"
+ ]
+}
