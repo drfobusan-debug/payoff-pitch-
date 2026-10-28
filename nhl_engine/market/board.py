@@ -6,7 +6,8 @@ A selection is ``(matchup, market, side, entity, line)``. For each we keep
 * the devigged probability per book -- two-way from the recorded partner,
   three-way from the book's own three sides -- and the median across books as
   the consensus the model's edge is measured against,
-* the best (longest) price on the board and where it is,
+* the best (longest) price at an execution book (``EXEC_BOOKS``) and where it
+  is; every book still feeds the consensus,
 * how old that best quote is, and whether any book gave us a two-sided market
   (a lone side with no partner cannot be devigged: ``one_way_quote``).
 """
@@ -23,6 +24,9 @@ from nhl_engine.data.capture import QuoteRow, last_quotes
 
 SelKey = tuple[str, str, str, str, float | None]
 
+# The only books a buy is priced at; a selection none of them quotes is refused.
+EXEC_BOOKS: tuple[str, ...] = ("draftkings", "betmgm", "novig")
+
 
 @dataclass(frozen=True)
 class Selection:
@@ -38,6 +42,7 @@ class Selection:
     best_book: str
     best_captured_at: str
     per_book: dict[str, float] = field(default_factory=dict)  # book -> american
+    executable: bool = True  # best_* is an execution book's quote
 
     @property
     def key(self) -> SelKey:
@@ -67,7 +72,7 @@ def _three_way_probs(rows: list[QuoteRow]) -> dict[str, dict[str, float]]:
     return out
 
 
-def selections(rows: list[QuoteRow]) -> list[Selection]:
+def selections(rows: list[QuoteRow], exec_books: tuple[str, ...] = EXEC_BOOKS) -> list[Selection]:
     latest = list(last_quotes(rows).values())
     groups: dict[SelKey, list[QuoteRow]] = defaultdict(list)
     ml3_rows: dict[tuple[str, str], list[QuoteRow]] = defaultdict(list)
@@ -90,7 +95,8 @@ def selections(rows: list[QuoteRow]) -> list[Selection]:
                     fair.append(p)
             elif q.opposite_american is not None:
                 fair.append(devig({"a": q.american, "b": q.opposite_american})["a"])
-        best = max(quotes, key=lambda q: (q.american, q.captured_at))
+        executable = [q for q in quotes if q.book in exec_books]
+        best = max(executable or quotes, key=lambda q: (q.american, q.captured_at))
         out.append(
             Selection(
                 matchup=matchup,
@@ -105,6 +111,7 @@ def selections(rows: list[QuoteRow]) -> list[Selection]:
                 best_book=best.book,
                 best_captured_at=best.captured_at,
                 per_book={q.book: q.american for q in quotes},
+                executable=bool(executable),
             )
         )
     out.sort(key=lambda s: (s.matchup, s.market, s.entity, s.line or 0.0, s.side))
@@ -122,4 +129,4 @@ def matchups(rows: list[QuoteRow]) -> dict[str, tuple[str, str, str]]:
     return out
 
 
-__all__ = ["Selection", "matchups", "selections"]
+__all__ = ["EXEC_BOOKS", "Selection", "matchups", "selections"]

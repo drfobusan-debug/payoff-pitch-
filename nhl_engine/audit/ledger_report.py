@@ -28,6 +28,7 @@ from nhl_engine.audit import bands as bnd
 from nhl_engine.audit import screens as scr
 from nhl_engine.audit.ledger import STALE_CLOSE_MIN, LedgerRow
 from nhl_engine.audit.scorecard import scorecard
+from nhl_engine.market.board import EXEC_BOOKS
 
 BOOTSTRAP_N = 4000
 SIGN_TEST_P = 0.01
@@ -155,6 +156,7 @@ class LedgerAudit:
     late_buys: Tally = field(default_factory=Tally)
     late_games: list[str] = field(default_factory=list)  # "night matchup"
     timing: list[NightTiming] = field(default_factory=list)
+    exec_buys: Tally = field(default_factory=Tally)  # buys placed at an EXEC_BOOKS book
 
     @property
     def clv_p(self) -> float:
@@ -301,6 +303,12 @@ def _findings(a: LedgerAudit) -> list[str]:
             f"(95% CI {a.roi_ci[0]:+.0%}..{a.roi_ci[1]:+.0%}, n={b.n}) -- "
             + ("not callable at this n." if b.n < 100 else "callable n.")
         )
+    if b.n and a.exec_buys.n < b.n:
+        e = a.exec_buys
+        out.append(
+            f"{e.n} of the {b.n} buys were at DraftKings/BetMGM/Novig ({e.record}, {e.pnl:+.2f}u); "
+            "the rest took the best price at another book, which buys no longer do."
+        )
     if b.clv_n:
         verdict = (
             "the market moves against our buys after we price."
@@ -384,6 +392,7 @@ def build(
         late_buys=_tally([r for r in late if r.is_buy]),
         late_games=sorted({f"{r.slate_date} {r.matchup}" for r in late}),
         timing=timing,
+        exec_buys=_tally([r for r in buys if r.book in EXEC_BOOKS]),
     )
     audit.findings = _findings(audit)
     return audit
