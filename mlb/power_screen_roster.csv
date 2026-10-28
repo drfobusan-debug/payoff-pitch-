@@ -226,3 +226,7 @@ date,run_id,arm_tier,kind,name,player_id,team,game_pk,versus,versus_id,slot,proj
 2026-10-26,20261026T1535Z,soft,bat,Brice Turang,668930,MIL,849804,Freddy Peralta,642547,2,True,SCREEN WATCH,,held,,
 2026-10-26,20261026T1535Z,soft,bat,Jackson Chourio,694192,MIL,849804,Freddy Peralta,642547,1,True,SCREEN WATCH,,held,,
 2026-10-26,20261026T1535Z,soft,bat,Luis Lara,800325,MIL,849804,Freddy Peralta,642547,8,True,SCREEN WATCH,,held,,
+2026-10-28,20261028T1533Z,elite,arm,Drew Rasmussen,656876,TB,849799,Drew Rasmussen,656876,,False,,,gated,siera: SIERA 3.10 ≤ 3.25,3.1
+2026-10-28,20261028T1533Z,elite,arm,Jacob Misiorowski,694819,MIL,849799,Jacob Misiorowski,694819,,False,,,gated,siera: SIERA 3.02 ≤ 3.25,3.02
+2026-10-28,20261028T1533Z,soft,arm,Drew Rasmussen,656876,TB,849799,Drew Rasmussen,656876,,False,,,gated,siera: SIERA 3.10 ≤ 4.40,3.1
+2026-10-28,20261028T1533Z,soft,arm,Jacob Misiorowski,694819,MIL,849799,Jacob Misiorowski,694819,,False,,,gated,siera: SIERA 3.02 ≤ 4.40,3.02
