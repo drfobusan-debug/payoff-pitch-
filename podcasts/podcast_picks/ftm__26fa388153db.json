@@ -1,0 +1,61 @@
+{
+ "episode_guid": "b2fce5e9-2e62-4c5e-8900-d98be09f284f",
+ "model": "gpt-4o-mini",
+ "prompt_version": "picks-v2",
+ "transcript_sha": "f43925e0a347840d60b2300214bc6b559f9d80f3",
+ "picks": [
+  {
+   "pick_id": "5c2495132b2d",
+   "show": "ftm",
+   "show_name": "Follow the Money",
+   "host": "stanford steve",
+   "episode_guid": "b2fce5e9-2e62-4c5e-8900-d98be09f284f",
+   "episode_title": "Follow the Money | October 27, 2026 | Hour 1",
+   "published": "2026-10-27T18:05:11-04:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Ohio State",
+   "opponent": "USC",
+   "side": null,
+   "line": 7.0,
+   "price": null,
+   "units": null,
+   "seconds": 1962,
+   "quote": "I would lay the seven there in a game",
+   "reason": "Ohio State has a strong defense and a good track record in October road games under their coach.",
+   "description": "Ohio State -7",
+   "league": "cfb",
+   "edge": "Ohio State is 11 and 1 on the road in October under Ryan Day.",
+   "fair_line": null
+  }
+ ],
+ "rejected": [
+  {
+   "league": "mlb",
+   "kind": "official",
+   "host": "Mitch Moss",
+   "team": "Brewers",
+   "opponent": "Rays",
+   "market": "game_ml",
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "stamp": "[20:00]",
+   "quote": "I think to finish him off tonight on this date World Series history",
+   "edge": "",
+   "fair_line": null,
+   "reason": "The Brewers have been performing exceptionally well and are expected to win the game.",
+   "description": "Brewers to win against the Rays.",
+   "why": "bad stamp"
+  }
+ ],
+ "leagues": [
+  "cfb",
+  "nfl",
+  "mlb",
+  "nba",
+  "cbb",
+  "nhl"
+ ]
+}
