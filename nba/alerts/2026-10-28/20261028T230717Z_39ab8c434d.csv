@@ -1,0 +1,4 @@
+detected_at,game_date,event_id,matchup,kind,detail,before,after
+2026-10-28T23:07:17Z,2026-10-28,5997ee5c9fbdc53f9c86732b02f58158,PHI @ IND,settled,line steady over the last 2 poll(s),"{""ml"": 0.298804780876494, ""spread"": 7.5, ""total"": 234.5}","{""ml"": 0.298804780876494, ""spread"": 7.5, ""total"": 234.5}"
+2026-10-28T23:07:17Z,2026-10-28,7f5287957f506fbf705e198215fa952b,CHA @ DET,settled,line steady over the last 2 poll(s),"{""ml"": 0.711362805991962, ""spread"": -7.5, ""total"": 213.0}","{""ml"": 0.711362805991962, ""spread"": -7.5, ""total"": 213.0}"
+2026-10-28T23:07:17Z,2026-10-28,c6d62b9457cbd8517860e222f1d4f953,GSW @ MIN,settled,line steady over the last 2 poll(s),"{""ml"": 0.5997628224132819, ""spread"": -4.0, ""total"": 227.5}","{""ml"": 0.6010838476591901, ""spread"": -4.0, ""total"": 227.5}"
