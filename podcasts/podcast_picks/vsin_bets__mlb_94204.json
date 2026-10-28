@@ -1,0 +1,60 @@
+{
+ "episode_guid": "vsin-94204",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "8ce3b1f77488ea55a65f500661fbfaf226cdd7c9",
+ "picks": [
+  {
+   "pick_id": "e2e3db182650",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-94204",
+   "episode_title": "Brewers vs. Rays Game 4 World Series Prediction and Preview",
+   "published": "2026-10-27T14:05:37+00:00",
+   "kind": "official",
+   "market": "game_ml",
+   "team": "Brewers",
+   "opponent": "Rays World Series",
+   "side": null,
+   "line": null,
+   "price": -125.0,
+   "units": null,
+   "seconds": 0,
+   "quote": "Brewers -125",
+   "reason": "https://vsin.com/mlb/brewers-vs-rays-game-4-world-series-prediction-and-preview/",
+   "description": "Brewers -125",
+   "league": "mlb",
+   "edge": "",
+   "fair_line": null
+  },
+  {
+   "pick_id": "75cc3e931510",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-94204",
+   "episode_title": "Brewers vs. Rays Game 4 World Series Prediction and Preview",
+   "published": "2026-10-27T14:05:37+00:00",
+   "kind": "official",
+   "market": "game_total",
+   "team": "Brewers",
+   "opponent": "Rays World Series",
+   "side": "under",
+   "line": 7.0,
+   "price": -105.0,
+   "units": null,
+   "seconds": 1,
+   "quote": "Under 7 (-105)",
+   "reason": "https://vsin.com/mlb/brewers-vs-rays-game-4-world-series-prediction-and-preview/",
+   "description": "Under 7 (-105)",
+   "league": "mlb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "mlb"
+ ]
+}
