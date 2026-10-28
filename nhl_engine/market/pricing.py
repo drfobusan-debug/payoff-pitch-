@@ -23,7 +23,8 @@ Gates (all stamped, none silently applied):
 
 ``min_edge`` ``max_edge`` ``min_ev`` ``max_buy_odds`` ``stale_quote``
 ``one_way_quote`` ``settlement_unverified`` ``goalie_unconfirmed``
-``probation`` (market not yet a live buy market).
+``probation`` (market not yet a live buy market) ``no_exec_book`` (no
+DraftKings/BetMGM/Novig quote: the best price is somewhere a buy can't be placed).
 """
 
 from __future__ import annotations
@@ -146,6 +147,8 @@ def stamp(
         gates.append("stale_quote")
     if sel.one_way:
         gates.append("one_way_quote")
+    if not sel.executable:
+        gates.append("no_exec_book")
     if settlement_gate:
         gates.append(settlement_gate)
     if sel.market in GOALIE_MARKETS or (sel.market.startswith("p") and "total" not in sel.market):

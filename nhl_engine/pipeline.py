@@ -43,7 +43,7 @@ from nhl_engine.data.teamnames import CODES
 from nhl_engine.features import props as propf
 from nhl_engine.features import strength
 from nhl_engine.features.starters import Starter, load_overrides, overrides_path, starter_for
-from nhl_engine.market.board import Selection, matchups, selections
+from nhl_engine.market.board import EXEC_BOOKS, Selection, matchups, selections
 from nhl_engine.market.pricing import anchor, is_prop, stamp
 from nhl_engine.models import markets
 from nhl_engine.models import props as propm
@@ -544,7 +544,9 @@ def _per_book_rules(board: Iterable[Selection]) -> Iterator[Selection]:
             yield sel
             continue
         for book, american in sorted(sel.per_book.items()):
-            yield replace(sel, best_american=american, best_book=book)
+            yield replace(
+                sel, best_american=american, best_book=book, executable=book in EXEC_BOOKS
+            )
 
 
 def has_started(start_utc: str, now: datetime) -> bool:

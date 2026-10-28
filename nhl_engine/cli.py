@@ -554,6 +554,31 @@ def _results_for(day: Date) -> tuple[dict[str, GameResult], dict[str, str]]:
     return out, starts
 
 
+def cmd_backfill_ppp(args: argparse.Namespace) -> int:
+    """Grade ``sk_ppp`` rows on past graded nights that went out before PPP grading existed."""
+    root = data_dir()
+    sync = load_config().state_sync and not args.no_sync
+    if sync:
+        state.auto_pull(root)
+    day, last = _parse_date(args.start), _parse_date(args.end)
+    total = 0
+    while day <= last:
+        path = ledger.graded_path(root, day)
+        rows = ledger.load_rows(path)
+        if any(r.market == "sk_ppp" and r.outcome is None for r in rows):
+            results, _ = _results_for(day)
+            ppp_of = _ppp_lookup(PlayerLogClient(_nhlapi()), season_of(day))
+            done = ledger.backfill_ppp(rows, results, ppp_of)
+            if done:
+                ledger.save_outcomes(rows, path)
+            total += done
+            print(f"{day}: graded {done} sk_ppp rows")
+        day += timedelta(days=1)
+    if sync and total:
+        state.auto_push(root, f"nhl backfill sk_ppp: {total} graded")
+    return 0
+
+
 def cmd_podcast(args: argparse.Namespace) -> int:
     """Episode for the slate -> cached transcript -> per-game read JSON."""
     cfg = load_config()
@@ -1002,6 +1027,12 @@ def build_parser() -> argparse.ArgumentParser:
     au.add_argument("--email", action="store_true", help="email the ledger audit report")
     au.add_argument("--to", help="override recipient")
     au.set_defaults(func=cmd_audit)
+
+    bp = sub.add_parser("backfill-ppp", help="grade sk_ppp rows on past graded nights")
+    bp.add_argument("--start", required=True, help="first slate date")
+    bp.add_argument("--end", required=True, help="last slate date")
+    bp.add_argument("--no-sync", action="store_true", help="do not pull/push engine-state")
+    bp.set_defaults(func=cmd_backfill_ppp)
 
     ca = sub.add_parser("calibrate", help="refit isotonic maps from graded ledgers")
     ca.add_argument("--min-samples", type=int, default=200)
