@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
+
 from nhl_engine.audit.ledger import LedgerRow, backfill_ppp
 from nhl_engine.config import GateParams
 from nhl_engine.data.capture import QuoteRow
@@ -72,6 +74,14 @@ def test_per_book_team_totals_mark_non_execution_books():
     ]
     split = {s.best_book: s.executable for s in _per_book_rules(selections(rows))}
     assert split == {"betmgm": True, "fanduel": False}
+
+
+def test_per_book_team_totals_keep_each_books_own_quote_time():
+    old = _q("over", -105, -115, "draftkings", market="team_total")
+    new = _q("over", -110, -110, "betmgm", market="team_total")
+    old = replace(old, captured_at="2026-10-01T12:00:00Z")
+    at = {s.best_book: s.best_captured_at for s in _per_book_rules(selections([old, new]))}
+    assert at == {"draftkings": "2026-10-01T12:00:00Z", "betmgm": "2026-10-01T15:00:00Z"}
 
 
 def test_backfill_ppp_fills_only_ungraded_ppp_rows():

@@ -42,6 +42,7 @@ class Selection:
     best_book: str
     best_captured_at: str
     per_book: dict[str, float] = field(default_factory=dict)  # book -> american
+    per_book_at: dict[str, str] = field(default_factory=dict)  # book -> captured_at
     executable: bool = True  # best_* is an execution book's quote
 
     @property
@@ -111,6 +112,7 @@ def selections(rows: list[QuoteRow], exec_books: tuple[str, ...] = EXEC_BOOKS) -
                 best_book=best.book,
                 best_captured_at=best.captured_at,
                 per_book={q.book: q.american for q in quotes},
+                per_book_at={q.book: q.captured_at for q in quotes},
                 executable=bool(executable),
             )
         )

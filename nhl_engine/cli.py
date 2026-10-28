@@ -574,7 +574,7 @@ def cmd_backfill_ppp(args: argparse.Namespace) -> int:
             total += done
             print(f"{day}: graded {done} sk_ppp rows")
         day += timedelta(days=1)
-    if sync and total:
+    if sync:  # also on a retry with nothing new, so grades saved before a failed push still sync
         state.auto_push(root, f"nhl backfill sk_ppp: {total} graded")
     return 0
 
