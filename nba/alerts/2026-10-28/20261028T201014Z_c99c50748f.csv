@@ -1,0 +1,4 @@
+detected_at,game_date,event_id,matchup,kind,detail,before,after
+2026-10-28T20:10:14Z,2026-10-28,6e8a41f3aeff105b0e10766515517d5e,LAL @ LAC,ml_move,home ml 0.374 -> 0.500,0.374,0.500
+2026-10-28T20:10:14Z,2026-10-28,6e8a41f3aeff105b0e10766515517d5e,LAL @ LAC,spread_move,home spread 4.5 -> 1,4.5,1
+2026-10-28T20:10:14Z,2026-10-28,6e8a41f3aeff105b0e10766515517d5e,LAL @ LAC,total_move,total 228.5 -> 224.5,228.5,224.5
