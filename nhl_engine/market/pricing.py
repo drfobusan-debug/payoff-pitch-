@@ -24,7 +24,7 @@ Gates (all stamped, none silently applied):
 ``min_edge`` ``max_edge`` ``min_ev`` ``max_buy_odds`` ``stale_quote``
 ``one_way_quote`` ``settlement_unverified`` ``goalie_unconfirmed``
 ``probation`` (market not yet a live buy market) ``no_exec_book`` (no
-DraftKings/BetMGM/Novig quote: the best price is somewhere a buy can't be placed).
+DraftKings/BetMGM quote: the best price is somewhere a buy can't be placed).
 """
 
 from __future__ import annotations

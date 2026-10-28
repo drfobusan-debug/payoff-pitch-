@@ -306,7 +306,7 @@ def _findings(a: LedgerAudit) -> list[str]:
     if b.n and a.exec_buys.n < b.n:
         e = a.exec_buys
         out.append(
-            f"{e.n} of the {b.n} buys were at DraftKings/BetMGM/Novig ({e.record}, {e.pnl:+.2f}u); "
+            f"{e.n} of the {b.n} buys were at DraftKings/BetMGM ({e.record}, {e.pnl:+.2f}u); "
             "the rest took the best price at another book, which buys no longer do."
         )
     if b.clv_n:
