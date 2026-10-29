@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-94343",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "1980f0a983fc91befb4ef270b15cf98fb3e314f6",
+ "picks": [
+  {
+   "pick_id": "0552fff43e7c",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-94343",
+   "episode_title": "College Football Week 9 Picks: Baylor vs. UCF",
+   "published": "2026-10-28T20:25:41+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "UCF",
+   "opponent": "Baylor",
+   "side": null,
+   "line": -1.0,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "UCF -1",
+   "reason": "https://vsin.com/college-football/college-football-week-9-picks-baylor-vs-ucf/",
+   "description": "UCF -1",
+   "league": "cfb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cfb"
+ ]
+}

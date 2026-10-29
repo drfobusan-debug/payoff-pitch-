@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-94303",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "ea1b6492a5a99c87ab95db971e0956a757ba88f7",
+ "picks": [
+  {
+   "pick_id": "3d7a7f659c7e",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-94303",
+   "episode_title": "Brewers vs. Rays Game 5 World Series Prediction and Preview",
+   "published": "2026-10-28T14:55:42+00:00",
+   "kind": "official",
+   "market": "other",
+   "team": null,
+   "opponent": null,
+   "side": null,
+   "line": null,
+   "price": 100.0,
+   "units": null,
+   "seconds": 0,
+   "quote": "Jacob Misiorowski (MIL) Over 15.5 Outs Recorded (+100)",
+   "reason": "https://vsin.com/mlb/brewers-vs-rays-game-5-world-series-prediction-and-preview/",
+   "description": "Jacob Misiorowski (MIL) Over 15.5 Outs Recorded (+100)",
+   "league": "mlb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "mlb"
+ ]
+}
