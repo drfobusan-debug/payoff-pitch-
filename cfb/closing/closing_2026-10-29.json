@@ -1,0 +1,86 @@
+{
+  "Florida Atlant @ North Texas|game_ats|Florida Atlant": {
+    "american": -108.0,
+    "captured_at": "2026-10-29T23:15:15Z",
+    "kickoff_utc": "2026-10-29T23:30:00Z",
+    "line": 14.5,
+    "no_vig_prob": 0.49898066095426163
+  },
+  "Florida Atlant @ North Texas|game_ats|North Texas": {
+    "american": -109.0,
+    "captured_at": "2026-10-29T23:15:15Z",
+    "kickoff_utc": "2026-10-29T23:30:00Z",
+    "line": -14.5,
+    "no_vig_prob": 0.5010193390457383
+  },
+  "Florida Atlant @ North Texas|game_ml|Florida Atlant": {
+    "american": 450.0,
+    "captured_at": "2026-10-29T23:15:15Z",
+    "kickoff_utc": "2026-10-29T23:30:00Z",
+    "line": null,
+    "no_vig_prob": 0.18334778110600175
+  },
+  "Florida Atlant @ North Texas|game_ml|North Texas": {
+    "american": -550.0,
+    "captured_at": "2026-10-29T23:15:15Z",
+    "kickoff_utc": "2026-10-29T23:30:00Z",
+    "line": null,
+    "no_vig_prob": 0.8166522188939983
+  },
+  "Florida Atlant @ North Texas|game_total|Over": {
+    "american": -108.0,
+    "captured_at": "2026-10-29T23:15:15Z",
+    "kickoff_utc": "2026-10-29T23:30:00Z",
+    "line": 77.0,
+    "no_vig_prob": 0.5013821356206756
+  },
+  "Florida Atlant @ North Texas|game_total|Under": {
+    "american": -107.0,
+    "captured_at": "2026-10-29T23:15:15Z",
+    "kickoff_utc": "2026-10-29T23:30:00Z",
+    "line": 77.0,
+    "no_vig_prob": 0.49861786437932426
+  },
+  "Troy @ James Madison|game_ats|James Madison": {
+    "american": -105.0,
+    "captured_at": "2026-10-29T23:15:15Z",
+    "kickoff_utc": "2026-10-29T23:30:00Z",
+    "line": -17.5,
+    "no_vig_prob": 0.4998692730848111
+  },
+  "Troy @ James Madison|game_ats|Troy": {
+    "american": -105.0,
+    "captured_at": "2026-10-29T23:15:15Z",
+    "kickoff_utc": "2026-10-29T23:30:00Z",
+    "line": 17.5,
+    "no_vig_prob": 0.5001307269151889
+  },
+  "Troy @ James Madison|game_ml|James Madison": {
+    "american": -1000.0,
+    "captured_at": "2026-10-29T23:15:15Z",
+    "kickoff_utc": "2026-10-29T23:30:00Z",
+    "line": null,
+    "no_vig_prob": 0.8773241526673087
+  },
+  "Troy @ James Madison|game_ml|Troy": {
+    "american": 720.0,
+    "captured_at": "2026-10-29T23:15:15Z",
+    "kickoff_utc": "2026-10-29T23:30:00Z",
+    "line": null,
+    "no_vig_prob": 0.12267584733269124
+  },
+  "Troy @ James Madison|game_total|Over": {
+    "american": -108.0,
+    "captured_at": "2026-10-29T23:15:15Z",
+    "kickoff_utc": "2026-10-29T23:30:00Z",
+    "line": 52.0,
+    "no_vig_prob": 0.501140963144038
+  },
+  "Troy @ James Madison|game_total|Under": {
+    "american": -105.0,
+    "captured_at": "2026-10-29T23:15:15Z",
+    "kickoff_utc": "2026-10-29T23:30:00Z",
+    "line": 52.0,
+    "no_vig_prob": 0.49885903685596195
+  }
+}
