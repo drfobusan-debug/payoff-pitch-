@@ -1,0 +1,128 @@
+{
+  "Baylor @ UCF|game_ats|Baylor": {
+    "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -1.5,
+    "no_vig_prob": 0.49804352381869615
+  },
+  "Baylor @ UCF|game_ats|UCF": {
+    "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 1.5,
+    "no_vig_prob": 0.5019564761813038
+  },
+  "Baylor @ UCF|game_ml|Baylor": {
+    "american": -115.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.5230533235760599
+  },
+  "Baylor @ UCF|game_ml|UCF": {
+    "american": 112.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.4769466764239401
+  },
+  "Baylor @ UCF|game_total|Over": {
+    "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 48.5,
+    "no_vig_prob": 0.4968740560579925
+  },
+  "Baylor @ UCF|game_total|Under": {
+    "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 48.5,
+    "no_vig_prob": 0.5031259439420076
+  },
+  "Kent State @ Sacramento Sta|game_ats|Kent State": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -7.0,
+    "no_vig_prob": 0.5098634464090778
+  },
+  "Kent State @ Sacramento Sta|game_ats|Sacramento Sta": {
+    "american": 103.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 7.0,
+    "no_vig_prob": 0.4901365535909223
+  },
+  "Kent State @ Sacramento Sta|game_ml|Kent State": {
+    "american": -280.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.7181841020003638
+  },
+  "Kent State @ Sacramento Sta|game_ml|Sacramento Sta": {
+    "american": 260.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.2818158979996363
+  },
+  "Kent State @ Sacramento Sta|game_total|Over": {
+    "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 46.5,
+    "no_vig_prob": 0.5000769256856205
+  },
+  "Kent State @ Sacramento Sta|game_total|Under": {
+    "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 46.5,
+    "no_vig_prob": 0.49992307431437955
+  },
+  "Tulane @ Charlotte|game_ats|Charlotte": {
+    "american": -107.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 8.5,
+    "no_vig_prob": 0.5024614036975026
+  },
+  "Tulane @ Charlotte|game_ats|Tulane": {
+    "american": -101.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -8.5,
+    "no_vig_prob": 0.49753859630249736
+  },
+  "Tulane @ Charlotte|game_ml|Charlotte": {
+    "american": 280.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.2590326607856024
+  },
+  "Tulane @ Charlotte|game_ml|Tulane": {
+    "american": -325.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.7409673392143977
+  },
+  "Tulane @ Charlotte|game_total|Over": {
+    "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 47.5,
+    "no_vig_prob": 0.4963741940259246
+  },
+  "Tulane @ Charlotte|game_total|Under": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 47.5,
+    "no_vig_prob": 0.5036258059740754
+  }
+}
