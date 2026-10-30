@@ -1,0 +1,86 @@
+{
+  "Ball State @ UMass|game_ats|Ball State": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 3.5,
+    "no_vig_prob": 0.5
+  },
+  "Ball State @ UMass|game_ats|UMass": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -3.5,
+    "no_vig_prob": 0.5
+  },
+  "Ball State @ UMass|game_ml|Ball State": {
+    "american": 140.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.39823008849557523
+  },
+  "Ball State @ UMass|game_ml|UMass": {
+    "american": -170.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.6017699115044248
+  },
+  "Ball State @ UMass|game_total|Over": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 48.5,
+    "no_vig_prob": 0.5
+  },
+  "Ball State @ UMass|game_total|Under": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 48.5,
+    "no_vig_prob": 0.5
+  },
+  "Central Michig @ Eastern Michig|game_ats|Central Michig": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 1.5,
+    "no_vig_prob": 0.5
+  },
+  "Central Michig @ Eastern Michig|game_ats|Eastern Michig": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -1.5,
+    "no_vig_prob": 0.5
+  },
+  "Central Michig @ Eastern Michig|game_ml|Central Michig": {
+    "american": 100.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.4782608695652174
+  },
+  "Central Michig @ Eastern Michig|game_ml|Eastern Michig": {
+    "american": -120.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.5217391304347826
+  },
+  "Central Michig @ Eastern Michig|game_total|Over": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 45.5,
+    "no_vig_prob": 0.5
+  },
+  "Central Michig @ Eastern Michig|game_total|Under": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 45.5,
+    "no_vig_prob": 0.5
+  }
+}

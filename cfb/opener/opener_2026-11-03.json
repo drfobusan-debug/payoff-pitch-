@@ -1,0 +1,86 @@
+{
+  "Buffalo @ Miami (OH)|game_ats|Buffalo": {
+    "american": -120.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 6.5,
+    "no_vig_prob": 0.519280205655527
+  },
+  "Buffalo @ Miami (OH)|game_ats|Miami (OH)": {
+    "american": -102.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -6.5,
+    "no_vig_prob": 0.48071979434447304
+  },
+  "Buffalo @ Miami (OH)|game_ml|Buffalo": {
+    "american": 172.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.3517930095324558
+  },
+  "Buffalo @ Miami (OH)|game_ml|Miami (OH)": {
+    "american": -210.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.6482069904675443
+  },
+  "Buffalo @ Miami (OH)|game_total|Over": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 45.5,
+    "no_vig_prob": 0.5
+  },
+  "Buffalo @ Miami (OH)|game_total|Under": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 45.5,
+    "no_vig_prob": 0.5
+  },
+  "Ohio @ Akron|game_ats|Akron": {
+    "american": -115.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 11.5,
+    "no_vig_prob": 0.5108342361863488
+  },
+  "Ohio @ Akron|game_ats|Ohio": {
+    "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -11.5,
+    "no_vig_prob": 0.4891657638136511
+  },
+  "Ohio @ Akron|game_ml|Akron": {
+    "american": 330.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.22278268179907523
+  },
+  "Ohio @ Akron|game_ml|Ohio": {
+    "american": -430.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.7772173182009248
+  },
+  "Ohio @ Akron|game_total|Over": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 49.5,
+    "no_vig_prob": 0.5
+  },
+  "Ohio @ Akron|game_total|Under": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 49.5,
+    "no_vig_prob": 0.5
+  }
+}
