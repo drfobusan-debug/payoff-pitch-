@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-94409",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "5582e7256124756187721c5aa0dc17194e9a110a",
+ "picks": [
+  {
+   "pick_id": "53f95ee55dc9",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-94409",
+   "episode_title": "NFL Survivor Pool Week 8 Picks",
+   "published": "2026-10-29T15:13:03+00:00",
+   "kind": "official",
+   "market": "other",
+   "team": null,
+   "opponent": null,
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Bengals",
+   "reason": "https://vsin.com/nfl/nfl-survivor-pool-week-8-picks/",
+   "description": "Bengals",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "nfl"
+ ]
+}
