@@ -1,0 +1,128 @@
+{
+  "Baylor @ UCF|game_ats|Baylor": {
+    "american": -106.0,
+    "captured_at": "2026-10-30T22:45:18Z",
+    "kickoff_utc": "2026-10-30T23:35:00Z",
+    "line": -2.5,
+    "no_vig_prob": 0.5012097353823418
+  },
+  "Baylor @ UCF|game_ats|UCF": {
+    "american": -103.0,
+    "captured_at": "2026-10-30T22:45:18Z",
+    "kickoff_utc": "2026-10-30T23:35:00Z",
+    "line": 2.5,
+    "no_vig_prob": 0.49879026461765824
+  },
+  "Baylor @ UCF|game_ml|Baylor": {
+    "american": -130.0,
+    "captured_at": "2026-10-30T22:45:18Z",
+    "kickoff_utc": "2026-10-30T23:35:00Z",
+    "line": null,
+    "no_vig_prob": 0.5528704635923334
+  },
+  "Baylor @ UCF|game_ml|UCF": {
+    "american": 120.0,
+    "captured_at": "2026-10-30T22:45:18Z",
+    "kickoff_utc": "2026-10-30T23:35:00Z",
+    "line": null,
+    "no_vig_prob": 0.4471295364076667
+  },
+  "Baylor @ UCF|game_total|Over": {
+    "american": -105.0,
+    "captured_at": "2026-10-30T22:45:18Z",
+    "kickoff_utc": "2026-10-30T23:35:00Z",
+    "line": 49.5,
+    "no_vig_prob": 0.5024595138897314
+  },
+  "Baylor @ UCF|game_total|Under": {
+    "american": -103.0,
+    "captured_at": "2026-10-30T22:45:18Z",
+    "kickoff_utc": "2026-10-30T23:35:00Z",
+    "line": 49.5,
+    "no_vig_prob": 0.49754048611026863
+  },
+  "Kent State @ Sacramento Sta|game_ats|Kent State": {
+    "american": -106.0,
+    "captured_at": "2026-10-30T22:45:18Z",
+    "kickoff_utc": "2026-10-31T02:30:00Z",
+    "line": -7.0,
+    "no_vig_prob": 0.5045696640073174
+  },
+  "Kent State @ Sacramento Sta|game_ats|Sacramento Sta": {
+    "american": -104.0,
+    "captured_at": "2026-10-30T22:45:18Z",
+    "kickoff_utc": "2026-10-31T02:30:00Z",
+    "line": 7.0,
+    "no_vig_prob": 0.4954303359926827
+  },
+  "Kent State @ Sacramento Sta|game_ml|Kent State": {
+    "american": -265.0,
+    "captured_at": "2026-10-30T22:45:18Z",
+    "kickoff_utc": "2026-10-31T02:30:00Z",
+    "line": null,
+    "no_vig_prob": 0.7081955967922858
+  },
+  "Kent State @ Sacramento Sta|game_ml|Sacramento Sta": {
+    "american": 235.0,
+    "captured_at": "2026-10-30T22:45:18Z",
+    "kickoff_utc": "2026-10-31T02:30:00Z",
+    "line": null,
+    "no_vig_prob": 0.29180440320771417
+  },
+  "Kent State @ Sacramento Sta|game_total|Over": {
+    "american": -110.0,
+    "captured_at": "2026-10-30T22:45:18Z",
+    "kickoff_utc": "2026-10-31T02:30:00Z",
+    "line": 46.5,
+    "no_vig_prob": 0.5025816573116371
+  },
+  "Kent State @ Sacramento Sta|game_total|Under": {
+    "american": -105.0,
+    "captured_at": "2026-10-30T22:45:18Z",
+    "kickoff_utc": "2026-10-31T02:30:00Z",
+    "line": 46.5,
+    "no_vig_prob": 0.497418342688363
+  },
+  "Tulane @ Charlotte|game_ats|Charlotte": {
+    "american": -110.0,
+    "captured_at": "2026-10-30T22:45:18Z",
+    "kickoff_utc": "2026-10-30T23:05:00Z",
+    "line": 8.5,
+    "no_vig_prob": 0.5052304447762752
+  },
+  "Tulane @ Charlotte|game_ats|Tulane": {
+    "american": -102.0,
+    "captured_at": "2026-10-30T22:45:18Z",
+    "kickoff_utc": "2026-10-30T23:05:00Z",
+    "line": -8.5,
+    "no_vig_prob": 0.49476955522372473
+  },
+  "Tulane @ Charlotte|game_ml|Charlotte": {
+    "american": 280.0,
+    "captured_at": "2026-10-30T22:45:18Z",
+    "kickoff_utc": "2026-10-30T23:05:00Z",
+    "line": null,
+    "no_vig_prob": 0.2619315155748301
+  },
+  "Tulane @ Charlotte|game_ml|Tulane": {
+    "american": -320.0,
+    "captured_at": "2026-10-30T22:45:18Z",
+    "kickoff_utc": "2026-10-30T23:05:00Z",
+    "line": null,
+    "no_vig_prob": 0.73806848442517
+  },
+  "Tulane @ Charlotte|game_total|Over": {
+    "american": -108.0,
+    "captured_at": "2026-10-30T22:45:18Z",
+    "kickoff_utc": "2026-10-30T23:05:00Z",
+    "line": 47.0,
+    "no_vig_prob": 0.5004207733237757
+  },
+  "Tulane @ Charlotte|game_total|Under": {
+    "american": -108.0,
+    "captured_at": "2026-10-30T22:45:18Z",
+    "kickoff_utc": "2026-10-30T23:05:00Z",
+    "line": 47.0,
+    "no_vig_prob": 0.4995792266762243
+  }
+}
