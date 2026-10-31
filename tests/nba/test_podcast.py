@@ -95,3 +95,65 @@ def test_grade_day_settles_off_the_graded_rows(tmp_path: Path) -> None:
     ]
     rec = core.records(core.load_ledger(ledger)).official_for(SHOW.name, "Matt Moore")
     assert rec is not None and rec.wlp == "1-0"
+
+
+def _placed(tmp_path: Path, pick: Pick, **kw: object) -> core.SlatePicks[podcast.Rows]:
+    card = build_card(priced(), day=DAY)
+    sub = tmp_path / str(len(list(tmp_path.iterdir())))
+    view = podcast.view(_store(sub, pick), card, ledger=sub / "pod.csv", **kw)  # type: ignore[arg-type]
+    assert view is not None
+    return view.slate
+
+
+def _game(matchup: str, hour: int, day: int = 10) -> core.Game[podcast.Rows]:
+    from datetime import datetime, timezone
+
+    away, _, home = matchup.partition(" @ ")
+    return core.Game(matchup, home, away, datetime(2025, 12, day, hour, tzinfo=timezone.utc), DAY)
+
+
+def test_a_pick_against_the_teams_earlier_opponent_is_that_games(tmp_path: Path) -> None:
+    # Published at 15:00 after a 14:00 Knicks-Wizards tip: the bet was that game's.
+    pick = _pick(opponent="Wizards")
+    assert _placed(tmp_path, pick, earlier=[_game("NYK @ WAS", 14)]).placed == []
+    # A misheard opponent still never vetoes the one game the team fits.
+    assert len(_placed(tmp_path, pick).placed) == 1
+    assert len(_placed(tmp_path, pick, earlier=[_game("NYK @ MIA", 14)]).placed) == 1
+
+
+def test_a_pick_an_earlier_slate_game_fits_is_not_placed_again(tmp_path: Path) -> None:
+    pick = _pick(opponent=None)
+    assert _placed(tmp_path, pick, earlier=[_game("NYK @ MIA", 23)]).placed == []
+    assert len(_placed(tmp_path, pick, earlier=[_game("NYK @ MIA", 14)]).placed) == 1
+
+
+def test_passes_turned_down_sides_team_totals_and_player_lines_are_no_picks(
+    tmp_path: Path,
+) -> None:
+    for quote in (
+        "Yeah, it's definitely Knicks or pass",
+        "It's definitely Knicks are passed",
+        "I don't want the Knicks in this game at all",
+        "the Knicks team total over 117 and a half, I'm playing that",
+        "Tyler Herro over 22 and a half points at minus 104.",
+    ):
+        slate = _placed(tmp_path, _pick(quote=quote))
+        assert slate.placed == [] and slate.unmatched == [], quote
+    assert core.refusal(_pick(quote="I didn't mind the Knicks here")) == ""
+    total = _pick(market="game_total", side="over", line=220.5, quote="over 220 and a half points")
+    assert core.refusal(total) == ""
+
+
+def test_a_regrade_drops_a_pick_no_longer_placed(tmp_path: Path) -> None:
+    rows = [r for r in priced() if r.matchup == LATE]
+    graded = [replace(r, away_score=101, home_score=110) for r in rows]
+    ledger = tmp_path / "pod.csv"
+    assert len(podcast.grade_day(_store(tmp_path / "a", _pick()), DAY, graded, ledger=ledger)) == 1
+    passed = _store(tmp_path / "b", _pick(quote="Knicks or pass for me tonight"))
+    assert podcast.grade_day(passed, DAY, graded, ledger=ledger) == []
+    assert core.load_ledger(ledger) == []
+
+
+def test_a_spelled_out_null_host_reads_as_none() -> None:
+    ex = Extraction("g1", "m", "picks-v2", "sha", [_pick(host="null")], [], [NBA])
+    assert Extraction.from_json(ex.to_json()).picks[0].host is None

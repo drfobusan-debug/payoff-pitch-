@@ -178,7 +178,7 @@ class Extraction:
             model=d["model"],
             prompt_version=d["prompt_version"],
             transcript_sha=d["transcript_sha"],
-            picks=[Pick(**p) for p in d["picks"]],
+            picks=[Pick(**{**p, "host": _str(p.get("host"))}) for p in d["picks"]],
             rejected=list(d.get("rejected", [])),
             leagues=list(d.get("leagues", [])),
         )
@@ -371,8 +371,14 @@ def _float(v: object) -> float | None:
     return float(v) if isinstance(v, (int, float)) and not isinstance(v, bool) else None
 
 
+_NONE_WORDS = {"null", "none", "n/a", "unknown"}
+
+
 def _str(v: object) -> str | None:
-    return v.strip() if isinstance(v, str) and v.strip() else None
+    """A stripped string; a model's spelled-out null is none."""
+    if not isinstance(v, str) or v.strip().lower() in _NONE_WORDS | {""}:
+        return None
+    return v.strip()
 
 
 def check(raw: dict[str, object], ep: Episode, lines: list[Line]) -> tuple[Pick | None, str]:

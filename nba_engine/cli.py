@@ -494,10 +494,10 @@ def _write(path: Path, data: bytes) -> bool:
     return True
 
 
-def _podcast_view(card: SlateCard) -> podcast.PodcastView | None:
+def _podcast_view(root: Path, card: SlateCard) -> podcast.PodcastView | None:
     """The slate's podcast bets for the PDF; a failure here never stops the card."""
     try:
-        return podcast.view(store_dir(), card)
+        return podcast.view(store_dir(), card, earlier=podcast.earlier_games(root, card.day))
     except Exception as exc:  # noqa: BLE001 - podcasts are display only
         print(f"  podcast bets left off the card ({exc})")
         return None
@@ -508,7 +508,14 @@ def _grade_podcasts(root: Path, days: list[Date]) -> int:
     n = 0
     for d in days:
         try:
-            n += len(podcast.grade_day(store_dir(), d, ledger.graded_rows(root, [d])))
+            n += len(
+                podcast.grade_day(
+                    store_dir(),
+                    d,
+                    ledger.graded_rows(root, [d]),
+                    earlier=podcast.earlier_games(root, d),
+                )
+            )
         except Exception as exc:  # noqa: BLE001 - podcasts are display only
             print(f"  {d}: podcast picks not graded ({exc})")
     return n
@@ -589,7 +596,7 @@ def cmd_card(args: argparse.Namespace) -> int:
     )
     if cfg.state_sync and not args.no_sync:
         podcast_state.auto_pull(store_dir())
-    page, text = render_html(card, _podcast_view(card)), render_text(card)
+    page, text = render_html(card, _podcast_view(root, card)), render_text(card)
     out = output_dir()
     try:
         out.mkdir(parents=True, exist_ok=True)
