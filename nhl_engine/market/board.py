@@ -25,7 +25,7 @@ from nhl_engine.data.capture import QuoteRow, last_quotes
 SelKey = tuple[str, str, str, str, float | None]
 
 # The only books a buy is priced at; a selection none of them quotes is refused.
-EXEC_BOOKS: tuple[str, ...] = ("draftkings", "betmgm", "novig")
+EXEC_BOOKS: tuple[str, ...] = ("draftkings", "betmgm")
 
 
 @dataclass(frozen=True)

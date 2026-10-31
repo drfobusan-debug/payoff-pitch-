@@ -1,4 +1,4 @@
-"""Buys price only at DraftKings/BetMGM/Novig; every book still feeds the consensus."""
+"""Buys price only at DraftKings/BetMGM; every book still feeds the consensus."""
 
 from __future__ import annotations
 
@@ -57,14 +57,15 @@ def test_selection_no_execution_book_quotes_is_refused_no_exec_book():
     assert "no_exec_book" in p.gates and not p.is_buy
 
 
-def test_novig_counts_as_an_execution_book():
+def test_betmgm_counts_and_novig_does_not():
     rows = [
-        _q("H", -110, -110, "novig"),
-        _q("A", -110, -110, "novig"),
-        _q("H", -105, -115, "fanduel"),
+        _q("H", -110, -110, "betmgm"),
+        _q("A", -110, -110, "betmgm"),
+        _q("H", 100, -120, "novig"),
+        _q("A", -120, 100, "novig"),
     ]
     h = next(s for s in selections(rows) if s.side == "H")
-    assert h.best_book == "novig" and h.executable
+    assert h.best_book == "betmgm" and h.best_american == -110 and h.executable
 
 
 def test_per_book_team_totals_mark_non_execution_books():
