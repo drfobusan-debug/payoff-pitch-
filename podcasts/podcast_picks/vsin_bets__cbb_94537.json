@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-94537",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "1acecc54f138db9a3bbc23a4f8ca3f090f8857fd",
+ "picks": [
+  {
+   "pick_id": "7a5b0016bad7",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-94537",
+   "episode_title": "Notre Dame vs. Villanova Prediction: Rome Eternal City Tip-Off on Sunday, November 1",
+   "published": "2026-10-31T04:42:11+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Villanova",
+   "opponent": "Notre Dame",
+   "side": null,
+   "line": -7.5,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Villanova -7.5",
+   "reason": "https://vsin.com/college-basketball/notre-dame-vs-villanova-prediction-rome-eternal-city-tip-off-on-sunday-november-1/",
+   "description": "Villanova -7.5",
+   "league": "cbb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cbb"
+ ]
+}
