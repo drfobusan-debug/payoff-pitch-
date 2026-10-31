@@ -625,6 +625,9 @@ class Pipeline:
         drift = self._drift(ctx.matchup, market, selection, side, line, result.fair_prob)
         split = lookup(self.splits, ctx.matchup, market, selection)
         pass_gate: str | None = None
+        if tier != Tier.PASS and not result.executable:
+            reasons = [*reasons, "no DraftKings/BetMGM quote: not a bet"]
+            tier, pass_gate = Tier.PASS, "no_exec_book"
         if tier != Tier.PASS:
             keep, drift_reason, gate = self.drift_gate.verdict(drift)
             if drift_reason:

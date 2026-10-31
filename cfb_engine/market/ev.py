@@ -12,6 +12,10 @@ from cfb_engine.market.odds import american_to_decimal, american_to_prob
 BOOK_WEIGHTS = {"pinnacle": 2.0, "lowvig": 1.5, "betonlineag": 1.2}
 _DEFAULT_WEIGHT = 1.0
 
+# The books a buy may be placed at. Every book still feeds the consensus fair
+# price; a side none of these quote is priced but never bought.
+EXEC_BOOKS: tuple[str, ...] = ("draftkings", "betmgm")
+
 
 @dataclass
 class MarketQuote:
@@ -48,6 +52,9 @@ class EVResult:
     # Share of consensus weight whose vig was actually removed. Below 1.0 the
     # edge is understated, so a thin-edge guard is stricter than it looks.
     devig_coverage: float = 1.0
+    # False when no execution book quotes the side: ``best_quote`` is then the
+    # best price anywhere, recorded for grading but not a bet.
+    executable: bool = True
 
 
 def anchor_to_market(model_prob: float, fair_prob: float, weight: float) -> float:
@@ -72,15 +79,20 @@ def _weight(book: str) -> float:
     return BOOK_WEIGHTS.get(book, _DEFAULT_WEIGHT)
 
 
-def evaluate(model_prob: float, quotes: list[MarketQuote]) -> EVResult:
-    """Compute EV against the best available price, edge vs the consensus.
+def evaluate(
+    model_prob: float,
+    quotes: list[MarketQuote],
+    exec_books: tuple[str, ...] | None = EXEC_BOOKS,
+) -> EVResult:
+    """Compute EV against the best price at an execution book, edge vs the consensus.
 
-    EV uses the best (highest-payout) price across books so we line-shop the
-    actual bet. The no-vig fair probability is a book-weighted consensus
-    (Pinnacle heavier -- see ``BOOK_WEIGHTS``) so the thin-edge guard defers to
-    the sharper market.
+    EV uses the best (highest-payout) price among ``exec_books`` (every book
+    when None), so it is a price the bet can actually get. The no-vig fair
+    probability is a book-weighted consensus over every quote (Pinnacle heavier
+    -- see ``BOOK_WEIGHTS``) so the thin-edge guard defers to the sharper market.
     """
-    best = max(quotes, key=lambda q: american_to_decimal(q.american))
+    pool = quotes if exec_books is None else [q for q in quotes if q.book in exec_books]
+    best = max(pool or quotes, key=lambda q: american_to_decimal(q.american))
     dec = american_to_decimal(best.american)
     ev = model_prob * (dec - 1.0) - (1.0 - model_prob)
 
@@ -96,4 +108,5 @@ def evaluate(model_prob: float, quotes: list[MarketQuote]) -> EVResult:
         fair_prob=fair,
         edge=model_prob - fair,
         devig_coverage=covered,
+        executable=bool(pool),
     )
