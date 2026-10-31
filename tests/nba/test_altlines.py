@@ -69,7 +69,13 @@ def test_alternates_settle_like_the_main_market() -> None:
 
 
 def _row(
-    market: str, side: str, line: float, outcome: str, pnl: float, books: int = 6
+    market: str,
+    side: str,
+    line: float,
+    outcome: str,
+    pnl: float,
+    books: int = 6,
+    tag: str = "card",
 ) -> LedgerRow:
     return LedgerRow(
         slate_date="2025-12-10",
@@ -96,7 +102,7 @@ def _row(
         tier="Pass",
         gates="no_model",
         priced_at="2025-12-11T01:00:00Z",
-        pass_tag="card",
+        pass_tag=tag,
         versions="",
         outcome=outcome,
         pnl=pnl,
@@ -124,3 +130,16 @@ def test_the_report_splits_points_bought_from_points_sold() -> None:
     assert table["alt_total bought 2 pts"][1] == 1
     assert table["alt_total sold (all)"][1] == 1
     assert not any("game_" in k for k in table)
+
+
+def test_an_alternate_is_read_against_the_main_number_of_its_own_pass() -> None:
+    card = [_row("game_ats", "LAL", -3.5, "loss", -1.0), _row("game_ats", "SAS", 3.5, "win", 0.91)]
+    late = [
+        _row("game_ats", "LAL", -5.5, "loss", -1.0, tag="card_late"),
+        _row("game_ats", "SAS", 5.5, "win", 0.91, tag="card_late"),
+        _row("alt_ats", "SAS", 7.5, "win", 0.5, tag="card_late"),
+    ]
+    graded = [*card, *late]
+    table = {r[0]: r for r in altlines.report(graded, passes=graded)}
+    assert "alt_ats bought 2 pts" in table
+    assert "alt_ats bought 4 pts" not in table

@@ -125,3 +125,89 @@ def test_a_regrade_replaces_its_slate_and_the_report_splits_directions(tmp_path:
     report = {r[0]: r for r in altlines.report(path)}
     assert report["game_ats sold (all)"][1:4] == (1, 0, 1)
     assert report["game_ats bought (all)"][1:4] == (1, 1, 0)
+
+
+def _swapped_game(tmp_path: Path) -> tuple[object, object]:
+    from types import SimpleNamespace
+
+    cfg = SimpleNamespace(
+        creds=SimpleNamespace(odds_api_key="x"),
+        odds_regions="us",
+        odds_cache_dir=tmp_path,
+        altlines_file=lambda d: tmp_path / "alt.jsonl",
+        alt_ledger_file=tmp_path / "alt_ledger.csv",
+    )
+    event = {
+        "bookmakers": [
+            {
+                "key": "draftkings",
+                "markets": [
+                    {
+                        "key": "alternate_spreads",
+                        "outcomes": [{"name": "Buffalo", "point": 5.5, "price": -150}],
+                    }
+                ],
+            }
+        ]
+    }
+    altlines.append(
+        altlines.parse_event(event, "UMASS", "BUFF", "umass", "buffalo", T0),
+        cfg.altlines_file(None),
+    )
+    return cfg, event
+
+
+def test_a_reversed_cfbd_result_with_an_alias_grades_the_right_team(tmp_path: Path) -> None:
+    from datetime import date
+
+    from cfb_engine import cli
+    from cfb_engine.audit.grade import build_result_index
+    from cfb_engine.data.cfbd import GameResult
+    from cfb_engine.market.tiers import Tier
+    from cfb_engine.recommendations import Recommendation
+
+    cfg, _ = _swapped_game(tmp_path)
+    rec = Recommendation(
+        game_date=date(2026, 10, 24),
+        game_id="g1",
+        matchup="BUFF @ UMASS",
+        market="game_ats",
+        selection="Buffalo +3.5",
+        line=3.5,
+        model_prob=0.6,
+        market_american=-110,
+        opposite_american=-110,
+        ev=0.05,
+        edge=0.04,
+        fair_prob=0.55,
+        tier=Tier.STRONG,
+        team_side="away",
+        side="cover",
+        home_abbrev="UMass",
+        away_abbrev="Buffalo",
+        kickoff_utc="2026-10-24T16:00:00Z",
+    )
+    final = GameResult(home="Buffalo", away="Massachusetts", home_points=30, away_points=10)
+    index = build_result_index([final])
+    assert cli._grade_alt_lines(cfg, date(2026, 10, 24), [(rec, "win")], index) == 1  # type: ignore[arg-type]
+    report = {r[0]: r for r in altlines.report(cfg.alt_ledger_file)}  # type: ignore[attr-defined]
+    assert report["game_ats bought (all)"][1:4] == (1, 1, 0)  # Buffalo +5.5 won by 20
+
+
+def test_a_failed_alternate_capture_never_stops_the_card(tmp_path: Path, monkeypatch) -> None:
+    from datetime import date
+    from types import SimpleNamespace
+
+    from cfb_engine import cli
+
+    class Down:
+        def __init__(self, *a: object, **k: object) -> None:
+            raise RuntimeError("quota exhausted")
+
+    monkeypatch.setattr(cli, "OddsAPIClient", Down)
+    monkeypatch.delenv("CFBE_ALT_LINES", raising=False)
+    cfg, _ = _swapped_game(tmp_path)
+    rec = SimpleNamespace(
+        matchup="BUFF @ UMASS", market="game_ats", tier="Strong buy", pass_gate=None
+    )
+    cli._capture_alt_lines(cfg, date(2026, 10, 24), [rec])  # type: ignore[arg-type,list-item]
