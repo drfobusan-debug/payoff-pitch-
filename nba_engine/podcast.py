@@ -23,7 +23,7 @@ from engine_common.podcasts import render
 from engine_common.podcasts.extract import PICKS_DIR, Extraction, load_extractions
 from engine_common.podcasts.picks import Game, League, ledger_path
 from engine_common.podcasts.shows import NBA
-from nba_engine.audit.ledger import LedgerRow
+from nba_engine.audit.ledger import LedgerRow, passes
 from nba_engine.data.teamnames import BY_NAME, CODES, canonical, code_for
 from nba_engine.output.card import SlateCard, build_card
 
@@ -159,8 +159,25 @@ def engine_view(pl: Placed) -> str:
 LEAGUE: League[Rows] = League(NBA, same_team, engine_view, horizon=HORIZON)
 
 
-def slate_picks(extractions: Iterable[Extraction], card: SlateCard) -> SlatePicks:
-    """NBA picks published in the two days before the slate's tips, placed on its games."""
+def earlier_games(root: Path, day: Date) -> list[Game[Rows]]:
+    """The games of the slates within :data:`HORIZON` before ``day``, from their ledger passes."""
+    out: dict[str, Game[Rows]] = {}
+    for k in range(HORIZON.days, 0, -1):
+        d = day - timedelta(days=k)
+        for r in passes(root, d):
+            away, _, home = r.matchup.partition(" @ ")
+            if home and r.event_id not in out:
+                out[r.event_id] = Game(r.matchup, home, away, _tip(r.tip_utc), d)
+    return list(out.values())
+
+
+def slate_picks(
+    extractions: Iterable[Extraction], card: SlateCard, earlier: Sequence[Game[Rows]] = ()
+) -> SlatePicks:
+    """NBA picks published in the two days before the slate's tips, placed on its games.
+
+    A pick one of the ``earlier`` slates' games already holds is not placed again.
+    """
     games = to_games(card)
     tips = [g.kickoff for g in games if g.kickoff is not None]
     start = datetime.combine(card.day, datetime.min.time(), timezone.utc)
@@ -172,6 +189,7 @@ def slate_picks(extractions: Iterable[Extraction], card: SlateCard) -> SlatePick
         since=first - HORIZON,
         until=last,
         unmatched_since=start - timedelta(hours=12),
+        earlier=earlier,
     )
 
 
@@ -211,23 +229,37 @@ def grade_row(pl: Placed) -> dict[str, str]:
 
 
 def grade_day(
-    store: Path, day: Date, graded: Iterable[LedgerRow], *, ledger: Path | None = None
+    store: Path,
+    day: Date,
+    graded: Iterable[LedgerRow],
+    *,
+    ledger: Path | None = None,
+    earlier: Sequence[Game[Rows]] = (),
 ) -> list[dict[str, str]]:
-    """Grade ``day``'s placed picks off its graded ledger rows; the rows written."""
+    """Grade ``day``'s placed picks off its graded ledger rows; the rows written.
+
+    A regrade replaces the day's rows, so a pick no longer placed leaves the ledger.
+    """
     if not (store / PICKS_DIR).exists():
         return []
     rows = list(graded)
     if not rows:
         return []
-    slate = slate_picks(load_extractions(store), build_card(rows, day=day))
-    if not slate.placed:
-        return []
+    slate = slate_picks(load_extractions(store), build_card(rows, day=day), earlier)
     out = [grade_row(pl) for pl in slate.placed]
-    core.update_ledger(ledger or ledger_path(store, NBA), out, {day})
+    path = ledger or ledger_path(store, NBA)
+    if out or any(r.get("date") == day.isoformat() for r in core.load_ledger(path)):
+        core.update_ledger(path, out, {day})
     return out
 
 
-def view(store: Path, card: SlateCard, *, ledger: Path | None = None) -> PodcastView | None:
+def view(
+    store: Path,
+    card: SlateCard,
+    *,
+    ledger: Path | None = None,
+    earlier: Sequence[Game[Rows]] = (),
+) -> PodcastView | None:
     """Everything the card prints about podcasts tonight; ``None`` if none were read."""
     if not (store / PICKS_DIR).exists():
         return None
@@ -235,7 +267,7 @@ def view(store: Path, card: SlateCard, *, ledger: Path | None = None) -> Podcast
     if not extractions:
         return None
     return render.PodcastView(
-        slate_picks(extractions, card),
+        slate_picks(extractions, card, earlier),
         core.records(core.load_ledger(ledger or ledger_path(store, NBA))),
     )
 
@@ -244,6 +276,7 @@ __all__ = [
     "LEAGUE",
     "PodcastView",
     "board_price",
+    "earlier_games",
     "engine_view",
     "grade_day",
     "grade_row",
