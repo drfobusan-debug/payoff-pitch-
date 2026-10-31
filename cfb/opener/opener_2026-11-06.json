@@ -1,0 +1,44 @@
+{
+  "Virginia Tech @ SMU|game_ats|SMU": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -7.5,
+    "no_vig_prob": 0.5
+  },
+  "Virginia Tech @ SMU|game_ats|Virginia Tech": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 7.5,
+    "no_vig_prob": 0.5
+  },
+  "Virginia Tech @ SMU|game_ml|SMU": {
+    "american": -278.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.705033164260632
+  },
+  "Virginia Tech @ SMU|game_ml|Virginia Tech": {
+    "american": 225.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.2949668357393679
+  },
+  "Virginia Tech @ SMU|game_total|Over": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 57.5,
+    "no_vig_prob": 0.5
+  },
+  "Virginia Tech @ SMU|game_total|Under": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 57.5,
+    "no_vig_prob": 0.5
+  }
+}
