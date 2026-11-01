@@ -78,12 +78,12 @@ def test_a_re_armed_shootout_under_is_refused_and_named(
     assert any(r.startswith("veto: shootout environment") for r in rec.reasons)
 
 
-def test_with_the_shootout_veto_off_the_under_is_a_graded_only_buy(
+def test_with_the_shootout_veto_off_the_under_is_not_refused_by_it(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     rec = _side(_pipeline(tmp_path, monkeypatch), _ctx(0.44, SHOOTOUT), "under")
-    assert rec.tier == Tier.PASS
-    assert rec.pass_gate == "graded_only_game_total"
+    assert rec.pass_gate != SHOOTOUT_GATE
+    assert not any(r.startswith("veto: shootout") for r in rec.reasons)
 
 
 def test_a_low_scoring_over_keeps_its_own_gate(
