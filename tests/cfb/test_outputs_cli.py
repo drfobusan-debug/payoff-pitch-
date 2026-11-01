@@ -304,3 +304,34 @@ def test_stamp_units_backfills_conference_tier_and_top25_without_regrading(tmp_p
     )
     assert main(["stamp-units"]) == 0
     assert calls == []  # a stamped slate is not fetched again
+
+
+def test_stamp_units_backfills_unit_ranks_on_rows_whose_blank_cells_load_as_empty(
+    tmp_path, monkeypatch
+):
+    from dataclasses import replace
+
+    from cfb_engine import cli
+    from cfb_engine.audit.ledger import load_ledger, update_ledger
+    from cfb_engine.config import load_config
+
+    monkeypatch.setenv("CFBE_DATA_DIR", str(tmp_path))
+    monkeypatch.setenv("CFBE_STATE_SYNC", "0")
+    cfg = load_config()
+    cfg.audit_dir.mkdir(parents=True, exist_ok=True)
+    sep26 = date(2026, 9, 26)
+    old = replace(_rec(Tier.STRONG), game_date=sep26)
+    update_ledger(cfg.ledger_file, entries_from_graded([(old, "win")], sep26), sep26)
+    assert load_ledger(cfg.ledger_file)[0].unit_ranks == ""  # blank cell, never stamped
+    ranks = {"Georgia": {"off": 3, "def": 40}, "Alabama": {"off": 12, "def": 2}}
+    asked: list[date] = []
+    monkeypatch.setattr(cli, "_unit_ranks", lambda c, d: asked.append(d) or ranks)
+    monkeypatch.setattr(cli, "_ypp_book", lambda c, d: {})
+    monkeypatch.setattr(cli, "_result_index", lambda c, d: build_result_index([]))
+
+    assert main(["stamp-units"]) == 0
+    (after,) = load_ledger(cfg.ledger_file)
+    assert (after.unit_ranks, after.opp_unit_ranks) == ("off:3 def:40", "off:12 def:2")
+    assert asked == [sep26]
+    assert main(["stamp-units"]) == 0
+    assert asked == [sep26]  # a stamped row is not fetched again
