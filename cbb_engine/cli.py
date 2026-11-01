@@ -14,10 +14,10 @@ import json
 import logging
 import sys
 from datetime import date as Date
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from cbb_engine import audit, cadence, card, checklist, email, history, pilot, state, study
+from cbb_engine import audit, bands, cadence, card, checklist, email, history, pilot, state, study
 from cbb_engine.config import SPORT, SPORT_KEY, data_dir, dry_run, load_config, runtime_root
 from cbb_engine.data import capture, espn, injuries, torvik, watch
 from cbb_engine.markets import EVENT_MARKETS, FEATURED
@@ -276,6 +276,29 @@ def _manifest_teams(root: Path, day: Date) -> dict[str, tuple[str, str]]:
     return teams
 
 
+def _season_bands(root: Path, season: list[ledger.Row], day: Date) -> list[str]:
+    """Graded-only bands over the season's ledger; context from archived ESPN boards, Torvik and first captures."""
+    try:
+        logs = bands.parse_logs(teamstats.read_logs(torvik.as_of(data_dir(), "game_logs", day).path))
+        res = torvik.as_of(data_dir(), "team_results", day).path
+        confs = {r.get("team", ""): r.get("conf", "") for r in torvik.read_csv(res)} if res else {}
+        days = sorted({Date.fromisoformat(r.slate_date) for r in season})
+        boards: dict[Date, list[espn.Game]] = {}
+        if days:
+            d = days[0] - timedelta(days=bands.REST_LOOKBACK)
+            while d <= days[-1]:
+                boards[d] = history.latest_scoreboard(data_dir(), d.isoformat())
+                d += timedelta(days=1)
+        ctx: dict[str, bands.GameCtx] = {}
+        for d in days:
+            opener = bands.openers(quotes.read_day(root, SPORT, d.isoformat()))
+            ctx.update(bands.context(_manifest_teams(root, d), d, boards, logs, confs, opener))
+        return bands.render(bands.read_bands(season, ctx)).splitlines()
+    except Exception:
+        log.warning("CBB bands failed; the audit goes out without them", exc_info=True)
+        return ["bands unavailable (see log)"]
+
+
 def _card_pdf(root: Path, day: Date, pass_id: str, rows: list[ledger.Row], out: Path) -> Path | None:
     """Display-only PDF beside the text card; any failure leaves the text card as the card."""
     try:
@@ -332,6 +355,7 @@ def cmd_audit(args: argparse.Namespace) -> int:
         for r in ledger.record(root, SPORT, d).values()
     ]
     rep["v_promotion"] = views.v_promotion(season)
+    rep["v_bands"] = _season_bands(root, season, day)
     if args.time_travel:
         stamps = [("quote", q.captured_at) for q in shards] + [("row", r.tip_utc) for r in rows]
         rep["time_travel_violations"] = study.time_travel(day.isoformat(), stamps)
