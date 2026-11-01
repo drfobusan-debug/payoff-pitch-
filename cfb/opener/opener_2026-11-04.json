@@ -82,5 +82,47 @@
     "kickoff_utc": "",
     "line": 45.5,
     "no_vig_prob": 0.5
+  },
+  "Toledo @ Sacramento Sta|game_ats|Sacramento Sta": {
+    "american": -102.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 27.5,
+    "no_vig_prob": 0.49379689004852323
+  },
+  "Toledo @ Sacramento Sta|game_ats|Toledo": {
+    "american": -109.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -27.5,
+    "no_vig_prob": 0.5062031099514768
+  },
+  "Toledo @ Sacramento Sta|game_ml|Sacramento Sta": {
+    "american": 2000.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.05033277105718886
+  },
+  "Toledo @ Sacramento Sta|game_ml|Toledo": {
+    "american": -4000.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.9496672289428112
+  },
+  "Toledo @ Sacramento Sta|game_total|Over": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 51.5,
+    "no_vig_prob": 0.5
+  },
+  "Toledo @ Sacramento Sta|game_total|Under": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 51.5,
+    "no_vig_prob": 0.5
   }
 }

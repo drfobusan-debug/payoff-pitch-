@@ -1,4 +1,172 @@
 {
+  "Nebraska @ Illinois|game_ats|Illinois": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 6.0,
+    "no_vig_prob": 0.5
+  },
+  "Nebraska @ Illinois|game_ats|Nebraska": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -6.0,
+    "no_vig_prob": 0.5
+  },
+  "Nebraska @ Illinois|game_ml|Illinois": {
+    "american": 220.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.3343279650777127
+  },
+  "Nebraska @ Illinois|game_ml|Nebraska": {
+    "american": -205.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.6656720349222873
+  },
+  "Nebraska @ Illinois|game_total|Over": {
+    "american": -115.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 47.5,
+    "no_vig_prob": 0.5091294642959745
+  },
+  "Nebraska @ Illinois|game_total|Under": {
+    "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 47.5,
+    "no_vig_prob": 0.4908705357040254
+  },
+  "New Mexico @ Nevada|game_ats|Nevada": {
+    "american": -109.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 12.5,
+    "no_vig_prob": 0.49867449949100784
+  },
+  "New Mexico @ Nevada|game_ats|New Mexico": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -12.5,
+    "no_vig_prob": 0.5013255005089922
+  },
+  "New Mexico @ Nevada|game_ml|Nevada": {
+    "american": 440.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.18950207991856732
+  },
+  "New Mexico @ Nevada|game_ml|New Mexico": {
+    "american": -455.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.8104979200814326
+  },
+  "New Mexico @ Nevada|game_total|Over": {
+    "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 43.5,
+    "no_vig_prob": 0.4957820145098701
+  },
+  "New Mexico @ Nevada|game_total|Under": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 43.5,
+    "no_vig_prob": 0.50421798549013
+  },
+  "South Florida @ East Carolina|game_ats|East Carolina": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 0.5,
+    "no_vig_prob": 0.4968193384223919
+  },
+  "South Florida @ East Carolina|game_ats|South Florida": {
+    "american": -113.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -0.5,
+    "no_vig_prob": 0.5031806615776081
+  },
+  "South Florida @ East Carolina|game_ml|East Carolina": {
+    "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.4971332813617391
+  },
+  "South Florida @ East Carolina|game_ml|South Florida": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.5028667186382608
+  },
+  "South Florida @ East Carolina|game_total|Over": {
+    "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 45.5,
+    "no_vig_prob": 0.49786434307192895
+  },
+  "South Florida @ East Carolina|game_total|Under": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 45.5,
+    "no_vig_prob": 0.502135656928071
+  },
+  "TCU @ Arizona|game_ats|Arizona": {
+    "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -8.5,
+    "no_vig_prob": 0.5
+  },
+  "TCU @ Arizona|game_ats|TCU": {
+    "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 8.5,
+    "no_vig_prob": 0.5
+  },
+  "TCU @ Arizona|game_ml|Arizona": {
+    "american": -285.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.734748104992367
+  },
+  "TCU @ Arizona|game_ml|TCU": {
+    "american": 275.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.2652518950076329
+  },
+  "TCU @ Arizona|game_total|Over": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 44.5,
+    "no_vig_prob": 0.5
+  },
+  "TCU @ Arizona|game_total|Under": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 44.5,
+    "no_vig_prob": 0.5
+  },
   "Virginia Tech @ SMU|game_ats|SMU": {
     "american": -110.0,
     "captured_at": "",

@@ -1,0 +1,86 @@
+{
+  "James Madison @ Southern Missi|game_ats|James Madison": {
+    "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -14.0,
+    "no_vig_prob": 0.4975251025314666
+  },
+  "James Madison @ Southern Missi|game_ats|Southern Missi": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 14.0,
+    "no_vig_prob": 0.5024748974685335
+  },
+  "James Madison @ Southern Missi|game_ml|James Madison": {
+    "american": -520.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.8224434897377968
+  },
+  "James Madison @ Southern Missi|game_ml|Southern Missi": {
+    "american": 500.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.17755651026220315
+  },
+  "James Madison @ Southern Missi|game_total|Over": {
+    "american": -114.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 54.5,
+    "no_vig_prob": 0.5080681191111588
+  },
+  "James Madison @ Southern Missi|game_total|Under": {
+    "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 54.5,
+    "no_vig_prob": 0.4919318808888412
+  },
+  "UTSA @ Florida Atlant|game_ats|Florida Atlant": {
+    "american": -121.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 7.5,
+    "no_vig_prob": 0.5228679505227858
+  },
+  "UTSA @ Florida Atlant|game_ats|UTSA": {
+    "american": 102.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -7.5,
+    "no_vig_prob": 0.4771320494772143
+  },
+  "UTSA @ Florida Atlant|game_ml|Florida Atlant": {
+    "american": 210.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.3155973824245103
+  },
+  "UTSA @ Florida Atlant|game_ml|UTSA": {
+    "american": -245.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.6844026175754897
+  },
+  "UTSA @ Florida Atlant|game_total|Over": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 71.5,
+    "no_vig_prob": 0.5026510010179843
+  },
+  "UTSA @ Florida Atlant|game_total|Under": {
+    "american": -109.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 71.5,
+    "no_vig_prob": 0.4973489989820156
+  }
+}
