@@ -407,6 +407,10 @@ def _mid_favourite_spread(e: LedgerEntry) -> bool:
     return atsline.mid_favourite(e.market, e.line)
 
 
+def _weak_game_spread(e: LedgerEntry) -> bool:
+    return unitranks.weak_game(e.market, e.date, e.unit_ranks, e.opp_unit_ranks)
+
+
 def _big_dog_spread(e: LedgerEntry) -> bool:
     return atsline.big_dog(e.market, e.line)
 
@@ -471,6 +475,11 @@ CANDIDATE_SCREENS: tuple[CandidateScreen, ...] = (
         atsline.MID_FAV_RULE,
         _mid_favourite_spread,
         "a favourite laying 3.5 to 7 points lost money on the 2026 ledger",
+    ),
+    CandidateScreen(
+        unitranks.WEAK_GAME_RULE,
+        _weak_game_spread,
+        "both teams' unit ranks average 72 or worse",
     ),
 )
 
