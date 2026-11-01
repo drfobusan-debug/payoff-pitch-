@@ -6,8 +6,9 @@
   ``close_exec_american`` (same book, same line); ``clv_consensus`` = close fair − fair at
   buy, in probability points × 100; ``clv_exec`` = implied(close exec) − implied(bought) × 100.
   An early or after-tip close is ``early`` / ``post_tip`` and carries no CLV.
-* outcome: full-game totals, spreads and moneylines, passes included, on the ESPN final
-  matched by ``history.match_final`` (folded team-name tokens) on the shard's teams.
+* outcome: full-game and first-half totals, spreads and moneylines, passes included, on the
+  ESPN final and half scores matched by ``history.match_game`` (folded team-name tokens) on the
+  shard's teams; a first-half moneyline tied at the half is a push.
 
 Grading writes a correction row in a new pass (``supersedes`` = the original
 ``row_hash``, still ``bet_of_record``) so ``ledger.record`` returns the graded row;
@@ -29,6 +30,7 @@ from cbb_engine.config import SPORT
 from cbb_engine.data.espn import Game
 from cbb_engine.market import consensus
 from cbb_engine.models import distribution as dist
+from cbb_engine.models import margin as mg
 from engine_common.odds import american_to_prob
 from engine_runtime import ledger, quotes, views
 
@@ -64,9 +66,16 @@ def _closes(quotes_: Iterable[quotes.Quote]) -> tuple[dict[str, list[quotes.Quot
     return out, status
 
 
-def outcome(row: ledger.Row, final: tuple[int, int]) -> str:
-    """Full-game total, spread or moneyline graded on the (away, home) final; other markets ""."""
+def outcome(row: ledger.Row, final: tuple[int, int], h1: tuple[int, int] | None = None) -> str:
+    """Total, spread or moneyline graded on the (away, home) final, or on the (away, home) first
+    half for ``h1_*``; other markets ""."""
     market = row.market.removesuffix("_alt")  # alternate lines settle like the main line
+    if market.startswith("h1_"):
+        if h1 is None or market not in mg.H1:
+            return ""
+        if market == "h1_ml" and h1[0] == h1[1]:
+            return "push"
+        return outcome(replace(row, market="game_" + market.removeprefix("h1_")), h1)
     if market == "game_total":
         return outcome_total(row, final)
     away, home = final
@@ -101,12 +110,20 @@ def pnl(row: ledger.Row, outcome: str) -> float | None:
     return row.american / 100 if row.american > 0 else 100 / -row.american
 
 
-def _close_fair(row: ledger.Row, anchors: list[consensus.Anchor], width: dist.Width | None) -> float | None:
+def _close_fair(
+    row: ledger.Row, anchors: list[consensus.Anchor], width: dist.Width | None, margin: mg.MarginWidth | None = None
+) -> float | None:
     """Devigged close probability of the row's side at the row's own line.
 
-    Totals read the fair close total through the fitted width, so a line move counts;
-    spreads and moneylines (no fitted margin width yet) need a close at the same number.
+    Totals read the fair close total through the fitted width and spreads the fair close margin
+    through the fitted margin shape, so a line move counts; moneylines and first halves need a
+    close at the same number.
     """
+    if row.market == "game_ats" and margin is not None and row.line is not None:
+        sd = margin.sd(row.slate_date)
+        mu = mg.spread_mu(anchors, row.event_id, sd, margin) if sd else None
+        if mu is not None:
+            return mg.price(row.market, row.side, row.line, home_mu=mu, full_total=None, day=row.slate_date, mw=margin)
     if row.market == "game_total" and width is not None and row.line is not None:
         sd = width.sd(row.quality_bucket) or width.sd("all")
         mu = pilot.close_mu(anchors, row.event_id, sd) if sd else None
@@ -124,6 +141,7 @@ def grade(
     *,
     pass_id: str,
     width: dist.Width | None = None,
+    margin: mg.MarginWidth | None = None,
 ) -> list[ledger.Row]:
     """Settle every ungraded bet-of-record row for the day (buys and passes); returns the rows written."""
     current = ledger.record(root, SPORT, day)
@@ -139,7 +157,7 @@ def grade(
         held = anchors.get(r.event_id)
         if held is not None and r.p_fair is not None and r.american is not None:
             shard = held[0].shard
-            cf = _close_fair(r, held, width)
+            cf = _close_fair(r, held, width, margin)
             g.close_status = "pre_tip"
             g.close_consensus, g.close_consensus_shard = cf, shard
             g.clv_consensus = round((cf - r.p_fair) * 100, 3) if cf is not None else None
@@ -154,9 +172,11 @@ def grade(
             g.close_status = missed.get(r.event_id, "pulled")
         home_away = teams.get(r.event_id)
         if home_away:
-            final = history.match_final(home_away[0], home_away[1], games)
-            if final:
-                g.outcome = outcome(r, final)
+            game = history.match_game(home_away[0], home_away[1], [x for x in games if x.final])
+            final = game.final if game else None
+            if game is not None and final:
+                h1 = (game.away_halves[0], game.home_halves[0]) if len(game.home_halves) >= 2 else None
+                g.outcome = outcome(r, final, h1)
                 g.pnl = pnl(r, g.outcome)
         out.append(g)
     if out:

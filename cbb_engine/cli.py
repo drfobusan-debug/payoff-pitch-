@@ -22,6 +22,7 @@ from cbb_engine.config import SPORT, SPORT_KEY, data_dir, dry_run, load_config, 
 from cbb_engine.data import capture, espn, injuries, torvik, watch
 from cbb_engine.markets import EVENT_MARKETS, FEATURED
 from cbb_engine.models import distribution as dist
+from cbb_engine.models import margin as mg
 from cbb_engine.output import movement, pdf, teamstats
 from engine_runtime import ledger, quotes, runner, views
 from engine_runtime.odds_client import OddsClient
@@ -238,6 +239,7 @@ def cmd_price(args: argparse.Namespace) -> int:
         env_lock_hash=ps.env_lock_hash,
         pending_events=pending,
         width=dist.load_width(),
+        margin=mg.load(),
         max_live_buys=cfg.exposure.max_live_buys,
         max_per_book=cfg.exposure.max_per_book,
     )
@@ -334,7 +336,7 @@ def cmd_audit(args: argparse.Namespace) -> int:
     games = espn.ESPNClient().scoreboard(day, archive=data_dir()) if not args.offline else []
     teams = _manifest_teams(root, day)
     ps = runner.start(SPORT, day.isoformat(), "board", root)
-    written = audit.grade(root, day.isoformat(), games, teams, pass_id=ps.pass_id, width=dist.load_width())
+    written = audit.grade(root, day.isoformat(), games, teams, pass_id=ps.pass_id, width=dist.load_width(), margin=mg.load())
     if written:
         state.auto_push(f"cbb grade {day}", trees=("ledger",))
     rows = list(ledger.record(root, SPORT, day.isoformat()).values())
