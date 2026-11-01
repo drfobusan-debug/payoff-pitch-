@@ -192,21 +192,27 @@ def _sim(a: str, b: str) -> float:
 
 
 def match_final(home: str, away: str, games: Sequence[espn.Game]) -> tuple[int, int] | None:
-    """The day's ESPN final for (home, away): exact normalized match, else the unique best token match
+    """The day's ESPN final for (home, away); see ``match_game``."""
+    g = match_game(home, away, [g for g in games if g.final])
+    return g.final if g else None
+
+
+def match_game(home: str, away: str, games: Sequence[espn.Game]) -> espn.Game | None:
+    """The day's ESPN game for (home, away): exact normalized match, else the unique best token match
     where both sides share a token (score ≥ 1.0 of 2 and ahead of the runner-up)."""
-    exact = {(_norm(g.home), _norm(g.away)): g.final for g in games if g.final}
+    exact = {(_norm(g.home), _norm(g.away)): g for g in games}
     hit = exact.get((_norm(home), _norm(away)))
     if hit:
         return hit
     scored = sorted(
-        ((_sim(home, g.home) + _sim(away, g.away), g) for g in games if g.final and _sim(home, g.home) > 0 and _sim(away, g.away) > 0),
+        ((_sim(home, g.home) + _sim(away, g.away), g) for g in games if _sim(home, g.home) > 0 and _sim(away, g.away) > 0),
         key=lambda t: -t[0],
     )
     if not scored or scored[0][0] < 1.0:
         return None
     if len(scored) > 1 and scored[1][0] >= scored[0][0] - 1e-9:
         return None
-    return scored[0][1].final
+    return scored[0][1]
 
 
 def latest_scoreboard(data_dir: Path, day: str) -> list[espn.Game]:
@@ -281,6 +287,6 @@ def tips_from_games(games: Iterable[espn.Game], day: str) -> list[str]:
 
 
 __all__ = [
-    "CLOSE_MARKETS", "CSV_FIELDS", "HIST_PREFIX", "close_times", "days_between", "dense_times",
+    "CLOSE_MARKETS", "CSV_FIELDS", "HIST_PREFIX", "close_times", "days_between", "dense_times", "match_game",
     "export_day", "latest_scoreboard", "match_final", "plan", "pull_day", "tips_from_games", "write_csv",
 ]

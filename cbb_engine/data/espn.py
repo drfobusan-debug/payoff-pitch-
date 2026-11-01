@@ -32,6 +32,8 @@ class Game:
     conference_game: bool
     away_halves: tuple[int, ...] = ()
     home_halves: tuple[int, ...] = ()
+    away_rank: int | None = None  # AP rank on the day; None unranked
+    home_rank: int | None = None
 
     @property
     def is_final(self) -> bool:
@@ -93,6 +95,13 @@ def _halves(side: dict[str, object]) -> tuple[int, ...]:
     return tuple(out)
 
 
+def _rank(side: dict[str, object]) -> int | None:
+    """ESPN's curated (AP) rank; unranked teams carry 99."""
+    cur = side.get("curatedRank")
+    rank = cur.get("current") if isinstance(cur, dict) else None
+    return rank if isinstance(rank, int) and 1 <= rank <= 25 else None
+
+
 def parse_scoreboard(payload: dict[str, object]) -> list[Game]:
     out: list[Game] = []
     events = payload.get("events")
@@ -118,6 +127,8 @@ def parse_scoreboard(payload: dict[str, object]) -> list[Game]:
                 conference_game=bool(comp.get("conferenceCompetition", False)),
                 away_halves=_halves(away),
                 home_halves=_halves(home),
+                away_rank=_rank(away),
+                home_rank=_rank(home),
             )
         )
     return out
