@@ -1,0 +1,60 @@
+{
+ "episode_guid": "vsin-94566",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "7b18213ec2a96a79908c04c7f5eff95a831fac35",
+ "picks": [
+  {
+   "pick_id": "139b6d478114",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Zachary Cohen",
+   "episode_guid": "vsin-94566",
+   "episode_title": "Eagles vs. Commanders Predictions: Week 8 Sunday Night Football odds, picks, and player props",
+   "published": "2026-10-31T23:20:00+00:00",
+   "kind": "official",
+   "market": "other",
+   "team": null,
+   "opponent": null,
+   "side": null,
+   "line": null,
+   "price": 132.0,
+   "units": 0.5,
+   "seconds": 0,
+   "quote": "Diggs Over 4.5 Receptions (+132), Alt Receptions 6+ (+295 - 0.5 units)",
+   "reason": "https://vsin.com/nfl/eagles-vs-commanders-predictions-week-8-sunday-night-football-odds-picks-and-player-props/",
+   "description": "Diggs Over 4.5 Receptions (+132), Alt Receptions 6+ (+295 - 0.5 units)",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  },
+  {
+   "pick_id": "714b48298e71",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Zachary Cohen",
+   "episode_guid": "vsin-94566",
+   "episode_title": "Eagles vs. Commanders Predictions: Week 8 Sunday Night Football odds, picks, and player props",
+   "published": "2026-10-31T23:20:00+00:00",
+   "kind": "official",
+   "market": "other",
+   "team": null,
+   "opponent": null,
+   "side": null,
+   "line": null,
+   "price": 600.0,
+   "units": 0.1,
+   "seconds": 1,
+   "quote": "Alt Receptions 7+ (+600 - 0.1 units)",
+   "reason": "https://vsin.com/nfl/eagles-vs-commanders-predictions-week-8-sunday-night-football-odds-picks-and-player-props/",
+   "description": "Alt Receptions 7+ (+600 - 0.1 units)",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "nfl"
+ ]
+}

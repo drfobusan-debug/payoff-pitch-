@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-94540",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "54de6769f05970a7236089e8da10e6652c3c0ffc",
+ "picks": [
+  {
+   "pick_id": "e9e66584ec91",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Wes Reynolds",
+   "episode_guid": "vsin-94540",
+   "episode_title": "Wes Reynolds: NFL Week 8 Best Bets",
+   "published": "2026-10-31T23:31:37+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Los Angeles Chargers",
+   "opponent": "Los Angeles Rams",
+   "side": null,
+   "line": 6.5,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Los Angeles Chargers +6.5 at Los Angeles Rams",
+   "reason": "https://vsin.com/nfl/wes-reynolds-nfl-week-8-best-bets-and-predictions/",
+   "description": "Los Angeles Chargers +6.5 at Los Angeles Rams",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "nfl"
+ ]
+}
