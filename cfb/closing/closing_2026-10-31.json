@@ -1303,45 +1303,45 @@
   },
   "Oregon State @ Fresno State|game_ats|Fresno State": {
     "american": -103.0,
-    "captured_at": "2026-11-01T02:15:16Z",
+    "captured_at": "2026-11-01T02:45:21Z",
     "kickoff_utc": "2026-11-01T03:00:00Z",
     "line": 6.0,
-    "no_vig_prob": 0.49729675157986003
+    "no_vig_prob": 0.4980443932024325
   },
   "Oregon State @ Fresno State|game_ats|Oregon State": {
     "american": -108.0,
-    "captured_at": "2026-11-01T02:15:16Z",
+    "captured_at": "2026-11-01T02:45:21Z",
     "kickoff_utc": "2026-11-01T03:00:00Z",
     "line": -6.0,
-    "no_vig_prob": 0.50270324842014
+    "no_vig_prob": 0.5019556067975676
   },
   "Oregon State @ Fresno State|game_ml|Fresno State": {
     "american": 192.0,
-    "captured_at": "2026-11-01T02:15:16Z",
+    "captured_at": "2026-11-01T02:45:21Z",
     "kickoff_utc": "2026-11-01T03:00:00Z",
     "line": null,
-    "no_vig_prob": 0.33474888927991814
+    "no_vig_prob": 0.334946019761515
   },
   "Oregon State @ Fresno State|game_ml|Oregon State": {
     "american": -215.0,
-    "captured_at": "2026-11-01T02:15:16Z",
+    "captured_at": "2026-11-01T02:45:21Z",
     "kickoff_utc": "2026-11-01T03:00:00Z",
     "line": null,
-    "no_vig_prob": 0.6652511107200819
+    "no_vig_prob": 0.665053980238485
   },
   "Oregon State @ Fresno State|game_total|Over": {
     "american": -108.0,
-    "captured_at": "2026-11-01T02:15:16Z",
+    "captured_at": "2026-11-01T02:45:21Z",
     "kickoff_utc": "2026-11-01T03:00:00Z",
     "line": 56.5,
-    "no_vig_prob": 0.5049100172322953
+    "no_vig_prob": 0.5024873745794874
   },
   "Oregon State @ Fresno State|game_total|Under": {
-    "american": 100.0,
-    "captured_at": "2026-11-01T02:15:16Z",
+    "american": -103.0,
+    "captured_at": "2026-11-01T02:45:21Z",
     "kickoff_utc": "2026-11-01T03:00:00Z",
     "line": 56.5,
-    "no_vig_prob": 0.49508998276770466
+    "no_vig_prob": 0.49751262542051267
   },
   "Purdue @ Penn State Nit|game_ats|Penn State Nit": {
     "american": -106.0,
