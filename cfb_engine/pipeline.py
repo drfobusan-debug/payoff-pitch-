@@ -120,6 +120,7 @@ class Pipeline:
         self._first_board: dict[str, snapshot.SideQuote] = {}
         self._opener: dict[str, snapshot.SideQuote] = {}
         self._top_defenses: frozenset[str] = frozenset()
+        self._early = False
 
     def _load_calibrator(self) -> Calibrator:
         if self.cfg.calibrate and self.cfg.calibration_file.exists():
@@ -173,8 +174,20 @@ class Pipeline:
         return slate_date.year - 1 if slate_date.month <= 2 else slate_date.year
 
     def run(
-        self, slate_date: Date, *, slate: Slate | None = None, board: Board | None = None
+        self,
+        slate_date: Date,
+        *,
+        slate: Slate | None = None,
+        board: Board | None = None,
+        early: bool = False,
     ) -> list[Recommendation]:
+        """Price ``slate_date``'s board.
+
+        ``early`` prices it days ahead as a record only. It writes none of the
+        slate's own files (first-seen board, per-book totals, availability log),
+        so the day's card and the drift gate it reads are unchanged.
+        """
+        self._early = early
         fetched = slate is None or board is None
         if slate is None or board is None:
             slate, board = self.odds.fetch_board(slate_date)
@@ -238,8 +251,12 @@ class Pipeline:
             logger.info("advanced stats: %d teams", len(self.advanced.teams))
         if self.cfg.vsin_splits:
             self.splits = self.splits_provider.fetch(slate)
-        self._baseline_board(slate_date, slate, board)
-        if fetched:
+        if early:
+            self._first_board = {}
+            self._opener = snapshot.load(self.cfg.opener_file(slate_date))
+        else:
+            self._baseline_board(slate_date, slate, board)
+        if fetched and not early:
             self._capture_books(slate_date, slate, board)
         try:
             self.briefs = build_briefs(
@@ -486,14 +503,15 @@ class Pipeline:
             rows = unavailable_for(injuries, name)
             if not rows:
                 continue
-            log_availability(
-                self.cfg.availability_file,
-                home=game.home.name,
-                away=game.away.name,
-                rows=rows,
-                spread=spread,
-                news=self.news,
-            )
+            if not self._early:
+                log_availability(
+                    self.cfg.availability_file,
+                    home=game.home.name,
+                    away=game.away.name,
+                    rows=rows,
+                    spread=spread,
+                    news=self.news,
+                )
             starter = starters.get(school_key(name))
             if starter is None or not starter_absent(starter, [row.player for row in rows]):
                 continue
