@@ -1,0 +1,13 @@
+captured_at,game_date,matchup,event_id,market,side,entity,line,book,american,opposite_american,source
+2026-11-01T03:00:15Z,2026-10-31,OKC @ HOU,c30d3bdf126e98ced5b9389db8617926,game_ats,HOU,,-21.5,fanduel,200,-280,oddsapi
+2026-11-01T03:00:15Z,2026-10-31,OKC @ HOU,c30d3bdf126e98ced5b9389db8617926,game_ats,OKC,,21.5,fanduel,-280,200,oddsapi
+2026-11-01T03:00:15Z,2026-10-31,OKC @ HOU,c30d3bdf126e98ced5b9389db8617926,game_total,over,,213.5,fanduel,144,-194,oddsapi
+2026-11-01T03:00:15Z,2026-10-31,OKC @ HOU,c30d3bdf126e98ced5b9389db8617926,game_total,under,,213.5,fanduel,-194,144,oddsapi
+2026-11-01T03:00:15Z,2026-10-31,OKC @ HOU,c30d3bdf126e98ced5b9389db8617926,game_ats,HOU,,-21.5,draftkings,130,-170,oddsapi
+2026-11-01T03:00:15Z,2026-10-31,OKC @ HOU,c30d3bdf126e98ced5b9389db8617926,game_ats,OKC,,21.5,draftkings,-170,130,oddsapi
+2026-11-01T03:00:15Z,2026-10-31,OKC @ HOU,c30d3bdf126e98ced5b9389db8617926,game_total,over,,217.5,draftkings,-140,105,oddsapi
+2026-11-01T03:00:15Z,2026-10-31,OKC @ HOU,c30d3bdf126e98ced5b9389db8617926,game_total,under,,217.5,draftkings,105,-140,oddsapi
+2026-11-01T03:00:15Z,2026-10-31,OKC @ HOU,c30d3bdf126e98ced5b9389db8617926,game_ats,HOU,,-21.5,betmgm,600,-1200,oddsapi
+2026-11-01T03:00:15Z,2026-10-31,OKC @ HOU,c30d3bdf126e98ced5b9389db8617926,game_ats,OKC,,21.5,betmgm,-1200,600,oddsapi
+2026-11-01T03:00:15Z,2026-10-31,OKC @ HOU,c30d3bdf126e98ced5b9389db8617926,game_total,over,,217.5,betmgm,450,-750,oddsapi
+2026-11-01T03:00:15Z,2026-10-31,OKC @ HOU,c30d3bdf126e98ced5b9389db8617926,game_total,under,,217.5,betmgm,-750,450,oddsapi
