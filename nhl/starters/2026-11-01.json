@@ -1,0 +1,56 @@
+{
+  "ANA": {
+    "name": "Laurent Brossoit",
+    "player_id": 8476316,
+    "source": "rotowire",
+    "status": "confirmed"
+  },
+  "CAR": {
+    "name": "Pyotr Kochetkov",
+    "player_id": 8481611,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "MIN": {
+    "name": "Jesper Wallstedt",
+    "player_id": 8482661,
+    "source": "rotowire",
+    "status": "confirmed"
+  },
+  "NYR": {
+    "name": "Dylan Garand",
+    "player_id": 8482193,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "OTT": {
+    "name": "Jonas Johansson",
+    "player_id": 8477992,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "PHI": {
+    "name": "Dan Vladar",
+    "player_id": 8478435,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "UTA": {
+    "name": "Karel Vejmelka",
+    "player_id": 8478872,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "WPG": {
+    "name": "Stuart Skinner",
+    "player_id": 8479973,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "WSH": {
+    "name": "Logan Thompson",
+    "player_id": 8480313,
+    "source": "rotowire",
+    "status": "probable"
+  }
+}
