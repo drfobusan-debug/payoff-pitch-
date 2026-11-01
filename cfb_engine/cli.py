@@ -917,23 +917,55 @@ def cmd_shop(cfg: Config, args: argparse.Namespace) -> int:
     return 0
 
 
+def _stamp_context(cfg: Config, day: Date, entries: list[LedgerEntry]) -> int:
+    """Conference tier and AP top-25 on graded rows from before those columns existed.
+
+    Taken from the slate's saved predictions and its CFBD finals, the same sources the
+    audit stamps them from, so a backfilled row reads as if it had been graded today.
+    """
+    path = cfg.predictions_file(day)
+    if not path.exists():
+        return 0
+    recs = {(r.matchup, r.market, r.selection): r for r in load_json(path)}
+    index = _result_index(cfg, day) if any(e.conf_tier is None for e in entries) else None
+    n = 0
+    for e in entries:
+        rec = recs.get((e.matchup, e.market, e.selection))
+        if rec is None:
+            continue
+        stamped = False
+        if e.top25 is None and (top := atscontext.top25_game(rec.brief)) is not None:
+            e.top25, stamped = top, True
+        final = result_for(rec, index) if e.conf_tier is None and index is not None else None
+        if final is not None and (tier := atscontext.result_tier(final)) is not None:
+            e.conf_tier, stamped = tier, True
+        n += stamped
+    return n
+
+
 def cmd_stamp_units(cfg: Config, args: argparse.Namespace) -> int:
-    """Stamp point-in-time unit ranks (ATS/ML) and YPP tags (totals) on graded rows lacking them."""
+    """Stamp point-in-time context on graded rows lacking it.
+
+    Unit ranks (ATS/ML), YPP tags (totals), conference tier and AP top-25.
+    """
     _state_pull(cfg)
     entries = load_ledger(cfg.ledger_file)
     units_todo = {e.date for e in entries if e.market in unitranks.MARKETS and e.unit_ranks is None}
     ypp_todo = {e.date for e in entries if e.market == "game_total" and e.ypp_tags is None}
+    context_todo = {e.date for e in entries if e.conf_tier is None or e.top25 is None}
+    todo = units_todo | ypp_todo | context_todo
     total = 0
-    for iso in sorted(units_todo | ypp_todo):
+    for iso in sorted(todo):
         day = Date.fromisoformat(iso)
         day_rows = [e for e in entries if e.date == iso]
         n = _stamp_units(day_rows, _unit_ranks(cfg, day)) if iso in units_todo else 0
         n += _stamp_ypp(day_rows, _ypp_book(cfg, day)) if iso in ypp_todo else 0
+        n += _stamp_context(cfg, day, day_rows) if iso in context_todo else 0
         if n:
             update_ledger(cfg.ledger_file, day_rows, day)
             total += n
         print(f"{iso}: stamped {n} row(s).")
-    print(f"Stamped {total} ledger row(s) across {len(units_todo | ypp_todo)} slate(s).")
+    print(f"Stamped {total} ledger row(s) across {len(todo)} slate(s).")
     if total:
         _state_push(cfg, f"cfb stamp-units: {total} rows")
     return 0
@@ -1038,7 +1070,8 @@ def _build_parser() -> argparse.ArgumentParser:
     sub.add_parser("repair-closes", help="purge in-play quotes from saved closes and re-stamp CLV")
     sub.add_parser(
         "stamp-units",
-        help="stamp pre-slate unit ranks (ATS/ML) and YPP tags (totals) on graded ledger rows",
+        help="stamp pre-slate unit ranks (ATS/ML), YPP tags (totals), conference tier and AP "
+        "top-25 on graded ledger rows lacking them",
     )
     sub.add_parser(
         "shop", help="totals graded at the card's number vs the best allowed number vs Kalshi"
