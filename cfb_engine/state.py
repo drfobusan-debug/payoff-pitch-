@@ -41,7 +41,10 @@ _PUSH_ATTEMPTS = 3
 _MERGED_CSVS: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("ledger.csv", ("date", "matchup", "category", "market", "selection", "line")),
     ("scorecard.csv", ("date", "market", "tier")),
+    ("early_ledger.csv", ("date", "matchup", "category", "market", "selection", "line")),
 )
+# Saved cards, by file prefix: the day's card and the Tuesday-before card.
+CARD_KINDS: tuple[str, ...] = ("predictions", "early")
 AVAILABILITY_NAME = "availability.jsonl"
 # Every book's total per pull (``cfb_engine.audit.shop``), gzipped on the branch.
 BOOKS_DIR = "books"
@@ -117,17 +120,19 @@ def _audit_dir(data_dir: Path) -> Path:
     return data_dir / "audit"
 
 
-def _pull_predictions(state: Path, audit: Path, dates: tuple[str, ...] | None) -> list[str]:
+def _pull_predictions(
+    state: Path, audit: Path, dates: tuple[str, ...] | None, kind: str = "predictions"
+) -> list[str]:
     """Restore the pregame cards this machine never priced.
 
     Fill-in only: a card already here was priced here, at the prices the email
     went out with, and the branch must not replace it with another machine's.
     """
-    src_dir = state / PREFIX / "predictions"
+    src_dir = state / PREFIX / kind
     wanted = (
-        [f"predictions_{d}.json.gz" for d in dates]
+        [f"{kind}_{d}.json.gz" for d in dates]
         if dates is not None
-        else sorted(p.name for p in src_dir.glob("predictions_*.json.gz"))
+        else sorted(p.name for p in src_dir.glob(f"{kind}_*.json.gz"))
     )
     moved: list[str] = []
     for name in wanted:
@@ -178,22 +183,25 @@ def pull_state(
         local = audit / src.name[: -len(".gz")]
         merge_books(src, local, local)
         pulled.append(local.name)
-    pulled.extend(_pull_predictions(state, audit, dates))
+    for kind in CARD_KINDS:
+        pulled.extend(_pull_predictions(state, audit, dates, kind))
     return SyncReport(pulled=tuple(pulled))
 
 
-def _stage_predictions(state: Path, audit: Path) -> tuple[list[str], int]:
+def _stage_predictions(
+    state: Path, audit: Path, kind: str = "predictions"
+) -> tuple[list[str], int]:
     """Publish this machine's cards; the latest pricing of a slate is its record."""
-    out = state / PREFIX / "predictions"
+    out = state / PREFIX / kind
     out.mkdir(parents=True, exist_ok=True)
     staged: list[str] = []
-    for src in sorted(audit.glob("predictions_*.json")):
+    for src in sorted(audit.glob(f"{kind}_*.json")):
         with src.open("rb") as fin, gzip.open(out / f"{src.name}.gz", "wb", 6) as fout:
             shutil.copyfileobj(fin, fout)
         staged.append(src.name)
-    keep = sorted(p.name for p in out.glob("predictions_*.json.gz"))[-PREDICTION_KEEP_DAYS:]
+    keep = sorted(p.name for p in out.glob(f"{kind}_*.json.gz"))[-PREDICTION_KEEP_DAYS:]
     pruned = 0
-    for path in out.glob("predictions_*.json.gz"):
+    for path in out.glob(f"{kind}_*.json.gz"):
         if path.name not in keep:
             path.unlink()
             pruned += 1
@@ -250,8 +258,11 @@ def push_state(
             dest = root / BOOKS_DIR / f"{src.name}.gz"
             merge_books(dest, src, dest)
             pushed.append(dest.name)
-        staged, pruned = _stage_predictions(state, audit)
-        pushed.extend(staged)
+        pruned = 0
+        for kind in CARD_KINDS:
+            staged, dropped = _stage_predictions(state, audit, kind)
+            pushed.extend(staged)
+            pruned += dropped
         if not pushed:
             return SyncReport()
         _git(["add", "-A", PREFIX], state)
