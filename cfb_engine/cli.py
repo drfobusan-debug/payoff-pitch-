@@ -950,7 +950,12 @@ def cmd_stamp_units(cfg: Config, args: argparse.Namespace) -> int:
     """
     _state_pull(cfg)
     entries = load_ledger(cfg.ledger_file)
-    units_todo = {e.date for e in entries if e.market in unitranks.MARKETS and e.unit_ranks is None}
+    # A blank CSV cell loads as "", not None, so "never stamped" is both sides blank.
+    units_todo = {
+        e.date
+        for e in entries
+        if e.market in unitranks.MARKETS and not e.unit_ranks and not e.opp_unit_ranks
+    }
     ypp_todo = {e.date for e in entries if e.market == "game_total" and e.ypp_tags is None}
     context_todo = {e.date for e in entries if e.conf_tier is None or e.top25 is None}
     todo = units_todo | ypp_todo | context_todo
