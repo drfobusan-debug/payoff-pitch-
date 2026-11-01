@@ -6,7 +6,15 @@ from datetime import date
 from pathlib import Path
 
 from cfb_engine.audit.ledger import LedgerEntry, load_ledger, update_ledger
-from cfb_engine.audit.probation import PROMOTE, UNIT_RULES, WATCHING, probation_rows, rule_probation
+from cfb_engine.audit.probation import (
+    CANDIDATE_SCREENS,
+    PROMOTE,
+    UNIT_RULES,
+    WATCHING,
+    candidate_probation,
+    probation_rows,
+    rule_probation,
+)
 from cfb_engine.data.cfbd import GameMeta
 from cfb_engine.market import unitranks
 from cfb_engine.market.tiers import Tier
@@ -115,3 +123,50 @@ def test_ledger_round_trips_the_stamps(tmp_path: Path) -> None:
     got = {e.date: e for e in load_ledger(path)}
     assert got["2026-09-01"].unit_ranks == stamped.unit_ranks
     assert got["2026-09-02"].unit_ranks == ""
+
+
+WEAK = "off:90 def:80 pass_off:75 rush_off:70 pass_def:85 rush_def:60"
+STRONG = "off:10 def:20 pass_off:15 rush_off:30 pass_def:25 rush_def:5"
+
+
+def _buy(
+    result: str, mine: str, opp: str, day: str = "2026-11-07", market: str = "game_ats"
+) -> LedgerEntry:
+    return LedgerEntry(
+        date=day,
+        matchup="Rice @ Navy",
+        category="Spread (ATS)",
+        market=market,
+        selection="Navy -3.5",
+        line=-3.5,
+        book="draftkings",
+        odds=-110,
+        tier=Tier.STRONG.value,
+        model_prob=0.56,
+        ev=0.05,
+        result=result,
+        pnl=0.9091 if result == "win" else -1.0,
+        unit_ranks=mine,
+        opp_unit_ranks=opp,
+    )
+
+
+def test_weak_game_needs_both_sides_fully_ranked_and_averaging_72_or_worse() -> None:
+    assert unitranks.weak_game("game_ats", "2026-11-07", WEAK, WEAK)
+    assert not unitranks.weak_game("game_ats", "2026-11-07", WEAK, STRONG)
+    assert not unitranks.weak_game("game_ats", "2026-11-07", WEAK, "")
+    assert not unitranks.weak_game("game_ats", "2026-11-07", WEAK, "off:90 def:80")
+    assert not unitranks.weak_game("game_ml", "2026-11-07", WEAK, WEAK)
+
+
+def test_weak_game_screen_grades_only_slates_after_the_rows_it_was_cut_on() -> None:
+    (screen,) = (c for c in CANDIDATE_SCREENS if c.name == unitranks.WEAK_GAME_RULE)
+    rows = [
+        _buy("loss", WEAK, WEAK),
+        _buy("loss", WEAK, WEAK, day="2026-10-31"),
+        _buy("loss", STRONG, WEAK),
+        _buy("loss", WEAK, WEAK, market="game_ml"),
+    ]
+    (verdict,) = candidate_probation(rows, (screen,), min_n=50)
+    assert verdict.n == 1 and verdict.status == WATCHING
+    assert unitranks.WEAK_GAME_RULE in {p.name for p in probation_rows(rows)}
