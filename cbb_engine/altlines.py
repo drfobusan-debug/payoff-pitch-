@@ -14,7 +14,7 @@ import csv
 from collections.abc import Iterable, Sequence
 from dataclasses import replace
 from datetime import date as Date
-from datetime import timedelta
+from datetime import datetime, timedelta
 from pathlib import Path
 
 from cbb_engine import audit, history
@@ -29,6 +29,18 @@ from engine_runtime.odds_client import OddsClient
 PROVIDERS: tuple[str, ...] = ("alternate_spreads", "alternate_totals")
 ALT: dict[str, str] = {"game_ats_alt": "game_ats", "game_total_alt": "game_total"}
 FIELDS = ["date", "event_id", "market", "side", "main_line", "alt_line", "favour", "bought", "book", "american", "result", "pnl"]
+
+
+CARDS_PER_DAY = 2  # the 11:30 and 16:30 card passes (scripts/cbb/macos/install_schedule.command)
+
+
+def _utc(stamp: str) -> datetime:
+    return datetime.fromisoformat(stamp.replace("Z", "+00:00"))
+
+
+def daily_cost(n_games: int, max_events: int, regions: int) -> int:
+    """Ceiling on alternate-line credits a day: every game bought on every card."""
+    return CARDS_PER_DAY * min(n_games, max_events) * len(PROVIDERS) * regions
 
 
 def tracked(rows: Iterable[ledger.Row]) -> list[str]:
@@ -77,12 +89,15 @@ def grade(
             for q in quotes.read_day(root, SPORT, card_day)
             if q.pass_kind == "alt" and q.market in ALT and q.book in EXECUTION_BOOKS and q.line is not None
             and slate_date_of(q.tip_utc) == day
+            and _utc(q.captured_at) < _utc(q.tip_utc)
         ]
         if not alts:
             continue
+        # Every pass's own rows: the record keeps only a position's first pass, and a later card's
+        # alternates belong to that later card's buy.
         buys = {
             (r.pass_id, r.event_id, r.market, r.side): r
-            for r in ledger.record(root, SPORT, card_day).values()
+            for r in ledger.read_day(root, SPORT, card_day)
             if r.bet_of_record and r.is_buy and r.market in ALT.values() and r.line is not None
         }
         best: dict[tuple[str, str, str, float], quotes.Quote] = {}
@@ -161,4 +176,4 @@ def alts(path: Path, until: str | None = None) -> list[rt.Alt]:
     ]
 
 
-__all__ = ["ALT", "PROVIDERS", "alts", "capture_for", "favour", "grade", "save_day", "tracked"]
+__all__ = ["ALT", "PROVIDERS", "alts", "capture_for", "daily_cost", "favour", "grade", "save_day", "tracked"]

@@ -429,6 +429,9 @@ def cmd_budget(args: argparse.Namespace) -> int:
         event_cost=len(EVENT_MARKETS) if cfg.event_markets_on else 0,
         regions=len(cfg.regions.split(",")),
     )
+    if cfg.alt_lines_on:
+        out["alt_lines"] = altlines.daily_cost(args.games, cfg.max_events, len(cfg.regions.split(",")))
+        out["total"] += out["alt_lines"]
     print(json.dumps({"games": args.games, "regions": cfg.regions, **out}, indent=2))
     return 0
 
