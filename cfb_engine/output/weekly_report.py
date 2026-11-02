@@ -150,19 +150,30 @@ def _lead(report: WeeklyAudit) -> str:
     )
 
 
-def _alt_html(alts: list[alt_rt.Alt]) -> str:
+def _alt_table(alts: list[alt_rt.Alt], empty: str) -> str:
     rows = alt_rt.table(alts)
     head = "".join(f"<th>{escape(h)}</th>" for h in alt_rt.HEAD)
     body = "".join("<tr>" + "".join(f"<td>{escape(c)}</td>" for c in r) + "</tr>" for r in rows)
-    table = f"<table><tr>{head}</tr>{body}</table>" if rows else "<p>No graded alternate lines yet.</p>"
+    return f"<table><tr>{head}</tr>{body}</table>" if rows else f"<p>{escape(empty)}</p>"
+
+
+def _alt_html(alts: list[alt_rt.Alt], flagged: list[alt_rt.Alt] | None = None) -> str:
     return (
         "<h2>Alternate lines: points bought vs sold (ledger to date)</h2>"
         "<p class='fine'>Fetched beside every spread buy and graded-only total; 'beside buys' "
-        f"are the spread and total buys. {escape(alt_rt.NOTE)}</p>{table}"
+        f"are the spread and total buys. {escape(alt_rt.NOTE)}</p>"
+        f"{_alt_table(alts, 'No graded alternate lines yet.')}"
+        "<h2>Alternate rungs the engine would buy (graded only)</h2>"
+        "<p class='fine'>Each rung priced at the card's main-line probability moved along the sim's "
+        "normal margin or total; flagged when its edge over that book's two-way no-vig price and its EV "
+        "pass the main-line buy bars. Never bet; graded to show which number to take.</p>"
+        f"{_alt_table(flagged or [], 'No engine-flagged rungs graded yet.')}"
     )
 
 
-def build_weekly_article(report: WeeklyAudit, alts: list[alt_rt.Alt] | None = None) -> str:
+def build_weekly_article(
+    report: WeeklyAudit, alts: list[alt_rt.Alt] | None = None, flagged: list[alt_rt.Alt] | None = None
+) -> str:
     title = f"Weekly Audit: {report.start:%b} {report.start.day} - {report.end:%b} {report.end.day}, {report.end.year}"
     return (
         f"<!DOCTYPE html><html><head><meta charset='utf-8'><style>{_CSS}{_EXTRA_CSS}</style>"
@@ -172,7 +183,7 @@ def build_weekly_article(report: WeeklyAudit, alts: list[alt_rt.Alt] | None = No
         f"{_lead(report)}"
         f"{_scope_html(report.week, 'By slate')}"
         f"{_scope_html(report.ledger, 'By week')}"
-        f"{_alt_html(alts or [])}"
+        f"{_alt_html(alts or [], flagged)}"
         "<p class='fine'>Break-even = the win rate the prices taken demanded. 95% range = "
         "ROI plus or minus 1.96 standard errors (never narrower than a coin flip at those "
         "prices), and nothing under 30 bets is called beyond noise; 'needs ~N' is how many bets this ROI would "
@@ -190,7 +201,11 @@ def generate_weekly_report(
 ) -> dict[str, Path | None]:
     """Write the weekly article HTML + PDF and optionally email the PDF."""
     out: dict[str, Path | None] = {"html": None, "pdf": None}
-    html = build_weekly_article(report, altlines.alts(cfg.alt_ledger_file))
+    html = build_weekly_article(
+        report,
+        altlines.alts(cfg.alt_ledger_file),
+        altlines.alts(cfg.alt_ledger_file, flagged_only=True),
+    )
     iso = report.end.isoformat()
     cfg.output_dir.mkdir(parents=True, exist_ok=True)
     html_path = cfg.output_dir / f"cfb_weekly_audit_{iso}.html"
