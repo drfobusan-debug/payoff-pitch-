@@ -165,8 +165,10 @@ def _alt_html(alts: list[alt_rt.Alt], flagged: list[alt_rt.Alt] | None = None) -
         f"{_alt_table(alts, 'No graded alternate lines yet.')}"
         "<h2>Alternate rungs the engine would buy (graded only)</h2>"
         "<p class='fine'>Each rung priced at the card's main-line probability moved along the sim's "
-        "normal margin or total; flagged when its edge over that book's two-way no-vig price and its EV "
-        "pass the main-line buy bars. Never bet; graded to show which number to take.</p>"
+        "normal margin or total, within 3.5 points of the main number. A rung is a candidate when its edge "
+        "over that book's two-way no-vig price and its EV pass the main-line buy bars and its edge beats "
+        "the main line's; the best candidate per game is flagged, so each game counts once. Never bet; "
+        "graded to show which number to take instead of the main one.</p>"
         f"{_alt_table(flagged or [], 'No engine-flagged rungs graded yet.')}"
     )
 

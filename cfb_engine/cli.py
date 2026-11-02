@@ -228,6 +228,7 @@ def _grade_alt_lines(
             mean=rec.exp_total if rec.market == "game_total" else rec.exp_margin,
             sd=rec.exp_total_sd if rec.market == "game_total" else rec.exp_margin_sd,
             thr=cfg.ev.for_market(rec.market),
+            main_edge=rec.edge,
         )
     n = altlines.save_day(cfg.alt_ledger_file, day.isoformat(), out)
     print(f"Graded {n} alternate lines (tracked only) -> {cfg.alt_ledger_file}")
