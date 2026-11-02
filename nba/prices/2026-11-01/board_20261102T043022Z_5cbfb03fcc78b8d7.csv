@@ -1,0 +1,27 @@
+captured_at,game_date,matchup,event_id,market,side,entity,line,book,american,opposite_american,source
+2026-11-02T04:30:22Z,2026-11-01,TOR @ LAL,31fc89cbf3846e545e8e41a543a71d24,game_ats,LAL,,-8.5,draftkings,-170,130,oddsapi
+2026-11-02T04:30:22Z,2026-11-01,TOR @ LAL,31fc89cbf3846e545e8e41a543a71d24,game_ats,TOR,,8.5,draftkings,130,-170,oddsapi
+2026-11-02T04:30:22Z,2026-11-01,TOR @ LAL,31fc89cbf3846e545e8e41a543a71d24,game_total,over,,250.5,draftkings,-135,105,oddsapi
+2026-11-02T04:30:22Z,2026-11-01,TOR @ LAL,31fc89cbf3846e545e8e41a543a71d24,game_total,under,,250.5,draftkings,105,-135,oddsapi
+2026-11-02T04:30:22Z,2026-11-01,TOR @ LAL,31fc89cbf3846e545e8e41a543a71d24,game_ats,LAL,,-13.5,bovada,-110,-120,oddsapi
+2026-11-02T04:30:22Z,2026-11-01,TOR @ LAL,31fc89cbf3846e545e8e41a543a71d24,game_ats,TOR,,13.5,bovada,-120,-110,oddsapi
+2026-11-02T04:30:22Z,2026-11-01,TOR @ LAL,31fc89cbf3846e545e8e41a543a71d24,game_ats,LAL,,-6.5,betmgm,-150,115,oddsapi
+2026-11-02T04:30:22Z,2026-11-01,TOR @ LAL,31fc89cbf3846e545e8e41a543a71d24,game_ats,TOR,,6.5,betmgm,115,-150,oddsapi
+2026-11-02T04:30:22Z,2026-11-01,TOR @ LAL,31fc89cbf3846e545e8e41a543a71d24,game_total,over,,253.5,betmgm,-190,145,oddsapi
+2026-11-02T04:30:22Z,2026-11-01,TOR @ LAL,31fc89cbf3846e545e8e41a543a71d24,game_total,under,,253.5,betmgm,145,-190,oddsapi
+2026-11-02T04:30:22Z,2026-11-01,TOR @ LAL,31fc89cbf3846e545e8e41a543a71d24,game_ats,LAL,,-8.5,williamhill_us,120,-150,oddsapi
+2026-11-02T04:30:22Z,2026-11-01,TOR @ LAL,31fc89cbf3846e545e8e41a543a71d24,game_ats,TOR,,8.5,williamhill_us,-150,120,oddsapi
+2026-11-02T04:30:22Z,2026-11-01,TOR @ LAL,31fc89cbf3846e545e8e41a543a71d24,game_total,over,,250.5,williamhill_us,-105,-125,oddsapi
+2026-11-02T04:30:22Z,2026-11-01,TOR @ LAL,31fc89cbf3846e545e8e41a543a71d24,game_total,under,,250.5,williamhill_us,-125,-105,oddsapi
+2026-11-02T04:30:22Z,2026-11-01,TOR @ LAL,31fc89cbf3846e545e8e41a543a71d24,game_ats,LAL,,-14.5,mybookieag,105,-133,oddsapi
+2026-11-02T04:30:22Z,2026-11-01,TOR @ LAL,31fc89cbf3846e545e8e41a543a71d24,game_ats,TOR,,14.5,mybookieag,-133,105,oddsapi
+2026-11-02T04:30:22Z,2026-11-01,TOR @ LAL,31fc89cbf3846e545e8e41a543a71d24,game_ats,LAL,,-5.5,fanatics,-330,225,oddsapi
+2026-11-02T04:30:22Z,2026-11-01,TOR @ LAL,31fc89cbf3846e545e8e41a543a71d24,game_ats,TOR,,5.5,fanatics,225,-330,oddsapi
+2026-11-02T04:30:22Z,2026-11-01,TOR @ LAL,31fc89cbf3846e545e8e41a543a71d24,game_ats,LAL,,-8.5,fanduel,138,-186,oddsapi
+2026-11-02T04:30:22Z,2026-11-01,TOR @ LAL,31fc89cbf3846e545e8e41a543a71d24,game_ats,TOR,,8.5,fanduel,-186,138,oddsapi
+2026-11-02T04:30:22Z,2026-11-01,TOR @ LAL,31fc89cbf3846e545e8e41a543a71d24,game_total,over,,250.5,fanduel,-162,122,oddsapi
+2026-11-02T04:30:22Z,2026-11-01,TOR @ LAL,31fc89cbf3846e545e8e41a543a71d24,game_total,under,,250.5,fanduel,122,-162,oddsapi
+2026-11-02T04:30:22Z,2026-11-01,TOR @ LAL,31fc89cbf3846e545e8e41a543a71d24,game_ats,LAL,,-7.5,betrivers,-112,-120,oddsapi
+2026-11-02T04:30:22Z,2026-11-01,TOR @ LAL,31fc89cbf3846e545e8e41a543a71d24,game_ats,TOR,,7.5,betrivers,-120,-112,oddsapi
+2026-11-02T04:30:22Z,2026-11-01,TOR @ LAL,31fc89cbf3846e545e8e41a543a71d24,game_total,over,,245.5,betrivers,108,-148,oddsapi
+2026-11-02T04:30:22Z,2026-11-01,TOR @ LAL,31fc89cbf3846e545e8e41a543a71d24,game_total,under,,245.5,betrivers,-148,108,oddsapi
