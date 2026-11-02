@@ -169,6 +169,23 @@ SHOWS: tuple[Show, ...] = (
         leagues=(MLB,),
         dedicated=True,
     ),
+    # ---- college basketball
+    Show(
+        "c2c_hoops",
+        "Coast to Coast Hoops (VSiN)",
+        "https://feeds.megaphone.fm/BRCM6177059580",
+        ("Greg Peterson",),
+        leagues=(CBB,),
+        dedicated=True,
+    ),
+    Show(
+        "cbb_experience",
+        "The College Experience: Basketball (SGPN)",
+        "https://feeds.simplecast.com/CWzTxJrs",
+        ("Colby Dant", "Moneyline Mac"),
+        leagues=(CBB,),
+        dedicated=True,
+    ),
     # ---- NBA
     Show(
         "hardwood",
