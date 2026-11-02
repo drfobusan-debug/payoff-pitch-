@@ -359,7 +359,8 @@ def cmd_podcast(args: argparse.Namespace) -> int:
     sync = not args.no_sync
     if sync:
         podcast_state.auto_pull(store_dir())
-        state.auto_pull(trees=("ledger",))
+        # The manifests (in quotes) name each event's teams; without them no pick places.
+        state.auto_pull(trees=("quotes", "ledger"))
     if not args.no_read:
         now = datetime.now(timezone.utc)
         rep = read_feeds(
