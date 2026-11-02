@@ -17,13 +17,26 @@ from datetime import date as Date
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from cbb_engine import audit, bands, cadence, card, checklist, email, history, pilot, state, study
+from cbb_engine import (
+    audit,
+    audit_report,
+    bands,
+    cadence,
+    card,
+    checklist,
+    email,
+    history,
+    pilot,
+    state,
+    study,
+)
 from cbb_engine.config import SPORT, SPORT_KEY, data_dir, dry_run, load_config, runtime_root
 from cbb_engine.data import capture, espn, injuries, torvik, watch
 from cbb_engine.markets import EVENT_MARKETS, FEATURED
 from cbb_engine.models import distribution as dist
 from cbb_engine.models import margin as mg
 from cbb_engine.output import movement, pdf, teamstats
+from engine_common.bands import BandRead
 from engine_runtime import ledger, quotes, runner, views
 from engine_runtime.odds_client import OddsClient
 
@@ -278,7 +291,7 @@ def _manifest_teams(root: Path, day: Date) -> dict[str, tuple[str, str]]:
     return teams
 
 
-def _season_bands(root: Path, season: list[ledger.Row], day: Date) -> list[str]:
+def _season_bands(root: Path, season: list[ledger.Row], day: Date) -> list[BandRead] | None:
     """Graded-only bands over the season's ledger; context from archived ESPN boards, Torvik and first captures."""
     try:
         logs = bands.parse_logs(teamstats.read_logs(torvik.as_of(data_dir(), "game_logs", day).path))
@@ -295,10 +308,10 @@ def _season_bands(root: Path, season: list[ledger.Row], day: Date) -> list[str]:
         for d in days:
             opener = bands.openers(quotes.read_day(root, SPORT, d.isoformat()))
             ctx.update(bands.context(_manifest_teams(root, d), d, boards, logs, confs, opener))
-        return bands.render(bands.read_bands(season, ctx)).splitlines()
+        return bands.read_bands(season, ctx)
     except Exception:
         log.warning("CBB bands failed; the audit goes out without them", exc_info=True)
-        return ["bands unavailable (see log)"]
+        return None
 
 
 def _card_pdf(root: Path, day: Date, pass_id: str, rows: list[ledger.Row], out: Path) -> Path | None:
@@ -350,30 +363,39 @@ def cmd_audit(args: argparse.Namespace) -> int:
     shards = quotes.read_day(root, SPORT, day.isoformat())
     rep = audit.report(rows, rungs, shards)
     # The stake bar is season-to-date: eight live buys a day never reach 100 in one slate.
-    season = [
-        r
+    by_day = {
+        d: list(ledger.record(root, SPORT, d).values())
         for d in sorted(p.name for p in (root / "ledger" / SPORT).glob("*") if p.is_dir())
         if d <= day.isoformat()
-        for r in ledger.record(root, SPORT, d).values()
-    ]
+    }
+    season = [r for rs in by_day.values() for r in rs]
+    reads = _season_bands(root, season, day)
     rep["v_promotion"] = views.v_promotion(season)
-    rep["v_bands"] = _season_bands(root, season, day)
+    rep["v_bands"] = bands.render(reads).splitlines() if reads is not None else ["bands unavailable (see log)"]
     if args.time_travel:
         stamps = [("quote", q.captured_at) for q in shards] + [("row", r.tip_utc) for r in rows]
         rep["time_travel_violations"] = study.time_travel(day.isoformat(), stamps)
-    text = (
-        checklist.render(checklist.run(load_config(), root, day.isoformat()))
-        + "\n\n"
-        + audit.render(rep)
-    )
-    out = data_dir() / "audit" / f"{day.isoformat()}.json"
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(text)
+    checks = checklist.render(checklist.run(load_config(), root, day.isoformat()))
+    report = audit_report.build(by_day, day, bands=reads, checklist_lines=checks.splitlines())
+    text = audit_report.render_text(report)
+    out_dir = data_dir() / "audit"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / f"{day.isoformat()}.json").write_text(audit.render(rep))
+    page = audit_report.render_html(report)
+    html_out = out_dir / f"cbb_audit_{day.isoformat()}.html"
+    html_out.write_text(page, encoding="utf-8")
+    paths = {"audit_html": html_out}
+    try:
+        pdf_out = out_dir / f"CBB_Audit_{day.isoformat()}.pdf"
+        pdf_out.write_bytes(pdf.render_pdf(page))
+        paths = {"audit_pdf": pdf_out}
+    except Exception:
+        log.warning("CBB audit PDF failed; attaching the HTML report instead", exc_info=True)
     print(text)
-    print(f"graded {len(written)} row(s)")
+    print(f"graded {len(written)} row(s); report in {out_dir}")
     if args.email:
         print(
-            f"emailed {email.send(load_config(), subject=f'CBB audit {day}', text=text, paths={'audit': out}, to=args.to)}"
+            f"emailed {email.send(load_config(), subject=report.subject, text=text, paths=paths, to=args.to)}"
         )
     return 0
 
