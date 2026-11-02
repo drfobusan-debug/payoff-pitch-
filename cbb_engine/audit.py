@@ -21,12 +21,14 @@ import json
 from collections import defaultdict
 from collections.abc import Iterable
 from dataclasses import replace
+from datetime import date as Date
 from datetime import timedelta
 from pathlib import Path
 
 from cbb_engine import history, pilot
 from cbb_engine.cadence import parse_utc
 from cbb_engine.config import SPORT
+from cbb_engine.data.capture import slate_date_of
 from cbb_engine.data.espn import Game
 from cbb_engine.market import consensus
 from cbb_engine.models import distribution as dist
@@ -35,6 +37,7 @@ from engine_common.odds import american_to_prob
 from engine_runtime import ledger, quotes, views
 
 CLOSE_MAX_MIN = 45
+LOOKBACK_DAYS = 7  # card days read back for games tipping on the graded day
 
 
 def _closes(quotes_: Iterable[quotes.Quote]) -> tuple[dict[str, list[quotes.Quote]], dict[str, str]]:
@@ -142,13 +145,47 @@ def grade(
     pass_id: str,
     width: dist.Width | None = None,
     margin: mg.MarginWidth | None = None,
+    lookback: int = LOOKBACK_DAYS,
 ) -> list[ledger.Row]:
-    """Settle every ungraded bet-of-record row for the day (buys and passes); returns the rows written."""
-    current = ledger.record(root, SPORT, day)
+    """Settle every ungraded bet-of-record row whose game tipped on ``day`` (US clock).
+
+    A card prices every posted game, so a game is often on cards one or two days
+    before it tips. Its close shards and final live under its own day, so each
+    card day up to ``lookback`` back is read, and rows tipping on a later day are
+    left alone until that day is graded. Corrections go into the row's own card
+    day; returns the rows written.
+    """
     closes, missed = _closes(quotes.read_day(root, SPORT, day))
     anchors = {eid: consensus.build(qs, shard=qs[0].pass_id) for eid, qs in closes.items()}
+    written: list[ledger.Row] = []
+    end = Date.fromisoformat(day)
+    for back in range(lookback, -1, -1):
+        card_day = (end - timedelta(days=back)).isoformat()
+        rows = [
+            r
+            for r in ledger.record(root, SPORT, card_day).values()
+            if slate_date_of(r.tip_utc) == day
+        ]
+        out = _grade_rows(rows, closes, missed, anchors, games, teams, pass_id, width, margin)
+        if out:
+            ledger.write_once(root, SPORT, card_day, pass_id, out)
+            written += out
+    return written
+
+
+def _grade_rows(
+    rows: list[ledger.Row],
+    closes: dict[str, list[quotes.Quote]],
+    missed: dict[str, str],
+    anchors: dict[str, list[consensus.Anchor]],
+    games: list[Game],
+    teams: dict[str, tuple[str, str]],
+    pass_id: str,
+    width: dist.Width | None,
+    margin: mg.MarginWidth | None,
+) -> list[ledger.Row]:
     out: list[ledger.Row] = []
-    for r in current.values():
+    for r in rows:
         if r.outcome or (r.close_status and not games):
             continue
         g = replace(
@@ -179,8 +216,6 @@ def grade(
                 g.outcome = outcome(r, final, h1)
                 g.pnl = pnl(r, g.outcome)
         out.append(g)
-    if out:
-        ledger.write_once(root, SPORT, day, pass_id, out)
     return out
 
 
@@ -278,4 +313,4 @@ def render(rep: dict[str, object]) -> str:
     return json.dumps(rep, indent=2, default=str)
 
 
-__all__ = ["CLOSE_MAX_MIN", "grade", "outcome", "outcome_total", "pnl", "render", "report", "v_persist"]
+__all__ = ["CLOSE_MAX_MIN", "LOOKBACK_DAYS", "grade", "outcome", "outcome_total", "pnl", "render", "report", "v_persist"]

@@ -234,3 +234,24 @@ def test_alternate_lines_settle_like_the_main_line() -> None:
                      book="draftkings", pass_id="p", pass_kind="featured", bet_of_record=True, status="shadow")
     assert audit.outcome(row, (70, 73)) == "win"
     assert audit.outcome(ledger.Row(**{**row.__dict__, "market": "game_ats_alt", "side": "away", "line": 2.5}), (70, 73)) == "loss"
+
+
+def test_grade_reads_earlier_cards_for_games_tipping_today_and_leaves_later_tips(tmp_path: Path) -> None:
+    from dataclasses import replace
+
+    _write_board(tmp_path, "b1", _board("b1", dk_over=130))
+    priced = card.price(tmp_path, DAY, now=NOW, pass_id="card1", pass_kind="featured", width=WIDTH)
+    assert priced is not None
+    prev = "2026-11-09"  # the game was already on the card the day before it tips
+    ledger.write_once(tmp_path, SPORT, prev, "card0", [replace(r, slate_date=prev) for r in priced.rows])
+    tomorrow = [replace(r, event_id="e2", tip_utc="2026-11-11T23:00:00Z") for r in priced.rows]
+    ledger.write_once(tmp_path, SPORT, DAY, "card1", tomorrow)
+    _write_board(tmp_path, "c1", _close_board("c1", CLOSE_AT), kind="close")
+    game = Game(espn_id="x", start_utc="", away="Kansas", home="Duke", state="STATUS_FINAL", neutral=False,
+                conference_game=False, away_halves=(40, 40), home_halves=(35, 36))
+    written = audit.grade(tmp_path, DAY, [game], {"e1": ("Duke", "Kansas")}, pass_id="audit1", width=WIDTH)
+    assert written and {r.slate_date for r in written} == {prev}
+    assert all(r.close_status == "pre_tip" and r.clv_consensus is not None and r.outcome for r in written)
+    assert all(r.supersedes for r in ledger.record(tmp_path, SPORT, prev).values())
+    # tomorrow's game stays untouched until its own day is graded: no "pulled" stamp
+    assert all(not r.close_status and not r.supersedes for r in ledger.record(tmp_path, SPORT, DAY).values())
