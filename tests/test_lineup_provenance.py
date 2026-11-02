@@ -223,47 +223,53 @@ def _rec(p: Pipeline, market: str, selection: str, model_prob: float = 0.618):
     )
 
 
-def test_the_provenance_cap_ships_on() -> None:
-    assert LineupLockGate.from_env().provenance_cap is True
+def test_posted_lineups_only_ships_on() -> None:
+    assert LineupLockGate.from_env().posted_only is True
 
 
-def test_a_projected_batter_prop_is_capped() -> None:
+def test_a_projected_batter_prop_is_refused() -> None:
     gate = LineupLockGate()
-    cap, reason = gate.caps_at_moderate(
+    refuse, reason = gate.refuses_projected(
         gate.read(projected=True, hours=1.0), "batter_2b"
     )
-    assert cap is True
-    assert "projected lineup" in reason and "-9.9%" in reason
+    assert refuse is True
+    assert "projected lineup" in reason and "-11.3%" in reason
+
+
+def test_a_projected_game_line_is_refused() -> None:
+    gate = LineupLockGate()
+    lock = gate.read(projected=True, hours=1.0)
+    assert gate.refuses_projected(lock, "game_ml")[0] is True
+    assert gate.refuses_projected(lock, "f5_total")[0] is True
 
 
 def test_a_posted_batter_prop_is_left_alone() -> None:
     gate = LineupLockGate()
     lock = gate.read(projected=False, hours=1.0)
-    assert gate.caps_at_moderate(lock, "batter_2b") == (False, "")
+    assert gate.refuses_projected(lock, "batter_2b") == (False, "")
 
 
-def test_a_pitcher_prop_is_never_capped_on_a_projected_lineup() -> None:
+def test_a_pitcher_prop_is_never_refused_on_a_projected_lineup() -> None:
     """Both provenances profit there, and a starter is named days ahead."""
     gate = LineupLockGate()
     lock = gate.read(projected=True, hours=1.0)
-    assert gate.caps_at_moderate(lock, "pitcher_k")[0] is False
-    assert gate.caps_at_moderate(lock, "game_ml")[0] is False
+    assert gate.refuses_projected(lock, "pitcher_k")[0] is False
 
 
 def test_an_unrecorded_provenance_is_not_a_projected_one() -> None:
-    """Every backtest lands here: the cap refuses a measured status, not a gap."""
-    assert LineupLockGate().caps_at_moderate(None, "batter_2b")[0] is False
+    """Every backtest lands here: the gate refuses a measured status, not a gap."""
+    assert LineupLockGate().refuses_projected(None, "batter_2b")[0] is False
 
 
-def test_the_cap_is_switchable(monkeypatch) -> None:
-    monkeypatch.setenv("MLBE_LINEUP_PROVENANCE_CAP", "0")
+def test_the_refusal_is_switchable(monkeypatch) -> None:
+    monkeypatch.setenv("MLBE_POSTED_LINEUPS_ONLY", "0")
     gate = LineupLockGate.from_env()
     lock = gate.read(projected=True, hours=1.0)
-    assert gate.caps_at_moderate(lock, "batter_2b")[0] is False
+    assert gate.refuses_projected(lock, "batter_2b")[0] is False
 
 
 # ---- the cap inside the pipeline ------------------------------------------
-def test_a_strong_batter_buy_on_a_projected_lineup_becomes_moderate() -> None:
+def test_a_batter_buy_on_a_projected_lineup_is_refused() -> None:
     p = _pipeline()
     p._lineup_lock = p._lineup_gate.read(projected=False, hours=1.0)
     posted = _rec(p, "batter_2b", "Some Batter o0.5 2B")
@@ -271,7 +277,6 @@ def test_a_strong_batter_buy_on_a_projected_lineup_becomes_moderate() -> None:
 
     p._lineup_lock = p._lineup_gate.read(projected=True, hours=1.0)
     projected = _rec(p, "batter_2b", "Some Batter o0.5 2B")
-    assert projected.tier is Tier.MODERATE
-    # The reason travels with the row, and _attach_context stamps the status the
-    # ledger splits on, so the cap is gradeable against the buys it shrank.
-    assert any("MODERATE cap" in r for r in projected.reasons)
+    assert projected.tier is Tier.PASS
+    assert projected.pass_gate == "projected_lineup"
+    assert any("projected lineup" in r for r in projected.reasons)

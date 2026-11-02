@@ -118,7 +118,6 @@ from mlb_engine.features.trend import PitcherTrends, pitcher_trends
 from mlb_engine.features.workload import expected_bf_cap
 from mlb_engine.features.xhr import batter_xhr, park_hr_multiplier
 from mlb_engine.features.xtb import LeagueXTB
-from mlb_engine.filters import travel_rest
 from mlb_engine.filters.defense import TeamDefense, load_team_defense
 from mlb_engine.filters.human import HumanFactors
 from mlb_engine.filters.schedule import dgang_multipliers, local_hour, parse_utc_hour
@@ -1252,17 +1251,6 @@ class Pipeline:
             game.away, game.home, statcast, slate_date, sprint, park, weather_mult
         )
 
-        # travel/rest (circadian) per team
-        if park:
-            home_te = travel_rest.compute(_prev_to_pg(home_prev), park, slate_date)
-            away_te = travel_rest.compute(_prev_to_pg(away_prev), park, slate_date)
-            home_tr, away_tr = home_te.multipliers(), away_te.multipliers()
-            # jet-lagged staff allows more HR -> boost the OPPOSING offense
-            home_hr_boost = away_te.pitching_multipliers()
-            away_hr_boost = home_te.pitching_multipliers()
-        else:
-            home_tr = away_tr = home_hr_boost = away_hr_boost = {}
-
         # human element: division familiarity + plate-umpire zone (both offenses),
         # plus opponent-specific hooks (framing/battery, neutral until fed).
         divisional = same_division(game.home.team_id, game.away.team_id)
@@ -1292,11 +1280,10 @@ class Pipeline:
         home_dgang = self._dgang_multiplier(home_prev, park, game.game_datetime_utc, slate_date)
         away_dgang = self._dgang_multiplier(away_prev, park, game.game_datetime_utc, slate_date)
 
-        # apply env filters: weather + own travel + opponent-staff HR boost +
-        # human element + opponent fielding defense + manager speed engine + DGANG.
-        home_env = [weather_mult, park_mult, home_tr, home_hr_boost, home_human,
+        # apply env filters: weather + park + human element + opponent fielding defense + manager speed engine + DGANG.
+        home_env = [weather_mult, park_mult, home_human,
                     home_def, home_mgr.offense_multipliers(), home_dgang]
-        away_env = [weather_mult, park_mult, away_tr, away_hr_boost, away_human,
+        away_env = [weather_mult, park_mult, away_human,
                     away_def, away_mgr.offense_multipliers(), away_dgang]
         home_start = self._apply_all(home_start, home_env)
         home_pen_env = [*home_env, home_mgr.pen_multipliers()]
@@ -2329,14 +2316,15 @@ class Pipeline:
                     gate = "lineup_lock"
                 if lock_reason:
                     reasons.append(lock_reason)
-            # A hitter who may not bat is a smaller bet, not a refused one: the
-            # cap runs on any surviving buy so a promoted row is capped too.
-            if tier == Tier.STRONG:
-                cap, prov_reason = self._lineup_gate.caps_at_moderate(
+            # A buy priced off a lineup that may not bat is refused, after any
+            # promotion, so an upgraded row is refused too.
+            if tier != Tier.PASS:
+                refuse, prov_reason = self._lineup_gate.refuses_projected(
                     self._lineup_lock, market
                 )
-                if cap:
-                    tier = Tier.MODERATE
+                if refuse:
+                    tier = Tier.PASS
+                    gate = "projected_lineup"
                 if prov_reason:
                     reasons.append(prov_reason)
             # Runs after the sharp-money upgrade, which it is entitled to
@@ -2442,17 +2430,44 @@ class Pipeline:
             rec.tier = Tier.PASS
             rec.pass_gate = "price_only"
             rec.reasons = ["price captured for audit only", *rec.reasons]
+        # Long prices: +200 and longer went about -18% on 415 buys, the vig on a
+        # long shot swallowing whatever edge the model claims.
+        if rec.tier != Tier.PASS and rec.market_american is not None:
+            keep, long_reason = price_ceiling_allows(
+                rec.market_american, self.cfg.longshot_refuse_odds, "longshot"
+            )
+            if not keep:
+                rec.tier = Tier.PASS
+                rec.pass_gate = "longshot_price"
+            if long_reason:
+                rec.reasons = [long_reason, *rec.reasons]
+        # Batter overs against an arm the power screen calls elite (SIERA at or
+        # below its floor): 314 screen rows won 37.3% against 43.2% fair.
+        if (
+            category == "batter"
+            and not under
+            and rec.tier != Tier.PASS
+            and opp_starter_siera is not None
+            and opp_starter_siera <= self.cfg.elite_arm_siera
+        ):
+            rec.tier = Tier.PASS
+            rec.pass_gate = "batter_over_elite_arm"
+            rec.reasons = [
+                f"batter over vs elite arm (SIERA {opp_starter_siera:.2f} <= "
+                f"{self.cfg.elite_arm_siera:.2f}) -> PASS",
+                *rec.reasons,
+            ]
+        # Graded-only runs last, so every named screen above keeps the rows it
+        # refused and the graded-only gate holds only the would-be buys.
+        if rec.tier != Tier.PASS:
+            keep, graded_reason, graded_gate = self.cfg.graded_only.verdict(
+                market, rec.tier.value
+            )
+            if not keep:
+                rec.tier = Tier.PASS
+                rec.pass_gate = graded_gate
+                rec.reasons = [graded_reason, *rec.reasons]
         return rec
-
-
-def _prev_to_pg(prev):
-    if prev is None:
-        return None
-    d, venue_id, _ = prev
-    p = get_park(venue_id)
-    if not p:
-        return None
-    return travel_rest.PrevGame(game_date=d, lat=p.lat, lon=p.lon)
 
 
 def _throws(pitcher) -> str | None:
