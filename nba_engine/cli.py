@@ -473,8 +473,16 @@ def cmd_audit(args: argparse.Namespace) -> int:
         f"<pre style='font-family:monospace;font-size:9pt'>{html.escape(text)}</pre>"
         "</body></html>"
     )
+    attachments = _audit_pdf(subject, page, days[-1])
     try:
-        sent = send_package(cfg, subject=subject, html_body=page, text_body=text, to=args.to)
+        sent = send_package(
+            cfg,
+            subject=subject,
+            html_body=page,
+            text_body=text,
+            to=args.to,
+            attachments=attachments,
+        )
     except EmailNotConfigured as exc:
         print(f"  audit email not sent ({exc})")
         return 0
@@ -483,6 +491,31 @@ def cmd_audit(args: argparse.Namespace) -> int:
         return 1
     print(f"  emailed the audit to {sent.recipient} ({sent.size:,} bytes)")
     return 0
+
+
+def _audit_pdf(title: str, page: str, last: Date) -> list[tuple[str, bytes]]:
+    """The audit as a PDF beside the email body; a failed render sends the email without it."""
+    doc = page.replace(
+        "<body>",
+        "<head><style>@page { size: letter landscape; margin: 0.4in; }"
+        " body { font-family: Helvetica, Arial, sans-serif; font-size: 9pt; }"
+        " pre { font-size: 7.5pt; }</style></head>"
+        f"<body><h2>{html.escape(title)}</h2>",
+        1,
+    )
+    name = f"nba_audit_{last.isoformat()}.pdf"
+    try:
+        pdf = render_pdf(doc)
+    except Exception as exc:  # noqa: BLE001 - the PDF is the optional artifact
+        print(f"  audit PDF not rendered ({exc}); emailing the text only")
+        return []
+    out = output_dir() / "audit"
+    try:
+        out.mkdir(parents=True, exist_ok=True)
+    except OSError:
+        pass
+    _write(out / name, pdf)
+    return [(name, pdf)]
 
 
 def _write(path: Path, data: bytes) -> bool:
