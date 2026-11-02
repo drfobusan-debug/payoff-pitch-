@@ -499,7 +499,7 @@ def _audit_pdf(title: str, page: str, last: Date) -> list[tuple[str, bytes]]:
         "<body>",
         "<head><style>@page { size: letter landscape; margin: 0.4in; }"
         " body { font-family: Helvetica, Arial, sans-serif; font-size: 9pt; }"
-        " pre { font-size: 7.5pt; }</style></head>"
+        " pre { font-size: 7pt !important; }</style></head>"
         f"<body><h2>{html.escape(title)}</h2>",
         1,
     )
