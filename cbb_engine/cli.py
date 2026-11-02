@@ -42,7 +42,7 @@ from engine_common.bands import BandRead
 from engine_common.podcasts import state as podcast_state
 from engine_common.podcasts.episodes import store_dir
 from engine_common.podcasts.run import read_feeds
-from engine_common.podcasts.shows import CBB
+from engine_common.podcasts.shows import CBB, SHOWS
 from engine_runtime import ledger, quotes, runner, views
 from engine_runtime.odds_client import OddsClient
 
@@ -333,12 +333,15 @@ def _slate(root: Path, day: Date) -> tuple[list[ledger.Row], dict[str, tuple[str
 
 
 def _earlier_games(root: Path, day: Date) -> list[podcast.Game[podcast.Rows]]:
-    """The games of the slates within the podcast horizon before ``day``."""
+    """The games within the podcast horizon before ``day``: the priced ones, plus every
+    archived ESPN game, so a pick on a game the card never priced is not carried on
+    to the team's next game."""
     out: list[podcast.Game[podcast.Rows]] = []
     for k in range(podcast.HORIZON.days, 0, -1):
         d = day - timedelta(days=k)
         rows, teams = _slate(root, d)
         out += podcast.to_games(rows, teams, d)
+        out += podcast.espn_games(history.latest_scoreboard(data_dir(), d.isoformat()), d)
     return out
 
 
@@ -359,11 +362,13 @@ def cmd_podcast(args: argparse.Namespace) -> int:
     sync = not args.no_sync
     if sync:
         podcast_state.auto_pull(store_dir())
-        state.auto_pull(trees=("ledger",))
+        # The manifests (in quotes) name each event's teams; without them no pick places.
+        state.auto_pull(trees=("quotes", "ledger"))
     if not args.no_read:
         now = datetime.now(timezone.utc)
         rep = read_feeds(
             store_dir(), now - timedelta(days=args.days), now, league=CBB,
+            shows=[s for s in SHOWS if CBB in s.leagues],
             transcribe_missing=not args.no_transcribe,
         )
         print(f"  {rep.by_league.get(CBB, 0)} CBB picks read")

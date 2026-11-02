@@ -145,3 +145,26 @@ def test_no_final_grades_nothing(tmp_path: Path) -> None:
 def test_no_view_leaves_the_card_unchanged() -> None:
     page = pdf.build_html(DAY, ROWS, TEAMS, {})
     assert "Podcast picks" not in page and ".pod{" not in page
+
+
+def test_a_pick_held_by_an_unpriced_earlier_game_is_not_placed_later(tmp_path: Path) -> None:
+    store = _store(tmp_path, _pick(published="2026-11-08T08:00:00+00:00"))
+    earlier = podcast.espn_games(
+        [
+            EspnGame(
+                "y",
+                "2026-11-09T00:00:00Z",
+                "Army Black Knights",
+                "Navy Midshipmen",
+                "STATUS_FINAL",
+                False,
+                False,
+                (30, 30),
+                (35, 35),
+            )
+        ],
+        date(2026, 11, 8),
+    )
+    games = podcast.to_games(ROWS, TEAMS, DAY)
+    view = podcast.view(store, games, DAY, ledger=tmp_path / "cbb.csv", earlier=earlier)
+    assert view is not None and view.slate.placed == []
