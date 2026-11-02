@@ -7,6 +7,12 @@ and what the engine itself thought of the side -- and everything else is here:
 * A pick belongs to a game when its team plays in it, the game kicks off after
   the episode was published and within the adapter's horizon of it. One that
   fits no game, or more than one, is listed as unmatched rather than forced.
+  A team's pick is about its next game: one an earlier slate already holds is
+  not placed again tomorrow.
+  So is one whose spoken opponent is the team's earlier opponent: the episode
+  went out after that game started.
+* A quote that passes, turns a side down or names a team total is no pick, nor
+  is a moneyline or spread whose quote is a player's over/under.
 * A show repeating an opinion is one pick; an official bet supersedes a lean.
 * Each league keeps its own graded ledger. A price is the one the host said or
   the board's at the host's number (``price_source``); without one a pick counts
@@ -18,7 +24,7 @@ from __future__ import annotations
 import csv
 import math
 import re
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass, field
 from datetime import date as Date
 from datetime import datetime, timedelta
@@ -30,6 +36,8 @@ from engine_common.podcasts.extract import Extraction, Pick
 R = TypeVar("R")
 
 HORIZON = timedelta(days=8)
+# An episode out this soon after a game began may still be about that game.
+LATE_EPISODE = timedelta(hours=12)
 BREAK_EVEN = 110 / 210
 WIN, LOSS, PUSH = "win", "loss", "push"
 MARKET_LABEL = {"game_ml": "ML", "game_ats": "ATS", "game_total": "Total"}
@@ -109,11 +117,38 @@ def _team_side(game: Game[R], p: Pick, league: League[R]) -> str | None:
     return "home" if home else "away"
 
 
-def place(p: Pick, games: Iterable[Game[R]], league: League[R]) -> Placed[R] | None:
-    """The one game ``p`` is about, or ``None`` if none or more than one fits."""
-    if p.market not in MARKET_LABEL or not p.team or not league.owns(p):
-        return None
-    published = datetime.fromisoformat(p.published)
+_TEAM_TOTAL = re.compile(r"\bteam totals?\b", re.I)
+_PASS = re.compile(
+    r"\b(?:or|for) pass\b|\b(?:is|are) passed\b|\bpass for me\b|\bi(?:'d|'ll| will| would)? pass\b",
+    re.I,
+)
+_TURNED_DOWN = re.compile(
+    r"\b(?:don't|do not|wouldn't|would not|won't|will not)\s+(?:want|take|play|like|bet|touch)\b",
+    re.I,
+)
+_PLAYER_LINE = re.compile(
+    r"\b(?:over|under)\b[\w\s.-]{0,30}?\b(?:points|rebounds|assists|threes|three-pointers|"
+    r"boards|dimes|steals|blocks|strikeouts|yards|receptions|touchdowns|shots on goal|saves)\b",
+    re.I,
+)
+
+
+def refusal(p: Pick) -> str:
+    """Why the quote is not a pick on the game's ML, spread or total; ``""`` if it is one."""
+    if _TEAM_TOTAL.search(p.quote):
+        return "team total"
+    if _PASS.search(p.quote):
+        return "pass"
+    if _TURNED_DOWN.search(p.quote):
+        return "turned down"
+    if p.market in ("game_ml", "game_ats") and _PLAYER_LINE.search(p.quote):
+        return "player line"
+    return ""
+
+
+def _fits(
+    p: Pick, games: Iterable[Game[R]], league: League[R], published: datetime
+) -> list[tuple[Game[R], str]]:
     found: list[tuple[Game[R], str]] = []
     for game in games:
         kick = game.kickoff
@@ -122,16 +157,63 @@ def place(p: Pick, games: Iterable[Game[R]], league: League[R]) -> Placed[R] | N
         side = _team_side(game, p, league)
         if side is not None:
             found.append((game, side))
+    return found
+
+
+def _facing(g: Game[R], side: str, opponent: str, league: League[R]) -> bool:
+    return league.same_team(g.away if side == "home" else g.home, opponent)
+
+
+def _held_earlier(
+    p: Pick, game: Game[R], side: str, earlier: Sequence[Game[R]], league: League[R]
+) -> bool:
+    """Whether one of the team's earlier games is the pick's: its next game after
+    the episode, or a game against the spoken opponent (not this game's) that
+    began within :data:`LATE_EPISODE` before it."""
+    kick = game.kickoff
+    if kick is None:
+        return False
+    published = datetime.fromisoformat(p.published)
+    other_opponent = bool(p.opponent) and not _facing(game, side, p.opponent or "", league)
+    for g in earlier:
+        if g.kickoff is None or g.kickoff >= kick:
+            continue
+        g_side = _team_side(g, p, league)
+        if g_side is None:
+            continue
+        if g.kickoff > published:
+            return True
+        if (
+            other_opponent
+            and g.kickoff > published - LATE_EPISODE
+            and _facing(g, g_side, p.opponent or "", league)
+        ):
+            return True
+    return False
+
+
+def place(
+    p: Pick, games: Iterable[Game[R]], league: League[R], earlier: Sequence[Game[R]] = ()
+) -> Placed[R] | None:
+    """The one game ``p`` is about, or ``None`` if none or more than one fits.
+
+    ``earlier`` are other slates' games before these; a pick one of them holds
+    (:func:`_held_earlier`) is not placed here.
+    """
+    if p.market not in MARKET_LABEL or not p.team or not league.owns(p) or refusal(p):
+        return None
+    published = datetime.fromisoformat(p.published)
+    found = _fits(p, games, league, published)
     if len(found) > 1 and p.opponent:
         # Only to choose between games: a spoken opponent is misheard as often
         # as a team, so it never vetoes the one game the team fits.
         opp = p.opponent
-        found = [
-            (g, sd) for g, sd in found if league.same_team(g.away if sd == "home" else g.home, opp)
-        ]
+        found = [(g, sd) for g, sd in found if _facing(g, sd, opp, league)]
     if len(found) != 1:
         return None
     game, side = found[0]
+    if _held_earlier(p, game, side, earlier, league):
+        return None
     if p.market == "game_total":
         return Placed(p, game, None, p.line)
     line = p.line
@@ -178,11 +260,13 @@ def slate_picks(
     since: datetime,
     until: datetime,
     unmatched_since: datetime,
+    earlier: Sequence[Game[R]] = (),
 ) -> SlatePicks[R]:
     """The league's picks published in ``[since, until)``, placed on ``games``.
 
     A pick that fits no game is listed only if published after ``unmatched_since``,
-    so last week's other-slate picks don't crowd this week's card.
+    so last week's other-slate picks don't crowd this week's card. One that is no
+    pick (:func:`refusal`) is not listed at all.
     """
     placed: list[Placed[R]] = []
     unmatched: list[Pick] = []
@@ -191,9 +275,9 @@ def slate_picks(
             if not league.owns(p):
                 continue
             published = datetime.fromisoformat(p.published)
-            if not since <= published < until:
+            if not since <= published < until or refusal(p):
                 continue
-            pl = place(p, games, league)
+            pl = place(p, games, league, earlier)
             if pl is not None:
                 placed.append(pl)
             elif published >= unmatched_since:
@@ -499,6 +583,7 @@ __all__ = [
     "place",
     "record",
     "records",
+    "refusal",
     "settle",
     "show_rows",
     "slate_picks",

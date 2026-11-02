@@ -9,14 +9,15 @@ from openpyxl import load_workbook
 from nba_engine import cli
 from nba_engine.audit import ledger
 from nba_engine.config import load_config
+from nba_engine.data import boxes
 from nba_engine.data.capture import QuoteRow
 from nba_engine.market.board import selections
 from nba_engine.output import card as card_mod
-from nba_engine.output import context
+from nba_engine.output import context, teamstats
 from nba_engine.output import email as email_mod
 from nba_engine.output.card import NO_MODEL_TEXT, PAPER_NOTE, build_card, render_html
 from nba_engine.output.excel import SELECTION_HEADER, build_workbook
-from nba_engine.schemas import GameResult
+from nba_engine.schemas import GameResult, TeamBox
 
 DAY = date(2025, 12, 10)
 LATE, EARLY = "BOS @ NYK", "PHX @ DET"  # alphabetical order is the reverse of tip order
@@ -371,3 +372,155 @@ def test_late_card_sends_while_a_game_is_untipped(scratch, capsys, monkeypatch):
     monkeypatch.setattr(cli, "datetime", Frozen)
     assert run_card("--late") == 0
     assert "sending the late package" in capsys.readouterr().out
+
+
+# -- exec books one line over, integrity and bands on the card -----------------
+
+
+def test_main_line_without_dk_mgm_points_at_the_line_they_did_post():
+    """Consensus main at -3.5 (three books); DK/MGM sit on -4: the card says so instead
+    of 'neither posted it'."""
+    eid, home, away = "late", "NYK", "BOS"
+    rows = []
+    for book in ("fanduel", "bovada", "pointsbetus"):
+        rows += [
+            q(eid, "game_ats", home, -3.5, book, -110, -110),
+            q(eid, "game_ats", away, 3.5, book, -110, -110),
+        ]
+    for book in ("draftkings", "betmgm"):
+        rows += [
+            q(eid, "game_ats", home, -4.0, book, -105, -115),
+            q(eid, "game_ats", away, 4.0, book, -115, -105),
+        ]
+    pre = ledger.pregame(rows, TIPS)
+    priced_rows = ledger.price(
+        selections(pre), ledger.quote_index(pre), tips=TIPS, shift={}, versions="v", pass_tag="t"
+    )
+    card = build_card(priced_rows, day=DAY)
+    (game,) = card.games
+    main = game.main("game_ats")
+    assert [r.line for r in main] == [3.5, -3.5]
+    sib = card_mod.exec_sibling(game, main[0])
+    assert sib is not None and sib.line == 4.0
+    page = render_html(card)
+    assert "not at this number; at +4:" in page and "neither DK nor BetMGM" not in page
+
+
+def test_integrity_line_and_schedule_bands_render_only_with_a_graded_ledger():
+    from engine_common.bands import BandRead
+
+    rows = priced()
+    bare = render_html(build_card(rows, day=DAY))
+    assert "Ledger integrity" not in bare and "Schedule bands" not in bare
+    graded = [
+        replace(r, outcome="win", pnl=0.9, close_status="close", close_captured_at=r.priced_at)
+        for r in rows
+    ]
+    band = BandRead("rest_host_ats", [1.0, -1.0, 0.9], [1.0, -1.0, 0.9])
+    page = render_html(build_card(rows, day=DAY, graded=graded, draws=10, bands=[band]))
+    assert "Ledger integrity:" in page and "no duplicates" in page
+    assert (
+        "Schedule bands" in page and "rest_host_ats" in page and "probation (3/150 games)" in page
+    )
+
+
+# -- season ratings ----------------------------------------------------------
+def _box(team, fgm=40, fga=88, fg3m=12, ftm=16, fta=20, oreb=10, dreb=34, tov=13):
+    return TeamBox(team, fgm, fga, fg3m, 35, ftm, fta, oreb, dreb, tov, 18)
+
+
+def _final(eid, day, away, home, ap, hp, *, season_type=2, neutral=False, abox=None, hbox=None):
+    return GameResult(
+        eid,
+        day,
+        away,
+        home,
+        "STATUS_FINAL",
+        (ap, 0, 0, 0),
+        (hp, 0, 0, 0),
+        away_box=abox or _box(away),
+        home_box=hbox or _box(home),
+        neutral=neutral,
+        season_type=season_type,
+    )
+
+
+def test_season_table_splits_home_and_away_per_100_and_skips_preseason_and_neutral():
+    d = date(2025, 11, 1)
+    games = [
+        _final("1", d, "BOS", "NYK", 100, 120),
+        _final("2", d, "NYK", "BOS", 110, 90),
+        _final("3", d, "NYK", "BOS", 150, 50, season_type=1),  # preseason: left out
+        _final("4", d, "BOS", "NYK", 100, 100, neutral=True),  # neutral: no venue split
+    ]
+    t = teamstats.season_table(games)
+    poss = games[0].possessions
+    nyk = t["NYK"]
+    assert nyk.games == 3 and nyk.home.games == 1 and nyk.away.games == 1
+    assert nyk.home.off.value == pytest.approx(100 * 120 / poss)
+    assert nyk.home.dfn.value == pytest.approx(100 * 100 / poss)
+    assert nyk.home.off.rank == 1 and t["BOS"].home.dfn.rank == 2
+    assert t["BOS"].away.net.value == pytest.approx(-100 * 20 / poss)
+
+
+def test_four_factors_rank_defense_on_what_opponents_did():
+    d = date(2025, 11, 1)
+    good = _box("NYK", fgm=45, fg3m=15, tov=8, oreb=14)
+    bad = _box("BOS", fgm=35, fg3m=8, tov=18, oreb=6)
+    t = teamstats.season_table([_final("1", d, "BOS", "NYK", 95, 120, abox=bad, hbox=good)])
+    nyk, bos = t["NYK"], t["BOS"]
+    assert nyk.offense.efg.value == pytest.approx((45 + 7.5) / 88)
+    assert nyk.offense.efg.rank == 1 and nyk.offense.tov.rank == 1
+    assert nyk.defense.efg.value == bos.offense.efg.value and nyk.defense.efg.rank == 1
+    assert nyk.offense.orb.value == pytest.approx(14 / (14 + 34))
+
+
+def test_card_prints_ratings_and_four_factors_or_says_none_are_archived(scratch):
+    root, _ = scratch
+    rows = ledger.of_record(ledger.passes(root, DAY))
+    played = [_final("1", DAY - timedelta(days=3), "BOS", "NYK", 100, 110)]
+    boxes.write_results(root, DAY - timedelta(days=3), played)
+    page = render_html(build_card(rows, day=DAY, context=context.gather(root, DAY, rows)))
+    assert "Per 100 poss" in page and "Four factors" in page
+    assert "BOS O vs NYK D" in page and "NYK O vs BOS D" in page and "class='tn'" in page
+    bare = render_html(build_card(rows, day=DAY))
+    assert "no regular-season box scores archived yet" in bare and "Four factors" not in bare
+
+
+def test_tied_values_share_a_rank():
+    r = teamstats._ranks({"A": 1.0, "B": 2.0, "C": 2.0, "D": None}, high_is_good=True)
+    assert (r["B"].rank, r["C"].rank, r["A"].rank, r["D"].rank) == (1, 1, 3, None)
+
+
+def test_espn_fetch_archives_a_day_without_games(monkeypatch, tmp_path):
+    calls: list[object] = []
+
+    class _Resp:
+        def raise_for_status(self) -> None:
+            pass
+
+        def json(self) -> dict[str, object]:
+            return {"events": []}
+
+    monkeypatch.setattr(context.requests, "get", lambda *a, **k: calls.append(k) or _Resp())
+    idle = date(2025, 10, 5)
+    fetch = context.espn_fetch(tmp_path)
+    assert fetch(idle) == [] and boxes.read_results(tmp_path, idle) == []
+    teamstats.season_finals(tmp_path, idle + timedelta(days=1), fetch)
+    assert len(calls) == 5  # Oct 1-4 asked once; Oct 5 already archived
+    teamstats.season_finals(tmp_path, idle + timedelta(days=1), fetch)
+    assert len(calls) == 5
+
+
+def test_espn_fetch_does_not_archive_a_scoreboard_without_events(monkeypatch, tmp_path):
+    class _Resp:
+        def raise_for_status(self) -> None:
+            pass
+
+        def json(self) -> dict[str, object]:
+            return {"code": 500, "message": "upstream"}
+
+    monkeypatch.setattr(context.requests, "get", lambda *a, **k: _Resp())
+    day = date(2025, 10, 5)
+    assert context.espn_fetch(tmp_path)(day) is None
+    assert boxes.read_results(tmp_path, day) is None

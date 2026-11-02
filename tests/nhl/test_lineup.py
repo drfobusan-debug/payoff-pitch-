@@ -281,6 +281,7 @@ def test_availability_log_append_once_and_current_out(tmp_path: Path) -> None:
         tonight,
         minutes_to_drop=25.0,
         market=av.market_snapshot(quotes, "BOS@TOR"),
+        seen_at="2026-10-01T20:00:00Z",  # pinned: the later 'in' record below must sort after it
     )
     assert (
         [r.player_id for r in recs] == [1] and recs[0].role == "F" and recs[0].tag == av.NOT_SCORED

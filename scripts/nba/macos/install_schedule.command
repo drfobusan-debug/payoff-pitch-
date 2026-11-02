@@ -17,6 +17,9 @@
 #   * com.payoffpitch.nba.card_late -> at NBA_LATE_CARD_HOUR:NBA_LATE_CARD_MINUTE
 #     (default 20:15, after the 8 PM injury report and the 20:05 full pass): the
 #     same package again, sent only while a game on the slate has not tipped.
+#   * com.payoffpitch.nba.audit -> weekly at NBA_AUDIT_WEEKDAY (0=Sun .. 6=Sat,
+#     default 1 = Monday) NBA_AUDIT_HOUR:NBA_AUDIT_MINUTE (default 09:00): the
+#     ledger audit emailed, last 7 slates then the season to date (free).
 # Also links "NBA CARD.command" on the Desktop to run the card by hand.
 # Idempotent: each agent is unloaded before being reloaded.
 # Remove with: launchctl unload ~/Library/LaunchAgents/com.payoffpitch.nba.*.plist
@@ -26,6 +29,7 @@ REPO="$(pwd)"
 CAPTURE="$REPO/scripts/nba/macos/nba_capture.command"
 WATCH="$REPO/scripts/nba/macos/nba_watch.command"
 CARD="$REPO/scripts/nba/macos/nba_card.command"
+AUDIT="$REPO/scripts/nba/macos/nba_audit.command"
 LAUNCH_AGENTS="$HOME/Library/LaunchAgents"
 LOG_DIR="$HOME/.nba_engine"
 
@@ -33,7 +37,7 @@ LOG_DIR="$HOME/.nba_engine"
 . "$REPO/scripts/macos/protected_dir.sh"
 refuse_protected_dir "$REPO" || exit 1
 
-chmod +x "$CAPTURE" "$WATCH" "$CARD" "$REPO/scripts/nba/macos/_env.sh"
+chmod +x "$CAPTURE" "$WATCH" "$CARD" "$AUDIT" "$REPO/scripts/nba/macos/_env.sh"
 mkdir -p "$LAUNCH_AGENTS" "$LOG_DIR"
 bash "$REPO/scripts/nba/ensure_env.sh"
 
@@ -46,6 +50,9 @@ CARD_HOUR="${NBA_CARD_HOUR:-17}"
 CARD_MINUTE="${NBA_CARD_MINUTE:-15}"
 LATE_CARD_HOUR="${NBA_LATE_CARD_HOUR:-20}"
 LATE_CARD_MINUTE="${NBA_LATE_CARD_MINUTE:-15}"
+AUDIT_WEEKDAY="${NBA_AUDIT_WEEKDAY:-1}"
+AUDIT_HOUR="${NBA_AUDIT_HOUR:-9}"
+AUDIT_MINUTE="${NBA_AUDIT_MINUTE:-0}"
 
 install_agent() {
     # $1 label  $2 program  $3 calendar-interval-XML  $4.. program args
@@ -114,6 +121,10 @@ LATE_CAL="    <key>StartCalendarInterval</key>
     <dict><key>Hour</key><integer>$LATE_CARD_HOUR</integer><key>Minute</key><integer>$LATE_CARD_MINUTE</integer></dict>"
 install_agent "com.payoffpitch.nba.card_late" "$CARD" "$LATE_CAL" "--late"
 
+AUDIT_CAL="    <key>StartCalendarInterval</key>
+    <dict><key>Weekday</key><integer>$AUDIT_WEEKDAY</integer><key>Hour</key><integer>$AUDIT_HOUR</integer><key>Minute</key><integer>$AUDIT_MINUTE</integer></dict>"
+install_agent "com.payoffpitch.nba.audit" "$AUDIT" "$AUDIT_CAL"
+
 if [ -d "$HOME/Desktop" ]; then
     ln -sfn "$CARD" "$HOME/Desktop/NBA CARD.command"
     echo "Linked $HOME/Desktop/NBA CARD.command -> $CARD"
@@ -123,6 +134,7 @@ echo
 echo "News alarm every 5 min $FIRST_HOUR:00-$LAST_HOUR:55; full pass at $EVENT_HOURS (:$EVENT_MINUTE)."
 printf 'Daily card + email at %02d:%02d (default send time, to be fitted).\n' "$CARD_HOUR" "$CARD_MINUTE"
 printf 'Late-slate resend at %02d:%02d, only while a game has not tipped.\n' "$LATE_CARD_HOUR" "$LATE_CARD_MINUTE"
+printf 'Weekly audit email on weekday %d (0=Sun) at %02d:%02d: last 7 slates + season.\n' "$AUDIT_WEEKDAY" "$AUDIT_HOUR" "$AUDIT_MINUTE"
 echo "Logs: $LOG_DIR/schedule.log (errors: schedule_error.log)"
 echo "Credentials must live in /etc/engine.env or $LOG_DIR/engine.env."
 echo "Test now: launchctl kickstart -k gui/\$(id -u)/com.payoffpitch.nba.watch"

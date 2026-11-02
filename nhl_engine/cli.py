@@ -56,7 +56,7 @@ from nhl_engine.audit import (
 )
 from nhl_engine.calibration import Calibrator, calibration_path
 from nhl_engine.config import cache_dir, data_dir, load_config, output_dir, priors_dir
-from nhl_engine.data import availability, capture, podcast, preseason, rotowire
+from nhl_engine.data import availability, capture, dailyfaceoff, podcast, preseason, rotowire
 from nhl_engine.data.book_rules import BookRule, BookRules, rules_path
 from nhl_engine.data.moneypuck import MoneyPuckClient, season_of
 from nhl_engine.data.nhlapi import FOREVER, NHLAPIClient
@@ -379,13 +379,16 @@ def cmd_card(args: argparse.Namespace) -> int:
                 sctx = screens.Context(b2b=b2b)
                 reads = {b.name: b for b in bands.read_bands(graded, sctx)}
                 ctx.leans = [reads[n] for n in bands.LEANS if n in reads]
+                _backfill_timing(root, graded)
+                ctx.promotions = scorecard.scorecard(graded).promotions()
+                ctx.lean_tonight = bands.tonight(card.rows, sctx)
                 if unread:
+                    for name in [n for n in ctx.lean_tonight if "back-to-back" in n]:
+                        del ctx.lean_tonight[name]
                     ctx.lean_note = (
                         "Tonight's back-to-backs are unread (NHL schedule unavailable), "
                         "so the back-to-back leans list no sides tonight."
                     )
-                else:
-                    ctx.lean_tonight = bands.tonight(card.rows, sctx)
             except Exception:  # noqa: BLE001 - the leans are a view; never lose the PDF
                 log.warning("graded-only leans unavailable", exc_info=True)
             paths["pdf"] = report.write_pdf(
@@ -423,10 +426,14 @@ def cmd_starter(args: argparse.Namespace) -> int:
 
 
 def cmd_lineups(args: argparse.Namespace) -> int:
+    """RotoWire goalies + injuries, then Daily Faceoff goalies, into the starter ladder."""
     root = data_dir()
     today = _today()
     slate = _parse_date(args.date)
     season = args.season or season_of(slate)
+    mp = MoneyPuckClient(cache_dir=cache_dir())
+    quotes = capture.read_day(root, slate)
+    applied = 0
     try:
         roto = rotowire.fetch(slate, today=today, data_dir=root)
     except ValueError as exc:
@@ -434,17 +441,34 @@ def cmd_lineups(args: argparse.Namespace) -> int:
         return 2
     except Exception as exc:  # network / HTTP: the card still runs on projected goalies
         print(f"rotowire unavailable: {exc}", file=sys.stderr)
+    else:
+        if not roto.games:
+            print(f"rotowire: no NHL games parsed for {slate} (raw: {roto.raw_path})")
+        else:
+            summary = lineup_feed.apply_slate(
+                roto, mp=mp, data_dir=root, season=season, quotes=quotes
+            )
+            print(f"rotowire {slate}: {len(roto.games)} game(s) parsed -> {roto.raw_path}")
+            for line in summary.lines():
+                print(line)
+            applied += 1
+    try:
+        dfo = dailyfaceoff.fetch(slate, today=today, data_dir=root)
+    except Exception as exc:
+        print(f"dailyfaceoff unavailable: {exc}", file=sys.stderr)
+    else:
+        if not dfo.games:
+            print(f"dailyfaceoff: no NHL games parsed for {slate} (raw: {dfo.raw_path})")
+        else:
+            summary = lineup_feed.apply_slate(
+                dfo, mp=mp, data_dir=root, season=season, quotes=quotes, source=dailyfaceoff.SOURCE
+            )
+            print(f"dailyfaceoff {slate}: {len(dfo.games)} game(s) parsed -> {dfo.raw_path}")
+            for line in summary.lines():
+                print(line)
+            applied += 1
+    if not applied:
         return 1
-    if not roto.games:
-        print(f"rotowire: no NHL games parsed for {slate} (raw: {roto.raw_path})")
-        return 0
-    mp = MoneyPuckClient(cache_dir=cache_dir())
-    summary = lineup_feed.apply_slate(
-        roto, mp=mp, data_dir=root, season=season, quotes=capture.read_day(root, slate)
-    )
-    print(f"rotowire {slate}: {len(roto.games)} game(s) parsed -> {roto.raw_path}")
-    for line in summary.lines():
-        print(line)
     if load_config().state_sync and not args.no_sync:
         state.auto_push(root, f"nhl lineups {slate}")
     return 0
@@ -466,11 +490,14 @@ def _lean_b2b(nights: list[str], slate: Date) -> tuple[frozenset[str], bool]:
     def played(day: Date) -> set[str]:
         client = fresh if day >= slate - timedelta(days=1) else kept
         try:
-            return {t for g in client.schedule(day) for t in (g.home, g.away)}
+            games = client.schedule_or_none(day)
         except Exception as exc:  # noqa: BLE001 - one bad night must not sink the card
             log.warning("schedule for %s unavailable: %s", day, exc)
+            games = None
+        if games is None or (day == slate and not games):
             failed.add(day)
             return set()
+        return {t for g in games for t in (g.home, g.away)}
 
     b2b = screens.b2b_teams([*nights, slate.isoformat()], played)
     return b2b, bool(failed & {slate, slate - timedelta(days=1)})
@@ -525,6 +552,31 @@ def _results_for(day: Date) -> tuple[dict[str, GameResult], dict[str, str]]:
         if res is not None:
             out[game.matchup] = res
     return out, starts
+
+
+def cmd_backfill_ppp(args: argparse.Namespace) -> int:
+    """Grade ``sk_ppp`` rows on past graded nights that went out before PPP grading existed."""
+    root = data_dir()
+    sync = load_config().state_sync and not args.no_sync
+    if sync:
+        state.auto_pull(root)
+    day, last = _parse_date(args.start), _parse_date(args.end)
+    total = 0
+    while day <= last:
+        path = ledger.graded_path(root, day)
+        rows = ledger.load_rows(path)
+        if any(r.market == "sk_ppp" and r.outcome is None for r in rows):
+            results, _ = _results_for(day)
+            ppp_of = _ppp_lookup(PlayerLogClient(_nhlapi()), season_of(day))
+            done = ledger.backfill_ppp(rows, results, ppp_of)
+            if done:
+                ledger.save_outcomes(rows, path)
+            total += done
+            print(f"{day}: graded {done} sk_ppp rows")
+        day += timedelta(days=1)
+    if sync:  # also on a retry with nothing new, so grades saved before a failed push still sync
+        state.auto_push(root, f"nhl backfill sk_ppp: {total} graded")
+    return 0
 
 
 def cmd_podcast(args: argparse.Namespace) -> int:
@@ -952,7 +1004,10 @@ def build_parser() -> argparse.ArgumentParser:
     sr.add_argument("--date")
     sr.set_defaults(func=cmd_starter)
 
-    lu = sub.add_parser("lineups", help="RotoWire goalies + injuries -> overrides/availability")
+    lu = sub.add_parser(
+        "lineups",
+        help="RotoWire + Daily Faceoff goalies, RotoWire injuries -> overrides/availability",
+    )
     lu.add_argument("--date", help="today (default) or tomorrow")
     lu.add_argument("--season", type=int)
     lu.add_argument("--no-sync", action="store_true")
@@ -972,6 +1027,12 @@ def build_parser() -> argparse.ArgumentParser:
     au.add_argument("--email", action="store_true", help="email the ledger audit report")
     au.add_argument("--to", help="override recipient")
     au.set_defaults(func=cmd_audit)
+
+    bp = sub.add_parser("backfill-ppp", help="grade sk_ppp rows on past graded nights")
+    bp.add_argument("--start", required=True, help="first slate date")
+    bp.add_argument("--end", required=True, help="last slate date")
+    bp.add_argument("--no-sync", action="store_true", help="do not pull/push engine-state")
+    bp.set_defaults(func=cmd_backfill_ppp)
 
     ca = sub.add_parser("calibrate", help="refit isotonic maps from graded ledgers")
     ca.add_argument("--min-samples", type=int, default=200)

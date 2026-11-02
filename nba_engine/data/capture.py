@@ -38,16 +38,24 @@ MARKET_MAP: dict[str, tuple[str, str]] = {
     "player_rebounds": ("pl_reb", "incl_ot"),
     "player_assists": ("pl_ast", "incl_ot"),
     "player_points_rebounds_assists": ("pl_pra", "incl_ot"),
+    # Tracked only: every alternate number either side of the main one.
+    "alternate_spreads": ("alt_ats", "incl_ot"),
+    "alternate_totals": ("alt_total", "incl_ot"),
 }
 
 GAME_MARKETS: tuple[str, ...] = ("h2h", "spreads", "totals")
 HALF_MARKETS: tuple[str, ...] = ("h2h_h1", "spreads_h1", "totals_h1")
 PROP_MARKETS: tuple[str, ...] = tuple(k for k in MARKET_MAP if k.startswith("player_"))
-EVENT_MARKETS: tuple[str, ...] = HALF_MARKETS + PROP_MARKETS
+ALT_MARKETS: tuple[str, ...] = ("alternate_spreads", "alternate_totals")
+EVENT_MARKETS: tuple[str, ...] = HALF_MARKETS + PROP_MARKETS + ALT_MARKETS
 ALL_MARKETS: tuple[str, ...] = tuple(MARKET_MAP)
+# The plan's eleven: what a historical pull fetches unless told otherwise.
+CORE_MARKETS: tuple[str, ...] = tuple(k for k in MARKET_MAP if k not in ALT_MARKETS)
 
 __all__ = [
     "ALL_MARKETS",
+    "ALT_MARKETS",
+    "CORE_MARKETS",
     "EVENT_MARKETS",
     "FIELDS",
     "GAME_MARKETS",

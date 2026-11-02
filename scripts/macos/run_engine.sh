@@ -142,6 +142,24 @@ arm_next_nfl_close() {
   echo "[$(date)] armed NFL pre-kickoff wake for $day $best:00"
 }
 
+# MLB off-season: between MLB_OFFSEASON_FROM and MLB_OFFSEASON_TO (MM-DD,
+# wrapping the new year) the MLB steps -- slate passes, closes, react, Opta and
+# the morning audit -- are skipped; CFB/NFL passes and every wake still run.
+# MLB_SEASON_FORCE=1 runs MLB anyway (e.g. a late regrade); move the dates to
+# re-open early.
+MLB_OFFSEASON_FROM="${MLB_OFFSEASON_FROM:-11-05}"
+MLB_OFFSEASON_TO="${MLB_OFFSEASON_TO:-03-15}"
+mlb_in_season() {
+  [[ "${MLB_SEASON_FORCE:-0}" == "1" ]] && return 0
+  local today="${MLB_TODAY_MMDD:-$(date +%m-%d)}"
+  if [[ "$MLB_OFFSEASON_FROM" > "$MLB_OFFSEASON_TO" ]]; then
+    [[ "$today" < "$MLB_OFFSEASON_FROM" && ! "$today" < "$MLB_OFFSEASON_TO" ]]
+  else
+    [[ "$today" < "$MLB_OFFSEASON_FROM" || ! "$today" < "$MLB_OFFSEASON_TO" ]]
+  fi
+}
+mlb_off_note() { echo "[$(date)] MLB off-season ($MLB_OFFSEASON_FROM to $MLB_OFFSEASON_TO): skipping $1"; }
+
 if [[ "$MODE" == "night" ]]; then
   # Keep-awake only: re-arm a one-shot wake for the NEXT morning at
   # ${MORNING_WAKE_HHMM} so the machine wakes after the 03:00 sleep. No engine work.
@@ -175,6 +193,7 @@ elif [[ "$MODE" == "close" ]]; then
   # then only that game (~3 credits for the game board + one per F5/prop market).
   # Every other tick costs nothing. It prints the next close's wake, armed here
   # once, so a sleeping Mac is up for it.
+  if ! mlb_in_season; then mlb_off_note "the MLB close"; exit 0; fi
   OUT="$(mktemp -t mlbclose)"
   mlb-engine close --within "${MLB_CLOSE_WITHIN_MIN}" > "$OUT" || echo "[$(date)] 'mlb-engine close' exited non-zero" >&2
   cat "$OUT"
@@ -190,6 +209,7 @@ elif [[ "$MODE" == "close" ]]; then
     fi
   fi
 elif [[ "$MODE" == "react" ]]; then
+  if ! mlb_in_season; then mlb_off_note "react"; exit 0; fi
   # Price-reaction watcher: poll the slate for lineups as they post and snapshot
   # the posted game's props at +0/+5/+15/+30 min, with an hourly before-price.
   # A measurement of how fast the books re-price a posted lineup -- nothing is
@@ -260,6 +280,7 @@ elif [[ "$MODE" == slate-* ]]; then
   # keep their reasons. Same caffeinate arrangement as the morning job so
   # WeasyPrint keeps its DYLD path.
   BLOCK="${MODE#slate-}"
+  if ! mlb_in_season; then mlb_off_note "slate pass $BLOCK"; exit 0; fi
   /usr/bin/caffeinate -i -w $$ &
   arm_next_slate
   # Wed/Sat/Sun evenings arm the NFL night-before board capture. %u: 1=Mon .. 7=Sun.
@@ -369,6 +390,11 @@ else
 
   # 0) take whatever has been merged since yesterday.
   pull_latest
+
+  if ! mlb_in_season; then
+    mlb_off_note "the morning slate arm, Opta, audit and power-screen article"
+    exit 0
+  fi
 
   # Arm the first of today's slate passes.
   arm_next_slate

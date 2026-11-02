@@ -38,14 +38,14 @@ def test_credit_budget_reads_the_cbb_cap_from_the_runtime_budget(tmp_path: Path)
     (tmp_path / "credit_budget.yaml").write_text("enforce: false\nsports:\n  mlb: 3000\n  cbb: 6000\n")
     item = {i.name: i for i in checklist.run(_cfg(), tmp_path, "2026-11-10")}["credit_budget"]
     assert item.ok and "of 6000 (credit_budget.yaml sports.cbb)" in item.detail
-    (tmp_path / "credit_budget.yaml").write_text("sports:\n  cbb: 1000\n")
+    (tmp_path / "credit_budget.yaml").write_text("sports:\n  cbb: 400\n")
     assert not {i.name: i for i in checklist.run(_cfg(), tmp_path, "2026-11-10")}["credit_budget"].ok
 
 
 def test_credit_budget_flag_overrides_the_yaml(tmp_path: Path) -> None:
     (tmp_path / "credit_budget.yaml").write_text("sports:\n  cbb: 6000\n")
-    item = {i.name: i for i in checklist.run(_cfg(), tmp_path, "2026-11-10", daily_credits=1000)}["credit_budget"]
-    assert not item.ok and "of 1000 (--daily-credits)" in item.detail
+    item = {i.name: i for i in checklist.run(_cfg(), tmp_path, "2026-11-10", daily_credits=400)}["credit_budget"]
+    assert not item.ok and "of 400 (--daily-credits)" in item.detail
 
 
 def test_write_once_green_fails_when_the_ledger_stops_refusing(monkeypatch: pytest.MonkeyPatch) -> None:

@@ -26,6 +26,7 @@
   pre-tip close at its book; written once, when every game is settled.
 * ``audit`` -- the graded ledger's tables: buys, tiers, markets, gates (false
   negatives), book, one/two-book, the board's base rates, CLV and integrity.
+  ``--recent 7 --email`` mails the last 7 slates and the season (weekly job).
 * ``card`` -- the daily package from the day's recorded ledger passes: slate
   PDF, betting workbook and (``--email``) the email carrying both. No Odds API
   call; context is read off disk (plus free ESPN finals) and prices nothing.
@@ -37,6 +38,7 @@ Nothing here prices a game yet: without a model every row is refused
 from __future__ import annotations
 
 import argparse
+import html
 import json
 import logging
 import sys
@@ -51,16 +53,16 @@ from engine_common.podcasts.episodes import store_dir
 from engine_common.podcasts.run import read_feeds
 from engine_common.podcasts.shows import NBA
 from nba_engine import alarm, podcast, state
-from nba_engine.audit import ledger, schedule_bands, scorecard
+from nba_engine.audit import altlines, ledger, schedule_bands, scorecard
 from nba_engine.config import cache_dir, data_dir, load_config, output_dir
 from nba_engine.data import boxes, capture, espn_injuries, history, injuries, pbp
-from nba_engine.data.capture import ALL_MARKETS, EVENT_MARKETS, GAME_MARKETS
+from nba_engine.data.capture import ALL_MARKETS, CORE_MARKETS, EVENT_MARKETS, GAME_MARKETS
 from nba_engine.data.espn import ESPNClient, parse_box
 from nba_engine.data.oddsapi import SLATE_TZ, OddsAPIClient, parse_utc
 from nba_engine.market import overbias, params
 from nba_engine.market.board import ev_per_unit, selections
 from nba_engine.models import game_sim, minutes, minutes_fit, rating_fit, ratings, sim_fit
-from nba_engine.models.schedule import schedule
+from nba_engine.models.schedule import schedule, season_of
 from nba_engine.output import context
 from nba_engine.output.card import SlateCard, build_card, render_html, render_pdf, render_text
 from nba_engine.output.email import EmailNotConfigured, send_package
@@ -358,31 +360,27 @@ def _pct(x: float) -> str:
     return f"{100 * x:+.1f}%"
 
 
-def cmd_audit(args: argparse.Namespace) -> int:
-    cfg = load_config()
-    root = data_dir()
-    if cfg.state_sync and not args.no_sync:
-        state.auto_pull(root, trees=("ledger",))
-    days = _ledger_days(root, args.since, args.until)
-    rows = ledger.graded_rows(root, days)
-    if not rows:
-        print("no graded ledger rows in range")
-        return 1
-    print(f"{len(rows)} graded row(s) over {len(days)} slate(s), {days[0]} .. {days[-1]}")
-    print(f"integrity {asdict(scorecard.integrity(rows))}")
-    print(f"absent from the box (games): {scorecard.absent_names(rows)}")
+def _audit_lines(
+    root: Path, rows: list[ledger.LedgerRow], days: list[Date], draws: int
+) -> list[str]:
+    """The graded ledger's tables as text: integrity, cuts, calibration, schedule bands."""
+    out = [
+        f"{len(rows)} graded row(s) over {len(days)} slate(s), {days[0]} .. {days[-1]}",
+        f"integrity {asdict(scorecard.integrity(rows))}",
+        f"absent from the box (games): {scorecard.absent_names(rows)}",
+    ]
     head = (
         f"{'cut':26} {'n':>6} {'W-L-P':>14} {'win':>6} {'need':>6} {'base':>6} {'PPV':>6} "
         f"{'NPV':>6} {'ROI':>7} {'ROI 95%':>17} {'CLV':>7} {'beat':>5} {'CLV EV':>7} "
         f"{'pulled':>6} {'prepull':>7}"
     )
-    for name, table in scorecard.tables(rows, draws=args.draws).items():
+    for name, table in scorecard.tables(rows, draws=draws).items():
         table = [m for m in table if m.n or name == "buys"]
         if not table:
             continue
-        print(f"\n[{name}]\n{head}")
+        out += ["", f"[{name}]", head]
         for m in table:
-            print(
+            out.append(
                 f"{m.label[:26]:26} {m.n:6} {f'{m.wins}-{m.losses}-{m.pushes}':>14} "
                 f"{100 * m.win_pct:5.1f}% {100 * m.required_win_pct:5.1f}% "
                 f"{100 * m.base_rate:5.1f}% {100 * m.ppv:5.1f}% {100 * m.npv:5.1f}% "
@@ -390,12 +388,100 @@ def cmd_audit(args: argparse.Namespace) -> int:
                 f"{100 * m.mean_clv:+6.2f} {100 * m.clv_beat_pct:4.0f}% {_pct(m.mean_clv_ev):>7} "
                 f"{m.pulled + m.moved:6} {100 * m.mean_pre_pull_clv:+7.2f}"
             )
-    print("\n[calibration: consensus fair]")
+    out += ["", "[calibration: consensus fair]"]
     for label, n, p, hit in scorecard.calibration(rows, lambda r: r.fair):
-        print(f"{label:10} n={n:6} fair {100 * p:5.1f}% hit {100 * hit:5.1f}%")
-    print()
+        out.append(f"{label:10} n={n:6} fair {100 * p:5.1f}% hit {100 * hit:5.1f}%")
+    out.append("")
     sched = schedule_bands.schedule_from(root, rows)
-    print("\n".join(schedule_bands.lines(schedule_bands.read_bands(rows, sched))))
+    out += ["", *schedule_bands.lines(schedule_bands.read_bands(rows, sched))]
+    return out
+
+
+def _buys_record(rows: list[ledger.LedgerRow]) -> str:
+    buys = scorecard.tables(rows, draws=1).get("buys", [])
+    return f"{buys[0].wins}-{buys[0].losses}-{buys[0].pushes}" if buys else "0-0-0"
+
+
+def cmd_alt_report(args: argparse.Namespace) -> int:
+    """The tracked alternate spreads/totals, by direction and points moved."""
+    cfg = load_config()
+    root = data_dir()
+    if cfg.state_sync and not args.no_sync:
+        state.auto_pull(root, trees=("ledger",))
+    table = altlines.report(ledger.graded_rows(root, _ledger_days(root, args.since, args.until)))
+    if not table:
+        print("no graded alternate lines in range")
+        return 0
+    print(f"{'group':28} {'n':>6} {'W-L-P':>12} {'units':>9} {'ROI':>7}")
+    for label, n, w, lo, p, units, roi in table:
+        print(f"{label:28} {n:6} {f'{w}-{lo}-{p}':>12} {units:+9.2f} {_pct(roi):>7}")
+    return 0
+
+
+def cmd_audit(args: argparse.Namespace) -> int:
+    cfg = load_config()
+    root = data_dir()
+    if cfg.state_sync and not args.no_sync:
+        state.auto_pull(root, trees=("ledger",))
+    days = _ledger_days(root, args.since, args.until)
+    season_days = days
+    if args.recent and not (args.since or args.until):
+        season = season_of(_parse_date(None) - timedelta(days=1))
+        season_days = [d for d in days if season_of(d) == season]
+    rows = ledger.graded_rows(root, season_days)
+    recent_days: list[Date] = []
+    recent_rows: list[ledger.LedgerRow] = []
+    if args.recent:
+        today = _parse_date(None)
+        first = today - timedelta(days=args.recent)
+        recent_days = [d for d in days if first <= d < today]
+        recent_rows = ledger.graded_rows(root, recent_days)
+    if not rows and not recent_rows:
+        print("no graded ledger rows in range")
+        return 1
+    empty = ["no graded ledger rows in these days"]
+    sections: list[tuple[str, list[str]]] = []
+    if args.recent:
+        label = f"Last {args.recent} days ({first} .. {today - timedelta(days=1)})"
+        sections.append(
+            (
+                label,
+                _audit_lines(root, recent_rows, recent_days, args.draws) if recent_rows else empty,
+            )
+        )
+        sections.append(
+            ("Season to date", _audit_lines(root, rows, season_days, args.draws) if rows else empty)
+        )
+    else:
+        sections.append(("", _audit_lines(root, rows, days, args.draws)))
+    if not rows:
+        rows, season_days = recent_rows, recent_days
+    days = season_days
+    text = "\n\n".join(
+        (f"== {title} ==\n" if title else "") + "\n".join(lines) for title, lines in sections
+    )
+    print(text)
+    if not args.email:
+        return 0
+    span = f"{days[0]} .. {days[-1]}"
+    subject = (
+        f"NBA {'weekly ' if args.recent else ''}ledger audit {span}"
+        f" -- {len(rows)} graded rows, buys {_buys_record(rows)} [paper]"
+    )
+    page = (
+        "<html><body><p>Graded only, paper mode: this report changes no price, gate or buy.</p>"
+        f"<pre style='font-family:monospace;font-size:9pt'>{html.escape(text)}</pre>"
+        "</body></html>"
+    )
+    try:
+        sent = send_package(cfg, subject=subject, html_body=page, text_body=text, to=args.to)
+    except EmailNotConfigured as exc:
+        print(f"  audit email not sent ({exc})")
+        return 0
+    except Exception as exc:  # noqa: BLE001 - SMTP down: the audit is already printed
+        print(f"  audit email failed ({type(exc).__name__}: {exc})")
+        return 1
+    print(f"  emailed the audit to {sent.recipient} ({sent.size:,} bytes)")
     return 0
 
 
@@ -408,10 +494,10 @@ def _write(path: Path, data: bytes) -> bool:
     return True
 
 
-def _podcast_view(card: SlateCard) -> podcast.PodcastView | None:
+def _podcast_view(root: Path, card: SlateCard) -> podcast.PodcastView | None:
     """The slate's podcast bets for the PDF; a failure here never stops the card."""
     try:
-        return podcast.view(store_dir(), card)
+        return podcast.view(store_dir(), card, earlier=podcast.earlier_games(root, card.day))
     except Exception as exc:  # noqa: BLE001 - podcasts are display only
         print(f"  podcast bets left off the card ({exc})")
         return None
@@ -422,7 +508,14 @@ def _grade_podcasts(root: Path, days: list[Date]) -> int:
     n = 0
     for d in days:
         try:
-            n += len(podcast.grade_day(store_dir(), d, ledger.graded_rows(root, [d])))
+            n += len(
+                podcast.grade_day(
+                    store_dir(),
+                    d,
+                    ledger.graded_rows(root, [d]),
+                    earlier=podcast.earlier_games(root, d),
+                )
+            )
         except Exception as exc:  # noqa: BLE001 - podcasts are display only
             print(f"  {d}: podcast picks not graded ({exc})")
     return n
@@ -493,10 +586,17 @@ def cmd_card(args: argparse.Namespace) -> int:
         ctx = {}
     before = (day - timedelta(days=1)).isoformat()
     graded = ledger.graded_rows(root, _ledger_days(root, None, before))
-    card = build_card(rows, day=day, context=ctx, graded=graded, preseason=cfg.preseason)
+    bands = (
+        schedule_bands.read_bands(graded, schedule_bands.schedule_from(root, graded))
+        if graded
+        else []
+    )
+    card = build_card(
+        rows, day=day, context=ctx, graded=graded, preseason=cfg.preseason, bands=bands
+    )
     if cfg.state_sync and not args.no_sync:
         podcast_state.auto_pull(store_dir())
-    page, text = render_html(card, _podcast_view(card)), render_text(card)
+    page, text = render_html(card, _podcast_view(root, card)), render_text(card)
     out = output_dir()
     try:
         out.mkdir(parents=True, exist_ok=True)
@@ -693,7 +793,7 @@ def cmd_history(args: argparse.Namespace) -> int:
     if unknown:
         print(f"unknown anchor(s) {unknown}; choose from {list(history.ANCHORS)}", file=sys.stderr)
         return 2
-    markets = tuple(m.strip() for m in args.markets.split(",")) if args.markets else ALL_MARKETS
+    markets = tuple(m.strip() for m in args.markets.split(",")) if args.markets else CORE_MARKETS
     report = history.pull(
         client,
         data_dir(),
@@ -1167,7 +1267,22 @@ def build_parser() -> argparse.ArgumentParser:
     au.add_argument("--until")
     au.add_argument("--draws", type=int, default=400)
     au.add_argument("--no-sync", action="store_true", help="do not pull engine-state")
+    au.add_argument(
+        "--recent",
+        type=int,
+        default=0,
+        metavar="DAYS",
+        help="lead with the last DAYS slates before the season to date (weekly email: 7)",
+    )
+    au.add_argument("--email", action="store_true", help="email the audit")
+    au.add_argument("--to", help="recipient (default NBAE_EMAIL_TO / GMAIL_USER)")
     au.set_defaults(func=cmd_audit)
+
+    alt = sub.add_parser("alt-report", help="tracked alternate spreads/totals, bought vs sold")
+    alt.add_argument("--since")
+    alt.add_argument("--until")
+    alt.add_argument("--no-sync", action="store_true", help="do not pull engine-state")
+    alt.set_defaults(func=cmd_alt_report)
 
     cd = sub.add_parser("card", help="slate PDF + workbook (+ email) from the day's ledger")
     cd.add_argument("--date", help="slate date (ET), default today")

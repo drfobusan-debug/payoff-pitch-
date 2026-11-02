@@ -12,6 +12,12 @@ History already argues against both (``scripts/nfl/dog_zone_study.py``, one mode
 lean per game-market at the 2006-2025 closes): the spread zone went 671-679, -2.7%
 over 1,350 leans, and the long moneyline dogs 185-875, -10.0% over 1,060.
 
+``spread_lean`` is the broad version the 2026 wk1-7 audit asked for: every spread
+lean, any gap. It is judged at the shared band bar (``engine_common.bands.MIN_N``)
+rather than the 100-buy graduation bar because it is one of several rules read at
+once, and its seven-week record (57-39 pregame, 1.6 se) is the kind of draw that
+bar exists to wait out.
+
 The spread zone is also graded on the leans the engine refused (``Pass``) alone,
 which asks whether the screens cost winners rather than whether the zone wins.
 """
@@ -21,6 +27,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass
 
+from engine_common.bands import MIN_N as BAND_MIN_N
 from nfl_engine.audit.graduation import (
     CLOSE_WINDOW,
     MIN_N,
@@ -35,6 +42,7 @@ from nfl_engine.market.screens import MAX_AMERICAN, Tier
 SPREAD_DOG_GAP_RULE = "spread_dog_gap_2_4"
 SPREAD_DOG_REFUSED_RULE = "spread_dog_refused"
 ML_LONGSHOT_RULE = "ml_dog_over_300"
+SPREAD_LEAN_RULE = "spread_lean"
 GAP_LO, GAP_HI = 0.02, 0.04
 
 
@@ -59,6 +67,12 @@ def spread_dog_refused(entry: LedgerEntry) -> bool:
     return spread_dog_gap(entry) and entry.tier == Tier.PASS.value
 
 
+def spread_lean(entry: LedgerEntry) -> bool:
+    """Any spread lean: the side the model rates above the de-vigged fair."""
+    gap = model_gap(entry)
+    return entry.market == SPREAD and gap is not None and gap > 0
+
+
 def ml_longshot(entry: LedgerEntry) -> bool:
     """A moneyline lean at a price the ``longshot`` screen refuses."""
     gap = model_gap(entry)
@@ -71,10 +85,12 @@ def ml_longshot(entry: LedgerEntry) -> bool:
     )
 
 
-RULES: tuple[tuple[str, str, Callable[[LedgerEntry], bool]], ...] = (
-    (SPREAD_DOG_GAP_RULE, "spread dog, model gap 2-4 pts", spread_dog_gap),
-    (SPREAD_DOG_REFUSED_RULE, "the same zone, refused leans only", spread_dog_refused),
-    (ML_LONGSHOT_RULE, f"ML dog above +{MAX_AMERICAN:.0f}", ml_longshot),
+# (name, label, rule, games needed before the verdict is read)
+RULES: tuple[tuple[str, str, Callable[[LedgerEntry], bool], int], ...] = (
+    (SPREAD_DOG_GAP_RULE, "spread dog, model gap 2-4 pts", spread_dog_gap, MIN_N),
+    (SPREAD_DOG_REFUSED_RULE, "the same zone, refused leans only", spread_dog_refused, MIN_N),
+    (ML_LONGSHOT_RULE, f"ML dog above +{MAX_AMERICAN:.0f}", ml_longshot, MIN_N),
+    (SPREAD_LEAN_RULE, "every spread lean, any gap (band bar)", spread_lean, BAND_MIN_N),
 )
 
 
@@ -82,6 +98,7 @@ RULES: tuple[tuple[str, str, Callable[[LedgerEntry], bool]], ...] = (
 class TrackedRule:
     name: str
     label: str
+    min_n: int
     wins: int
     losses: int
     units: float
@@ -98,27 +115,31 @@ def matches(leans: list[LedgerEntry], rule: Callable[[LedgerEntry], bool]) -> li
     return sorted(rows, key=lambda e: e.kickoff_utc)
 
 
-def tracked(leans: list[LedgerEntry], *, min_n: int = MIN_N) -> list[TrackedRule]:
+def tracked(leans: list[LedgerEntry], *, min_n: int | None = None) -> list[TrackedRule]:
+    """``min_n`` overrides every rule's bar (tests); by default each rule keeps its own."""
     out = []
-    for name, label, rule in RULES:
+    for name, label, rule, need in RULES:
+        need = min_n if min_n is not None else need
         rows = matches(leans, rule)
         out.append(
             TrackedRule(
                 name=name,
                 label=label,
+                min_n=need,
                 wins=sum(e.result == WIN for e in rows),
                 losses=sum(e.result == LOSS for e in rows),
                 units=sum(e.pnl for e in rows),
-                verdict=judge(rows, min_n=min_n),
+                verdict=judge(rows, min_n=need),
             )
         )
     return out
 
 
-def tracked_lines(leans: list[LedgerEntry], *, min_n: int = MIN_N) -> list[str]:
+def tracked_lines(leans: list[LedgerEntry], *, min_n: int | None = None) -> list[str]:
     lines = []
     for t in tracked(leans, min_n=min_n):
         g = t.verdict
+        min_n = t.min_n
         clv = "n/a" if g.clv is None else f"{g.clv:+.4f} (se {g.clv_se:.4f}, n {g.clv_n})"
         lines.append(
             f"  {t.name:<20} {g.status:<9} n {g.n:>3} (need {min_n})  {t.wins}-{t.losses}"

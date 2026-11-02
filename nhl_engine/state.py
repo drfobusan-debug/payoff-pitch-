@@ -32,6 +32,7 @@ from mlb_engine.state import (
     _git_ok,
     _worktree,
     repo_root,
+    synced,
 )
 from nhl_engine.data.capture import prices_dir
 
@@ -112,6 +113,7 @@ def _copy_news(src_base: Path, dest_base: Path, *, overwrite: bool) -> list[str]
     return copied
 
 
+@synced
 def pull_state(data_dir: Path, repo: Path | None = None, branch: str = STATE_BRANCH) -> SyncReport:
     repo = repo or repo_root()
     state = _worktree(repo, branch)
@@ -121,6 +123,7 @@ def pull_state(data_dir: Path, repo: Path | None = None, branch: str = STATE_BRA
     return SyncReport(pulled=tuple(pulled))
 
 
+@synced
 def push_state(
     data_dir: Path, message: str, repo: Path | None = None, branch: str = STATE_BRANCH
 ) -> SyncReport:

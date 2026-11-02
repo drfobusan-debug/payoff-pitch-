@@ -36,6 +36,7 @@ from mlb_engine.state import (
     merge_dated_csv,
     push_refusal,
     repo_root,
+    synced,
 )
 from nfl_engine.props import FIELDS as RESEARCH_FIELDS
 from nfl_engine.props_grade import LOSS, PUSH, WIN
@@ -104,6 +105,7 @@ def production_data_dir() -> Path:
     return Path.home() / ".nfl_engine"
 
 
+@synced
 def pull_state(
     data_dir: Path,
     repo: Path | None = None,
@@ -122,6 +124,7 @@ def pull_state(
     return SyncReport(pulled=tuple(pulled))
 
 
+@synced
 def push_state(
     data_dir: Path,
     message: str,

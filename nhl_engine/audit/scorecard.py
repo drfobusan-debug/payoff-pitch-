@@ -14,6 +14,7 @@ from __future__ import annotations
 from collections import defaultdict
 from dataclasses import dataclass, field
 
+from engine_common import promotion
 from nhl_engine.audit.ledger import LedgerRow
 
 PROBATION_N = 100
@@ -30,11 +31,14 @@ class Bucket:
     brier_model: float = 0.0
     brier_market: float = 0.0
     dual_rule: int = 0
+    pnls: list[float] = field(default_factory=list)
+    clvs: list[float] = field(default_factory=list)
 
     def add(self, r: LedgerRow) -> None:
         if r.outcome is None:
             return
         self.n += 1
+        self.pnls.append(r.pnl or 0.0)
         if r.outcome == "push":
             self.pushes += 1
         else:
@@ -46,6 +50,7 @@ class Bucket:
         if r.clv is not None and r.close_fresh:
             self.clv_sum += r.clv
             self.clv_n += 1
+            self.clvs.append(r.clv)
         if r.dual_rule_differs:
             self.dual_rule += 1
 
@@ -98,12 +103,39 @@ class Scorecard:
         out: dict[str, dict[str, object]] = {}
         for mk, b in sorted(buckets.items()):
             d = b.as_dict()
-            cleared = (
-                b.n >= PROBATION_N
-                and float(d["roi"]) > 0
-                and float(d["brier_model"]) <= float(d["brier_market"])
+            p = promotion.read(
+                mk,
+                b.pnls,
+                b.clvs,
+                float(d["brier_model"]) if b.decided else None,
+                float(d["brier_market"]) if b.decided else None,
             )
-            out[mk] = {**d, "cleared": cleared, "needed": max(0, PROBATION_N - b.n)}
+            out[mk] = {
+                **d,
+                "cleared": p.cleared,
+                "needed": p.needed,
+                "status": p.status,
+                "stake": p.stake,
+                "clv_lo": p.clv_lo,
+                "halves": p.halves,
+                "why_not": p.why_not,
+            }
+        return out
+
+    def promotions(self) -> list[promotion.Promotion]:
+        """The live buy markets read against the shared bar, for the card."""
+        out = []
+        for mk, b in sorted(self.buys_by_market.items()):
+            d = b.as_dict()
+            out.append(
+                promotion.read(
+                    mk,
+                    b.pnls,
+                    b.clvs,
+                    float(d["brier_model"]) if b.decided else None,
+                    float(d["brier_market"]) if b.decided else None,
+                )
+            )
         return out
 
     def render(self) -> str:
@@ -121,19 +153,25 @@ class Scorecard:
             d = b.as_dict()
             lines.append(f"  {t:<14s} {b.n:4d}  roi {d['roi']:+.3f}  clv {d['clv']:+.3f}")
         lines.append("")
-        lines.append("probation (buys per market; needs 100, roi>0, brier<=market)")
+        lines.append(
+            "probation (buys per market; needs 100, roi>=0 both halves, CLV lower bound>0,"
+            " brier<=market -> Lean (probation), 0.5u)"
+        )
         for mk, p in self.probation().items():
-            status = "CLEARED" if p["cleared"] else f"{p['needed']} to go"
-            lines.append(f"  {mk:<15s} {p['n']!s:>4s}  roi {p['roi']:+.3f}  {status}")
+            status = p["status"] if p["cleared"] else f"paper: {p['why_not']}"
+            lines.append(
+                f"  {mk:<15s} {p['n']!s:>4s}  roi {p['roi']:+.3f}  clv_lo {p['clv_lo']:+.4f}  {status}"
+            )
         lines.append("")
         lines.append("sim would-be buys (unanchored sim, graded-only; same bar)")
         for mk, p in self.sim_probation().items():
-            status = "CLEARED" if p["cleared"] else f"{p['needed']} to go"
+            status = p["status"] if p["cleared"] else f"paper: {p['why_not']}"
             lines.append(f"  {mk:<15s} {p['n']!s:>4s}  roi {p['roi']:+.3f}  {status}")
         return "\n".join(lines) + "\n"
 
 
 def scorecard(rows: list[LedgerRow]) -> Scorecard:
+    """Rows are read in slate-date order so the halves split old from new."""
     sc = Scorecard()
     for r in rows:
         if not r.priced_late:

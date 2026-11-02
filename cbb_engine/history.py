@@ -35,7 +35,7 @@ CLOSE_BEFORE_MIN = 5
 DENSE_WINDOW_H = 3.0
 CSV_FIELDS = (
     "game_date", "event_id", "home", "away", "tip_utc", "close_total", "final_total",
-    "paired_books", "spread_abs", "close_shard",
+    "paired_books", "spread_abs", "close_shard", "home_spread", "home_pts", "away_pts", "h1_home", "h1_away",
 )
 
 
@@ -192,21 +192,27 @@ def _sim(a: str, b: str) -> float:
 
 
 def match_final(home: str, away: str, games: Sequence[espn.Game]) -> tuple[int, int] | None:
-    """The day's ESPN final for (home, away): exact normalized match, else the unique best token match
+    """The day's ESPN final for (home, away); see ``match_game``."""
+    g = match_game(home, away, [g for g in games if g.final])
+    return g.final if g else None
+
+
+def match_game(home: str, away: str, games: Sequence[espn.Game]) -> espn.Game | None:
+    """The day's ESPN game for (home, away): exact normalized match, else the unique best token match
     where both sides share a token (score ≥ 1.0 of 2 and ahead of the runner-up)."""
-    exact = {(_norm(g.home), _norm(g.away)): g.final for g in games if g.final}
+    exact = {(_norm(g.home), _norm(g.away)): g for g in games}
     hit = exact.get((_norm(home), _norm(away)))
     if hit:
         return hit
     scored = sorted(
-        ((_sim(home, g.home) + _sim(away, g.away), g) for g in games if g.final and _sim(home, g.home) > 0 and _sim(away, g.away) > 0),
+        ((_sim(home, g.home) + _sim(away, g.away), g) for g in games if _sim(home, g.home) > 0 and _sim(away, g.away) > 0),
         key=lambda t: -t[0],
     )
     if not scored or scored[0][0] < 1.0:
         return None
     if len(scored) > 1 and scored[1][0] >= scored[0][0] - 1e-9:
         return None
-    return scored[0][1].final
+    return scored[0][1]
 
 
 def latest_scoreboard(data_dir: Path, day: str) -> list[espn.Game]:
@@ -218,10 +224,12 @@ def latest_scoreboard(data_dir: Path, day: str) -> list[espn.Game]:
 
 
 def export_day(root: Path, data_dir: Path, day: str) -> list[dict[str, object]]:
-    """Join the day's hist close shards to ESPN finals: one row per game for `fit_width.py`.
+    """Join the day's hist close shards to ESPN finals: one row per game for `fit_width.py` and
+    `fit_margin.py`.
 
-    The close is the last hist close shard captured before the game's tip; ``close_total`` and
-    ``spread_abs`` are consensus lines (execution books excluded), ``paired_books`` the total's.
+    The close is the last hist close shard captured before the game's tip; ``close_total``,
+    ``spread_abs`` and ``home_spread`` (home side's line) are consensus lines (execution books
+    excluded), ``paired_books`` the total's; ``h1_*`` are first-half points.
     """
     man = quotes.read_manifest(root, SPORT, day)
     teams: dict[str, list[str]] = {}
@@ -248,8 +256,15 @@ def export_day(root: Path, data_dir: Path, day: str) -> list[dict[str, object]]:
         close_total = consensus.consensus_line(anchors, eid, "game_total")
         ats = [abs(a.line) for a in anchors if a.market == "game_ats" and a.line is not None and a.paired_books]
         spread = median(ats) if ats else None
+        home_lines = [
+            a.line if a.sides[0] == "home" else -a.line
+            for a in anchors
+            if a.market == "game_ats" and a.line is not None and a.paired_books and a.sides[0] in ("home", "away")
+        ]
         home, away = teams.get(eid, ["", ""])
-        final = match_final(home, away, games)
+        game = match_game(home, away, [g for g in games if g.final])
+        final = game.final if game else None
+        h1 = (game.away_halves[0], game.home_halves[0]) if game and len(game.home_halves) >= 2 else None
         out.append({
             "game_date": day, "event_id": eid, "home": home, "away": away, "tip_utc": qs[0].tip_utc,
             "close_total": close_total,
@@ -257,6 +272,9 @@ def export_day(root: Path, data_dir: Path, day: str) -> list[dict[str, object]]:
             "paired_books": max(a.paired_books for a in total),
             "spread_abs": abs(spread) if spread is not None else "",
             "close_shard": last,
+            "home_spread": median(home_lines) if home_lines else "",
+            "home_pts": final[1] if final else "", "away_pts": final[0] if final else "",
+            "h1_home": h1[1] if h1 else "", "h1_away": h1[0] if h1 else "",
         })
     return out
 
@@ -281,6 +299,6 @@ def tips_from_games(games: Iterable[espn.Game], day: str) -> list[str]:
 
 
 __all__ = [
-    "CLOSE_MARKETS", "CSV_FIELDS", "HIST_PREFIX", "close_times", "days_between", "dense_times",
+    "CLOSE_MARKETS", "CSV_FIELDS", "HIST_PREFIX", "close_times", "days_between", "dense_times", "match_game",
     "export_day", "latest_scoreboard", "match_final", "plan", "pull_day", "tips_from_games", "write_csv",
 ]

@@ -33,7 +33,7 @@ from datetime import date as Date
 from datetime import datetime, time, timedelta
 from pathlib import Path
 
-from nba_engine.data.capture import ALL_MARKETS, QuoteRow
+from nba_engine.data.capture import CORE_MARKETS, QuoteRow
 from nba_engine.data.oddsapi import SLATE_TZ, OddsAPIClient, event_rows, games_from, parse_utc
 from nba_engine.schemas import Game
 
@@ -149,7 +149,7 @@ def pull(
     days: list[Date],
     *,
     anchors: tuple[str, ...] = ("close",),
-    markets: tuple[str, ...] = ALL_MARKETS,
+    markets: tuple[str, ...] = CORE_MARKETS,
     budget: int,
     min_credits: int,
 ) -> PullReport:

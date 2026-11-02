@@ -91,13 +91,13 @@ def settle_row(
         if pts[0] == pts[1]:
             return PUSH, ""
         return (WIN if pts[0] > pts[1] else LOSS), ""
-    if market in ("game_ats", "h1_ats"):
+    if market in ("game_ats", "h1_ats", "alt_ats"):
         pts = _team(side, game, home, away)
         if pts is None or line is None:
             return None, ""
         adj = pts[0] - pts[1] + line
         return (PUSH if adj == 0 else (WIN if adj > 0 else LOSS)), ""
-    if market in ("game_total", "h1_total"):
+    if market in ("game_total", "h1_total", "alt_total"):
         return (None if line is None else _ou(float(home + away), line, side)), ""
 
     value_of = PROP_VALUE.get(market)

@@ -54,8 +54,8 @@ class Cadence:
     featured: int = 10  # inside T-3h
     featured_window_h: float = 3.0
     mid_window_h: float = 6.0
-    close_first_min: int = 60  # close passes T-60 -> T-5
-    close_last_min: int = 5
+    close_first_min: int = 12  # one close per tip cluster, caught by the 5-min tick at ~T-10
+    close_last_min: int = 3
     watch: int = 5  # ESPN/RotoWire only; no credits
     horizon_hours: int = 30
 

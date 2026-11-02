@@ -78,8 +78,12 @@ class NHLAPIClient:
         self.cache_ttl = cache_ttl
 
     def schedule(self, day: Date) -> list[Game]:
+        return self.schedule_or_none(day) or []
+
+    def schedule_or_none(self, day: Date) -> list[Game] | None:
+        """The day's games, or None when the request failed (not the same as an off night)."""
         data = self._get_json(f"{BASE}/schedule/{day.isoformat()}")
-        return parse_schedule(data, day) if isinstance(data, dict) else []
+        return parse_schedule(data, day) if isinstance(data, dict) else None
 
     def result(self, game: Game) -> GameResult | None:
         if game.nhl_game_id is None:

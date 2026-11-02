@@ -163,6 +163,42 @@ class OddsAPIClient:
         return out
 
     # -- parsing ----------------------------------------------------------
+    def fetch_alt_lines(self, slate_date: Date, matchups: set[str]) -> list[dict]:
+        """Alternate spreads/totals for the named games (~2 credits a game).
+
+        The event list is free; only each named game's event-odds call is paid.
+        """
+        from cfb_engine.audit import altlines
+
+        if not self.available() or not matchups:
+            return []
+        start = datetime.combine(slate_date, Time(0, 0), tzinfo=_SLATE_TZ).astimezone(timezone.utc)
+        events = self._get_json(
+            f"{BASE}/events",
+            commenceTimeFrom=_iso(start),
+            commenceTimeTo=_iso(start + timedelta(days=1)),
+        )
+        if not isinstance(events, list):
+            return []
+        rows: list[dict] = []
+        for raw in events:
+            ev = self._to_event(raw)
+            if ev is None or ev.matchup not in matchups:
+                continue
+            data = self._get_json(
+                f"{BASE}/events/{ev.event_id}/odds", markets=",".join(altlines.ALT_MARKETS)
+            )
+            if isinstance(data, dict):
+                rows += altlines.parse_event(
+                    data,
+                    ev.home_ab,
+                    ev.away_ab,
+                    ev.home_name,
+                    ev.away_name,
+                    altlines.now_stamp(),
+                )
+        return rows
+
     def _parse_game(self, raw: dict, ev: _Event) -> GameOdds:
         odds = GameOdds(matchup=ev.matchup)
         for bm in raw.get("bookmakers", []):

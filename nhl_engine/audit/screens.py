@@ -56,8 +56,11 @@ def _statuses(r: LedgerRow) -> tuple[str, str]:
     return away, home
 
 
+UNCONFIRMED = ("probable", "projected")  # 'projected' was wrong 7 of 9 times: unknown, not a read
+
+
 def goalie_probable(r: LedgerRow, ctx: Context) -> bool:
-    return r.market in GAME_MARKETS and "probable" in _statuses(r)
+    return r.market in GAME_MARKETS and any(st in UNCONFIRMED for st in _statuses(r))
 
 
 def b2b_goalie_unconfirmed(r: LedgerRow, ctx: Context) -> bool:
@@ -86,7 +89,10 @@ def road_b2b_vs_rested_home(r: LedgerRow, ctx: Context) -> bool:
 
 
 SCREENS: dict[str, tuple[str, Callable[[LedgerRow, Context], bool]]] = {
-    "goalie_probable": ("game buy with a 'probable' (not confirmed) goalie", goalie_probable),
+    "goalie_probable": (
+        "game buy with a 'probable' or 'projected' (not confirmed) goalie",
+        goalie_probable,
+    ),
     "b2b_goalie_unconfirmed": (
         "game buy where a team on a back-to-back has no confirmed goalie",
         b2b_goalie_unconfirmed,

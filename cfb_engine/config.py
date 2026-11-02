@@ -547,10 +547,31 @@ class Config:
         that slate's pre-bet drift is simply unavailable."""
         return self.audit_dir / f"board_{day.isoformat()}.json"
 
+    def altlines_file(self, day: Date) -> Path:
+        """Alternate spreads/totals fetched at card time (append-only, tracked only)."""
+        return self.audit_dir / f"altlines_{day.isoformat()}.jsonl"
+
+    @property
+    def alt_ledger_file(self) -> Path:
+        """Every tracked alternate number, graded against the final."""
+        return self.audit_dir / "alt_ledger.csv"
+
     def books_file(self, day: Date) -> Path:
         """Every book's total (and Kalshi's ladder) per pregame pull, one line per
         game per pull; append-only, so a slate's number shopping can be measured."""
         return self.audit_dir / f"totals_books_{day.isoformat()}.jsonl"
+
+    def early_file(self, day: Date) -> Path:
+        """The card ``cfb-engine early`` priced for a Saturday on the Tuesday before.
+
+        Kept apart from :meth:`predictions_file`: the Saturday card is the record,
+        and this one is graded beside it to see what the earlier number is worth."""
+        return self.audit_dir / f"early_{day.isoformat()}.json"
+
+    @property
+    def early_ledger_file(self) -> Path:
+        """The early cards, graded like the ledger against the same finals and close."""
+        return self.audit_dir / "early_ledger.csv"
 
     def opener_file(self, day: Date) -> Path:
         """Earliest board ``cfb-engine opener`` captured for one slate, days before

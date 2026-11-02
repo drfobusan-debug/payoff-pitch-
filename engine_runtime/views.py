@@ -98,3 +98,45 @@ def v_prior(rows: Iterable[Row]) -> list[dict[str, object]]:
 
 
 __all__ = ["v_clv", "v_gate", "v_prior", "v_rung", "v_shape"]
+
+
+def v_promotion(rows: Iterable[Row]) -> list[dict[str, object]]:
+    """Each live buy market against the shared paper -> Lean (probation) bar."""
+    from engine_common import promotion
+
+    by_market: dict[str, list[Row]] = defaultdict(list)
+    for r in sorted(rows, key=lambda r: r.slate_date):
+        if r.status == "live" and r.bet_of_record and r.is_buy and r.outcome:
+            by_market[r.market].append(r)
+    out = []
+    for market, rs in sorted(by_market.items()):
+        decided = [
+            r
+            for r in rs
+            if r.outcome in ("win", "loss") and r.p_model is not None and r.p_fair is not None
+        ]
+        bm: float | None = None
+        bk: float | None = None
+        if decided:
+            pairs = [(r, 1.0 if r.outcome == "win" else 0.0) for r in decided]
+            bm = sum((float(r.p_model or 0.0) - w) ** 2 for r, w in pairs) / len(pairs)
+            bk = sum((float(r.p_fair or 0.0) - w) ** 2 for r, w in pairs) / len(pairs)
+        p = promotion.read(
+            market,
+            [r.pnl or 0.0 for r in rs],
+            [r.clv_consensus / 100 for r in rs if r.clv_consensus is not None],
+            bm,
+            bk,
+        )
+        out.append(
+            {
+                "market": market,
+                "n": p.n,
+                "roi": round(p.roi, 4),
+                "clv_lo": round(p.clv_lo, 4) if p.clv_n > 1 else None,
+                "status": p.status,
+                "stake": p.stake,
+                "why_not": p.why_not,
+            }
+        )
+    return out

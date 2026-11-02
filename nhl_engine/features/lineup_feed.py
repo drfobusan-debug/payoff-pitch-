@@ -139,7 +139,9 @@ def apply_slate(
     season: int,
     quotes: list[QuoteRow] | None = None,
     seen_at: str | None = None,
+    source: str = SOURCE,
 ) -> FeedSummary:
+    """``source`` names the feed the slate came from (RotoWire by default, Daily Faceoff)."""
     slate: Date = roto.slate
     summary = FeedSummary()
     resolver = NameResolver(mp, season)
@@ -166,7 +168,7 @@ def apply_slate(
                             "player_id": pid,
                             "name": name,
                             "status": side.goalie_status,
-                            "source": SOURCE,
+                            "source": source,
                             "matchup": game.matchup,
                             "market_home_ml": market[0],
                             "market_book": market[1],
@@ -183,7 +185,7 @@ def apply_slate(
                         )
                     else:
                         starters.save_override(
-                            ov_path, team, pid, side.goalie_status, SOURCE, name=name
+                            ov_path, team, pid, side.goalie_status, source, name=name
                         )
                         current = starters.load_overrides(ov_path)
                         summary.goalies_set.append(f"{team} {name} {side.goalie_status}")
