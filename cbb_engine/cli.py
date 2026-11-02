@@ -42,7 +42,7 @@ from engine_common.bands import BandRead
 from engine_common.podcasts import state as podcast_state
 from engine_common.podcasts.episodes import store_dir
 from engine_common.podcasts.run import read_feeds
-from engine_common.podcasts.shows import CBB
+from engine_common.podcasts.shows import CBB, SHOWS
 from engine_runtime import ledger, quotes, runner, views
 from engine_runtime.odds_client import OddsClient
 
@@ -364,6 +364,7 @@ def cmd_podcast(args: argparse.Namespace) -> int:
         now = datetime.now(timezone.utc)
         rep = read_feeds(
             store_dir(), now - timedelta(days=args.days), now, league=CBB,
+            shows=[s for s in SHOWS if CBB in s.leagues],
             transcribe_missing=not args.no_transcribe,
         )
         print(f"  {rep.by_league.get(CBB, 0)} CBB picks read")
