@@ -1,0 +1,60 @@
+{
+ "episode_guid": "vsin-94659",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "442965bffdc4cf7c70c569d15388a5a3d575f6d8",
+ "picks": [
+  {
+   "pick_id": "797048c227ad",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-94659",
+   "episode_title": "College Basketball Picks for Monday, November 2 from Adam Burke",
+   "published": "2026-11-02T15:59:04+00:00",
+   "kind": "official",
+   "market": "game_total",
+   "team": "Akron",
+   "opponent": "Louisiana",
+   "side": "under",
+   "line": 149.0,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Under 149",
+   "reason": "https://vsin.com/college-basketball/college-basketball-picks-for-monday-november-2-from-adam-burke/",
+   "description": "Under 149",
+   "league": "cbb",
+   "edge": "",
+   "fair_line": null
+  },
+  {
+   "pick_id": "447787c02977",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-94659",
+   "episode_title": "College Basketball Picks for Monday, November 2 from Adam Burke",
+   "published": "2026-11-02T15:59:04+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Illinois State",
+   "opponent": "Saint Mary",
+   "side": null,
+   "line": 6.0,
+   "price": null,
+   "units": null,
+   "seconds": 1,
+   "quote": "Illinois State +6",
+   "reason": "https://vsin.com/college-basketball/college-basketball-picks-for-monday-november-2-from-adam-burke/",
+   "description": "Illinois State +6",
+   "league": "cbb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cbb"
+ ]
+}
