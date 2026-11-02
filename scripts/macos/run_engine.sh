@@ -21,8 +21,14 @@ VENV_DIR="${VENV_DIR:-$REPO_DIR/.venv}"
 ENV_FILE="${ENV_FILE:-/etc/engine.env}"
 AUDIT_CMD="${AUDIT_CMD:-mlb-engine audit --report --email}"
 MORNING_WAKE_HHMM="${MORNING_WAKE_HHMM:-10:00}"
-CLOSE_WAKE_HHMM="${CLOSE_WAKE_HHMM:-18:35}"
-DAY_CLOSE_WAKE_HHMM="${DAY_CLOSE_WAKE_HHMM:-12:45}"
+# MLB per-game close: launchd runs `close` every MLB_CLOSE_EVERY_MIN; each pass
+# fetches only the games starting within MLB_CLOSE_WITHIN_MIN that have no close
+# yet, and re-arms the next wake until MLB_CLOSE_LAST_HHMM. The morning job arms
+# the first. Must match setup_engine_autorun.sh.
+MLB_CLOSE_FIRST_WAKE_HHMM="${MLB_CLOSE_FIRST_WAKE_HHMM:-10:55}"
+MLB_CLOSE_LAST_HHMM="${MLB_CLOSE_LAST_HHMM:-22:30}"
+MLB_CLOSE_EVERY_MIN="${MLB_CLOSE_EVERY_MIN:-15}"
+MLB_CLOSE_WITHIN_MIN="${MLB_CLOSE_WITHIN_MIN:-45}"
 CFB_WAKE_HHMM="${CFB_WAKE_HHMM:-09:00}"
 # NFL pre-kickoff closes: "weekday=HH:MM" wakes (launchd weekday, 0=Sun), five
 # minutes ahead of each nfl-close run. Must match setup_engine_autorun.sh.
@@ -186,27 +192,25 @@ if [[ "$MODE" == "night" ]]; then
       ;;
   esac
 elif [[ "$MODE" == "close" ]]; then
-  # Snapshot today's CLOSING market so tomorrow morning's audit can score closing
-  # line value (CLV) -- the fast way to tell whether a pick had real edge. Runs
-  # twice a day (afternoon + evening) and merges, because a started game leaves
-  # the pre-match board. Cheap (~3 credits + one per event for props).
+  # The per-game close, for tomorrow's CLV: each pass fetches only the games
+  # starting within MLB_CLOSE_WITHIN_MIN that have no close stamped yet, so each
+  # game is captured once, 30-45 min before first pitch -- the only close CLV
+  # is scored on. A pass with nothing due is one free StatsAPI call.
   if mlb_in_season; then
-  mlb-engine close || echo "[$(date)] 'mlb-engine close' exited non-zero" >&2
+  mlb-engine close --within "${MLB_CLOSE_WITHIN_MIN}" || echo "[$(date)] 'mlb-engine close' exited non-zero" >&2
   # Lineups posted since the last slate pass, stamped with when they were seen.
   # Free (StatsAPI); the close's own slate fetch records them too, but a close
   # that finds no pre-match board exits before it writes anything.
   mlb-engine lineups || echo "[$(date)] 'mlb-engine lineups' exited non-zero" >&2
+  # Wake for the next pass until the day's last first pitch is closed.
+  nexthm=$(date -v+"${MLB_CLOSE_EVERY_MIN}"M +%H:%M)
+  if [[ "$nexthm" > "$(date +%H:%M)" && ! "$nexthm" > "$MLB_CLOSE_LAST_HHMM" ]]; then
+    pmset_ schedule wake "$(date -v+"${MLB_CLOSE_EVERY_MIN}"M '+%m/%d/%Y %H:%M'):00" \
+      || echo "[$(date)] could not arm the next close wake" >&2
+  fi
   else
     mlb_off_note "the MLB close and lineups"
   fi
-  # Re-arm tonight's evening capture in case the Mac would sleep before it.
-  pmset_ schedule wake "$(date +%m/%d/%Y) ${CLOSE_WAKE_HHMM}:00" || echo "[$(date)] could not arm evening wake" >&2
-  # Wed/Sat/Sun evenings also arm the NFL night-before board capture. %u: 1=Mon .. 7=Sun.
-  case "$(date +%u)" in
-    3|6|7)
-      pmset_ schedule wake "$(date +%m/%d/%Y) ${NFL_EVE_WAKE_HHMM}:00" || echo "[$(date)] could not arm NFL night-before wake" >&2
-      ;;
-  esac
 elif [[ "$MODE" == "react" ]]; then
   if ! mlb_in_season; then mlb_off_note "react"; exit 0; fi
   # Price-reaction watcher: poll the slate for lineups as they post and snapshot
@@ -380,9 +384,16 @@ else
   # PID and run the engine as a direct child, so DYLD_*/SSL_CERT_FILE survive.
   /usr/bin/caffeinate -i -w $$ &
 
-  # Arm a one-shot wake for TONIGHT's closing snapshot (same calendar day), so
-  # the close daemon can fire even if the Mac would otherwise sleep by evening.
-  pmset_ schedule wake "$(date +%m/%d/%Y) ${DAY_CLOSE_WAKE_HHMM}:00" || echo "[$(date)] could not arm afternoon wake" >&2
+  # Arm the day's first per-game close pass; each pass arms the next.
+  if mlb_in_season; then
+    pmset_ schedule wake "$(date +%m/%d/%Y) ${MLB_CLOSE_FIRST_WAKE_HHMM}:00" || echo "[$(date)] could not arm the first close wake" >&2
+  fi
+  # Wed/Sat/Sun also arm the NFL night-before board capture. %u: 1=Mon .. 7=Sun.
+  case "$(date +%u)" in
+    3|6|7)
+      pmset_ schedule wake "$(date +%m/%d/%Y) ${NFL_EVE_WAKE_HHMM}:00" || echo "[$(date)] could not arm NFL night-before wake" >&2
+      ;;
+  esac
 
   # 0) take whatever has been merged since yesterday.
   pull_latest

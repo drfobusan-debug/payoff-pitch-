@@ -1218,6 +1218,15 @@ class Config:
         default_factory=lambda: _env_float("MLBE_AWAY_ML_REFUSE_ODDS", 100.0)
     )
 
+    # The books a buy is struck at. The bet takes the best of their prices and
+    # is measured against the devigged consensus of every *other* book (see
+    # ``market.ev.evaluate``); a side none of them quotes is a Pass under
+    # ``no_execution_book``. ``MLBE_EXEC_BOOKS=`` (empty) restores the old
+    # best-of-every-book price.
+    exec_books: frozenset[str] = field(
+        default_factory=lambda: _env_set("MLBE_EXEC_BOOKS", ("draftkings", "betmgm"))
+    )
+
     # Where the engine and the book back different sides, bet the book's side
     # (see ``recommendations.fade_disagreements``). A buy whose devigged market
     # probability is under this is faded: its row becomes a Pass under

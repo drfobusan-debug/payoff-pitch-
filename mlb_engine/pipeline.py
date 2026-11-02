@@ -2137,13 +2137,14 @@ class Pipeline:
         if q is None:
             q = self._quote_aliases.get((matchup, market, keys.canonical(selection)))
         if q:
-            evres = evaluate(rec.model_prob, q)
+            exec_books = self.cfg.exec_books or None
+            evres = evaluate(rec.model_prob, q, exec_books)
             anchor = self.cfg.anchor_for(market)
             if anchor > 0:
                 # Re-price against a probability pulled toward the market. Only
                 # the bet probability moves; rec.model_prob stays the model's.
                 bet_prob = anchor_to_market(rec.model_prob, evres.fair_prob, anchor)
-                evres = evaluate(bet_prob, q)
+                evres = evaluate(bet_prob, q, exec_books)
             rec.book = evres.best_quote.book
             rec.market_american = evres.best_quote.american
             rec.opposite_american = evres.best_quote.opposite_american
@@ -2151,6 +2152,7 @@ class Pipeline:
             rec.edge = evres.edge
             rec.fair_prob = evres.fair_prob
             rec.bet_prob = evres.model_prob
+            rec.executable = evres.executable
             rec.handle_pct = evres.best_quote.handle_pct
             rec.bets_pct = evres.best_quote.bets_pct
             if rec.handle_pct is None:
@@ -2442,6 +2444,11 @@ class Pipeline:
             rec.tier = Tier.PASS
             rec.pass_gate = "price_only"
             rec.reasons = ["price captured for audit only", *rec.reasons]
+        # Priced off a book we do not bet at: the edge exists only on paper.
+        if rec.tier != Tier.PASS and not rec.executable:
+            rec.tier = Tier.PASS
+            rec.pass_gate = "no_execution_book"
+            rec.reasons = ["no execution book quotes this side -> PASS", *rec.reasons]
         return rec
 
 

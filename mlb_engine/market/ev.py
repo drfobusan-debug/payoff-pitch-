@@ -62,6 +62,9 @@ class EVResult:
     # Share of consensus weight whose vig was actually removed. Below 1.0 the
     # edge is understated, so a thin-edge guard is stricter than it looks.
     devig_coverage: float = 1.0
+    # False when execution books were named and none of them quoted the side:
+    # the price is still the board's best, but nobody we bet at offers it.
+    executable: bool = True
 
 
 def anchor_to_market(model_prob: float, fair_prob: float, weight: float) -> float:
@@ -93,7 +96,11 @@ def _weight(book: str) -> float:
     return BOOK_WEIGHTS.get(book, _DEFAULT_WEIGHT)
 
 
-def evaluate(model_prob: float, quotes: list[MarketQuote]) -> EVResult:
+def evaluate(
+    model_prob: float,
+    quotes: list[MarketQuote],
+    exec_books: frozenset[str] | None = None,
+) -> EVResult:
     """Compute EV against the best available price, edge vs the sharp consensus.
 
     EV uses the best (highest-payout) price across books so we line-shop the
@@ -109,14 +116,32 @@ def evaluate(model_prob: float, quotes: list[MarketQuote]) -> EVResult:
     and falls back to the raw board only when nothing can be devigged at all.
     Line shopping is unaffected: the bet is still struck at the best price on
     the board, devigged or not.
+
+    With ``exec_books`` (the books we actually bet at) the bet is struck at the
+    best of *their* prices, and the fair price is the consensus of every other
+    book, so a stale DK or MGM number is measured against the market rather
+    than averaged into it. Best-of-every-book inflated NFL's lean ROI from
+    +3.6% to +11.0%. With no other book on the side the consensus falls back
+    to the whole board; with no execution book on it the result is not
+    ``executable``.
     """
-    best = max(quotes, key=lambda q: american_to_decimal(q.american))
+    pool = quotes
+    executable = True
+    if exec_books:
+        mine = [q for q in quotes if q.book in exec_books]
+        others = [q for q in quotes if q.book not in exec_books]
+        executable = bool(mine)
+        best_pool = mine or quotes
+        pool = others or quotes
+    else:
+        best_pool = quotes
+    best = max(best_pool, key=lambda q: american_to_decimal(q.american))
     dec = american_to_decimal(best.american)
     ev = model_prob * (dec - 1.0) - (1.0 - model_prob)
 
-    wsum = sum(_weight(q.book) for q in quotes)
-    covered = sum(_weight(q.book) for q in quotes if q.devigged) / wsum
-    consensus = [q for q in quotes if q.devigged] or quotes
+    wsum = sum(_weight(q.book) for q in pool)
+    covered = sum(_weight(q.book) for q in pool if q.devigged) / wsum
+    consensus = [q for q in pool if q.devigged] or pool
     cw = sum(_weight(q.book) for q in consensus)
     fair = sum(_weight(q.book) * q.no_vig_prob for q in consensus) / cw
 
@@ -137,4 +162,5 @@ def evaluate(model_prob: float, quotes: list[MarketQuote]) -> EVResult:
         edge=model_prob - fair,
         sharp_divergence=divergence,
         devig_coverage=covered,
+        executable=executable,
     )
