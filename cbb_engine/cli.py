@@ -18,6 +18,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from cbb_engine import (
+    altlines,
     audit,
     audit_report,
     bands,
@@ -273,8 +274,16 @@ def cmd_price(args: argparse.Namespace) -> int:
     card_pdf = _card_pdf(root, day, ps.pass_id, priced.rows, out.with_suffix(".pdf"))
     if card_pdf is not None:
         paths["card_pdf"] = card_pdf
+    if not args.dry_run and cfg.alt_lines_on:
+        try:
+            client = _client(cache_ttl=0)
+            if client is not None:
+                n = altlines.capture_for(client, root, day.isoformat(), ps.pass_id, priced.rows, max_events=cfg.max_events)
+                print(f"alternate lines: {n} quote(s) for {len(altlines.tracked(priced.rows))} bought game(s)")
+        except Exception:
+            log.warning("CBB alternate lines failed; the card goes out without them", exc_info=True)
     if not args.dry_run:
-        state.auto_push(f"cbb card {day} {ps.pass_id}", trees=("ledger", "cards"))
+        state.auto_push(f"cbb card {day} {ps.pass_id}", trees=("ledger", "cards", "quotes"))
     if args.email and not args.dry_run:
         print(
             f"emailed {email.send(cfg, subject=f'CBB card {day} ({ps.pass_id})', text=text, paths=paths, to=args.to)}"
@@ -355,6 +364,13 @@ def cmd_audit(args: argparse.Namespace) -> int:
     written = audit.grade(root, day.isoformat(), games, teams, pass_id=ps.pass_id, width=dist.load_width(), margin=mg.load())
     if written:
         state.auto_push(f"cbb grade {day}", trees=("ledger",))
+    alt_path = data_dir() / "audit" / "alt_ledger.csv"
+    if games:
+        try:
+            n_alt = altlines.save_day(alt_path, day.isoformat(), altlines.grade(root, day.isoformat(), games, teams))
+            print(f"graded {n_alt} alternate line(s) (tracked only) -> {alt_path}")
+        except Exception:
+            log.warning("CBB alternate-line grading failed", exc_info=True)
     rows = list(ledger.record(root, SPORT, day.isoformat()).values())
     rungs = [
         "v0_shape",
@@ -379,7 +395,9 @@ def cmd_audit(args: argparse.Namespace) -> int:
         stamps = [("quote", q.captured_at) for q in shards] + [("row", r.tip_utc) for r in rows]
         rep["time_travel_violations"] = study.time_travel(day.isoformat(), stamps)
     checks = checklist.render(checklist.run(load_config(), root, day.isoformat()))
-    report = audit_report.build(by_day, day, bands=reads, checklist_lines=checks.splitlines())
+    report = audit_report.build(
+        by_day, day, bands=reads, checklist_lines=checks.splitlines(), alts=altlines.alts(alt_path, day.isoformat())
+    )
     text = audit_report.render_text(report)
     out_dir = data_dir() / "audit"
     out_dir.mkdir(parents=True, exist_ok=True)

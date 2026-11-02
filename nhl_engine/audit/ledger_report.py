@@ -24,6 +24,8 @@ from datetime import date as Date
 from html import escape
 from pathlib import Path
 
+from engine_runtime import altlines as alt_rt
+from nhl_engine.audit import altlines
 from nhl_engine.audit import bands as bnd
 from nhl_engine.audit import screens as scr
 from nhl_engine.audit.ledger import STALE_CLOSE_MIN, LedgerRow
@@ -157,6 +159,7 @@ class LedgerAudit:
     late_games: list[str] = field(default_factory=list)  # "night matchup"
     timing: list[NightTiming] = field(default_factory=list)
     exec_buys: Tally = field(default_factory=Tally)  # buys placed at an EXEC_BOOKS book
+    alts: list[tuple[str, ...]] = field(default_factory=list)  # alt-lines table rows
 
     @property
     def clv_p(self) -> float:
@@ -393,6 +396,7 @@ def build(
         late_games=sorted({f"{r.slate_date} {r.matchup}" for r in late}),
         timing=timing,
         exec_buys=_tally([r for r in buys if r.book in EXEC_BOOKS]),
+        alts=alt_rt.table(altlines.alts(rows)),
     )
     audit.findings = _findings(audit)
     return audit
@@ -577,6 +581,9 @@ def render_md(a: LedgerAudit, *, as_of: str) -> str:
     lines += ["", f"## {_band_title(a)}", "", _band_note(a), ""]
     lines += [f"| {' | '.join(BAND_HEAD)} |", "|---|---|---|---|---|---|---|---|"]
     lines += [f"| {' | '.join(r)} |" for r in _band_rows(a.bands)]
+    lines += ["", "## Alternate lines: points bought vs sold", "", alt_rt.NOTE, ""]
+    lines += [f"| {' | '.join(alt_rt.HEAD)} |", "|" + "---|" * len(alt_rt.HEAD)]
+    lines += [f"| {' | '.join(r)} |" for r in a.alts] or ["no graded alternate lines yet"]
     lines += ["", "## Scorecard (all rows)", "", "```", a.scorecard_text.rstrip(), "```", ""]
     return "\n".join(lines)
 
@@ -673,6 +680,8 @@ def render_html(a: LedgerAudit, *, as_of: str) -> str:
     )
     parts.append(f"<h2>{escape(_band_title(a))}</h2><p class='sub'>{escape(_band_note(a))}</p>")
     parts.append(_table(BAND_HEAD, _band_rows(a.bands)))
+    parts.append(f"<h2>Alternate lines: points bought vs sold</h2><p class='sub'>{escape(alt_rt.NOTE)}</p>")
+    parts.append(_table(alt_rt.HEAD, a.alts) if a.alts else "<p>no graded alternate lines yet</p>")
     parts.append(f"<h2>Scorecard (all rows)</h2><pre>{escape(a.scorecard_text)}</pre>")
     return f"<!DOCTYPE html><html><head><meta charset='utf-8'><style>{CSS}</style></head><body>{''.join(parts)}</body></html>"
 

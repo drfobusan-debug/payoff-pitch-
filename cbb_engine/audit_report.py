@@ -21,6 +21,7 @@ from cbb_engine.bands import main_rows
 from engine_common.bands import MIN_N as BAND_MIN_N
 from engine_common.bands import BandRead
 from engine_common.promotion import MIN_BUYS
+from engine_runtime import altlines as alt_rt
 from engine_runtime import ledger, views
 
 Z = 1.96
@@ -343,6 +344,7 @@ def build(
     bands: Sequence[BandRead] | None = None,
     checklist_lines: Sequence[str] = (),
     recent: int = 7,
+    alts: Sequence[alt_rt.Alt] = (),
 ) -> Report:
     season = [r for d, rs in sorted(rows_by_day.items()) if d <= day.isoformat() for r in rs]
     start = (day - timedelta(days=recent - 1)).isoformat()
@@ -419,6 +421,14 @@ def build(
                 )
                 for v in views.v_shape(season)
             ],
+        )
+    )
+    s_sec.tables.append(
+        Table(
+            "Alternate lines beside bought games: points bought vs sold ('beside buys' = live buys)",
+            tuple(alt_rt.HEAD),
+            alt_rt.table(alts),
+            alt_rt.NOTE if alts else "no graded alternate lines yet",
         )
     )
     findings = _findings(w_buys, s_buys, season, promo, reads)
