@@ -160,6 +160,11 @@ def to_games(rows: Iterable[Row], teams: Teams, day: Date) -> list[Game[Rows]]:
     return out
 
 
+def espn_games(games: Iterable[espn.Game], day: Date) -> list[Game[Rows]]:
+    """ESPN's games of ``day``, unpriced: only to tell which game a pick was about."""
+    return [Game(f"{g.away} @ {g.home}", g.home, g.away, _tip(g.start_utc), day) for g in games]
+
+
 def _same_side(r: Row, pl: Placed) -> bool:
     if r.market != pl.pick.market:
         return False
@@ -284,6 +289,7 @@ __all__ = [
     "PodcastView",
     "board_price",
     "engine_view",
+    "espn_games",
     "grade_day",
     "grade_row",
     "same_team",
