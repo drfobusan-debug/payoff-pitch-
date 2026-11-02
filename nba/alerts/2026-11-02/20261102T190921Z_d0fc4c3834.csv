@@ -1,0 +1,4 @@
+detected_at,game_date,event_id,matchup,kind,detail,before,after
+2026-11-02T19:09:21Z,2026-11-02,6579d9162df09172d12f48eecc5220fb,NOP @ MEM,settled,line steady over the last 2 poll(s),"{""ml"": 0.644729178800233, ""spread"": -5.5, ""total"": 232.5}","{""ml"": 0.644729178800233, ""spread"": -5.5, ""total"": 232.5}"
+2026-11-02T19:09:21Z,2026-11-02,6907851d65a9d0046d4c6c2f4ffb5e80,MIL @ MIN,settled,line steady over the last 4 poll(s),"{""ml"": 0.7906272273699216, ""spread"": -11.5, ""total"": 231.5}","{""ml"": 0.7806580259222333, ""spread"": -10.5, ""total"": 230.5}"
+2026-11-02T19:09:21Z,2026-11-02,d6cb49b0ae478270e74d0e7ce7082e57,BOS @ HOU,settled,line steady over the last 3 poll(s),"{""ml"": 0.6547884187082406, ""spread"": -6.0, ""total"": 217.5}","{""ml"": 0.6462264150943395, ""spread"": -5.5, ""total"": 217.5}"
