@@ -147,7 +147,7 @@ def _engine_graded(main_edge: float) -> list[altlines.AltRow]:
         date="2026-10-24", matchup="A @ H", market="game_ats", selection="A +7.5", main_line=7.5,
         tier="Strong buy", side="away", home_pts=24, away_pts=20, rows=_priced_rows(),
         p_main=0.56, mean=6.0, sd=16.0, thr=EVThresholds(min_ev=0.0, min_edge=0.02, max_edge=0.15),
-        main_edge=main_edge,
+        main_edge=main_edge, main_result="win", main_american=-110,
     )
 
 
@@ -168,10 +168,17 @@ def test_the_engine_flags_the_one_rung_that_beats_the_main_line(tmp_path: Path) 
     labels = {r[0] for r in altlines.report(path)}
     assert "game_ats sold engine-flagged" in labels and "game_ats bought engine-flagged" not in labels
     assert [a.favour for a in altlines.alts(path, flagged_only=True)] == [-3.0]
+    main = altlines.alts(path, main_line=True)
+    assert [(a.favour, a.outcome, round(a.pnl, 4)) for a in main] == [(-3.0, "win", 0.9091)]
+    same = {r[0]: r for r in altlines.report(path)}["game_ats sold engine-flagged: main line"]
+    assert same[1:5] == (1, 1, 0, 0.91)
 
 
 def test_no_rung_is_flagged_when_none_beats_the_main_line() -> None:
     assert not any(r.flagged for r in _engine_graded(main_edge=0.12))
+    # The best rung's edge is ~0.102: beating a 0.095 main line by under a point is not enough.
+    assert not any(r.flagged for r in _engine_graded(main_edge=0.095))
+    assert any(r.flagged for r in _engine_graded(main_edge=0.09))
 
 
 def test_rows_without_the_sim_stay_unpriced() -> None:
