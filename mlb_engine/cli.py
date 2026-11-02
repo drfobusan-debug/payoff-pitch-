@@ -13,8 +13,8 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from engine_common.podcasts.picks import load_ledger as load_podcast_ledger
+from mlb_engine.audit import closetest, histograms, reaction, tape
 from mlb_engine.audit import funnel as funnel_report
-from mlb_engine.audit import histograms, reaction, tape
 from mlb_engine.audit.analysis import (
     dog_vs_favorite,
     price_bucket_findings,
@@ -1240,6 +1240,25 @@ def _grade_vsin(cfg: Config, day: Date, results: dict[int, GameResult]) -> None:
     print(vsin_bets.render_text(ledger), end="")
 
 
+def cmd_promotion(args: argparse.Namespace) -> int:
+    """Print the close test and the graduation bar from the ledger. Display only."""
+    cfg = load_config()
+    path = Path(args.ledger) if args.ledger else cfg.audit_dir / "ledger.csv"
+    entries = [
+        e for e in load_ledger(path)
+        if (not args.since or e.date >= args.since) and (not args.until or e.date <= args.until)
+    ]
+    if not entries:
+        print(f"No ledger rows in {path} for that window")
+        return 1
+    print(f"Close test, {path} ({min(e.date for e in entries)} .. {max(e.date for e in entries)}):")
+    print("  (result - close) = b * (model - close); |b| <= 1 SE keeps a market graded-only")
+    print("\n".join(closetest.close_test_lines(closetest.close_fits(entries))))
+    print("Graduation (volume, margin, both halves, EV at a clean close):")
+    print("\n".join(closetest.graduation_lines(closetest.graduation(entries))))
+    return 0
+
+
 def cmd_audit(args: argparse.Namespace) -> int:
     cfg = load_config()
     cfg.ensure_dirs()
@@ -1331,6 +1350,8 @@ def cmd_audit(args: argparse.Namespace) -> int:
     # CLV is an exact negation and counting both drives every market's mean to
     # zero and "beat the close" to 50% arithmetically.
     clv_summary = summarize(clv_rows(measured))
+    print("Graduation (display only; a market is bought only once it meets the bar):")
+    print("\n".join(closetest.graduation_lines(closetest.graduation(all_entries))))
     engine = engine_metrics(measured)
     overall = [engine, *overall_metrics(measured)]
     daily_engine = daily_engine_metrics(measured)
@@ -1997,6 +2018,15 @@ def main(argv: list[str] | None = None) -> int:
     )
     a.add_argument("--to", help="email recipient (default: MLBE_EMAIL_TO)")
     a.set_defaults(func=cmd_audit)
+
+    pr = sub.add_parser(
+        "promotion",
+        help="close test + graduation bar per market from the ledger (display only, no network)",
+    )
+    pr.add_argument("--ledger", help="ledger CSV (default: the audit ledger)")
+    pr.add_argument("--since", help="first slate date YYYY-MM-DD")
+    pr.add_argument("--until", help="last slate date YYYY-MM-DD")
+    pr.set_defaults(func=cmd_promotion)
 
     rp = sub.add_parser("report", help="render a daily/weekly audit report from the ledger")
     rp.add_argument("--period", choices=("daily", "weekly"), default="daily", help="report window")
