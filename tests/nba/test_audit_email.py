@@ -84,6 +84,38 @@ def test_weekly_audit_mails_the_week_then_the_season(scratch, monkeypatch, capsy
     assert "emailed the audit to you@example.com" in capsys.readouterr().out
 
 
+def test_weekly_audit_attaches_the_report_as_a_pdf(scratch, monkeypatch):
+    monkeypatch.setenv("GMAIL_USER", "me@example.com")
+    monkeypatch.setenv("GMAIL_APP_PASSWORD", "pw")
+    monkeypatch.setattr(cli, "render_pdf", lambda page: b"%PDF-" + page.encode())
+
+    assert cli.main(["audit", "--recent", "7", "--email", "--no-sync"]) == 0
+
+    (msg,) = FakeSMTP.sent
+    (pdf,) = [p for p in msg.iter_attachments() if p.get_filename() == f"nba_audit_{DAY}.pdf"]
+    body = pdf.get_content()
+    assert (
+        body.startswith(b"%PDF-") and b"Season to date" in body and b"weekly ledger audit" in body
+    )
+    assert (scratch / "output" / "audit" / f"nba_audit_{DAY}.pdf").read_bytes() == body
+
+
+def test_a_failed_pdf_still_mails_the_text(scratch, monkeypatch, capsys):
+    monkeypatch.setenv("GMAIL_USER", "me@example.com")
+    monkeypatch.setenv("GMAIL_APP_PASSWORD", "pw")
+
+    def boom(page):
+        raise OSError("cannot load library 'libgobject-2.0-0'")
+
+    monkeypatch.setattr(cli, "render_pdf", boom)
+
+    assert cli.main(["audit", "--recent", "7", "--email", "--no-sync"]) == 0
+
+    (msg,) = FakeSMTP.sent
+    assert list(msg.iter_attachments()) == []
+    assert "audit PDF not rendered" in capsys.readouterr().out
+
+
 def test_a_week_without_grades_still_mails_the_season(scratch, monkeypatch):
     monkeypatch.setenv("GMAIL_USER", "me@example.com")
     monkeypatch.setenv("GMAIL_APP_PASSWORD", "pw")
