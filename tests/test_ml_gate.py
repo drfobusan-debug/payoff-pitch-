@@ -172,9 +172,10 @@ def test_sharp_upgrade_does_not_buy_a_negative_ev_price() -> None:
     assert not any("ml-upgrade" in r for r in rec.reasons)
 
 
-def test_sharp_upgrade_still_promotes_a_paying_price() -> None:
+def test_sharp_upgrade_still_promotes_a_paying_price(monkeypatch) -> None:
     from mlb_engine.market.tiers import Tier
 
+    monkeypatch.setenv("MLBE_LONGSHOT_REFUSE_ODDS", "1000")  # +200 is a longshot refusal now
     # Too thin an edge for the tiers to buy on their own, but a long enough
     # price that it still pays: the sharp signal promotes it.
     rec = _ml_rec(0.3366, american=200.0, opposite=-220.0)
@@ -183,7 +184,7 @@ def test_sharp_upgrade_still_promotes_a_paying_price() -> None:
     assert any("ml-upgrade: BUY" in r for r in rec.reasons)
 
 
-def test_sharp_money_cannot_buy_a_road_dog() -> None:
+def test_sharp_money_cannot_buy_a_road_dog(monkeypatch) -> None:
     """The screen runs after the upgrade, and is meant to overrule it.
 
     Handle piling onto a road underdog is the market agreeing about the side,
@@ -192,6 +193,7 @@ def test_sharp_money_cannot_buy_a_road_dog() -> None:
     """
     from mlb_engine.market.tiers import Tier
 
+    monkeypatch.setenv("MLBE_LONGSHOT_REFUSE_ODDS", "1000")  # +200 is a longshot refusal now
     road = _ml_rec(0.3366, american=200.0, opposite=-220.0, team_side="away")
     assert road.tier is Tier.PASS
     assert road.pass_gate == "away_ml_dog"

@@ -18,7 +18,13 @@ from zoneinfo import ZoneInfo
 from cbb_engine.data.injuries import Injury
 from cbb_engine.output.movement import Move
 from cbb_engine.output.teamstats import Factors, Rated, Split, TeamStats, match_team
+from engine_common.podcasts import render as podcast_render
+from engine_common.podcasts.render import CSS as PODCAST_CSS
+from engine_common.podcasts.render import game_block as podcast_game_block
+from engine_common.podcasts.render import records_block as podcast_records_block
 from engine_runtime import ledger
+
+PodcastView = podcast_render.PodcastView[list[ledger.Row]]
 
 ET = ZoneInfo("America/New_York")
 
@@ -356,8 +362,12 @@ def build_html(
     injuries: Sequence[Injury] = (),
     injuries_source: str = "",
     moves: Mapping[str, Sequence[Move]] | None = None,
+    podcast: PodcastView | None = None,
 ) -> str:
-    """``teams`` maps event_id -> (home, away) as named by the Odds API."""
+    """``teams`` maps event_id -> (home, away) as named by the Odds API.
+
+    ``podcast`` adds the shows' bets under each game and their records at the back.
+    """
     names = list(stats)
     lg = league(stats)
     listed = [(match_team(i.team, names), i) for i in injuries]
@@ -367,6 +377,7 @@ def build_html(
         by_event[r.event_id].append(r)
     buys = sum(1 for r in rows if r.is_buy and r.status == "live")
     blocks = []
+    order: list[str] = []
     for eid in sorted(
         set(by_event) | set(teams), key=lambda e: (by_event[e][0].tip_utc if by_event[e] else "", e)
     ):
@@ -376,10 +387,12 @@ def build_html(
         away, home = (stats.get(match_team(n, stats) or "") for n in (away_name, home_name))
         an, hn = (t.team if t else n.split()[0] for t, n in ((away, away_name), (home, home_name)))
         tip = _tip(by_event[eid][0].tip_utc) if by_event[eid] else ""
+        order.append(f"{away_name} @ {home_name}")
         blocks.append(
             f"<div class='game'><div class='gh'>{html.escape(away_name)} at {html.escape(home_name)} "
             f"<span>{tip} · {an} {_rest(away, day)}, {hn} {_rest(home, day)}</span></div>"
             f"{_board(by_event[eid])}"
+            f"{podcast_game_block(podcast, f'{away_name} @ {home_name}')}"
             f"<p class='ctx'><b>Line movement</b> — {_movement((moves or {}).get(eid, ()), an, hn)}</p>"
             f"{team_panel(away, home, an, hn, lg)}"
             f"<p class='ctx'><b>Unit edge</b> — {html.escape(unit_edge(lg, away, home, an, hn))}"
@@ -390,9 +403,10 @@ def build_html(
             f"{html.escape(_injuries(listed, home.team if home else None, hn))}</p></div>"
         )
     return (
-        f"<html><head><meta charset='utf-8'><style>{_STYLE}</style></head><body>"
+        f"<html><head><meta charset='utf-8'><style>{_STYLE}{PODCAST_CSS if podcast else ''}</style></head><body>"
         f"<h1>CBB card — {day.isoformat()}</h1><p class='sub'>{html.escape(title)} {buys} live buy(s) · "
-        f"{len(blocks)} games · paper only</p><p class='note'>{KEY}{_unmatched(unmatched)}</p>{''.join(blocks)}</body></html>"
+        f"{len(blocks)} games · paper only</p><p class='note'>{KEY}{_unmatched(unmatched)}</p>{''.join(blocks)}"
+        f"{podcast_records_block(podcast, order)}</body></html>"
     )
 
 

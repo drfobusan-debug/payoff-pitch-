@@ -28,6 +28,7 @@ from cbb_engine import (
     email,
     history,
     pilot,
+    podcast,
     state,
     study,
 )
@@ -38,6 +39,10 @@ from cbb_engine.models import distribution as dist
 from cbb_engine.models import margin as mg
 from cbb_engine.output import movement, pdf, teamstats
 from engine_common.bands import BandRead
+from engine_common.podcasts import state as podcast_state
+from engine_common.podcasts.episodes import store_dir
+from engine_common.podcasts.run import read_feeds
+from engine_common.podcasts.shows import CBB, SHOWS
 from engine_runtime import ledger, quotes, runner, views
 from engine_runtime.odds_client import OddsClient
 
@@ -323,6 +328,66 @@ def _season_bands(root: Path, season: list[ledger.Row], day: Date) -> list[BandR
         return None
 
 
+def _slate(root: Path, day: Date) -> tuple[list[ledger.Row], dict[str, tuple[str, str]]]:
+    return list(ledger.record(root, SPORT, day.isoformat()).values()), _manifest_teams(root, day)
+
+
+def _earlier_games(root: Path, day: Date) -> list[podcast.Game[podcast.Rows]]:
+    """The games within the podcast horizon before ``day``: the priced ones, plus every
+    archived ESPN game, so a pick on a game the card never priced is not carried on
+    to the team's next game."""
+    out: list[podcast.Game[podcast.Rows]] = []
+    for k in range(podcast.HORIZON.days, 0, -1):
+        d = day - timedelta(days=k)
+        rows, teams = _slate(root, d)
+        out += podcast.to_games(rows, teams, d)
+        out += podcast.espn_games(history.latest_scoreboard(data_dir(), d.isoformat()), d)
+    return out
+
+
+def _podcast_view(root: Path, day: Date, rows: list[ledger.Row]) -> podcast.PodcastView | None:
+    """The slate's podcast bets for the PDF; a failure here never stops the card."""
+    try:
+        podcast_state.auto_pull(store_dir())
+        games = podcast.to_games(rows, _manifest_teams(root, day), day)
+        return podcast.view(store_dir(), games, day, earlier=_earlier_games(root, day))
+    except Exception as exc:  # noqa: BLE001 - podcasts are display only
+        print(f"  podcast bets left off the card ({exc})")
+        return None
+
+
+def cmd_podcast(args: argparse.Namespace) -> int:
+    """Read the shows' new CBB episodes and grade their picks on ESPN finals. Prices nothing."""
+    root = runtime_root()
+    sync = not args.no_sync
+    if sync:
+        podcast_state.auto_pull(store_dir())
+        # The manifests (in quotes) name each event's teams; without them no pick places.
+        state.auto_pull(trees=("quotes", "ledger"))
+    if not args.no_read:
+        now = datetime.now(timezone.utc)
+        rep = read_feeds(
+            store_dir(), now - timedelta(days=args.days), now, league=CBB,
+            shows=[s for s in SHOWS if CBB in s.leagues],
+            transcribe_missing=not args.no_transcribe,
+        )
+        print(f"  {rep.by_league.get(CBB, 0)} CBB picks read")
+    today = datetime.now(timezone.utc).date()
+    n = 0
+    for k in range(args.days, 0, -1):
+        d = today - timedelta(days=k)
+        try:
+            rows, teams = _slate(root, d)
+            finals = history.latest_scoreboard(data_dir(), d.isoformat())
+            n += len(podcast.grade_day(store_dir(), d, rows, teams, finals, earlier=_earlier_games(root, d)))
+        except Exception as exc:  # noqa: BLE001 - podcasts are display only
+            print(f"  {d}: podcast picks not graded ({exc})")
+    print(f"  {n} CBB podcast picks graded over the last {args.days} day(s)")
+    if sync:
+        podcast_state.auto_push(store_dir(), f"cbb podcasts: through {today - timedelta(days=1)}")
+    return 0
+
+
 def _card_pdf(root: Path, day: Date, pass_id: str, rows: list[ledger.Row], out: Path) -> Path | None:
     """Display-only PDF beside the text card; any failure leaves the text card as the card."""
     try:
@@ -342,6 +407,7 @@ def _card_pdf(root: Path, day: Date, pass_id: str, rows: list[ledger.Row], out: 
             injuries=listed,
             injuries_source=f"(RotoWire {src.stem[-6:-2]} UTC) " if src else "(RotoWire: none fetched) ",
             moves=movement.moves(quotes.read_day(root, SPORT, day.isoformat()), until=quotes.now_utc()),
+            podcast=_podcast_view(root, day, rows),
         )
         out.write_bytes(pdf.render_pdf(body))
     except Exception:
@@ -587,6 +653,12 @@ def build_parser() -> argparse.ArgumentParser:
     pr.add_argument("--email", action="store_true")
     pr.add_argument("--to")
     pr.set_defaults(func=cmd_price)
+    po = sub.add_parser("podcast", help="read the shows' CBB picks and grade them (prices nothing)")
+    po.add_argument("--days", type=int, default=3)
+    po.add_argument("--no-read", action="store_true", help="only grade what was already read")
+    po.add_argument("--no-transcribe", action="store_true")
+    po.add_argument("--no-sync", action="store_true")
+    po.set_defaults(func=cmd_podcast)
     au = sub.add_parser(
         "audit", help="grade bet-of-record rows (close shards + ESPN finals), print the views"
     )

@@ -34,3 +34,11 @@ def _best_of_every_book(monkeypatch: pytest.MonkeyPatch) -> None:
     price best-of-every-book as before; the execution rule has its own tests in
     ``test_mlb_timely_close.py``."""
     monkeypatch.setenv("MLBE_EXEC_BOOKS", "")
+
+
+@pytest.fixture(autouse=True)
+def _buys_enabled(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Every MLB market ships graded-only, which would turn each buy-flipping
+    screen test into a graded-only test. Those tests opt back in to buying; the
+    graded-only default has its own tests in ``test_mlb_graded_only.py``."""
+    monkeypatch.setenv("MLBE_GRADED_ONLY_MARKETS", "")
