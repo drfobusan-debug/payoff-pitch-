@@ -149,3 +149,43 @@ def test_rows_priced_after_kickoff_are_not_leans(ledger, capsys) -> None:
     out = capsys.readouterr().out
     assert "1 graded row(s) priced after kickoff are excluded" in out
     assert "all leans" in out and "n     0" in next(x for x in out.splitlines() if "all leans" in x)
+
+
+def test_close_ev_counts_only_timely_two_sided_closes(ledger, capsys) -> None:
+    near = "2026-09-13T16:30:00Z"
+    paired = [
+        row(
+            matchup=f"G{i} @ H{i}",
+            side=f"H{i}",
+            close_odds=100.0,
+            close_prob=0.48,
+            clv=0.01,
+            clv_ev=ev,
+            close_captured_at=near,
+        )
+        for i, ev in enumerate((0.02, 0.04))
+    ]
+    unpaired = row(
+        matchup="X @ Y",
+        side="Y",
+        close_odds=100.0,
+        close_prob=0.5,
+        clv=0.01,
+        clv_ev=0.5,
+        close_captured_at=near,
+    )
+    stale = row(
+        matchup="P @ Q",
+        side="Q",
+        close_odds=100.0,
+        close_prob=0.48,
+        clv=0.01,
+        clv_ev=0.5,
+        close_captured_at="2026-09-10T12:00:00Z",
+    )
+    save_ledger(ledger, [*paired, unpaired, stale])
+    ledger_audit.main(["--season", "2026"])
+    text = capsys.readouterr().out
+    line = next(x for x in text.splitlines() if x.strip().startswith("close EV all leans"))
+    assert "n    2" in line and "+0.0300" in line
+    assert "close EV leans spread" in text and "n/a" in text
