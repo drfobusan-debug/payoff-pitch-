@@ -52,6 +52,7 @@ from engine_common.podcasts import state as podcast_state
 from engine_common.podcasts.episodes import store_dir
 from engine_common.podcasts.run import read_feeds
 from engine_common.podcasts.shows import NBA
+from engine_runtime import altlines as alt_rt
 from nba_engine import alarm, podcast, state
 from nba_engine.audit import altlines, ledger, schedule_bands, scorecard
 from nba_engine.config import cache_dir, data_dir, load_config, output_dir
@@ -394,6 +395,7 @@ def _audit_lines(
     out.append("")
     sched = schedule_bands.schedule_from(root, rows)
     out += ["", *schedule_bands.lines(schedule_bands.read_bands(rows, sched))]
+    out += ["", "[alternate lines: points bought vs sold]", alt_rt.NOTE, *alt_rt.text(altlines.alts(rows))]
     return out
 
 

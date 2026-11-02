@@ -92,6 +92,8 @@ class Config:
     # Per-event markets are the dominant spend; off until the written budget allows them.
     event_markets_on: bool = field(default_factory=lambda: _env_bool("CBBE_EVENT_MARKETS", False))
     max_events: int = field(default_factory=lambda: _env_int("CBBE_MAX_EVENTS", 40))
+    # Alternate spreads/totals for each bought game at card time (2 credits a game).
+    alt_lines_on: bool = field(default_factory=lambda: _env_bool("CBBE_ALT_LINES", True))
     cache_ttl: int = field(default_factory=lambda: _env_int("CBBE_CACHE_TTL", 0))
 
 

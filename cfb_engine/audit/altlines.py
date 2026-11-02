@@ -23,6 +23,7 @@ from pathlib import Path
 
 from cfb_engine.market import gradedonly
 from cfb_engine.market.odds import american_to_decimal
+from engine_runtime import altlines as rt
 
 ALT_MARKETS = ("alternate_spreads", "alternate_totals")
 _MARKET = {"alternate_spreads": "game_ats", "alternate_totals": "game_total"}
@@ -237,6 +238,25 @@ def report(path: Path) -> list[tuple[str, int, int, int, float, float]]:
         )
     return out
 
+
+
+def alts(path: Path) -> list[rt.Alt]:
+    """The alt ledger as records for the shared alt-lines table (every row sits beside a tracked side)."""
+    if not path.exists():
+        return []
+    with path.open(newline="", encoding="utf-8") as fh:
+        rows = [r for r in csv.DictReader(fh) if r["result"] in ("win", "loss", "push")]
+    return [
+        rt.Alt(
+            game=f"{r['date']} {r['matchup']}",
+            kind="spread" if r["market"] == "game_ats" else "total",
+            favour=float(r["favour"]),
+            beside_buy=r["tier"] != "Pass",
+            outcome=r["result"],
+            pnl=float(r["pnl"]),
+        )
+        for r in rows
+    ]
 
 def now_stamp() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
