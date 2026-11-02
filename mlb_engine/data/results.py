@@ -42,6 +42,12 @@ class GameResult:
     f5_home: int
     f5_away: int
     players: dict[int, PlayerLine] = field(default_factory=dict)  # mlbam_id -> line
+    #: The day the game was actually played (StatsAPI ``officialDate``), and its
+    #: scheduled first pitch in UTC. A rainout keeps its ``game_pk`` and is played
+    #: on another day, so a row priced for the original date is not a bet on it.
+    #: Blank when the schedule could not be read; nothing is voided on a blank.
+    official_date: str = ""
+    start_utc: str = ""
 
     def batter(self, pid: int) -> dict[str, int]:
         return self.players.get(pid, PlayerLine()).batting
@@ -85,12 +91,15 @@ def _cache_path(cache_dir: Path | None, game_pk: int) -> Path | None:
     return Path(cache_dir) / "boxscores" / f"{game_pk}.json"
 
 
-def _save_cache(cache_path: Path | None, ls: dict, bs: dict) -> None:
+def _save_cache(cache_path: Path | None, ls: dict, bs: dict, sched: dict | None = None) -> None:
     if cache_path is None:
         return
     cache_path.parent.mkdir(parents=True, exist_ok=True)
+    payload: dict = {"linescore": ls, "boxscore": bs}
+    if sched:
+        payload["schedule"] = sched
     try:
-        cache_path.write_text(json.dumps({"linescore": ls, "boxscore": bs}, indent=2))
+        cache_path.write_text(json.dumps(payload, indent=2))
     except OSError:
         log.warning("failed to cache box score for %s", cache_path, exc_info=True)
 
@@ -104,6 +113,40 @@ def _load_cache(cache_path: Path | None) -> tuple[dict | None, dict | None]:
     except (OSError, json.JSONDecodeError):
         log.warning("failed to load cached box score for %s", cache_path, exc_info=True)
         return None, None
+
+
+def _load_cached_schedule(cache_path: Path | None) -> dict:
+    if cache_path is None or not cache_path.exists():
+        return {}
+    try:
+        return dict(json.loads(cache_path.read_text()).get("schedule") or {})
+    except (OSError, json.JSONDecodeError, TypeError, ValueError):
+        return {}
+
+
+def played_entry(schedule: dict) -> dict:
+    """The schedule entry for the game as played, not the postponed original.
+
+    A rained-out game keeps its ``game_pk``: the schedule lists it twice, once
+    ``Postponed`` on the original date and once on the day it was made up.
+    """
+    games = [g for d in schedule.get("dates", []) or [] for g in d.get("games", []) or []]
+    if not games:
+        return {}
+    final = [g for g in games if (g.get("status") or {}).get("abstractGameState") == "Final"]
+    live = [g for g in games if (g.get("status") or {}).get("detailedState") != "Postponed"]
+    return (final or live or games)[-1]
+
+
+def _fetch_schedule(s: requests.Session, game_pk: int, timeout: int) -> dict:
+    try:
+        data = s.get(
+            f"{BASE}/schedule", params={"sportId": 1, "gamePk": game_pk}, timeout=timeout
+        ).json()
+    except Exception as exc:  # noqa: BLE001 - a missing schedule voids nothing; the box still grades
+        log.warning("MLB Stats API schedule fetch failed for %s: %s", game_pk, exc)
+        return {}
+    return data if isinstance(data, dict) else {}
 
 
 def fetch_result(
@@ -122,12 +165,15 @@ def fetch_result(
     try:
         ls = s.get(f"{BASE}/game/{game_pk}/linescore", timeout=timeout).json()
         bs = s.get(f"{BASE}/game/{game_pk}/boxscore", timeout=timeout).json()
-        _save_cache(cache_path, ls, bs)
+        sched = _fetch_schedule(s, game_pk, timeout) or _load_cached_schedule(cache_path)
+        _save_cache(cache_path, ls, bs, sched)
     except requests.RequestException as exc:
         log.warning("MLB Stats API box score fetch failed for %s: %s", game_pk, exc)
         ls, bs = _load_cache(cache_path)
         if ls is None or bs is None:
             raise RuntimeError(f"No box score available for game_pk={game_pk}") from exc
+        sched = _load_cached_schedule(cache_path)
+    played = played_entry(sched)
 
     innings = ls.get("innings", [])
     home_runs = sum(int((i.get("home", {}) or {}).get("runs", 0) or 0) for i in innings)
@@ -210,4 +256,6 @@ def fetch_result(
         f5_home=f5_home,
         f5_away=f5_away,
         players=players,
+        official_date=str(played.get("officialDate") or ""),
+        start_utc=str(played.get("gameDate") or ""),
     )

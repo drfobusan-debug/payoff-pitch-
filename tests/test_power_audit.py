@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 from pathlib import Path
 
 from mlb_engine.audit import power_audit, power_roster
@@ -238,12 +239,15 @@ def test_roster_round_trips_and_a_rerun_replaces_only_its_own_rows(tmp_path: Pat
 
 
 def test_the_audit_leads_with_the_close_against_the_juice() -> None:
-    q = ClosingQuote("X @ Y", "batter_h", f"Bat {BAT_A} H u0.5", -400.0, 0.78)
+    q = ClosingQuote(
+        "X @ Y", "batter_h", f"Bat {BAT_A} H u0.5", -400.0, 0.78, "2026-10-06T22:58:00Z"
+    )
+    res = replace(_result(), start_utc="2026-10-06T23:08:00Z")
     day, total = power_audit.build(
         DAY,
         [_pos(BAT_A)],
         [],
-        fetch_result=lambda pk: _result() if pk == GAME else None,
+        fetch_result=lambda pk: res if pk == GAME else None,
         fetch_plays=lambda pk, final: _plays(),
         fetch_closing=lambda d: close_index({q.key: q}),
     )
@@ -253,6 +257,37 @@ def test_the_audit_leads_with_the_close_against_the_juice() -> None:
     notes = power_audit.commentary(day, total)
     assert notes.insights[0].startswith("At the close (n=1 rows on 1 days)")
     assert "The price at the close" in power_audit.render_html(day, total, notes)
+
+
+def test_an_early_or_unstamped_close_is_named_and_left_out_of_clv() -> None:
+    q = ClosingQuote("X @ Y", "batter_h", f"Bat {BAT_A} H u0.5", -400.0, 0.78)
+    res = replace(_result(), start_utc="2026-10-06T23:08:00Z")
+    day, total = power_audit.build(
+        DAY,
+        [_pos(BAT_A)],
+        [],
+        fetch_result=lambda pk: res if pk == GAME else None,
+        fetch_plays=lambda pk, final: _plays(),
+        fetch_closing=lambda d: close_index({q.key: q}),
+    )
+    assert total.closed == [] and total.untimely_closes == 1
+    notes = power_audit.commentary(day, total)
+    assert any("left out of CLV" in p for p in notes.problems)
+
+
+def test_a_rainout_and_a_late_price_are_named_in_the_problems() -> None:
+    res = replace(_result(), official_date=DAY, start_utc="2026-10-06T23:08:00Z")
+    late = _pos(BAT_A, run_id="20261006T2330Z")
+    day, total = power_audit.build(
+        DAY,
+        [late, _pos(BAT_B, run_id="20261006T2330Z")],
+        [],
+        fetch_result=lambda pk: res if pk == GAME else None,
+        fetch_plays=lambda pk, final: _plays(),
+    )
+    assert total.graded == [] and total.timing_voids == {"priced at or after first pitch": 2}
+    notes = power_audit.commentary(day, total)
+    assert any("2 recorded rows were priced at or after first pitch" in p for p in notes.problems)
 
 
 def test_no_close_captured_is_said_rather_than_scored() -> None:

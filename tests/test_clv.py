@@ -2,22 +2,26 @@
 
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from pathlib import Path
 
 from mlb_engine.audit.clv import (
     ClosingQuote,
     attach_clv,
+    close_due,
     closing_quotes,
     clv_ev,
     clv_points,
     clv_rows,
     load_closing,
     merge_closing,
+    next_close_at,
     save_closing,
     summarize,
 )
 from mlb_engine.audit.ledger import LedgerEntry
 from mlb_engine.market.ev import MarketQuote, anchor_to_market
+from mlb_engine.schemas import Game
 
 
 def _entry(**kw: object) -> LedgerEntry:
@@ -69,6 +73,59 @@ def test_save_load_roundtrip(tmp_path: Path) -> None:
     loaded = load_closing(path)
     assert set(loaded) == {"KC@DET|game_ml|DET", "KC@DET|game_total|Over 9.0"}
     assert loaded["KC@DET|game_total|Over 9.0"].no_vig_prob == 0.4801
+
+
+def test_the_capture_stamp_survives_the_round_trip(tmp_path: Path) -> None:
+    path = tmp_path / "closing.json"
+    save_closing(path, [ClosingQuote("KC @ DET", "game_ml", "DET", -135.0, 0.57, "2026-10-19T23:58:00Z")])
+    assert load_closing(path)["KC @ DET|game_ml|DET"].captured_at == "2026-10-19T23:58:00Z"
+
+
+def test_a_close_written_before_the_stamp_loads_unstamped(tmp_path: Path) -> None:
+    path = tmp_path / "closing.json"
+    path.write_text(
+        '[{"matchup": "KC @ DET", "market": "game_ml", "selection": "DET",'
+        ' "american": -135.0, "no_vig_prob": 0.57}]'
+    )
+    assert load_closing(path)["KC @ DET|game_ml|DET"].captured_at == ""
+
+
+def _game(away: str, home: str, start: str, status: str = "Scheduled") -> Game:
+    return Game.model_validate(
+        {
+            "game_pk": hash((away, home, start)) % 10**6,
+            "game_date": "2026-10-19",
+            "game_datetime_utc": start,
+            "status": status,
+            "venue": {"venue_id": 1, "name": "Park"},
+            "home": {"team_id": 1, "abbrev": home, "name": home, "is_home": True},
+            "away": {"team_id": 2, "abbrev": away, "name": away, "is_home": False},
+        }
+    )
+
+
+NOW = datetime(2026, 10, 19, 23, 55, tzinfo=timezone.utc)
+
+
+def test_a_game_is_due_its_close_once_inside_the_window() -> None:
+    soon = _game("CLE", "TB", "2026-10-20T00:08:00Z")
+    later = _game("LAD", "MIL", "2026-10-20T01:38:00Z")
+    rained = _game("NYY", "BOS", "2026-10-20T00:05:00Z", status="Postponed")
+    started = _game("SEA", "HOU", "2026-10-19T23:50:00Z")
+    games = [soon, later, rained, started]
+
+    assert close_due(games, {}, NOW, 15) == [soon]
+    q = ClosingQuote("CLE @ TB", "game_ml", "TB", -120.0, 0.53, "2026-10-19T23:56:00Z")
+    assert close_due(games, {q.key: q}, NOW, 15) == []
+    # The next one: LAD @ MIL at 01:38, so its window opens at 01:23.
+    assert next_close_at(games, {q.key: q}, NOW, 15) == datetime(2026, 10, 20, 1, 23, tzinfo=timezone.utc)
+
+
+def test_an_early_snapshot_does_not_count_as_the_close() -> None:
+    soon = _game("CLE", "TB", "2026-10-20T00:08:00Z")
+    early = ClosingQuote("CLE @ TB", "game_ml", "TB", -120.0, 0.53, "2026-10-19T22:40:00Z")
+    unstamped = ClosingQuote("CLE @ TB", "game_rl", "TB -1.5", 150.0, 0.38)
+    assert close_due([soon], {early.key: early, unstamped.key: unstamped}, NOW, 15) == [soon]
 
 
 def test_load_closing_missing_file_is_empty(tmp_path: Path) -> None:

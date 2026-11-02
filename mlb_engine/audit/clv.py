@@ -27,6 +27,7 @@ import json
 import logging
 from dataclasses import dataclass
 from datetime import date as Date
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from mlb_engine.audit.ledger import LedgerEntry
@@ -34,6 +35,7 @@ from mlb_engine.audit.tape import CLOSE, RUN, TapeRow
 from mlb_engine.market import keys
 from mlb_engine.market.ev import MarketQuote, evaluate
 from mlb_engine.market.odds import american_to_decimal
+from mlb_engine.schemas import Game
 
 log = logging.getLogger(__name__)
 
@@ -54,6 +56,9 @@ class ClosingQuote:
     selection: str
     american: float  # best available price at the close
     no_vig_prob: float  # book-weighted consensus, vig removed where possible
+    #: When the board this quote came from was fetched (ISO UTC). Blank on every
+    #: close written before the stamp existed, which then cannot count as a close.
+    captured_at: str = ""
 
     @property
     def key(self) -> str:
@@ -62,6 +67,7 @@ class ClosingQuote:
 
 def closing_quotes(
     quotes: dict[tuple[str, str, str], list[MarketQuote]],
+    captured_at: str = "",
 ) -> list[ClosingQuote]:
     """Collapse a fetched odds board into one closing quote per selection.
 
@@ -80,9 +86,70 @@ def closing_quotes(
                 selection=selection,
                 american=res.best_quote.american,
                 no_vig_prob=round(res.fair_prob, 6),
+                captured_at=captured_at,
             )
         )
     return out
+
+
+#: Games whose close is never coming: they are not played today.
+_NO_CLOSE_STATUSES = frozenset({"Postponed", "Cancelled", "Suspended"})
+
+
+def _start(game: Game) -> datetime | None:
+    if not game.game_datetime_utc:
+        return None
+    t = datetime.fromisoformat(game.game_datetime_utc.replace("Z", "+00:00"))
+    return (t if t.tzinfo else t.replace(tzinfo=timezone.utc)).astimezone(timezone.utc)
+
+
+def _closed_for(
+    game: Game, start: datetime, closing: dict[str, ClosingQuote], within_min: float
+) -> bool:
+    """A quote for this game already captured inside its own close window."""
+    lo = start - timedelta(minutes=within_min)
+    for q in closing.values():
+        if q.matchup != game.matchup() or not q.captured_at:
+            continue
+        seen = datetime.fromisoformat(q.captured_at.replace("Z", "+00:00"))
+        if lo <= seen < start:
+            return True
+    return False
+
+
+def close_due(
+    games: list[Game], closing: dict[str, ClosingQuote], now: datetime, within_min: float
+) -> list[Game]:
+    """Games starting within ``within_min`` of ``now`` whose close is not yet on file.
+
+    One capture per game, ten-odd minutes before its first pitch: a game moved
+    to a later start is due again at the new time.
+    """
+    out = []
+    for g in games:
+        start = _start(g)
+        if start is None or g.status in _NO_CLOSE_STATUSES:
+            continue
+        if now < start <= now + timedelta(minutes=within_min) and not _closed_for(
+            g, start, closing, within_min
+        ):
+            out.append(g)
+    return out
+
+
+def next_close_at(
+    games: list[Game], closing: dict[str, ClosingQuote], now: datetime, within_min: float
+) -> datetime | None:
+    """When the next game not yet closed comes inside its close window."""
+    due = [
+        start - timedelta(minutes=within_min)
+        for g in games
+        if (start := _start(g)) is not None
+        and g.status not in _NO_CLOSE_STATUSES
+        and start - timedelta(minutes=within_min) > now
+        and not _closed_for(g, start, closing, within_min)
+    ]
+    return min(due) if due else None
 
 
 def merge_closing(
@@ -126,6 +193,7 @@ def save_closing(path: Path, quotes: list[ClosingQuote]) -> None:
             "selection": q.selection,
             "american": q.american,
             "no_vig_prob": q.no_vig_prob,
+            "captured_at": q.captured_at,
         }
         for q in quotes
     ]
@@ -144,6 +212,7 @@ def load_closing(path: Path) -> dict[str, ClosingQuote]:
             selection=str(row["selection"]),
             american=float(row["american"]),
             no_vig_prob=float(row["no_vig_prob"]),
+            captured_at=str(row.get("captured_at") or ""),
         )
         out[q.key] = q
     return out

@@ -29,6 +29,8 @@ from dataclasses import dataclass, field
 from mlb_engine.audit.grade import LOSS, PUSH, WIN
 from mlb_engine.audit.power_ledger import (
     ONE_SIDE_FROM,
+    PLAYED_ANOTHER_DAY,
+    STALE_CLOSE_MIN,
     Closed,
     CloseIndex,
     GradedPosition,
@@ -38,7 +40,9 @@ from mlb_engine.audit.power_ledger import (
     closed,
     grade_positions,
     summarize,
+    timing_voids,
     two_sided,
+    untimely_closes,
     without_pairs,
 )
 from mlb_engine.audit.power_roster import ARM, BAT, DROPPED, GATED, HELD, SCREENED, RosterRow
@@ -196,6 +200,10 @@ class TotalAudit:
     #: Graded rows matched to the day's closing snapshot, and the days that had one.
     closed: list[Closed] = field(default_factory=list)
     close_days: list[str] = field(default_factory=list)
+    #: Rows that met a snapshot taken too early, or with no capture stamp.
+    untimely_closes: int = 0
+    #: Rows with a final box score that still are not bets, by reason.
+    timing_voids: dict[str, int] = field(default_factory=dict)
 
 
 @dataclass
@@ -539,6 +547,20 @@ def commentary(day: DayAudit, total: TotalAudit) -> Commentary:
             f"{total.voided} of {total.recorded} recorded rows ({total.voided / total.recorded:.0%}) "
             "are voided across the ledger, more than a scratch rate explains."
         )
+    for why, n in sorted(total.timing_voids.items()):
+        because = (
+            "the box score under their game is a make-up played later, not the game they "
+            "were priced for"
+            if why == PLAYED_ANOTHER_DAY
+            else "the price was an in-play one"
+        )
+        c.problems.append(f"{n} recorded rows were {why}: {because}, so they are voided, not graded.")
+    if total.untimely_closes:
+        c.problems.append(
+            f"{total.untimely_closes} graded rows met a closing snapshot taken more than "
+            f"{STALE_CLOSE_MIN:.0f} minutes before first pitch, or with no capture time "
+            "(every snapshot written before the per-game close). They are left out of CLV."
+        )
     decided = [g for g in total.graded if g.result != PUSH]
     one_way = [g for g in decided if not (g.position.devigged and g.position.fair_prob)]
     if decided and len(one_way) / len(decided) > ONE_WAY_WARN:
@@ -661,8 +683,9 @@ def commentary(day: DayAudit, total: TotalAudit) -> Commentary:
         )
     if cv is None:
         c.recommendations.append(
-            "No graded row met a closing snapshot, so closing value is unmeasured. Run the "
-            "close capture with props before first pitch."
+            "No graded row met a close taken within "
+            f"{STALE_CLOSE_MIN:.0f} minutes of first pitch, so closing value is unmeasured. "
+            "The per-game close (mlb-engine close --within) stamps each capture; only those count."
         )
     cmp_all = compare(total.graded)
     if cmp_all is None or cmp_all.verdict in ("underpowered", "no spread to judge"):
@@ -829,7 +852,10 @@ def _positions_rows(graded: list[GradedPosition]) -> list[list[str]]:
 
 def _close_block(cv: CloseValue | None, days: int) -> str:
     if cv is None:
-        return "<p class='sub'>No graded row met a closing snapshot.</p>"
+        return (
+            "<p class='sub'>No graded row met a close taken within "
+            f"{STALE_CLOSE_MIN:.0f} minutes of first pitch.</p>"
+        )
     return _table(
         ["rows at the close", "days", "close-EV", "juice at bet", "close moved", "CLV (pts)",
          "toward-against", "verdict"],
@@ -1117,7 +1143,8 @@ def build(
         voided_all += v
         by_day.append(summarize(d, g))
     indexes = {d: fetch_closing(d) for d in days} if fetch_closing is not None else {}
-    closed_all = closed(graded_all, indexes)
+    starts = {pk: r.start_utc for pk, r in results.items()}
+    closed_all = closed(graded_all, indexes, starts)
     day_graded = [g for g in graded_all if g.position.date == day]
     day_voided = len(day_rows) - len(day_graded)
 
@@ -1152,6 +1179,8 @@ def build(
         bats=[b for b in total_bats if b.row.status == HELD],
         closed=closed_all,
         close_days=sorted(d for d, ix in indexes.items() if ix),
+        untimely_closes=untimely_closes(graded_all, indexes, starts),
+        timing_voids=timing_voids(total_rows, results),
     )
     return day_audit, total
 

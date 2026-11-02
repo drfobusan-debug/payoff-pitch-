@@ -102,6 +102,53 @@ def test_fetch_result_uses_cache_when_api_fails(tmp_path: Path) -> None:
     assert result.batted(404) is False
 
 
+class ScheduleSession:
+    """Answers the box score from the fixture and the schedule as a rainout."""
+
+    def __init__(self, game_pk: int, schedule: dict) -> None:
+        self.box = _minimal_boxscore(game_pk)
+        self.schedule = schedule
+
+    def get(self, url: str, **kwargs):
+        body = (
+            self.box["linescore"] if url.endswith("/linescore")
+            else self.box["boxscore"] if url.endswith("/boxscore")
+            else self.schedule
+        )
+
+        class _R:
+            def json(self_inner):
+                return body
+
+        return _R()
+
+
+RAINOUT = {
+    "dates": [
+        {"games": [{"gamePk": 849817, "officialDate": "2026-10-18", "gameDate": "2026-10-17T00:00:00Z",
+                    "status": {"abstractGameState": "Final", "detailedState": "Postponed"}}]},
+        {"games": [{"gamePk": 849817, "officialDate": "2026-10-18", "gameDate": "2026-10-18T21:08:00Z",
+                    "status": {"abstractGameState": "Final", "detailedState": "Final"}}]},
+    ]
+}
+
+
+def test_a_rainout_reads_the_day_it_was_played_and_caches_it(tmp_path: Path) -> None:
+    result = fetch_result(849817, session=ScheduleSession(849817, RAINOUT), cache_dir=tmp_path)
+    assert (result.official_date, result.start_utc) == ("2026-10-18", "2026-10-18T21:08:00Z")
+
+    again = fetch_result(849817, session=FailingSession(), cache_dir=tmp_path)
+    assert (again.official_date, again.start_utc) == ("2026-10-18", "2026-10-18T21:08:00Z")
+
+
+def test_a_cached_box_score_without_a_schedule_stamps_nothing(tmp_path: Path) -> None:
+    path = tmp_path / "boxscores" / "123.json"
+    path.parent.mkdir(parents=True)
+    path.write_text(json.dumps(_minimal_boxscore(123)))
+    result = fetch_result(123, session=FailingSession(), cache_dir=tmp_path)
+    assert (result.official_date, result.start_utc) == ("", "")
+
+
 def test_fetch_result_raises_when_api_and_cache_both_fail(tmp_path: Path) -> None:
     with pytest.raises(RuntimeError, match="No box score available"):
         fetch_result(999, session=FailingSession(), cache_dir=tmp_path)

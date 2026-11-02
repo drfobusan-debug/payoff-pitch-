@@ -23,11 +23,13 @@ from mlb_engine.audit.analysis import (
 )
 from mlb_engine.audit.clv import (
     attach_clv,
+    close_due,
     closing_quotes,
     clv_rows,
     judged_line,
     load_closing,
     merge_closing,
+    next_close_at,
     overround_by_market,
     save_closing,
     summarize,
@@ -828,6 +830,12 @@ def cmd_close(args: argparse.Namespace) -> int:
     has left the pre-match board, so an evening capture alone never sees the
     afternoon slate's close. Repeat captures merge, keeping the last price seen
     for each selection.
+
+    ``--within N`` is the per-game close the scheduler runs every five minutes:
+    it fetches only when a game starts inside the next N minutes and has no
+    close on file yet, and only that game's markets. Otherwise nothing is
+    fetched and no credit is spent. Every quote is stamped with when it was
+    fetched, so the audit can tell a close from an early snapshot.
     """
     cfg = load_config()
     cfg.ensure_dirs()
@@ -836,11 +844,35 @@ def cmd_close(args: argparse.Namespace) -> int:
     if not client.available():
         print("No Odds API key configured; cannot capture the close")
         return 1
+    path = _closing_path(cfg, slate_date)
+    slate = MLBStatsClient().get_slate(slate_date)
+    within = getattr(args, "within", None)
+    if within is not None:
+        due = close_due(slate.games, load_closing(path), datetime.now(timezone.utc), within)
+        if not due:
+            print(f"No game starts within {within:g} min without a close; nothing fetched")
+            _print_next_close(slate, path, within)
+            return 0
     # An earlier capture of this slate may live on another machine entirely.
     _state_pull(cfg, slate_date)
-    slate = MLBStatsClient().get_slate(slate_date)
     _record_lineups(cfg, slate, slate_date)
+    starts: dict[str, datetime] = {}
+    if within is not None:
+        due = close_due(slate.games, load_closing(path), datetime.now(timezone.utc), within)
+        if not due:
+            print("Another capture already closed these games; nothing fetched")
+            _print_next_close(slate, path, within)
+            return 0
+        print(f"Closing {len(due)} game(s): {', '.join(g.matchup() for g in due)}")
+        starts = {
+            g.matchup(): datetime.fromisoformat(str(g.game_datetime_utc).replace("Z", "+00:00"))
+            for g in due
+        }
+        slate = slate.model_copy(update={"games": due})
     quotes = client.fetch(slate, include_props=not args.game_only, pregame_only=True)
+    captured = datetime.now(timezone.utc)
+    # A reply that lands after first pitch is an in-play price, not a close.
+    quotes = {k: v for k, v in quotes.items() if k[0] not in starts or captured < starts[k[0]]}
     if not quotes:
         print(
             f"No closing prices returned for {slate_date}: every game has started, "
@@ -854,9 +886,8 @@ def cmd_close(args: argparse.Namespace) -> int:
         )
     except OSError as exc:
         logging.getLogger(__name__).warning("quote tape for %s unavailable (%s); close unaffected", slate_date, exc)
-    path = _closing_path(cfg, slate_date)
     already = load_closing(path)
-    fresh = closing_quotes(quotes)
+    fresh = closing_quotes(quotes, captured_at=captured.strftime("%Y-%m-%dT%H:%M:%SZ"))
     closing = merge_closing(already, fresh)
     save_closing(path, closing)
     markets = len({q.market for q in closing})
@@ -867,7 +898,21 @@ def cmd_close(args: argparse.Namespace) -> int:
         f"{markets} markets{detail} -> {path}"
     )
     _state_push(cfg, f"close {slate_date.isoformat()}: {len(closing)} prices")
+    if within is not None:
+        _print_next_close(MLBStatsClient().get_slate(slate_date), path, within)
     return 0
+
+
+#: The scheduler wakes the Mac this far ahead of the next close window.
+_CLOSE_WAKE_LEAD = timedelta(minutes=3)
+
+
+def _print_next_close(slate: Slate, path: Path, within: float) -> None:
+    """Say when the next close is due, in the form ``pmset schedule wake`` takes."""
+    nxt = next_close_at(slate.games, load_closing(path), datetime.now(timezone.utc), within)
+    if nxt is not None:
+        wake = (nxt - _CLOSE_WAKE_LEAD).astimezone()
+        print(f"next close wake: {wake:%m/%d/%Y %H:%M:%S}")
 
 
 def cmd_lineups(args: argparse.Namespace) -> int:
@@ -1889,6 +1934,14 @@ def main(argv: list[str] | None = None) -> int:
         "--game-only",
         action="store_true",
         help="skip per-event F5/prop markets: 3 credits for the whole slate",
+    )
+    cl.add_argument(
+        "--within",
+        type=float,
+        default=None,
+        metavar="MIN",
+        help="close only games starting within MIN minutes with no close yet "
+        "(nothing fetched otherwise)",
     )
     cl.set_defaults(func=cmd_close)
 
