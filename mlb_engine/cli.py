@@ -23,6 +23,7 @@ from mlb_engine.audit.analysis import (
 )
 from mlb_engine.audit.clv import (
     attach_clv,
+    close_due,
     closing_quotes,
     clv_rows,
     judged_line,
@@ -819,6 +820,11 @@ def _state_push(cfg: Config, message: str) -> None:
 def cmd_close(args: argparse.Namespace) -> int:
     """Snapshot the closing market so the next audit can score closing line value.
 
+    ``--within 45`` is the per-game close the Mac runs every 15 minutes: only
+    games starting inside the window that have no close stamped in it are
+    fetched, so each game is captured once, 30-45 minutes before first pitch.
+    CLV is scored only on such closes (``audit.clv.timely_close``).
+
     Run this as late as possible before a game starts: the closing price is the
     sharpest forecast available, and beating it is the only fast evidence that a
     pick was good. Cheap by design -- one bulk request for the game markets, and
@@ -840,6 +846,23 @@ def cmd_close(args: argparse.Namespace) -> int:
     _state_pull(cfg, slate_date)
     slate = MLBStatsClient().get_slate(slate_date)
     _record_lineups(cfg, slate, slate_date)
+    path = _closing_path(cfg, slate_date)
+    within = getattr(args, "within", None)
+    if within is not None:
+        # First pitches come from StatsAPI (free): no Odds API call unless a
+        # game is inside the window without a close stamped in it.
+        games = [(g.matchup(), g.game_datetime_utc or "") for g in slate.games]
+        due = set(close_due(games, load_closing(path), datetime.now(timezone.utc), within))
+        if not due:
+            print(f"No game starts within {within:g} min without a close; nothing fetched")
+            return 0
+        slate = Slate(
+            slate_date=slate.slate_date,
+            games=[g for g in slate.games if (g.matchup(), g.game_datetime_utc or "") in due],
+        )
+        print(f"Closing {len(due)} game(s): {', '.join(sorted(m for m, _ in due))}")
+    first_pitch = {g.matchup(): g.game_datetime_utc or "" for g in slate.games}
+    captured_at = datetime.now(timezone.utc).isoformat()
     quotes = client.fetch(slate, include_props=not args.game_only, pregame_only=True)
     if not quotes:
         print(
@@ -854,9 +877,8 @@ def cmd_close(args: argparse.Namespace) -> int:
         )
     except OSError as exc:
         logging.getLogger(__name__).warning("quote tape for %s unavailable (%s); close unaffected", slate_date, exc)
-    path = _closing_path(cfg, slate_date)
     already = load_closing(path)
-    fresh = closing_quotes(quotes)
+    fresh = closing_quotes(quotes, captured_at=captured_at, first_pitch=first_pitch)
     closing = merge_closing(already, fresh)
     save_closing(path, closing)
     markets = len({q.market for q in closing})
@@ -1910,6 +1932,13 @@ def main(argv: list[str] | None = None) -> int:
         "--game-only",
         action="store_true",
         help="skip per-event F5/prop markets: 3 credits for the whole slate",
+    )
+    cl.add_argument(
+        "--within",
+        type=float,
+        metavar="MIN",
+        help="fetch only the games starting within MIN minutes with no close yet "
+        "(the per-game close; CLV is scored only on closes taken inside 45 min)",
     )
     cl.set_defaults(func=cmd_close)
 

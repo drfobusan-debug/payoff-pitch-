@@ -19,6 +19,9 @@ from mlb_engine.audit.clv import (
 from mlb_engine.audit.ledger import LedgerEntry
 from mlb_engine.market.ev import MarketQuote, anchor_to_market
 
+# A close taken 30 min before first pitch: the only kind CLV is scored on.
+TIMELY = {"captured_at": "2026-07-27T22:35:00+00:00", "first_pitch_utc": "2026-07-27T23:05:00+00:00"}
+
 
 def _entry(**kw: object) -> LedgerEntry:
     base: dict[str, object] = {
@@ -114,7 +117,7 @@ def test_clv_points_and_ev() -> None:
 def test_attach_clv_uses_bet_time_fair_prob() -> None:
     e = _entry(fair_prob=0.58, bet_prob=0.64)
     closing = {"KC@DET|batter_h|Riley Greene 0.5+ H": ClosingQuote(
-        "KC@DET", "batter_h", "Riley Greene 0.5+ H", -170.0, 0.62
+        "KC@DET", "batter_h", "Riley Greene 0.5+ H", -170.0, 0.62, **TIMELY
     )}
     assert attach_clv([e], closing) == 1
     assert e.close_odds == -170.0
@@ -135,7 +138,7 @@ def test_attach_clv_leaves_unmatched_and_unpriced_rows_alone() -> None:
 def test_attach_clv_matches_a_close_that_spells_the_name_differently() -> None:
     """The close carries the book's spelling and the ledger the lineup feed's."""
     e = _entry(selection="Ronald Acuna H o0.5", fair_prob=0.58)
-    close = ClosingQuote("KC@DET", "batter_h", "Ronald Acu\u00f1a Jr. H o0.5", -170.0, 0.62)
+    close = ClosingQuote("KC@DET", "batter_h", "Ronald Acu\u00f1a Jr. H o0.5", -170.0, 0.62, **TIMELY)
     assert attach_clv([e], {close.key: close}) == 1
     assert e.close_odds == -170.0
     # The ledger keeps the spelling it was written with.
@@ -143,8 +146,8 @@ def test_attach_clv_matches_a_close_that_spells_the_name_differently() -> None:
 
 
 def test_attach_clv_will_not_guess_between_two_players_of_the_same_name() -> None:
-    a = ClosingQuote("WSH@HOU", "batter_h", "Luis Garcia Jr. H o0.5", -170.0, 0.62)
-    b = ClosingQuote("WSH@HOU", "batter_h", "Luis Garc\u00eda H o0.5", 120.0, 0.44)
+    a = ClosingQuote("WSH@HOU", "batter_h", "Luis Garcia Jr. H o0.5", -170.0, 0.62, **TIMELY)
+    b = ClosingQuote("WSH@HOU", "batter_h", "Luis Garc\u00eda H o0.5", 120.0, 0.44, **TIMELY)
     e = _entry(matchup="WSH@HOU", selection="Luis Garcia H o0.5", fair_prob=0.58)
     assert attach_clv([e], {a.key: a, b.key: b}) == 0
     assert e.clv is None
@@ -154,7 +157,7 @@ def test_attach_clv_falls_back_to_implied_for_legacy_rows() -> None:
     """Rows written before the devig fix have no fair_prob; CLV still scores."""
     e = _entry(fair_prob=None, bet_prob=None)
     closing = {"KC@DET|batter_h|Riley Greene 0.5+ H": ClosingQuote(
-        "KC@DET", "batter_h", "Riley Greene 0.5+ H", -150.0, 0.60
+        "KC@DET", "batter_h", "Riley Greene 0.5+ H", -150.0, 0.60, **TIMELY
     )}
     assert attach_clv([e], closing) == 1
     # -150 implies .60 with the vig in, so a .60 close reads as zero CLV.

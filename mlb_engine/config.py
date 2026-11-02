@@ -1219,6 +1219,15 @@ class Config:
         default_factory=lambda: _env_float("MLBE_AWAY_ML_REFUSE_ODDS", 100.0)
     )
 
+    # The books a buy is struck at. The bet takes the best of their prices and
+    # is measured against the devigged consensus of every *other* book (see
+    # ``market.ev.evaluate``); a side none of them quotes is a Pass under
+    # ``no_execution_book``. ``MLBE_EXEC_BOOKS=`` (empty) restores the old
+    # best-of-every-book price.
+    exec_books: frozenset[str] = field(
+        default_factory=lambda: _env_set("MLBE_EXEC_BOOKS", ("draftkings", "betmgm"))
+    )
+
     # Refuse any buy at this American price or longer, every market. 2026 buys
     # at +200 and longer lost about 18% (n=415). ``MLBE_LONGSHOT_REFUSE_ODDS=
     # 100000`` disables it.

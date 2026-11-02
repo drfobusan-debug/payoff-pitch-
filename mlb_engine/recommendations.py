@@ -129,6 +129,8 @@ class Recommendation:
     # The engine's own selection this row is the fade of, when the buy was
     # moved to the book's side of the market (see :func:`fade_disagreements`).
     fade_of: str | None = None
+    # False when MLBE_EXEC_BOOKS is set and none of those books quoted the side.
+    executable: bool = True
 
     @property
     def bet_group(self) -> tuple[int, str, int | None]:
