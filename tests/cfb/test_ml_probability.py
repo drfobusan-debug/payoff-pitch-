@@ -36,8 +36,8 @@ def _ctx(exp_margin: float) -> _GameCtx:
 
 def _board(home_american: float, away_american: float) -> GameOdds:
     odds = GameOdds(matchup="UGA @ ALA")
-    odds.add_ml("ALA", MarketQuote("b", home_american, opposite_american=away_american))
-    odds.add_ml("UGA", MarketQuote("b", away_american, opposite_american=home_american))
+    odds.add_ml("ALA", MarketQuote("draftkings", home_american, opposite_american=away_american))
+    odds.add_ml("UGA", MarketQuote("draftkings", away_american, opposite_american=home_american))
     return odds
 
 

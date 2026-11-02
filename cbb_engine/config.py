@@ -54,8 +54,8 @@ class Cadence:
     featured: int = 10  # inside T-3h
     featured_window_h: float = 3.0
     mid_window_h: float = 6.0
-    close_first_min: int = 60  # close passes T-60 -> T-5
-    close_last_min: int = 5
+    close_first_min: int = 12  # one close per tip cluster, caught by the 5-min tick at ~T-10
+    close_last_min: int = 3
     watch: int = 5  # ESPN/RotoWire only; no credits
     horizon_hours: int = 30
 
@@ -92,6 +92,8 @@ class Config:
     # Per-event markets are the dominant spend; off until the written budget allows them.
     event_markets_on: bool = field(default_factory=lambda: _env_bool("CBBE_EVENT_MARKETS", False))
     max_events: int = field(default_factory=lambda: _env_int("CBBE_MAX_EVENTS", 40))
+    # Alternate spreads/totals for each bought game at card time (2 credits a game).
+    alt_lines_on: bool = field(default_factory=lambda: _env_bool("CBBE_ALT_LINES", True))
     cache_ttl: int = field(default_factory=lambda: _env_int("CBBE_CACHE_TTL", 0))
 
 

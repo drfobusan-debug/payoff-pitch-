@@ -150,3 +150,43 @@ def test_no_new_buy_sends_no_email(monkeypatch: pytest.MonkeyPatch, tmp_path) ->
     held, _, _, cards = _pre_pass(monkeypatch, tmp_path, [row()], [still_pass], email=True)
     assert len(held) == 1
     assert cards == []
+
+
+def test_a_game_already_under_way_is_not_priced_on_any_pass(
+    monkeypatch: pytest.MonkeyPatch, tmp_path
+) -> None:
+    """Wk6 2026: the 13:00 games were priced at 15:04 off live lines (+775, +680)."""
+    path = tmp_path / "nfl_ledger.csv"
+    save_ledger(path, [])
+    priced_games: list[list[str]] = []
+    started, late = "2026-09-13T17:02:00Z", "2026-09-13T20:25:00Z"
+
+    def fetch(days, kind=None):
+        return cli.Fetched(
+            2026,
+            1,
+            "2026-09-13T19:04:00Z",
+            [game("KC", "BUF", started), game("SF", "DAL", late)],
+            {},
+        )
+
+    def price_slate(games, board, **kwargs):
+        priced_games.append([g.game_id for g in games])
+        return []
+
+    class _Clock(datetime):
+        @classmethod
+        def now(cls, tz=None):  # noqa: ARG003
+            return datetime(2026, 9, 13, 19, 4, tzinfo=timezone.utc)
+
+    monkeypatch.setattr(cli, "ledger_path", lambda root=None: path)
+    monkeypatch.setattr(cli, "_fetch", fetch)
+    monkeypatch.setattr(cli, "datetime", _Clock)
+    monkeypatch.setattr(cli, "_books", lambda *a, **k: books_mod.Books())
+    monkeypatch.setattr(cli.books_mod, "attach_qbs", lambda *a, **k: 0)
+    monkeypatch.setattr(cli, "price_slate", price_slate)
+    monkeypatch.setattr(cli, "_ledger_rows", lambda pricings, taken: [])
+    monkeypatch.setattr(cli, "_stamp_open", lambda *a, **k: "open: stubbed")
+    args = argparse.Namespace(days=8, sims=100, top=5, write=True, ratings=False, within=None)
+    assert cli.cmd_price(args) == 0
+    assert priced_games == [["DAL@SF"]]

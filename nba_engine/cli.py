@@ -52,6 +52,7 @@ from engine_common.podcasts import state as podcast_state
 from engine_common.podcasts.episodes import store_dir
 from engine_common.podcasts.run import read_feeds
 from engine_common.podcasts.shows import NBA
+from engine_runtime import altlines as alt_rt
 from nba_engine import alarm, podcast, state
 from nba_engine.audit import altlines, ledger, schedule_bands, scorecard
 from nba_engine.config import cache_dir, data_dir, load_config, output_dir
@@ -394,6 +395,7 @@ def _audit_lines(
     out.append("")
     sched = schedule_bands.schedule_from(root, rows)
     out += ["", *schedule_bands.lines(schedule_bands.read_bands(rows, sched))]
+    out += ["", "[alternate lines: points bought vs sold]", alt_rt.NOTE, *alt_rt.text(altlines.alts(rows))]
     return out
 
 
@@ -475,8 +477,16 @@ def cmd_audit(args: argparse.Namespace) -> int:
         f"<pre style='font-family:monospace;font-size:9pt'>{html.escape(text)}</pre>"
         "</body></html>"
     )
+    attachments = _audit_pdf(subject, page, days[-1])
     try:
-        sent = send_package(cfg, subject=subject, html_body=page, text_body=text, to=args.to)
+        sent = send_package(
+            cfg,
+            subject=subject,
+            html_body=page,
+            text_body=text,
+            to=args.to,
+            attachments=attachments,
+        )
     except EmailNotConfigured as exc:
         print(f"  audit email not sent ({exc})")
         return 0
@@ -485,6 +495,31 @@ def cmd_audit(args: argparse.Namespace) -> int:
         return 1
     print(f"  emailed the audit to {sent.recipient} ({sent.size:,} bytes)")
     return 0
+
+
+def _audit_pdf(title: str, page: str, last: Date) -> list[tuple[str, bytes]]:
+    """The audit as a PDF beside the email body; a failed render sends the email without it."""
+    doc = page.replace(
+        "<body>",
+        "<head><style>@page { size: letter landscape; margin: 0.4in; }"
+        " body { font-family: Helvetica, Arial, sans-serif; font-size: 9pt; }"
+        " pre { font-size: 7pt !important; }</style></head>"
+        f"<body><h2>{html.escape(title)}</h2>",
+        1,
+    )
+    name = f"nba_audit_{last.isoformat()}.pdf"
+    try:
+        pdf = render_pdf(doc)
+    except Exception as exc:  # noqa: BLE001 - the PDF is the optional artifact
+        print(f"  audit PDF not rendered ({exc}); emailing the text only")
+        return []
+    out = output_dir() / "audit"
+    try:
+        out.mkdir(parents=True, exist_ok=True)
+    except OSError:
+        pass
+    _write(out / name, pdf)
+    return [(name, pdf)]
 
 
 def _write(path: Path, data: bytes) -> bool:
@@ -496,10 +531,10 @@ def _write(path: Path, data: bytes) -> bool:
     return True
 
 
-def _podcast_view(card: SlateCard) -> podcast.PodcastView | None:
+def _podcast_view(root: Path, card: SlateCard) -> podcast.PodcastView | None:
     """The slate's podcast bets for the PDF; a failure here never stops the card."""
     try:
-        return podcast.view(store_dir(), card)
+        return podcast.view(store_dir(), card, earlier=podcast.earlier_games(root, card.day))
     except Exception as exc:  # noqa: BLE001 - podcasts are display only
         print(f"  podcast bets left off the card ({exc})")
         return None
@@ -510,7 +545,14 @@ def _grade_podcasts(root: Path, days: list[Date]) -> int:
     n = 0
     for d in days:
         try:
-            n += len(podcast.grade_day(store_dir(), d, ledger.graded_rows(root, [d])))
+            n += len(
+                podcast.grade_day(
+                    store_dir(),
+                    d,
+                    ledger.graded_rows(root, [d]),
+                    earlier=podcast.earlier_games(root, d),
+                )
+            )
         except Exception as exc:  # noqa: BLE001 - podcasts are display only
             print(f"  {d}: podcast picks not graded ({exc})")
     return n
@@ -581,10 +623,17 @@ def cmd_card(args: argparse.Namespace) -> int:
         ctx = {}
     before = (day - timedelta(days=1)).isoformat()
     graded = ledger.graded_rows(root, _ledger_days(root, None, before))
-    card = build_card(rows, day=day, context=ctx, graded=graded, preseason=cfg.preseason)
+    bands = (
+        schedule_bands.read_bands(graded, schedule_bands.schedule_from(root, graded))
+        if graded
+        else []
+    )
+    card = build_card(
+        rows, day=day, context=ctx, graded=graded, preseason=cfg.preseason, bands=bands
+    )
     if cfg.state_sync and not args.no_sync:
         podcast_state.auto_pull(store_dir())
-    page, text = render_html(card, _podcast_view(card)), render_text(card)
+    page, text = render_html(card, _podcast_view(root, card)), render_text(card)
     out = output_dir()
     try:
         out.mkdir(parents=True, exist_ok=True)

@@ -83,13 +83,16 @@ MARKET_STATS["player_targets"] = TARGETS
 # quarterback market (attempts 0.2537 vs 0.2500, completions 0.2551 vs 0.2498,
 # passing yards 0.2575 vs 0.2500) and both yardage markets (receiving 0.2452 vs
 # 0.2430, rushing 0.2463 vs 0.2442). Retired per market rather than as a family, so
-# a later refit can revive one on its own evidence.
+# a later refit can revive one on its own evidence. Rush attempts joined them on
+# the 2026 forward record: model 0.2783 vs fair 0.2438 on 113 DK/MGM leans, about
+# 2 se worse.
 RETIRED_MARKETS = frozenset(
     {
         "player_pass_attempts",
         "player_pass_completions",
         "player_pass_yds",
         "player_reception_yds",
+        "player_rush_attempts",
         "player_rush_yds",
     }
 )

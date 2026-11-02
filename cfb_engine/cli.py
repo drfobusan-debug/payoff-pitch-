@@ -26,7 +26,7 @@ from datetime import date as Date
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
-from cfb_engine.audit import altlines, shop, snapshot, watchlist
+from cfb_engine.audit import altlines, early, shop, snapshot, watchlist
 from cfb_engine.audit.availability import read_log, summarize
 from cfb_engine.audit.clv import (
     ClosingQuote,
@@ -38,6 +38,7 @@ from cfb_engine.audit.clv import (
     load_closing,
     merge_closing,
     save_closing,
+    timely_clv,
     timely_only,
 )
 from cfb_engine.audit.grade import (
@@ -238,6 +239,10 @@ def _grade_alt_lines(
             away_pts=away_pts,
             rows=quotes,
             kickoff_utc=rec.kickoff_utc or "",
+            p_main=rec.bet_prob if rec.bet_prob is not None else rec.model_prob,
+            mean=rec.exp_total if rec.market == "game_total" else rec.exp_margin,
+            sd=rec.exp_total_sd if rec.market == "game_total" else rec.exp_margin_sd,
+            thr=cfg.ev.for_market(rec.market),
         )
     n = altlines.save_day(cfg.alt_ledger_file, day.isoformat(), out)
     print(f"Graded {n} alternate lines (tracked only) -> {cfg.alt_ledger_file}")
@@ -252,6 +257,21 @@ def cmd_alt_report(cfg: Config, args: argparse.Namespace) -> int:
     print(f"{'group':34s} {'n':>5s} {'W-L':>9s} {'units':>8s} {'ROI':>7s}")
     for label, n, w, lo, units, roi in rows:
         print(f"{label:34s} {n:5d} {f'{w}-{lo}':>9s} {units:+8.2f} {roi:+7.1%}")
+    return 0
+
+
+def cmd_alt_regrade(cfg: Config, args: argparse.Namespace) -> int:
+    """Regrade every slate with saved alternate quotes, so older rows get engine prices."""
+    days = sorted(
+        Date.fromisoformat(p.stem.removeprefix("altlines_"))
+        for p in cfg.audit_dir.glob("altlines_*.jsonl")
+    )
+    for day in days:
+        if not cfg.predictions_file(day).exists():
+            print(f"{day}: no saved predictions, skipped")
+            continue
+        index = _result_index(cfg, day)
+        _grade_alt_lines(cfg, day, _grade_slate(cfg, day, index), index)
     return 0
 
 
@@ -358,6 +378,55 @@ def cmd_close(cfg: Config, args: argparse.Namespace) -> int:
         f"-> {cfg.closing_file(day)}"
     )
     _state_push(cfg, f"cfb close {day.isoformat()}: {len(quotes)} prices")
+    return 0
+
+
+def cmd_early(cfg: Config, args: argparse.Namespace) -> int:
+    """Price the coming Saturday days ahead, as a record graded beside Saturday's card.
+
+    Write-once: the point is the number as it stood that morning, so a second run
+    for the same slate keeps the first. Nothing is emailed and the day's card,
+    board and drift gate are untouched.
+    """
+    today = _today()
+    day = Date.fromisoformat(args.date) if args.date else early.next_saturday(today)
+    if day <= today:
+        print(f"{day} is not ahead of today ({today}); an early card is priced before its slate.")
+        return 1
+    _state_pull(cfg, day)
+    path = cfg.early_file(day)
+    if path.exists():
+        print(f"Early card for {day} already saved ({path}); keeping it.")
+        return 0
+    odds = OddsAPIClient(
+        cfg.creds.odds_api_key, regions=cfg.odds_regions, cache_dir=cfg.odds_cache_dir, cache_ttl=0
+    )
+    recs = Pipeline(cfg, odds=odds).run(day, early=True)
+    if not recs:
+        print(f"No NCAAF markets posted yet for {day}.")
+        return 0
+    save_json(recs, path)
+    buys = sum(r.tier in (Tier.STRONG, Tier.MODERATE) for r in recs)
+    print(f"Early card for {day}: {len(recs)} markets priced, {buys} buys -> {path}")
+    _state_push(cfg, f"cfb early {day.isoformat()}: {len(recs)} markets priced")
+    return 0
+
+
+def cmd_early_report(cfg: Config, args: argparse.Namespace) -> int:
+    rows = early.compare(load_ledger(cfg.early_ledger_file), load_ledger(cfg.ledger_file))
+    if not rows[0].n:
+        print("No graded early cards yet.")
+        return 0
+    print(
+        f"{'group':40s} {'n':>4s} {'W-L-P':>9s} {'units':>8s} {'ROI':>7s} {'CLV pts':>8s} {'pts vs Sat':>10s}"
+    )
+    for r in rows:
+        clv = f"{r.clv_pts:+.2f}" if r.clv_pts is not None else ""
+        gained = f"{r.pts_gained:+.2f}" if r.pts_gained is not None else ""
+        wlp = f"{r.wins}-{r.losses}-{r.pushes}"
+        print(
+            f"{r.label:40s} {r.n:4d} {wlp:>9s} {r.units:+8.2f} {r.roi:+7.1%} {clv:>8s} {gained:>10s}"
+        )
     return 0
 
 
@@ -482,6 +551,53 @@ def _stamp_shop(
     return n
 
 
+def _stamp_clv(
+    cfg: Config,
+    entries: list[LedgerEntry],
+    graded: list[tuple[Recommendation, str]],
+    closing: dict[str, ClosingQuote],
+) -> None:
+    if not closing:
+        return
+    # entries_from_graded emits one entry per graded rec, in order, so the
+    # rec's side (cover/over/under) travels with its ledger row.
+    for e, (rec, _) in zip(entries, graded, strict=True):
+        res = compute_clv(
+            e.matchup,
+            e.market,
+            e.selection,
+            e.odds,
+            e.fair_prob,
+            closing,
+            bet_line=e.line,
+            side=rec.side,
+            margin_sd=cfg.model.margin_sd,
+            total_sd=cfg.model.total_sd,
+        )
+        e.close_odds, e.close_prob, e.clv, e.clv_ev = res.as_tuple()
+        e.clv_pts = res.clv_pts
+
+
+def _audit_early(
+    cfg: Config, day: Date, index: ResultIndex, closing: dict[str, ClosingQuote]
+) -> int:
+    """Grade the slate's Tuesday card, if it has one, into the early ledger."""
+    path = cfg.early_file(day)
+    if not path.exists():
+        return 0
+    graded = []
+    for rec in load_json(path):
+        res = result_for(rec, index)
+        outcome = grade(rec, res) if res is not None else None
+        if outcome is not None:
+            graded.append((rec, outcome))
+    entries = entries_from_graded(graded, day)
+    _stamp_clv(cfg, entries, graded, closing)
+    update_ledger(cfg.early_ledger_file, entries, day)
+    print(f"Graded {len(entries)} early-card markets -> {cfg.early_ledger_file}")
+    return len(entries)
+
+
 def _audit_slate(cfg: Config, day: Date) -> tuple[list[LedgerEntry], int] | None:
     """Grade one slate into the ledger; the merged ledger and rows graded, or None."""
     index = _result_index(cfg, day)
@@ -505,30 +621,14 @@ def _audit_slate(cfg: Config, day: Date) -> tuple[list[LedgerEntry], int] | None
     closing, stale = timely_only(closing)
     if stale:
         print(f"Close ignored for {stale} side(s) not captured within 45 min of kickoff")
-    if closing:
-        # entries_from_graded emits one entry per graded rec, in order, so the
-        # rec's side (cover/over/under) travels with its ledger row.
-        for e, (rec, _) in zip(entries, graded, strict=True):
-            res = compute_clv(
-                e.matchup,
-                e.market,
-                e.selection,
-                e.odds,
-                e.fair_prob,
-                closing,
-                bet_line=e.line,
-                side=rec.side,
-                margin_sd=cfg.model.margin_sd,
-                total_sd=cfg.model.total_sd,
-            )
-            e.close_odds, e.close_prob, e.clv, e.clv_ev = res.as_tuple()
-            e.clv_pts = res.clv_pts
+    _stamp_clv(cfg, entries, graded, closing)
     _stamp_units(entries, _unit_ranks(cfg, day))
     _stamp_ypp(entries, _ypp_book(cfg, day))
     _stamp_shop(cfg, day, entries, graded, index)
     _grade_alt_lines(cfg, day, graded, index)
     merged = update_ledger(cfg.ledger_file, entries, day)
     print(f"Graded {len(entries)} markets; ledger now {len(merged)} rows.")
+    _audit_early(cfg, day, index, closing)
 
     scorecard = build_scorecard(graded, day)
     append_scorecard(scorecard, cfg.scorecard_file)
@@ -686,7 +786,7 @@ def cmd_weekly(cfg: Config, args: argparse.Namespace) -> int:
     if not entries:
         print("Ledger is empty; run `cfb-engine audit` first.")
         return 1
-    report = weekly_audit(entries, _audit_day(args))
+    report = weekly_audit(_timely_clv(cfg, entries), _audit_day(args))
     out = generate_weekly_report(report, cfg, email=not args.no_email, to=args.to)
     for line in report.week.findings + report.ledger.findings:
         print(f"- {line}")
@@ -774,6 +874,7 @@ def cmd_probation(cfg: Config, args: argparse.Namespace) -> int:
     if not entries:
         print("Ledger is empty; run `cfb-engine audit` on graded slates first.")
         return 1
+    entries = _timely_clv(cfg, entries)
     money = [
         engine_priced_stat(entries),
         *priced_stats(entries, lambda k: _MARKET_LABEL.get(k, k)),
@@ -930,26 +1031,68 @@ def cmd_shop(cfg: Config, args: argparse.Namespace) -> int:
     return 0
 
 
+def _stamp_context(cfg: Config, day: Date, entries: list[LedgerEntry]) -> int:
+    """Conference tier and AP top-25 on graded rows from before those columns existed.
+
+    Taken from the slate's saved predictions and its CFBD finals, the same sources the
+    audit stamps them from, so a backfilled row reads as if it had been graded today.
+    """
+    path = cfg.predictions_file(day)
+    if not path.exists():
+        return 0
+    recs = {(r.matchup, r.market, r.selection): r for r in load_json(path)}
+    index = _result_index(cfg, day) if any(e.conf_tier is None for e in entries) else None
+    n = 0
+    for e in entries:
+        rec = recs.get((e.matchup, e.market, e.selection))
+        if rec is None:
+            continue
+        stamped = False
+        if e.top25 is None and (top := atscontext.top25_game(rec.brief)) is not None:
+            e.top25, stamped = top, True
+        final = result_for(rec, index) if e.conf_tier is None and index is not None else None
+        if final is not None and (tier := atscontext.result_tier(final)) is not None:
+            e.conf_tier, stamped = tier, True
+        n += stamped
+    return n
+
+
 def cmd_stamp_units(cfg: Config, args: argparse.Namespace) -> int:
-    """Stamp point-in-time unit ranks (ATS/ML) and YPP tags (totals) on graded rows lacking them."""
+    """Stamp point-in-time context on graded rows lacking it.
+
+    Unit ranks (ATS/ML), YPP tags (totals), conference tier and AP top-25.
+    """
     _state_pull(cfg)
     entries = load_ledger(cfg.ledger_file)
-    units_todo = {e.date for e in entries if e.market in unitranks.MARKETS and e.unit_ranks is None}
+    # A blank CSV cell loads as "", not None, so "never stamped" is both sides blank.
+    units_todo = {
+        e.date
+        for e in entries
+        if e.market in unitranks.MARKETS and not e.unit_ranks and not e.opp_unit_ranks
+    }
     ypp_todo = {e.date for e in entries if e.market == "game_total" and e.ypp_tags is None}
+    context_todo = {e.date for e in entries if e.conf_tier is None or e.top25 is None}
+    todo = units_todo | ypp_todo | context_todo
     total = 0
-    for iso in sorted(units_todo | ypp_todo):
+    for iso in sorted(todo):
         day = Date.fromisoformat(iso)
         day_rows = [e for e in entries if e.date == iso]
         n = _stamp_units(day_rows, _unit_ranks(cfg, day)) if iso in units_todo else 0
         n += _stamp_ypp(day_rows, _ypp_book(cfg, day)) if iso in ypp_todo else 0
+        n += _stamp_context(cfg, day, day_rows) if iso in context_todo else 0
         if n:
             update_ledger(cfg.ledger_file, day_rows, day)
             total += n
         print(f"{iso}: stamped {n} row(s).")
-    print(f"Stamped {total} ledger row(s) across {len(units_todo | ypp_todo)} slate(s).")
+    print(f"Stamped {total} ledger row(s) across {len(todo)} slate(s).")
     if total:
         _state_push(cfg, f"cfb stamp-units: {total} rows")
     return 0
+
+
+def _timely_clv(cfg: Config, entries: list[LedgerEntry]) -> list[LedgerEntry]:
+    """Copies of the rows for the reports, CLV kept only on closes within 45 min of kickoff."""
+    return timely_clv(entries, lambda iso: load_closing(cfg.closing_file(Date.fromisoformat(iso))))
 
 
 def _emit_ledger(
@@ -961,6 +1104,7 @@ def _emit_ledger(
     email: bool,
     to: str | None,
 ) -> None:
+    entries = _timely_clv(cfg, entries)
     overall = [engine_metrics(entries), *overall_metrics(entries)]
     daily = daily_rollup(entries)
     markets = market_metrics(entries)
@@ -1040,12 +1184,20 @@ def _build_parser() -> argparse.ArgumentParser:
         help="fetch only if a game kicks off within MIN minutes with no close yet",
     )
     add_common(sub.add_parser("opener", help="capture the coming week's boards near the open"))
+    add_common(
+        sub.add_parser(
+            "early", help="price the coming Saturday days ahead (record only; default next Sat)"
+        )
+    )
+    sub.add_parser("early-report", help="Tuesday cards vs Saturday cards on the same slates")
     add_common(sub.add_parser("audit", help="grade a slate and update the ledger"), email=True)
     sub.add_parser("alt-report", help="record of the tracked alternate spreads and totals")
+    sub.add_parser("alt-regrade", help="regrade saved alternate lines with engine prices (no credits)")
     sub.add_parser("repair-closes", help="purge in-play quotes from saved closes and re-stamp CLV")
     sub.add_parser(
         "stamp-units",
-        help="stamp pre-slate unit ranks (ATS/ML) and YPP tags (totals) on graded ledger rows",
+        help="stamp pre-slate unit ranks (ATS/ML), YPP tags (totals), conference tier and AP "
+        "top-25 on graded ledger rows lacking them",
     )
     sub.add_parser(
         "shop", help="totals graded at the card's number vs the best allowed number vs Kalshi"
@@ -1081,7 +1233,10 @@ _DISPATCH = {
     "card": cmd_card,
     "close": cmd_close,
     "alt-report": cmd_alt_report,
+    "alt-regrade": cmd_alt_regrade,
     "opener": cmd_opener,
+    "early": cmd_early,
+    "early-report": cmd_early_report,
     "audit": cmd_audit,
     "repair-closes": cmd_repair_closes,
     "stamp-units": cmd_stamp_units,

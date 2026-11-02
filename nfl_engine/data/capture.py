@@ -49,6 +49,8 @@ log = logging.getLogger(__name__)
 GAME_KIND = "game"
 PROP_KIND = "prop"
 CLOSE_KIND = "close"
+# Prop prices taken inside the hour before each game kicks off: the prop close.
+PROP_CLOSE_KIND = "propclose"
 ODDSAPI = "oddsapi"
 
 MONEYLINE, SPREAD, TOTAL = "moneyline", "spread", "total"
@@ -392,6 +394,7 @@ def _float(value: str | None) -> float | None:
 
 __all__ = [
     "CLOSE_KIND",
+    "PROP_CLOSE_KIND",
     "GAME_KIND",
     "PROP_KIND",
     "QuoteRow",

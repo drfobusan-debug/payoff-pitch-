@@ -18,6 +18,15 @@ from cfb_engine.data.teamnames import label_matches, school_key
 
 TOP_N = 25
 
+# Spread buys in games between two weak teams, as a candidate skip screen. On the
+# 2026 spread buys through 10-31 (n=157 with every rank stamped), the third of games
+# whose 12 unit ranks averaged 72 or worse went 23-30 (-15.6%) and lost in both
+# halves, while SP+ ranks only half agreed. The cut was chosen after seeing those
+# rows, so the screen is graded only on slates after them.
+WEAK_GAME_RULE = "ats_refuse_weak_game"
+WEAK_GAME_AVG = 72.0
+WEAK_GAME_FROM = "2026-11-01"
+
 # unit -> (path into a /stats/season/advanced row, higher-is-better)
 _UNIT_PATHS: dict[str, tuple[tuple[str, ...], bool]] = {
     "off": (("offense", "ppa"), True),
@@ -159,3 +168,16 @@ def picks(unit: str, market: str, row_market: str, mine: str | None, opp: str | 
     if row_market != market or mine is None:
         return False
     return decode(mine).get(unit, TOP_N + 1) <= TOP_N < decode(opp).get(unit, TOP_N + 1)
+
+
+def weak_game(market: str, day: str, mine: str | None, opp: str | None) -> bool:
+    """A spread row from ``WEAK_GAME_FROM`` on whose two sides' unit ranks average 72+.
+
+    Both sides need every unit ranked; an FCS opponent or a partial stamp is not judged.
+    """
+    if market != "game_ats" or day < WEAK_GAME_FROM:
+        return False
+    ranks = [*decode(mine).values(), *decode(opp).values()]
+    if len(ranks) != 2 * len(UNITS):
+        return False
+    return sum(ranks) / len(ranks) >= WEAK_GAME_AVG

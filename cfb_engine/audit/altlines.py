@@ -8,12 +8,20 @@ same side, both ways: points bought (California +20.5 at a worse price) and
 points sold (California +16.5 at a better one), against the real final, in
 ``alt_ledger.csv``. ``cfb-engine alt-report`` prints the record by direction and
 by how many points moved. Nothing here is read by pricing.
+
+Each rung is also priced by the engine: the main-line probability the card bet
+at, moved along the sim's normal margin (or total) to the alternate number, so
+the market owns the main line and the sim owns the shape around it. A rung
+whose edge over that book's two-way no-vig price passes the same EV and edge
+bars as a main-line buy is ``flagged``; the flagged rungs are the graded-only
+screen for which number to take.
 """
 
 from __future__ import annotations
 
 import csv
 import json
+import math
 import re
 from collections import defaultdict
 from collections.abc import Iterable
@@ -21,8 +29,10 @@ from dataclasses import asdict, dataclass, fields
 from datetime import datetime, timezone
 from pathlib import Path
 
+from cfb_engine.config import EVThresholds
 from cfb_engine.market import gradedonly
-from cfb_engine.market.odds import american_to_decimal
+from cfb_engine.market.odds import american_to_decimal, no_vig_two_way
+from engine_runtime import altlines as rt
 
 ALT_MARKETS = ("alternate_spreads", "alternate_totals")
 _MARKET = {"alternate_spreads": "game_ats", "alternate_totals": "game_total"}
@@ -106,6 +116,13 @@ class AltRow:
     american: float
     result: str
     pnl: float
+    #: Engine probability at the alternate number; blank on rows graded before it was priced.
+    p_engine: float | None = None
+    #: The book's two-way no-vig probability at that number, when it posted the other side.
+    fair_prob: float | None = None
+    edge: float | None = None
+    #: The rung passes the main-line buy bars (EV and edge) at its own price.
+    flagged: bool = False
 
 
 def favour(market: str, side: str, main: float, alt: float) -> float:
@@ -123,6 +140,29 @@ def outcome(market: str, side: str, line: float, home_pts: int, away_pts: int) -
         mine, theirs = (home_pts, away_pts) if side == "home" else (away_pts, home_pts)
         diff = mine + line - theirs
     return "push" if diff == 0 else "win" if diff > 0 else "loss"
+
+
+def side_prob(market: str, side: str, line: float, mean: float, sd: float) -> float:
+    """P(our side covers ``line``) on a normal margin (home minus away) or total."""
+    if market == "game_total":
+        z = (mean - line) / sd if side == "over" else (line - mean) / sd
+    else:
+        z = (mean + line) / sd if side == "home" else (line - mean) / sd
+    return 0.5 * (1.0 + math.erf(z / math.sqrt(2.0)))
+
+
+def engine_prob(
+    market: str, side: str, main: float, alt: float, p_main: float, mean: float, sd: float
+) -> float:
+    """The card's main-line probability, moved by the sim's shape to the alternate number."""
+    shift = side_prob(market, side, alt, mean, sd) - side_prob(market, side, main, mean, sd)
+    return min(max(p_main + shift, 0.001), 0.999)
+
+
+def _opposite(market: str, side: str, point: float) -> tuple[str, float]:
+    if market == "game_total":
+        return ("under" if side == "over" else "over"), point
+    return ("away" if side == "home" else "home"), -point
 
 
 def _pnl(result: str, american: float) -> float:
@@ -144,19 +184,30 @@ def grade(
     away_pts: int,
     rows: list[dict],
     kickoff_utc: str = "",
+    p_main: float | None = None,
+    mean: float | None = None,
+    sd: float | None = None,
+    thr: EVThresholds | None = None,
 ) -> list[AltRow]:
-    """Every alternate number on our side from the first capture, at its best price."""
-    mine = [
+    """Every alternate number on our side from the first capture, at its best price.
+
+    With the card's ``p_main`` and the sim's ``mean``/``sd`` each rung is priced
+    and, under ``thr``, flagged when it clears the main-line buy bars.
+    """
+    pregame = [
         r
         for r in rows
         if r["matchup"] == matchup
         and r["market"] == market
-        and r["side"] == side
         and (not kickoff_utc or r["captured_at"] < kickoff_utc)
     ]
+    mine = [r for r in pregame if r["side"] == side]
     if not mine:
         return []
     first = min(r["captured_at"] for r in mine)
+    other = {
+        (r["book"], r["side"], r["point"]): r["american"] for r in pregame if r["captured_at"] == first
+    }
     best: dict[float, dict] = {}
     for r in mine:
         if r["captured_at"] != first:
@@ -170,6 +221,17 @@ def grade(
         if f == 0:
             continue
         res = outcome(market, side, point, home_pts, away_pts)
+        p_eng = fair = edge = None
+        flagged = False
+        if p_main is not None and mean is not None and sd:
+            p_eng = engine_prob(market, side, main_line, point, p_main, mean, sd)
+            opp = other.get((r["book"], *_opposite(market, side, point)))
+            if opp is not None:
+                fair = no_vig_two_way(r["american"], opp)[0]
+                edge = p_eng - fair
+                ev = p_eng * american_to_decimal(r["american"]) - 1.0
+                if thr is not None:
+                    flagged = ev > thr.min_ev and thr.min_edge <= edge <= thr.max_edge
         out.append(
             AltRow(
                 date,
@@ -185,6 +247,10 @@ def grade(
                 r["american"],
                 res,
                 _pnl(res, r["american"]),
+                None if p_eng is None else round(p_eng, 4),
+                None if fair is None else round(fair, 4),
+                None if edge is None else round(edge, 4),
+                flagged,
             )
         )
     return out
@@ -221,6 +287,8 @@ def report(path: Path) -> list[tuple[str, int, int, int, float, float]]:
         size = min(abs(f), 7.0)
         groups[f"{r['market']} {way} {size:g}{'+' if size == 7.0 else ''} pts"].append(r)
         groups[f"{r['market']} {way} (all)"].append(r)
+        if r.get("flagged") == "True":
+            groups[f"{r['market']} {way} engine-flagged"].append(r)
     out = []
     for label in sorted(groups):
         g = groups[label]
@@ -237,6 +305,29 @@ def report(path: Path) -> list[tuple[str, int, int, int, float, float]]:
         )
     return out
 
+
+
+def alts(path: Path, *, flagged_only: bool = False) -> list[rt.Alt]:
+    """The alt ledger as records for the shared alt-lines table (every row sits beside a tracked side)."""
+    if not path.exists():
+        return []
+    with path.open(newline="", encoding="utf-8") as fh:
+        rows = [
+            r
+            for r in csv.DictReader(fh)
+            if r["result"] in ("win", "loss", "push") and (not flagged_only or r.get("flagged") == "True")
+        ]
+    return [
+        rt.Alt(
+            game=f"{r['date']} {r['matchup']}",
+            kind="spread" if r["market"] == "game_ats" else "total",
+            favour=float(r["favour"]),
+            beside_buy=r["tier"] != "Pass",
+            outcome=r["result"],
+            pnl=float(r["pnl"]),
+        )
+        for r in rows
+    ]
 
 def now_stamp() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")

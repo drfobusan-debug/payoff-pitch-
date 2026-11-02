@@ -130,3 +130,62 @@ def test_clv_counts_only_closes_seen_near_kickoff(ledger, capsys) -> None:
     assert "2026 wk1: 1 of 2 rows have a timely close (2 stamped at any age)" in text
     lean = next(line for line in text.splitlines() if line.strip().startswith("all leans"))
     assert "CLV -0.0200 (n 1)" in lean
+
+
+def test_rows_priced_after_kickoff_are_not_leans(ledger, capsys) -> None:
+    live = row(
+        market="moneyline",
+        side="BUF",
+        odds=775.0,
+        opposite_odds=-1400.0,
+        model_prob=0.23,
+        fair_prob=0.09,
+        screens="no_execution_edge;longshot",
+        captured_at="2026-09-13T19:04:00Z",
+        kickoff_utc="2026-09-13T17:02:00Z",
+    )
+    save_ledger(ledger, [live])
+    ledger_audit.main(["--season", "2026"])
+    out = capsys.readouterr().out
+    assert "1 graded row(s) priced after kickoff are excluded" in out
+    assert "all leans" in out and "n     0" in next(x for x in out.splitlines() if "all leans" in x)
+
+
+def test_close_ev_counts_only_timely_two_sided_closes(ledger, capsys) -> None:
+    near = "2026-09-13T16:30:00Z"
+    paired = [
+        row(
+            matchup=f"G{i} @ H{i}",
+            side=f"H{i}",
+            close_odds=100.0,
+            close_prob=0.48,
+            clv=0.01,
+            clv_ev=ev,
+            close_captured_at=near,
+        )
+        for i, ev in enumerate((0.02, 0.04))
+    ]
+    unpaired = row(
+        matchup="X @ Y",
+        side="Y",
+        close_odds=100.0,
+        close_prob=0.5,
+        clv=0.01,
+        clv_ev=0.5,
+        close_captured_at=near,
+    )
+    stale = row(
+        matchup="P @ Q",
+        side="Q",
+        close_odds=100.0,
+        close_prob=0.48,
+        clv=0.01,
+        clv_ev=0.5,
+        close_captured_at="2026-09-10T12:00:00Z",
+    )
+    save_ledger(ledger, [*paired, unpaired, stale])
+    ledger_audit.main(["--season", "2026"])
+    text = capsys.readouterr().out
+    line = next(x for x in text.splitlines() if x.strip().startswith("close EV all leans"))
+    assert "n    2" in line and "+0.0300" in line
+    assert "close EV leans spread" in text and "n/a" in text

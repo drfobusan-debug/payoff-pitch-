@@ -13,7 +13,9 @@ import math
 from collections import defaultdict
 from collections.abc import Iterable
 
+from engine_runtime import altlines as rt
 from nba_engine.audit.ledger import LedgerRow
+from nba_engine.market.board import EXEC_BOOKS
 
 ALT: dict[str, str] = {"alt_ats": "game_ats", "alt_total": "game_total"}
 MAX_BUCKET = 7
@@ -105,4 +107,38 @@ def report(rows: Iterable[LedgerRow], passes: Iterable[LedgerRow] = ()) -> list[
     return out
 
 
-__all__ = ["ALT", "favour", "main_lines", "report"]
+
+
+def alts(rows: Iterable[LedgerRow]) -> list[rt.Alt]:
+    """Graded alternates at the best DraftKings/BetMGM price, for the shared alt-lines table."""
+    rows = list(rows)
+    main = main_lines(rows)
+    buys = {
+        (r.event_id, r.market, r.side)
+        for r in rows
+        if r.is_buy and r.market in ALT.values() and not r.entity
+    }
+    keyed = []
+    for r in rows:
+        if r.market not in ALT or r.american is None or not r.graded or r.book not in EXEC_BOOKS:
+            continue
+        f = favour(r, main)
+        if f:
+            keyed.append(((r.event_id, r.market, r.side, r.line), r.american, (r, f)))
+    out: list[rt.Alt] = []
+    for row in rt.best_price(keyed):
+        r, f = row
+        out.append(
+            rt.Alt(
+                game=r.event_id,
+                kind="spread" if r.market == "alt_ats" else "total",
+                favour=f,
+                beside_buy=(r.event_id, ALT[r.market], r.side) in buys,
+                outcome=r.outcome,
+                pnl=r.pnl or 0.0,
+            )
+        )
+    return out
+
+
+__all__ = ["ALT", "alts", "favour", "main_lines", "report"]

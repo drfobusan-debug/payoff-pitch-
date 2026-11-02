@@ -20,17 +20,22 @@ from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
 from datetime import date as Date
 
+from engine_common import promotion
+from engine_common.bands import CALL_SE, MIN_N, BandRead
 from engine_common.odds import american_to_prob
 from engine_common.podcasts import render as podcast_render
 from engine_common.podcasts.render import CSS as PODCAST_CSS
 from engine_common.podcasts.render import game_block as podcast_game_block
 from engine_common.podcasts.render import records_block as podcast_records_block
+from engine_common.promotion import MIN_BUYS, Promotion
 from nba_engine.audit import scorecard
-from nba_engine.audit.ledger import LedgerRow
+from nba_engine.audit.ledger import CLOSE, LedgerRow, timely_close
+from nba_engine.audit.settle import LOSS, WIN
 from nba_engine.data import teamnames
 from nba_engine.data.capture import MARKET_MAP
 from nba_engine.market.board import EXEC_BOOKS
 from nba_engine.output.context import ESPN, OFFICIAL, GameContext, Injury, et_clock
+from nba_engine.output.teamstats import Factors, Rated, Split, TeamStats
 
 PodcastView = podcast_render.PodcastView[list[LedgerRow]]
 MAIN_MARKETS = ("game_ml", "game_ats", "game_total")
@@ -215,6 +220,8 @@ class SlateCard:
     record: Mapping[str, list[scorecard.Metrics]] = field(default_factory=dict)
     graded_rows: int = 0
     integrity: scorecard.Integrity | None = None
+    bands: tuple[BandRead, ...] = ()
+    promotions: tuple[Promotion, ...] = ()
 
     @property
     def rows(self) -> list[LedgerRow]:
@@ -246,6 +253,7 @@ def build_card(
     graded: Sequence[LedgerRow] = (),
     preseason: bool = False,
     draws: int = 400,
+    bands: Sequence[BandRead] = (),
 ) -> SlateCard:
     """Group the rows of record by game, in tip-off order. Reads rows, never writes them."""
     ordered = board_order(rows)
@@ -277,7 +285,32 @@ def build_card(
         record=scorecard.tables(graded, draws=draws) if graded else {},
         graded_rows=len(graded),
         integrity=scorecard.integrity(graded) if graded else None,
+        bands=tuple(bands),
+        promotions=tuple(_promotions(graded)),
     )
+
+
+def _promotions(graded: Sequence[LedgerRow]) -> list[Promotion]:
+    """Each market's graded buys against the shared paper -> Lean (probation) bar."""
+    out = []
+    buys = sorted((r for r in graded if r.is_buy and r.outcome), key=lambda r: r.slate_date)
+    for market in sorted({r.market for r in buys}):
+        rs = [r for r in buys if r.market == market]
+        decided = [
+            r for r in rs if r.outcome in (WIN, LOSS) and r.model_prob is not None and r.fair
+        ]
+        bm: float | None = None
+        bk: float | None = None
+        if decided:
+            won = [1.0 if r.outcome == WIN else 0.0 for r in decided]
+            pairs = list(zip(decided, won, strict=True))
+            bm = sum((float(r.model_prob or 0.0) - w) ** 2 for r, w in pairs) / len(pairs)
+            bk = sum((float(r.fair or 0.0) - w) ** 2 for r, w in pairs) / len(pairs)
+        clvs = [
+            r.clv for r in rs if r.close_status == CLOSE and r.clv is not None and timely_close(r)
+        ]
+        out.append(promotion.read(market, [r.pnl or 0.0 for r in rs], clvs, bm, bk))
+    return out
 
 
 # -- HTML --------------------------------------------------------------------
@@ -295,7 +328,7 @@ h2{font-size:15pt;color:#16324f;border-bottom:1px solid #d7dbe0;padding-bottom:3
 h2 .kick{float:right;font-size:8.6pt;color:#6b7280;font-family:'DejaVu Sans',sans-serif;font-weight:normal;padding-top:6px;}
 p{margin:6px 0;}
 .lead{font-size:11pt;}
-.game{page-break-inside:avoid;border-bottom:2px solid #eceef1;padding-bottom:10px;margin-bottom:6px;}
+.game{border-bottom:2px solid #eceef1;padding-bottom:10px;margin-bottom:6px;}
 .mkt{margin:-2px 0 4px;font-size:9.4pt;color:#4b5563;}
 table.board{width:100%;border-collapse:collapse;font-size:8.4pt;font-family:'DejaVu Sans',sans-serif;margin:6px 0 4px;}
 table.board th{text-align:left;font-weight:normal;color:#6b7280;border-bottom:1px solid #d7dbe0;padding:2px 5px;font-size:7.4pt;text-transform:uppercase;letter-spacing:.4px;}
@@ -305,6 +338,20 @@ table.board td.nomodel{color:#6b7280;font-style:italic;font-size:7.8pt;}
 table.board td.gate{color:#6b7280;font-size:7.8pt;}
 table.board tr.buy td{background:#fbf7ec;}
 .muted{color:#6b7280;font-style:italic;font-size:8.6pt;}
+.rk{color:#9aa0a8;font-size:6.6pt;font-weight:normal;}
+h2{page-break-after:avoid;}
+.keep,table.panel{page-break-inside:avoid;}
+table.panel{width:100%;border-collapse:collapse;margin:6px 0 0;}
+table.panel>tbody>tr>td,table.panel>tr>td{width:50%;vertical-align:top;padding:0 4px 0 0;}
+table.tape{width:100%;border-collapse:collapse;font-size:7.8pt;font-family:'DejaVu Sans',sans-serif;}
+table.tape th{font-weight:normal;color:#6b7280;font-size:7pt;text-transform:uppercase;letter-spacing:.3px;padding:1px 4px;text-align:right;border-bottom:1px solid #d7dbe0;}
+table.tape th.cap{text-align:left;color:#16324f;font-weight:bold;}
+table.tape th[colspan]{text-align:center;color:#16324f;}
+table.tape td{padding:2px 4px;text-align:right;border-bottom:1px solid #eceef1;white-space:nowrap;}
+table.tape td.mk{text-align:left;color:#16324f;font-weight:bold;}
+table.tape .tn{background:#fbf7ec;font-weight:bold;}
+table.tape tr.g td{color:#6b7280;font-size:7pt;}
+.tapenote{font-size:7.2pt;color:#6b7280;font-style:italic;margin:2px 0 4px;}
 .ctx{font-size:9.2pt;margin:3px 0;color:#2b2f36;}
 p.bets{margin:10px 0 2px;font-size:11pt;color:#16324f;}
 ul.bets{margin:2px 0 4px 0;font-size:10pt;}
@@ -323,9 +370,33 @@ table.record td{padding:3px 6px;border-bottom:1px solid #eceef1;}
 _e = html.escape
 
 
-def _exec_cell(r: LedgerRow) -> str:
+def exec_sibling(game: GameCard, r: LedgerRow) -> LedgerRow | None:
+    """The same side's row at the line DraftKings/BetMGM did post, when the main line lacks one.
+
+    Rows are keyed by line, so a consensus main number the two exec books are not
+    on (CHA +4 when they sit at +4.5) looks unbettable on the card; the bettable
+    row is the sibling one line over."""
+    line = r.line
+    if exec_prices(r) or r.entity or r.market.endswith("_ml") or line is None:
+        return None
+    sibs = [
+        x
+        for x in game.rows
+        if x.market == r.market and x.side == r.side and not x.entity and exec_prices(x)
+    ]
+    if not sibs:
+        return None
+    return min(sibs, key=lambda x: abs((x.line or 0.0) - line))
+
+
+def _exec_cell(r: LedgerRow, sibling: LedgerRow | None = None) -> str:
     prices = exec_prices(r)
     if not prices:
+        if sibling is not None:
+            return (
+                f"<span class='muted'>not at this number; at {_e(line_text(sibling))}:</span> "
+                f"{_exec_cell(sibling)}"
+            )
         return "<span class='muted'>neither DK nor BetMGM posted it</span>"
     bits = []
     for book in EXEC_BOOKS:
@@ -359,7 +430,7 @@ def _market_rows(game: GameCard, market: str) -> str:
         out.append(
             f"<tr{cls}><td class='mk'>{_e(label) if i == 0 else ''}</td>"
             f"<td>{_e(side_label(r))}</td><td>{_e(line_text(r))}</td>"
-            f"<td>{pct(r.fair)}</td>{model}<td>{_exec_cell(r)}</td>"
+            f"<td>{pct(r.fair)}</td>{model}<td>{_exec_cell(r, exec_sibling(game, r))}</td>"
             f"<td>{_e(ev_text(r))}</td><td>{pct(kel) if kel is not None else '—'}</td>"
             f"<td>{_e(r.tier)}</td><td class='gate'>{_e(gates)}</td></tr>"
         )
@@ -428,6 +499,103 @@ def _context(game: GameCard) -> str:
     return "".join(out)
 
 
+def _rated(x: Rated, fmt: str) -> str:
+    if x.value is None:
+        return "—"
+    rank = f" <span class='rk'>#{x.rank}</span>" if x.rank is not None else ""
+    return fmt.format(x.value) + rank
+
+
+def _team_stats(game: GameCard) -> dict[str, TeamStats]:
+    return {
+        t: s
+        for t, s in zip((game.away, game.home), game.context.teams, strict=False)
+        if s is not None
+    }
+
+
+_TN = " class='tn'"
+
+
+def _tape_cell(x: Rated, fmt: str, *, tonight: bool = False) -> str:
+    mark = _TN if tonight else ""
+    return f"<td{mark}>{_rated(x, fmt)}</td>"
+
+
+def _efficiency(game: GameCard, stats: dict[str, TeamStats]) -> str:
+    """Off, def and net rating per 100 possessions, each team at home and on the road."""
+    cols: list[tuple[Split, bool]] = []
+    for team, tonight in ((game.away, "away"), (game.home, "home")):
+        s = stats.get(team)
+        for where in ("home", "away"):
+            cols.append((getattr(s, where) if s else Split(), where == tonight))
+    teams = "".join(f"<th colspan='2'>{_e(t)}</th>" for t in (game.away, game.home))
+    wheres = "".join(
+        f"<th{_TN if on else ''}>{w}</th>"
+        for (_, on), w in zip(cols, ("Home", "Road") * 2, strict=True)
+    )
+    body = "".join(
+        f"<tr><td class='mk'>{label}</td>"
+        + "".join(_tape_cell(getattr(sp, key), fmt, tonight=on) for sp, on in cols)
+        + "</tr>"
+        for label, key, fmt in (
+            ("Off rtg", "off", "{:.1f}"),
+            ("Def rtg", "dfn", "{:.1f}"),
+            ("Net", "net", "{:+.1f}"),
+        )
+    )
+    games = "".join(f"<td{_TN if on else ''}>{sp.games}</td>" for sp, on in cols)
+    return (
+        "<table class='tape'><thead><tr><th class='cap'>Per 100 poss</th>"
+        f"{teams}</tr><tr><th></th>{wheres}</tr></thead><tbody>{body}"
+        f"<tr class='g'><td class='mk'>Games</td>{games}</tr></tbody></table>"
+    )
+
+
+def _factors(game: GameCard, stats: dict[str, TeamStats]) -> str:
+    """Each offense beside the defense it meets tonight."""
+    units: list[tuple[str, str]] = [
+        (game.away, "offense"),
+        (game.home, "defense"),
+        (game.home, "offense"),
+        (game.away, "defense"),
+    ]
+    cols = [getattr(stats[t], u) if t in stats else Factors() for t, u in units]
+    pairs = "".join(
+        f"<th colspan='2'>{_e(o)} O vs {_e(d)} D</th>"
+        for o, d in ((game.away, game.home), (game.home, game.away))
+    )
+    heads = "".join(f"<th>{_e(t)} {u[0].upper()}</th>" for t, u in units)
+    body = "".join(
+        f"<tr><td class='mk'>{label}</td>"
+        + "".join(_tape_cell(getattr(f, key), fmt) for f in cols)
+        + "</tr>"
+        for label, key, fmt in (
+            ("eFG%", "efg", "{:.1%}"),
+            ("TOV%", "tov", "{:.1%}"),
+            ("OREB%", "orb", "{:.1%}"),
+            ("FT/FGA", "ftr", "{:.3f}"),
+        )
+    )
+    return (
+        "<table class='tape'><thead><tr><th class='cap'>Four factors</th>"
+        f"{pairs}</tr><tr><th></th>{heads}</tr></thead><tbody>{body}</tbody></table>"
+    )
+
+
+def _team_panel(game: GameCard) -> str:
+    """Ratings at home and on the road beside the four factors, one panel per game."""
+    stats = _team_stats(game)
+    if not stats:
+        return "<p class='ctx'><b>Team ratings</b> — no regular-season box scores archived yet</p>"
+    return (
+        "<table class='panel'><tr>"
+        f"<td>{_efficiency(game, stats)}</td><td>{_factors(game, stats)}</td>"
+        "</tr></table><p class='tapenote'>Season to date, grey # = rank among teams with"
+        " games; tonight's venue shaded. Early splits rest on few games, so ranks are noisy.</p>"
+    )
+
+
 def _others_line(game: GameCard) -> str:
     others = game.others()
     if not others:
@@ -472,9 +640,10 @@ def _game_bets(game: GameCard) -> str:
 
 def _game_section(game: GameCard, podcast: PodcastView | None = None) -> str:
     return (
-        f"<div class='game'><h2>{_e(game.title)}<span class='kick'>{_e(game.tip_et)}</span></h2>"
-        f"{_market_line(game)}{_board_table(game)}{_context(game)}{_others_line(game)}"
-        f"{_game_bets(game)}{podcast_game_block(podcast, game.matchup)}</div>"
+        f"<div class='game'><div class='keep'><h2>{_e(game.title)}<span class='kick'>{_e(game.tip_et)}</span></h2>"
+        f"{_market_line(game)}{_board_table(game)}</div>{_team_panel(game)}"
+        f"{_context(game)}<div class='keep'>{_others_line(game)}"
+        f"{_game_bets(game)}</div>{podcast_game_block(podcast, game.matchup)}</div>"
     )
 
 
@@ -552,6 +721,62 @@ def _record_table(card: SlateCard) -> str:
     )
 
 
+def _integrity_line(card: SlateCard) -> str:
+    """One line on the graded ledger's plumbing; silent when nothing is graded."""
+    i = card.integrity
+    if i is None:
+        return ""
+    flags = [
+        (i.duplicates, "duplicate"),
+        (i.priced_after_tip, "priced after tip"),
+        (i.close_before_price, "close before price"),
+        (i.ungraded, "ungraded"),
+        (i.no_close, "no close"),
+    ]
+    bad = ", ".join(f"{n} {label}" for n, label in flags if n)
+    ok = "no duplicates, nothing priced after tip, every priced row has a close record"
+    return (
+        f"<p class='muted'>Ledger integrity: {i.rows} rows, {i.positions} positions; "
+        f"{bad or ok}; {i.voids} void, {i.stale_close} stale close, {i.pulled} pulled, "
+        f"{i.moved} moved.</p>"
+    )
+
+
+def _promotion_line(card: SlateCard) -> str:
+    """Which markets have cleared the stake bar; silent with no graded buys."""
+    if not card.promotions:
+        return ""
+    lean = [p for p in card.promotions if p.cleared]
+    if lean:
+        items = "; ".join(f"<b>{_e(p.market)}</b> — {_e(p.status)}, {p.stake:g} unit" for p in lean)
+        return f"<p class='ctx'>Stake bar: {items}. Every other market stays paper.</p>"
+    waits = "; ".join(f"{_e(p.market)} ({_e(p.why_not)})" for p in card.promotions)
+    return (
+        f"<p class='muted'>Stake bar: no market has cleared paper ({MIN_BUYS} graded buys, ROI ≥ 0"
+        f" in both halves, CLV lower bound > 0, Brier ≤ market). Waiting on: {waits}.</p>"
+    )
+
+
+def _bands_table(card: SlateCard) -> str:
+    """The schedule bands, graded only: flat 1u on the main line at the card's price."""
+    if not card.bands:
+        return ""
+    rows = "".join(
+        f"<tr><td>{_e(b.name)}</td><td>{b.n}</td><td>{_e(b.record)}</td><td>{b.units:+.1f}</td>"
+        f"<td>{signed_pct(b.roi)}</td><td>{f'{b.se:.1f}' if b.n > 1 else 'n/a'}</td>"
+        f"<td>{b.halves[0]:+.1f} / {b.halves[1]:+.1f}</td><td>{_e(b.verdict)}</td></tr>"
+        for b in card.bands
+    )
+    return (
+        "<h2>Schedule bands</h2>"
+        "<p class='muted'>Graded only, never a bet: flat 1u on the main line at the card's"
+        f" price; a call needs {MIN_N}+ games and {CALL_SE:g} SE with both halves agreeing.</p>"
+        "<table class='record'><thead><tr><th>Band</th><th>Games</th><th>W-L</th><th>Units</th>"
+        "<th>ROI</th><th>SE (u)</th><th>Halves</th><th>Verdict</th></tr></thead>"
+        f"<tbody>{rows}</tbody></table>"
+    )
+
+
 def render_html(card: SlateCard, podcast: PodcastView | None = None) -> str:
     """The card as HTML. ``podcast`` adds the shows' bets under each game and their
     records at the back; it never changes a row."""
@@ -598,6 +823,7 @@ def render_html(card: SlateCard, podcast: PodcastView | None = None) -> str:
         f"<style>{_STYLE}{PODCAST_CSS if podcast else ''}</style></head>"
         f"<body>{masthead}<p class='lead'>{lead}</p>{''.join(notes)}{body}"
         f"{_slate_bets(card)}{_summary_table(card)}{_record_table(card)}"
+        f"{_integrity_line(card)}{_promotion_line(card)}{_bands_table(card)}"
         f"{podcast_records_block(podcast, [g.matchup for g in card.games])}{fine}</body></html>"
     )
 

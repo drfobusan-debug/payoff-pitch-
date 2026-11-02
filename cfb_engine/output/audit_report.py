@@ -134,7 +134,7 @@ def _tracked_table(rows: list[Probation]) -> str:
 
 def _clv_table(rows: list[ClvSummary]) -> str:
     if not rows:
-        return "<p>No closing snapshot captured for this slate.</p>"
+        return "<p>No bet has a close taken within 45 minutes of kickoff yet.</p>"
     head = "<tr><th>Population</th><th>N</th><th>Mean CLV</th><th>Beat close</th></tr>"
     body = "".join(
         f"<tr><td>{c.label}</td><td>{c.n}</td>"

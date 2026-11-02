@@ -25,6 +25,8 @@ from nba_engine.data import boxes, capture, espn_injuries, injuries, teamnames
 from nba_engine.data.espn import SITE, ESPNClient
 from nba_engine.data.oddsapi import parse_utc
 from nba_engine.models.schedule import REST_CAP, schedule, season_of
+from nba_engine.output import teamstats
+from nba_engine.output.teamstats import TeamStats
 from nba_engine.schemas import GameResult
 
 log = logging.getLogger(__name__)
@@ -116,6 +118,7 @@ class GameContext:
     official_report: str = ""  # stamp of the official report read; "" when none held
     espn_feed: str = ""  # file stamp of the ESPN feed read
     alarm: str = ""  # the news alarm's day for this game, one line
+    teams: tuple[TeamStats | None, ...] = ()  # away, home; season to date
 
     def moves_text(self, home: str) -> str:
         """``12:43 PM ET → 6:05 PM ET: ML LAL 57.1% → 60.3% · ...``; "" with no board held."""
@@ -311,6 +314,11 @@ def gather(
     rests = rest(day, games, prior, known)
     moved = moves(root, day, games)
     alarms = alarm_lines(root, day)
+    try:
+        table = teamstats.season_table(teamstats.season_finals(root, day, fetch))
+    except Exception as exc:  # noqa: BLE001 - context only; the card goes out regardless
+        log.warning("season team ratings not built: %s", exc)
+        table = {}
     out: dict[str, GameContext] = {}
     for g in games:
         teams = (g.away, g.home)
@@ -327,6 +335,7 @@ def gather(
             official_report=report,
             espn_feed=feed_at,
             alarm=alarms.get(g.event_id, ""),
+            teams=tuple(table.get(t) for t in teams),
         )
     return out
 
@@ -335,7 +344,8 @@ def espn_fetch(root: Path) -> Fetch:
     """Finals for a past day from ESPN (free), archived once the day is settled.
 
     The scoreboard is read first so a day without games ([]) is told apart
-    from a feed that failed (None).
+    from a feed that failed (None); a past day without games is archived empty
+    so later cards do not ask ESPN for it again.
     """
     client = ESPNClient()
 
@@ -349,8 +359,13 @@ def espn_fetch(root: Path) -> Fetch:
         except (requests.RequestException, ValueError) as exc:
             log.warning("ESPN scoreboard %s not read: %s", d, exc)
             return None
-        if not isinstance(payload, dict) or not payload.get("events"):
-            return [] if isinstance(payload, dict) else None
+        events = payload.get("events") if isinstance(payload, dict) else None
+        if not isinstance(events, list):
+            log.warning("ESPN scoreboard %s has no events list; not archived", d)
+            return None
+        if not events:
+            boxes.write_results(root, d, [])
+            return []
         return boxes.ensure_results(root, d, client) or None
 
     return fetch

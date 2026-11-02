@@ -136,6 +136,7 @@ def _swapped_game(tmp_path: Path) -> tuple[object, object]:
         odds_cache_dir=tmp_path,
         altlines_file=lambda d: tmp_path / "alt.jsonl",
         alt_ledger_file=tmp_path / "alt_ledger.csv",
+        ev=SimpleNamespace(for_market=lambda market: None),
     )
     event = {
         "bookmakers": [
@@ -211,3 +212,42 @@ def test_a_failed_alternate_capture_never_stops_the_card(tmp_path: Path, monkeyp
         matchup="BUFF @ UMASS", market="game_ats", tier="Strong buy", pass_gate=None
     )
     cli._capture_alt_lines(cfg, date(2026, 10, 24), [rec])  # type: ignore[arg-type,list-item]
+
+
+def _priced_rows() -> list[dict]:
+    def q(side: str, point: float, price: float) -> dict:
+        return {"matchup": "A @ H", "captured_at": T0, "market": "game_ats", "side": side,
+                "point": point, "book": "draftkings", "american": price}
+
+    return [q("away", 3.5, 150), q("home", -3.5, -180), q("away", 10.5, -250), q("home", -10.5, 200)]
+
+
+def test_the_engine_prices_each_rung_off_the_main_line_and_flags_the_buys(tmp_path: Path) -> None:
+    import pytest
+
+    from cfb_engine.config import EVThresholds
+
+    assert altlines.side_prob("game_ats", "away", 31.5, 29.05, 15.97) == pytest.approx(0.561, abs=0.002)
+    graded = altlines.grade(
+        date="2026-10-24", matchup="A @ H", market="game_ats", selection="A +7.5", main_line=7.5,
+        tier="Strong buy", side="away", home_pts=24, away_pts=20, rows=_priced_rows(),
+        p_main=0.56, mean=6.0, sd=16.0, thr=EVThresholds(min_ev=0.0, min_edge=0.02, max_edge=0.08),
+    )
+    by = {r.alt_line: r for r in graded}
+    sold, bought = by[3.5], by[10.5]
+    assert sold.favour == -4.0 and sold.p_engine == pytest.approx(0.461, abs=0.003)
+    assert sold.fair_prob == pytest.approx(0.3836, abs=0.001) and sold.flagged
+    assert bought.edge is not None and bought.edge < 0 and not bought.flagged
+    path = tmp_path / "alt_ledger.csv"
+    altlines.save_day(path, "2026-10-24", graded)
+    labels = {r[0] for r in altlines.report(path)}
+    assert "game_ats sold engine-flagged" in labels and "game_ats bought engine-flagged" not in labels
+    assert [a.favour for a in altlines.alts(path, flagged_only=True)] == [-4.0]
+
+
+def test_rows_without_the_sim_stay_unpriced() -> None:
+    graded = altlines.grade(
+        date="2026-10-24", matchup="A @ H", market="game_ats", selection="A +7.5", main_line=7.5,
+        tier="Strong buy", side="away", home_pts=24, away_pts=20, rows=_priced_rows(),
+    )
+    assert graded and all(r.p_engine is None and not r.flagged for r in graded)

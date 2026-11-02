@@ -177,6 +177,17 @@ def save_rows(rows: list[LedgerRow], path: Path) -> Path:
     return path
 
 
+def save_outcomes(rows: list[LedgerRow], path: Path) -> Path:
+    """Write back only ``outcome``/``pnl``; every other key in the file stays exactly as written."""
+    raw = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(raw, list) or len(raw) != len(rows):
+        raise ValueError(f"{path}: rows do not line up with the file")
+    for item, r in zip(raw, rows, strict=True):
+        item["outcome"], item["pnl"] = r.outcome, r.pnl
+    path.write_text(json.dumps(raw, indent=1) + "\n", encoding="utf-8")
+    return path
+
+
 def load_rows(path: Path) -> list[LedgerRow]:
     if not path.exists():
         return []
@@ -251,6 +262,22 @@ def stamp_timing(
         r.puck_drop = starts.get(r.matchup, r.puck_drop)
         if r.clv is not None:
             r.close_at = seen.get(r.key, r.close_at)
+
+
+def backfill_ppp(
+    rows: list[LedgerRow], results: Mapping[str, GameResult], ppp_of: PPPLookup
+) -> int:
+    """Settle ``sk_ppp`` rows a past audit left ungraded; every other field stays as written."""
+    done = 0
+    for r in rows:
+        res = results.get(r.matchup)
+        if r.market != "sk_ppp" or r.outcome is not None or res is None or not res.is_final:
+            continue
+        outcome = settle_ppp(side=r.side, entity=r.entity, line=r.line, res=res, ppp_of=ppp_of)
+        if outcome is not None:
+            r.outcome, r.pnl = outcome, pnl(outcome, r.american)
+            done += 1
+    return done
 
 
 def grade_rows(
