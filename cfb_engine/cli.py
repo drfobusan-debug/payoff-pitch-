@@ -224,6 +224,10 @@ def _grade_alt_lines(
             away_pts=away_pts,
             rows=quotes,
             kickoff_utc=rec.kickoff_utc or "",
+            p_main=rec.bet_prob if rec.bet_prob is not None else rec.model_prob,
+            mean=rec.exp_total if rec.market == "game_total" else rec.exp_margin,
+            sd=rec.exp_total_sd if rec.market == "game_total" else rec.exp_margin_sd,
+            thr=cfg.ev.for_market(rec.market),
         )
     n = altlines.save_day(cfg.alt_ledger_file, day.isoformat(), out)
     print(f"Graded {n} alternate lines (tracked only) -> {cfg.alt_ledger_file}")
@@ -238,6 +242,21 @@ def cmd_alt_report(cfg: Config, args: argparse.Namespace) -> int:
     print(f"{'group':34s} {'n':>5s} {'W-L':>9s} {'units':>8s} {'ROI':>7s}")
     for label, n, w, lo, units, roi in rows:
         print(f"{label:34s} {n:5d} {f'{w}-{lo}':>9s} {units:+8.2f} {roi:+7.1%}")
+    return 0
+
+
+def cmd_alt_regrade(cfg: Config, args: argparse.Namespace) -> int:
+    """Regrade every slate with saved alternate quotes, so older rows get engine prices."""
+    days = sorted(
+        Date.fromisoformat(p.stem.removeprefix("altlines_"))
+        for p in cfg.audit_dir.glob("altlines_*.jsonl")
+    )
+    for day in days:
+        if not cfg.predictions_file(day).exists():
+            print(f"{day}: no saved predictions, skipped")
+            continue
+        index = _result_index(cfg, day)
+        _grade_alt_lines(cfg, day, _grade_slate(cfg, day, index), index)
     return 0
 
 
@@ -1158,6 +1177,7 @@ def _build_parser() -> argparse.ArgumentParser:
     sub.add_parser("early-report", help="Tuesday cards vs Saturday cards on the same slates")
     add_common(sub.add_parser("audit", help="grade a slate and update the ledger"), email=True)
     sub.add_parser("alt-report", help="record of the tracked alternate spreads and totals")
+    sub.add_parser("alt-regrade", help="regrade saved alternate lines with engine prices (no credits)")
     sub.add_parser("repair-closes", help="purge in-play quotes from saved closes and re-stamp CLV")
     sub.add_parser(
         "stamp-units",
@@ -1198,6 +1218,7 @@ _DISPATCH = {
     "card": cmd_card,
     "close": cmd_close,
     "alt-report": cmd_alt_report,
+    "alt-regrade": cmd_alt_regrade,
     "opener": cmd_opener,
     "early": cmd_early,
     "early-report": cmd_early_report,
