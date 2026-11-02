@@ -14,7 +14,7 @@ from pathlib import Path
 
 from engine_common.podcasts.picks import load_ledger as load_podcast_ledger
 from mlb_engine.audit import funnel as funnel_report
-from mlb_engine.audit import histograms, reaction, tape
+from mlb_engine.audit import histograms, reaction, tape, watchlist
 from mlb_engine.audit.analysis import (
     dog_vs_favorite,
     price_bucket_findings,
@@ -163,6 +163,22 @@ def _write_quotes_template(recs, path: Path) -> None:
             w.writerow([r.matchup, r.market, r.selection, "draftkings", "", "", ""])
 
 
+def _watchlist(cfg: Config, slate_date: Date) -> watchlist.Watchlist | None:
+    """The card's "What we're watching" block; a failure drops the block, never the card."""
+    from mlb_engine.output.daily_worksheet import WEIGHTS_VERSION
+
+    try:
+        schedule = watchlist.fetch_schedule(MLBStatsClient()._get, slate_date.year, cfg.audit_dir)
+    except Exception as exc:  # noqa: BLE001 - the schedule bands just read nothing
+        logging.getLogger(__name__).warning("watchlist: no schedule (%s)", exc)
+        schedule = []
+    try:
+        return watchlist.build(cfg.audit_dir, schedule, WEIGHTS_VERSION)
+    except Exception as exc:  # noqa: BLE001
+        logging.getLogger(__name__).warning("watchlist not built (%s); card goes without it", exc)
+        return None
+
+
 def _generate_card(
     recs: list[Recommendation],
     slate_date: Date,
@@ -179,10 +195,12 @@ def _generate_card(
     """
     cards = build_cards(recs)
     screen = funnel_report.build(recs, cfg.ev)
-    md = render_markdown(cards, slate_date, funnel=screen, thr=cfg.ev)
+    watching = _watchlist(cfg, slate_date)
+    md = render_markdown(cards, slate_date, funnel=screen, thr=cfg.ev, watching=watching)
     vsin_games, vsin_rest = _vsin_sections(cfg, slate_date, [c.matchup for c in cards])
     html_body = render_html(
-        cards, slate_date, funnel=screen, thr=cfg.ev, vsin=vsin_rest, vsin_games=vsin_games
+        cards, slate_date, funnel=screen, thr=cfg.ev, vsin=vsin_rest, vsin_games=vsin_games,
+        watching=watching,
     )
     md_path = cfg.output_dir / f"card_{slate_date.isoformat()}.md"
     html_path = cfg.output_dir / f"card_{slate_date.isoformat()}.html"
