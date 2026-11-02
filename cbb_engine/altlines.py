@@ -28,6 +28,8 @@ from engine_runtime.odds_client import OddsClient
 
 PROVIDERS: tuple[str, ...] = ("alternate_spreads", "alternate_totals")
 ALT: dict[str, str] = {"game_ats_alt": "game_ats", "game_total_alt": "game_total"}
+#: Points either side of the main number read: three on a spread, four on a total.
+SPREAD_WINDOW, TOTAL_WINDOW = 3.0, 4.0
 FIELDS = ["date", "event_id", "market", "side", "main_line", "alt_line", "favour", "bought", "book", "american", "result", "pnl"]
 
 
@@ -163,17 +165,21 @@ def alts(path: Path, until: str | None = None) -> list[rt.Alt]:
         return []
     with path.open(newline="", encoding="utf-8") as fh:
         rows = [r for r in csv.DictReader(fh) if until is None or r["date"] <= until]
-    return [
-        rt.Alt(
-            game=r["event_id"],
-            kind="spread" if r["market"] == "game_ats_alt" else "total",
-            favour=float(r["favour"]),
-            beside_buy=r["bought"] == "True",
-            outcome=r["result"],
-            pnl=float(r["pnl"]),
-        )
-        for r in rows
-    ]
+    return rt.within(
+        (
+            rt.Alt(
+                game=r["event_id"],
+                kind="spread" if r["market"] == "game_ats_alt" else "total",
+                favour=float(r["favour"]),
+                beside_buy=r["bought"] == "True",
+                outcome=r["result"],
+                pnl=float(r["pnl"]),
+            )
+            for r in rows
+        ),
+        SPREAD_WINDOW,
+        TOTAL_WINDOW,
+    )
 
 
 __all__ = ["ALT", "PROVIDERS", "alts", "capture_for", "daily_cost", "favour", "grade", "save_day", "tracked"]

@@ -19,7 +19,8 @@ T = TypeVar("T")
 HEAD = ["cut", "games", "n", "W-L-P", "units", "ROI", "± SE (by game)"]
 NOTE = (
     "Alternate numbers on the same side as the main line, one price per game, side and number "
-    "(the best execution-book price). Bought = more points for the side (worse price); sold = fewer "
+    "(the best execution-book price), only within the engine's window of the main number (a few points "
+    "either way; farther rungs are long shots or near-locks that say nothing about which number to take). Bought = more points for the side (worse price); sold = fewer "
     "(better price). Graded only, never bought. Rows in one game move together, so judge by games, "
     "not n; a cut needs ~150 games and 2 SE before it says anything."
 )
@@ -34,6 +35,11 @@ class Alt:
     beside_buy: bool  # the engine bought this side on the main line
     outcome: str  # win | loss | push
     pnl: float  # 1u flat
+
+
+def within(alts: Iterable[Alt], spread: float, total: float) -> list[Alt]:
+    """Only the rungs at most ``spread`` (or ``total``) points either side of the main number."""
+    return [a for a in alts if abs(a.favour) <= (spread if a.kind == "spread" else total) + 1e-9]
 
 
 def bucket(pts: float) -> str:
@@ -103,4 +109,4 @@ def best_price(rows: Iterable[tuple[tuple[object, ...], float, T]]) -> list[T]:
     return [v[1] for v in best.values()]
 
 
-__all__ = ["HEAD", "NOTE", "Alt", "best_price", "bucket", "table", "text"]
+__all__ = ["HEAD", "NOTE", "Alt", "best_price", "bucket", "table", "text", "within"]

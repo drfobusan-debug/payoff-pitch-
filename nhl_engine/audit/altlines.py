@@ -15,6 +15,8 @@ from nhl_engine.audit.ledger import LedgerRow
 from nhl_engine.market.board import EXEC_BOOKS
 
 ALT: dict[str, str] = {"game_pl_alt": "game_pl", "game_total_alt": "game_total"}
+#: One goal either side of the main puck line or total; past that is a long shot or a near-lock.
+SPREAD_WINDOW, TOTAL_WINDOW = 1.0, 1.0
 
 
 def main_lines(rows: Iterable[LedgerRow]) -> dict[tuple[str, str, str], float]:
@@ -68,7 +70,7 @@ def alts(rows: Iterable[LedgerRow]) -> list[rt.Alt]:
                 pnl=r.pnl or 0.0,
             )
         )
-    return out
+    return rt.within(out, SPREAD_WINDOW, TOTAL_WINDOW)
 
 
 __all__ = ["ALT", "alts", "favour", "main_lines"]
