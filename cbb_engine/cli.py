@@ -347,7 +347,10 @@ def cmd_audit(args: argparse.Namespace) -> int:
     root = runtime_root()
     state.auto_pull(trees=("quotes", "ledger"))
     games = espn.ESPNClient().scoreboard(day, archive=data_dir()) if not args.offline else []
-    teams = _manifest_teams(root, day)
+    # Games tipping today were priced on earlier cards too; their manifests name the teams.
+    teams: dict[str, tuple[str, str]] = {}
+    for back in range(audit.LOOKBACK_DAYS, -1, -1):
+        teams.update(_manifest_teams(root, day - timedelta(days=back)))
     ps = runner.start(SPORT, day.isoformat(), "board", root)
     written = audit.grade(root, day.isoformat(), games, teams, pass_id=ps.pass_id, width=dist.load_width(), margin=mg.load())
     if written:
