@@ -21,6 +21,9 @@ from datetime import date as Date
 
 from mlb_engine.audit.funnel import Funnel, clock_note, gate_label, geometry_note
 from mlb_engine.audit.funnel import markdown as funnel_markdown
+from mlb_engine.audit.watchlist import Watchlist
+from mlb_engine.audit.watchlist import html_block as watch_html
+from mlb_engine.audit.watchlist import markdown as watch_markdown
 from mlb_engine.config import EVThresholds
 from mlb_engine.features.lineup_lock import DEFAULT_STALE_HOURS
 from mlb_engine.market.odds import american_to_prob
@@ -405,6 +408,7 @@ def render_markdown(
     *,
     funnel: Funnel | None = None,
     thr: EVThresholds | None = None,
+    watching: Watchlist | None = None,
 ) -> str:
     lines = [
         f"# PayoffPitch — Betting Card for {slate_date.isoformat()}",
@@ -435,6 +439,8 @@ def render_markdown(
     # board went unquoted, paid nothing, or was refused, or it reads as a bug.
     if funnel is not None:
         lines += ["", *funnel_markdown(funnel, thr)]
+    if watching is not None:
+        lines += ["", *watch_markdown(watching)]
     return "\n".join(lines)
 
 
@@ -482,6 +488,7 @@ def render_html(
     thr: EVThresholds | None = None,
     vsin: str = "",
     vsin_games: Mapping[str, str] | None = None,
+    watching: Watchlist | None = None,
 ) -> str:
     blocks = [
         "<h1>PayoffPitch — Betting Card for "
@@ -510,6 +517,8 @@ def render_html(
         blocks.append(vsin)
     if funnel is not None:
         blocks.append(_funnel_html(funnel, thr))
+    if watching is not None:
+        blocks.append(watch_html(watching))
     style = (
         "body{font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;"
         "max-width:760px;margin:24px auto;padding:0 18px;color:#1a1a1a;line-height:1.55}"

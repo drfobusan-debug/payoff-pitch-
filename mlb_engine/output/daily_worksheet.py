@@ -72,6 +72,11 @@ SP_MIN_IP, SP_MIN_PITCHES_SEASON = 20.0, 300
 # Weighted total: the starter pitches ~40% of a game's defensive innings, the pen
 # ~20%, and the lineup is the other side of both. Batting is counted once, on
 # the split vs the opposing starter's hand.
+# Frozen for 2027. The 2026 rows finished at the market (159 priced: 56.6% won
+# vs 55.5% implied, z=+0.28) and no gap band separated winners, so the weights
+# are judged unchanged at ~165 priced games rather than retuned in spring; a
+# change restarts that count (rows are graded only under their own version).
+# tests/test_mlb_watchlist.py pins them.
 WEIGHTS = {"bat vs hand": 1.0, "bp": 1.5, "sp": 1.0}
 WEIGHTS_VERSION = "w1-1.5-1-dec-spz-bpz"
 N_DECILES = 10
