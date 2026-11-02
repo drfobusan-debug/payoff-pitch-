@@ -25,3 +25,20 @@ def legacy_anchor(monkeypatch: pytest.MonkeyPatch) -> None:
     for market in _config._MARKET_ANCHOR_BY_MARKET:
         weight = "0.0" if market.endswith("_total") else "0.3"
         monkeypatch.setenv(f"MLBE_MARKET_ANCHOR_{market.upper()}", weight)
+
+
+@pytest.fixture(autouse=True)
+def _best_of_every_book(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Fixtures quote made-up books ("dk", "fd"), none of them an execution book,
+    so under the shipped ``MLBE_EXEC_BOOKS`` every buy would be refused. They
+    price best-of-every-book as before; the execution rule has its own tests in
+    ``test_mlb_timely_close.py``."""
+    monkeypatch.setenv("MLBE_EXEC_BOOKS", "")
+
+
+@pytest.fixture(autouse=True)
+def _buys_enabled(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Every MLB market ships graded-only, which would turn each buy-flipping
+    screen test into a graded-only test. Those tests opt back in to buying; the
+    graded-only default has its own tests in ``test_mlb_graded_only.py``."""
+    monkeypatch.setenv("MLBE_GRADED_ONLY_MARKETS", "")

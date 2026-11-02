@@ -126,7 +126,7 @@ def _entry(sel="Over 8.5", market="game_total", odds=-110.0, fair=0.5, matchup="
 def test_close_is_consensus_at_last_pregame_capture() -> None:
     early = _rows([_cap(am=-150, opp=130)], tape.CLOSE, T1 - timedelta(hours=3))
     late = _rows([_cap(book=b, am=-120, opp=100) for b in ("dk", "fd", "mgm")],
-                 tape.CLOSE, T1 - timedelta(hours=1))
+                 tape.CLOSE, T1 - timedelta(minutes=30))
     inplay = _rows([_cap(am=-400, opp=300)], tape.CLOSE, T1 + timedelta(hours=1))
     tc = clv.close_from_tape(early + late + inplay)
     want = clv.evaluate(0.5, [r.quote() for r in late]).fair_prob
@@ -135,17 +135,17 @@ def test_close_is_consensus_at_last_pregame_capture() -> None:
 
 
 def test_close_falls_back_to_run_then_no_pregame() -> None:
-    run = _rows([_cap(am=-120, opp=100)], tape.RUN, T1 - timedelta(hours=4))
+    run = _rows([_cap(am=-120, opp=100)], tape.RUN, T1 - timedelta(minutes=40))
     inplay = _rows([_cap(am=-400, opp=300)], tape.CLOSE, T1 + timedelta(hours=1))
     assert clv.close_from_tape(run + inplay).quote is not None
     assert clv.close_from_tape(inplay).reason == clv.NO_PREGAME
-    one_sided = _rows([_cap(opp=None)], tape.CLOSE, T1 - timedelta(hours=1))
+    one_sided = _rows([_cap(opp=None)], tape.CLOSE, T1 - timedelta(minutes=30))
     assert clv.close_from_tape(one_sided).reason == clv.NO_PAIR
 
 
 def test_overround_logs_until_band_then_drops_pair() -> None:
     rows = _rows([_cap(book="dk", am=-110, opp=-110), _cap(book="junk", am=-200, opp=-200)],
-                 tape.CLOSE, T1 - timedelta(hours=1))
+                 tape.CLOSE, T1 - timedelta(minutes=30))
     assert clv.close_from_tape(rows, band=None).reason is None
     kept = clv.close_from_tape(rows, band=(-0.01, 0.15))
     assert kept.reason is None and kept.quote is not None
@@ -155,7 +155,8 @@ def test_overround_logs_until_band_then_drops_pair() -> None:
 
 
 def _closing(sel, am, prob, market="game_total", matchup="LAD @ MIL"):
-    q = clv.ClosingQuote(matchup, market, sel, am, prob)
+    q = clv.ClosingQuote(matchup, market, sel, am, prob,
+                         (T1 - timedelta(minutes=30)).isoformat(), T1.isoformat())
     return {q.key: q}
 
 
@@ -193,7 +194,7 @@ def test_unjudged_stays_blank_and_precedence() -> None:
 
 
 def test_join_rule_one_event_vs_doubleheader() -> None:
-    now = T1 - timedelta(hours=1)
+    now = T1 - timedelta(minutes=30)
     one = _rows([_cap(eid="g1", am=-120, opp=100)], tape.CLOSE, now)
     two = one + _rows([_cap(eid="g2", am=-130, opp=110)], tape.CLOSE, now)
     a, b = _entry(fair=0.52), _entry(fair=0.52)

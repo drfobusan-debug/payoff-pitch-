@@ -2,9 +2,9 @@
 
 Automated daily MLB game & prop prediction engine with EV-based buy tiers and a
 nightly self-audit. Pulls the daily slate, builds probabilistic projections from
-rolling Statcast/FanGraphs windows, layers weather + regression + travel/rest
-filters, prices every market against the book, and exports Strong / Moderate /
-Pass recommendations to Excel — with one click from a desktop shortcut.
+rolling Statcast/FanGraphs windows, layers weather + regression filters, prices
+every market against the book, and exports Strong / Moderate / Pass
+recommendations to Excel — with one click from a desktop shortcut.
 
 ## What it produces
 
@@ -34,7 +34,8 @@ book (and VSIN handle/bets divergence when provided).
      FanGraphs **Stuff+ / Location+** when a subscription feed is supplied.
 4. **Weather filter** — Open-Meteo temp/humidity/wind projected onto each park's
    home-plate→CF orientation (roof-aware).
-5. **Travel/rest filter** — rest days, travel miles, time-zone shift penalties.
+5. **Travel/rest** — no longer priced: 2023–2026 closes showed no travel or
+   time-zone effect the market misses. Schedule context is monitored instead.
 6. **First-5 model** — non-stationary Markov base-out chain driven by per-lineup-slot
    L/R-split rates, with a times-through-order (TTO) fatigue adjustment.
 7. **Full game + props** — Monte Carlo simulation (starter→bullpen, base running,

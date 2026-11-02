@@ -117,7 +117,8 @@ def test_the_window_moves_with_the_staleness_setting(monkeypatch) -> None:
 
 # ---- the gate inside the pipeline -----------------------------------------
 def test_an_early_buy_is_passed_and_attributed_to_the_clock() -> None:
-    p = _pipeline()
+    # Posted-lineups-only would claim a projected row first; this is the clock's test.
+    p = _pipeline(LineupLockGate(posted_only=False))
     p._lineup_lock = p._lineup_gate.read(projected=True, hours=8.0)
     rec = _rec(p)
     assert rec.tier is Tier.PASS

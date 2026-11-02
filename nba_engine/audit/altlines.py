@@ -18,7 +18,8 @@ from nba_engine.audit.ledger import LedgerRow
 from nba_engine.market.board import EXEC_BOOKS
 
 ALT: dict[str, str] = {"alt_ats": "game_ats", "alt_total": "game_total"}
-MAX_BUCKET = 7
+#: Points either side of the main number read: three on a spread, four on a total.
+SPREAD_WINDOW, TOTAL_WINDOW = 3.0, 4.0
 
 Row = tuple[str, int, int, int, int, float, float]  # label, n, W, L, P, units, ROI
 
@@ -65,8 +66,7 @@ def favour(r: LedgerRow, m: float | None) -> float | None:
 
 
 def _bucket(pts: float) -> str:
-    b = math.ceil(pts - 1e-9)
-    return f"{MAX_BUCKET}+" if b >= MAX_BUCKET else str(b)
+    return str(math.ceil(pts - 1e-9))
 
 
 def report(rows: Iterable[LedgerRow], passes: Iterable[LedgerRow] = ()) -> list[Row]:
@@ -84,7 +84,7 @@ def report(rows: Iterable[LedgerRow], passes: Iterable[LedgerRow] = ()) -> list[
             continue
         base = ALT[r.market]
         f = favour(r, at_pass.get((r.event_id, base, r.pass_tag), main.get((r.event_id, base))))
-        if not f:
+        if not f or abs(f) > (SPREAD_WINDOW if r.market == "alt_ats" else TOTAL_WINDOW):
             continue
         way = "bought" if f > 0 else "sold"
         groups[f"{r.market} {way} (all)"].append(r)
@@ -138,7 +138,7 @@ def alts(rows: Iterable[LedgerRow]) -> list[rt.Alt]:
                 pnl=r.pnl or 0.0,
             )
         )
-    return out
+    return rt.within(out, SPREAD_WINDOW, TOTAL_WINDOW)
 
 
 __all__ = ["ALT", "alts", "favour", "main_lines", "report"]

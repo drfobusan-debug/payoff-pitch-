@@ -13,8 +13,10 @@ Each rung is also priced by the engine: the main-line probability the card bet
 at, moved along the sim's normal margin (or total) to the alternate number, so
 the market owns the main line and the sim owns the shape around it. A rung
 whose edge over that book's two-way no-vig price passes the same EV and edge
-bars as a main-line buy is ``flagged``; the flagged rungs are the graded-only
-screen for which number to take.
+bars as a main-line buy, and whose edge beats the main line's own, is a
+candidate; the best candidate per game and side is ``flagged``. That is the
+graded-only answer to which number to take instead of the main one. Only rungs
+within ``WINDOW`` points of the main number are graded.
 """
 
 from __future__ import annotations
@@ -36,6 +38,8 @@ from engine_runtime import altlines as rt
 
 ALT_MARKETS = ("alternate_spreads", "alternate_totals")
 _MARKET = {"alternate_spreads": "game_ats", "alternate_totals": "game_total"}
+#: Points either side of the main number graded: a spread window that crosses the 3.
+WINDOW = 3.5
 
 
 def tracked(market: str, tier: str, pass_gate: str | None) -> bool:
@@ -121,7 +125,7 @@ class AltRow:
     #: The book's two-way no-vig probability at that number, when it posted the other side.
     fair_prob: float | None = None
     edge: float | None = None
-    #: The rung passes the main-line buy bars (EV and edge) at its own price.
+    #: The game's best rung that passes the main-line buy bars and beats the main line's edge.
     flagged: bool = False
 
 
@@ -188,11 +192,13 @@ def grade(
     mean: float | None = None,
     sd: float | None = None,
     thr: EVThresholds | None = None,
+    main_edge: float | None = None,
 ) -> list[AltRow]:
-    """Every alternate number on our side from the first capture, at its best price.
+    """Every alternate number on our side within ``WINDOW``, from the first capture, at its best price.
 
-    With the card's ``p_main`` and the sim's ``mean``/``sd`` each rung is priced
-    and, under ``thr``, flagged when it clears the main-line buy bars.
+    With the card's ``p_main`` and the sim's ``mean``/``sd`` each rung is priced;
+    under ``thr`` the rung with the biggest edge among those that clear the
+    main-line buy bars and beat ``main_edge`` is flagged.
     """
     pregame = [
         r
@@ -218,11 +224,11 @@ def grade(
     out = []
     for point, r in sorted(best.items()):
         f = favour(market, side, main_line, point)
-        if f == 0:
+        if f == 0 or abs(f) > WINDOW:
             continue
         res = outcome(market, side, point, home_pts, away_pts)
         p_eng = fair = edge = None
-        flagged = False
+        candidate = False
         if p_main is not None and mean is not None and sd:
             p_eng = engine_prob(market, side, main_line, point, p_main, mean, sd)
             opp = other.get((r["book"], *_opposite(market, side, point)))
@@ -230,8 +236,10 @@ def grade(
                 fair = no_vig_two_way(r["american"], opp)[0]
                 edge = p_eng - fair
                 ev = p_eng * american_to_decimal(r["american"]) - 1.0
-                if thr is not None:
-                    flagged = ev > thr.min_ev and thr.min_edge <= edge <= thr.max_edge
+                if thr is not None and main_edge is not None:
+                    candidate = (
+                        ev > thr.min_ev and thr.min_edge <= edge <= thr.max_edge and edge > main_edge
+                    )
         out.append(
             AltRow(
                 date,
@@ -250,9 +258,14 @@ def grade(
                 None if p_eng is None else round(p_eng, 4),
                 None if fair is None else round(fair, 4),
                 None if edge is None else round(edge, 4),
-                flagged,
+                candidate,
             )
         )
+    picks = [a for a in out if a.flagged]
+    if picks:
+        top = max(picks, key=lambda a: a.edge or 0.0)
+        for a in picks:
+            a.flagged = a is top
     return out
 
 
@@ -279,13 +292,16 @@ def report(path: Path) -> list[tuple[str, int, int, int, float, float]]:
     if not path.exists():
         return []
     with path.open(newline="", encoding="utf-8") as fh:
-        rows = [r for r in csv.DictReader(fh) if r["result"] in ("win", "loss", "push")]
+        rows = [
+            r
+            for r in csv.DictReader(fh)
+            if r["result"] in ("win", "loss", "push") and abs(float(r["favour"])) <= WINDOW
+        ]
     groups: dict[str, list[dict]] = defaultdict(list)
     for r in rows:
         f = float(r["favour"])
         way = "bought" if f > 0 else "sold"
-        size = min(abs(f), 7.0)
-        groups[f"{r['market']} {way} {size:g}{'+' if size == 7.0 else ''} pts"].append(r)
+        groups[f"{r['market']} {way} {abs(f):g} pts"].append(r)
         groups[f"{r['market']} {way} (all)"].append(r)
         if r.get("flagged") == "True":
             groups[f"{r['market']} {way} engine-flagged"].append(r)
@@ -315,7 +331,9 @@ def alts(path: Path, *, flagged_only: bool = False) -> list[rt.Alt]:
         rows = [
             r
             for r in csv.DictReader(fh)
-            if r["result"] in ("win", "loss", "push") and (not flagged_only or r.get("flagged") == "True")
+            if r["result"] in ("win", "loss", "push")
+            and abs(float(r["favour"])) <= WINDOW
+            and (not flagged_only or r.get("flagged") == "True")
         ]
     return [
         rt.Alt(

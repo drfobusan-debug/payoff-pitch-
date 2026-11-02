@@ -13,8 +13,8 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from engine_common.podcasts.picks import load_ledger as load_podcast_ledger
+from mlb_engine.audit import closetest, histograms, reaction, tape, watchlist
 from mlb_engine.audit import funnel as funnel_report
-from mlb_engine.audit import histograms, reaction, tape
 from mlb_engine.audit.analysis import (
     dog_vs_favorite,
     price_bucket_findings,
@@ -23,6 +23,7 @@ from mlb_engine.audit.analysis import (
 )
 from mlb_engine.audit.clv import (
     attach_clv,
+    close_due,
     closing_quotes,
     clv_rows,
     judged_line,
@@ -163,6 +164,22 @@ def _write_quotes_template(recs, path: Path) -> None:
             w.writerow([r.matchup, r.market, r.selection, "draftkings", "", "", ""])
 
 
+def _watchlist(cfg: Config, slate_date: Date) -> watchlist.Watchlist | None:
+    """The card's "What we're watching" block; a failure drops the block, never the card."""
+    from mlb_engine.output.daily_worksheet import WEIGHTS_VERSION
+
+    try:
+        schedule = watchlist.fetch_schedule(MLBStatsClient()._get, slate_date.year, cfg.audit_dir)
+    except Exception as exc:  # noqa: BLE001 - the schedule bands just read nothing
+        logging.getLogger(__name__).warning("watchlist: no schedule (%s)", exc)
+        schedule = []
+    try:
+        return watchlist.build(cfg.audit_dir, schedule, WEIGHTS_VERSION)
+    except Exception as exc:  # noqa: BLE001
+        logging.getLogger(__name__).warning("watchlist not built (%s); card goes without it", exc)
+        return None
+
+
 def _generate_card(
     recs: list[Recommendation],
     slate_date: Date,
@@ -179,10 +196,12 @@ def _generate_card(
     """
     cards = build_cards(recs)
     screen = funnel_report.build(recs, cfg.ev)
-    md = render_markdown(cards, slate_date, funnel=screen, thr=cfg.ev)
+    watching = _watchlist(cfg, slate_date)
+    md = render_markdown(cards, slate_date, funnel=screen, thr=cfg.ev, watching=watching)
     vsin_games, vsin_rest = _vsin_sections(cfg, slate_date, [c.matchup for c in cards])
     html_body = render_html(
-        cards, slate_date, funnel=screen, thr=cfg.ev, vsin=vsin_rest, vsin_games=vsin_games
+        cards, slate_date, funnel=screen, thr=cfg.ev, vsin=vsin_rest, vsin_games=vsin_games,
+        watching=watching,
     )
     md_path = cfg.output_dir / f"card_{slate_date.isoformat()}.md"
     html_path = cfg.output_dir / f"card_{slate_date.isoformat()}.html"
@@ -819,6 +838,11 @@ def _state_push(cfg: Config, message: str) -> None:
 def cmd_close(args: argparse.Namespace) -> int:
     """Snapshot the closing market so the next audit can score closing line value.
 
+    ``--within 45`` is the per-game close the Mac runs every 15 minutes: only
+    games starting inside the window that have no close stamped in it are
+    fetched, so each game is captured once, 30-45 minutes before first pitch.
+    CLV is scored only on such closes (``audit.clv.timely_close``).
+
     Run this as late as possible before a game starts: the closing price is the
     sharpest forecast available, and beating it is the only fast evidence that a
     pick was good. Cheap by design -- one bulk request for the game markets, and
@@ -840,6 +864,23 @@ def cmd_close(args: argparse.Namespace) -> int:
     _state_pull(cfg, slate_date)
     slate = MLBStatsClient().get_slate(slate_date)
     _record_lineups(cfg, slate, slate_date)
+    path = _closing_path(cfg, slate_date)
+    within = getattr(args, "within", None)
+    if within is not None:
+        # First pitches come from StatsAPI (free): no Odds API call unless a
+        # game is inside the window without a close stamped in it.
+        games = [(g.matchup(), g.game_datetime_utc or "") for g in slate.games]
+        due = set(close_due(games, load_closing(path), datetime.now(timezone.utc), within))
+        if not due:
+            print(f"No game starts within {within:g} min without a close; nothing fetched")
+            return 0
+        slate = Slate(
+            slate_date=slate.slate_date,
+            games=[g for g in slate.games if (g.matchup(), g.game_datetime_utc or "") in due],
+        )
+        print(f"Closing {len(due)} game(s): {', '.join(sorted(m for m, _ in due))}")
+    first_pitch = {g.matchup(): g.game_datetime_utc or "" for g in slate.games}
+    captured_at = datetime.now(timezone.utc).isoformat()
     quotes = client.fetch(slate, include_props=not args.game_only, pregame_only=True)
     if not quotes:
         print(
@@ -854,9 +895,8 @@ def cmd_close(args: argparse.Namespace) -> int:
         )
     except OSError as exc:
         logging.getLogger(__name__).warning("quote tape for %s unavailable (%s); close unaffected", slate_date, exc)
-    path = _closing_path(cfg, slate_date)
     already = load_closing(path)
-    fresh = closing_quotes(quotes)
+    fresh = closing_quotes(quotes, captured_at=captured_at, first_pitch=first_pitch)
     closing = merge_closing(already, fresh)
     save_closing(path, closing)
     markets = len({q.market for q in closing})
@@ -1218,6 +1258,25 @@ def _grade_vsin(cfg: Config, day: Date, results: dict[int, GameResult]) -> None:
     print(vsin_bets.render_text(ledger), end="")
 
 
+def cmd_promotion(args: argparse.Namespace) -> int:
+    """Print the close test and the graduation bar from the ledger. Display only."""
+    cfg = load_config()
+    path = Path(args.ledger) if args.ledger else cfg.audit_dir / "ledger.csv"
+    entries = [
+        e for e in load_ledger(path)
+        if (not args.since or e.date >= args.since) and (not args.until or e.date <= args.until)
+    ]
+    if not entries:
+        print(f"No ledger rows in {path} for that window")
+        return 1
+    print(f"Close test, {path} ({min(e.date for e in entries)} .. {max(e.date for e in entries)}):")
+    print("  (result - close) = b * (model - close); |b| <= 1 SE keeps a market graded-only")
+    print("\n".join(closetest.close_test_lines(closetest.close_fits(entries))))
+    print("Graduation (volume, margin, both halves, EV at a clean close):")
+    print("\n".join(closetest.graduation_lines(closetest.graduation(entries))))
+    return 0
+
+
 def cmd_audit(args: argparse.Namespace) -> int:
     cfg = load_config()
     cfg.ensure_dirs()
@@ -1309,6 +1368,8 @@ def cmd_audit(args: argparse.Namespace) -> int:
     # CLV is an exact negation and counting both drives every market's mean to
     # zero and "beat the close" to 50% arithmetically.
     clv_summary = summarize(clv_rows(measured))
+    print("Graduation (display only; a market is bought only once it meets the bar):")
+    print("\n".join(closetest.graduation_lines(closetest.graduation(all_entries))))
     engine = engine_metrics(measured)
     overall = [engine, *overall_metrics(measured)]
     daily_engine = daily_engine_metrics(measured)
@@ -1890,6 +1951,13 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="skip per-event F5/prop markets: 3 credits for the whole slate",
     )
+    cl.add_argument(
+        "--within",
+        type=float,
+        metavar="MIN",
+        help="fetch only the games starting within MIN minutes with no close yet "
+        "(the per-game close; CLV is scored only on closes taken inside 45 min)",
+    )
     cl.set_defaults(func=cmd_close)
 
     sh = sub.add_parser(
@@ -1968,6 +2036,15 @@ def main(argv: list[str] | None = None) -> int:
     )
     a.add_argument("--to", help="email recipient (default: MLBE_EMAIL_TO)")
     a.set_defaults(func=cmd_audit)
+
+    pr = sub.add_parser(
+        "promotion",
+        help="close test + graduation bar per market from the ledger (display only, no network)",
+    )
+    pr.add_argument("--ledger", help="ledger CSV (default: the audit ledger)")
+    pr.add_argument("--since", help="first slate date YYYY-MM-DD")
+    pr.add_argument("--until", help="last slate date YYYY-MM-DD")
+    pr.set_defaults(func=cmd_promotion)
 
     rp = sub.add_parser("report", help="render a daily/weekly audit report from the ledger")
     rp.add_argument("--period", choices=("daily", "weekly"), default="daily", help="report window")

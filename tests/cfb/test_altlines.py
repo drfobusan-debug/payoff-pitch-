@@ -219,30 +219,46 @@ def _priced_rows() -> list[dict]:
         return {"matchup": "A @ H", "captured_at": T0, "market": "game_ats", "side": side,
                 "point": point, "book": "draftkings", "american": price}
 
-    return [q("away", 3.5, 150), q("home", -3.5, -180), q("away", 10.5, -250), q("home", -10.5, 200)]
+    return [
+        q("away", 4.5, 150), q("home", -4.5, -180),
+        q("away", 5.5, 130), q("home", -5.5, -155),
+        q("away", 10.5, -250), q("home", -10.5, 200),
+        q("away", 0.5, 300), q("home", -0.5, -400),
+    ]
 
 
-def test_the_engine_prices_each_rung_off_the_main_line_and_flags_the_buys(tmp_path: Path) -> None:
-    import pytest
-
+def _engine_graded(main_edge: float) -> list[altlines.AltRow]:
     from cfb_engine.config import EVThresholds
 
-    assert altlines.side_prob("game_ats", "away", 31.5, 29.05, 15.97) == pytest.approx(0.561, abs=0.002)
-    graded = altlines.grade(
+    return altlines.grade(
         date="2026-10-24", matchup="A @ H", market="game_ats", selection="A +7.5", main_line=7.5,
         tier="Strong buy", side="away", home_pts=24, away_pts=20, rows=_priced_rows(),
-        p_main=0.56, mean=6.0, sd=16.0, thr=EVThresholds(min_ev=0.0, min_edge=0.02, max_edge=0.08),
+        p_main=0.56, mean=6.0, sd=16.0, thr=EVThresholds(min_ev=0.0, min_edge=0.02, max_edge=0.15),
+        main_edge=main_edge,
     )
+
+
+def test_the_engine_flags_the_one_rung_that_beats_the_main_line(tmp_path: Path) -> None:
+    import pytest
+
+    assert altlines.side_prob("game_ats", "away", 31.5, 29.05, 15.97) == pytest.approx(0.561, abs=0.002)
+    graded = _engine_graded(main_edge=0.03)
     by = {r.alt_line: r for r in graded}
-    sold, bought = by[3.5], by[10.5]
-    assert sold.favour == -4.0 and sold.p_engine == pytest.approx(0.461, abs=0.003)
-    assert sold.fair_prob == pytest.approx(0.3836, abs=0.001) and sold.flagged
+    assert 0.5 not in by  # 7 points sold: outside the window
+    sold3, sold2, bought = by[4.5], by[5.5], by[10.5]
+    assert sold3.favour == -3.0 and sold3.p_engine == pytest.approx(0.485, abs=0.003)
+    assert sold3.fair_prob == pytest.approx(0.3836, abs=0.001) and sold3.flagged
+    assert sold2.edge is not None and sold2.edge > 0.03 and not sold2.flagged  # a candidate, not the best
     assert bought.edge is not None and bought.edge < 0 and not bought.flagged
     path = tmp_path / "alt_ledger.csv"
     altlines.save_day(path, "2026-10-24", graded)
     labels = {r[0] for r in altlines.report(path)}
     assert "game_ats sold engine-flagged" in labels and "game_ats bought engine-flagged" not in labels
-    assert [a.favour for a in altlines.alts(path, flagged_only=True)] == [-4.0]
+    assert [a.favour for a in altlines.alts(path, flagged_only=True)] == [-3.0]
+
+
+def test_no_rung_is_flagged_when_none_beats_the_main_line() -> None:
+    assert not any(r.flagged for r in _engine_graded(main_edge=0.12))
 
 
 def test_rows_without_the_sim_stay_unpriced() -> None:

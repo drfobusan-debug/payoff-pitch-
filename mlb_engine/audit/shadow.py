@@ -85,7 +85,8 @@ def _write_ledger(
 
 
 def _fair(rows: list[TapeRow]) -> tuple[float | None, float | None, str]:
-    tc = close_from_tape(rows)
+    # The pin wants the latest pregame market at any lead, not the timely close.
+    tc = close_from_tape(rows, max_hours=None)
     if tc.quote is None:
         return None, None, tc.reason or NO_MARKET
     return tc.quote.no_vig_prob, tc.quote.american, ""

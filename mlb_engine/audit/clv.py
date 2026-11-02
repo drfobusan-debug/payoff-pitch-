@@ -27,6 +27,7 @@ import json
 import logging
 from dataclasses import dataclass
 from datetime import date as Date
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from mlb_engine.audit.ledger import LedgerEntry
@@ -54,6 +55,10 @@ class ClosingQuote:
     selection: str
     american: float  # best available price at the close
     no_vig_prob: float  # book-weighted consensus, vig removed where possible
+    # When the quote was taken and when its game starts, both UTC ISO. CLV is
+    # scored only on a quote taken inside ``STALE_CLOSE_MIN`` of first pitch.
+    captured_at: str = ""
+    first_pitch_utc: str = ""
 
     @property
     def key(self) -> str:
@@ -62,6 +67,9 @@ class ClosingQuote:
 
 def closing_quotes(
     quotes: dict[tuple[str, str, str], list[MarketQuote]],
+    *,
+    captured_at: str = "",
+    first_pitch: dict[str, str] | None = None,
 ) -> list[ClosingQuote]:
     """Collapse a fetched odds board into one closing quote per selection.
 
@@ -80,6 +88,8 @@ def closing_quotes(
                 selection=selection,
                 american=res.best_quote.american,
                 no_vig_prob=round(res.fair_prob, 6),
+                captured_at=captured_at,
+                first_pitch_utc=(first_pitch or {}).get(matchup, ""),
             )
         )
     return out
@@ -126,6 +136,8 @@ def save_closing(path: Path, quotes: list[ClosingQuote]) -> None:
             "selection": q.selection,
             "american": q.american,
             "no_vig_prob": q.no_vig_prob,
+            "captured_at": q.captured_at,
+            "first_pitch_utc": q.first_pitch_utc,
         }
         for q in quotes
     ]
@@ -144,6 +156,8 @@ def load_closing(path: Path) -> dict[str, ClosingQuote]:
             selection=str(row["selection"]),
             american=float(row["american"]),
             no_vig_prob=float(row["no_vig_prob"]),
+            captured_at=str(row.get("captured_at") or ""),
+            first_pitch_utc=str(row.get("first_pitch_utc") or ""),
         )
         out[q.key] = q
     return out
@@ -200,6 +214,9 @@ def clv_ev(bet_american: float, close_prob: float) -> float:
 # Quarantine reason codes, in precedence order: the first that holds wins.
 IMPLAUSIBLE = "implausible"
 NO_PREGAME = "no_pregame"
+# Pregame, but taken more than STALE_CLOSE_MIN before first pitch (or with no
+# stamp at all): a fixed-time snapshot hours early is not the close.
+STALE_CLOSE = "stale_close"
 NO_PAIR = "no_pair"
 EVENT_MISMATCH = "event_mismatch"
 OVERROUND = "overround"
@@ -209,9 +226,61 @@ MOVE_GT_15PP = "move_gt_15pp"
 # out of the CLV means under its own code until that pair is investigated.
 HR_PROP = "hr_prop"
 QUARANTINE_ORDER = (
-    IMPLAUSIBLE, NO_PREGAME, NO_PAIR, EVENT_MISMATCH, OVERROUND, HR_PROP, MOVE_GT_15PP
+    IMPLAUSIBLE, NO_PREGAME, STALE_CLOSE, NO_PAIR, EVENT_MISMATCH, OVERROUND, HR_PROP, MOVE_GT_15PP
 )
 CLEAN = "clean"
+# The per-game close is taken inside this many minutes of first pitch; CFB,
+# NHL and NBA use the same 45. Anything earlier is a stale close.
+STALE_CLOSE_MIN = 45.0
+
+
+def _utc(stamp: str | None) -> datetime | None:
+    if not stamp:
+        return None
+    try:
+        t = datetime.fromisoformat(stamp.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return (t if t.tzinfo else t.replace(tzinfo=timezone.utc)).astimezone(timezone.utc)
+
+
+def timely_close(q: ClosingQuote) -> bool:
+    """Taken before first pitch and no more than ``STALE_CLOSE_MIN`` ahead of it.
+
+    An unstamped quote (every close written before the per-game close) cannot
+    show when it was taken, so it is not a close.
+    """
+    seen, start = _utc(q.captured_at), _utc(q.first_pitch_utc)
+    if seen is None or start is None:
+        return False
+    return timedelta(0) < start - seen <= timedelta(minutes=STALE_CLOSE_MIN)
+
+
+def close_due(
+    games: list[tuple[str, str]],
+    closing: dict[str, ClosingQuote],
+    now: datetime,
+    within_min: float,
+) -> list[tuple[str, str]]:
+    """The ``(matchup, first_pitch_utc)`` games starting within ``within_min``
+    that have no quote stamped inside that window yet.
+
+    Games, not matchups: game two of a doubleheader is due again even though
+    game one's close is on file under the same matchup.
+    """
+    out = []
+    for matchup, stamp in games:
+        start = _utc(stamp)
+        if start is None or not now < start <= now + timedelta(minutes=within_min):
+            continue
+        lo = start - timedelta(minutes=within_min)
+        closed = any(
+            q.matchup == matchup and (seen := _utc(q.captured_at)) is not None and lo <= seen < start
+            for q in closing.values()
+        )
+        if not closed:
+            out.append((matchup, stamp))
+    return out
 
 # A no-vig move this large between bet and close is a bad join far more often
 # than a market: on the summer book it caught the Turner H o1.5 +183 -> -185 row.
@@ -238,14 +307,18 @@ class TapeClose:
 
 
 def close_from_tape(
-    rows: list[TapeRow], band: tuple[float, float] | None = OVERROUND_BAND
+    rows: list[TapeRow],
+    band: tuple[float, float] | None = OVERROUND_BAND,
+    max_hours: float | None = STALE_CLOSE_MIN / 60.0,
 ) -> TapeClose:
     """The close for one selection: every book at the last pregame capture, devigged.
 
-    The latest ``close`` capture still before first pitch, else the latest
-    pregame ``run`` capture, devigged with the card's own ``evaluate`` consensus.
+    The latest ``close`` capture inside ``STALE_CLOSE_MIN`` of first pitch,
+    else the latest such ``run`` capture, devigged with the card's own ``evaluate`` consensus.
     All rows in play is ``no_pregame``; no book with both sides at that capture is
-    ``no_pair``. Once a band is frozen, a pair outside it is dropped from the
+    ``no_pair``; pregame rows all taken earlier than the window are
+    ``stale_close`` (``max_hours=None`` reads the latest pregame market at any
+    lead, for a reader that wants the board rather than the close). Once a band is frozen, a pair outside it is dropped from the
     consensus and the selection is quarantined only when no pair remains.
     """
     if not rows:
@@ -253,9 +326,14 @@ def close_from_tape(
     pregame = [r for r in rows if r.hours_to_first_pitch is not None and r.hours_to_first_pitch > 0]
     if not pregame:
         return TapeClose(None, NO_PREGAME)
+    timely = [
+        r for r in pregame if max_hours is None or (r.hours_to_first_pitch or 0.0) <= max_hours
+    ]
+    if not timely:
+        return TapeClose(None, STALE_CLOSE, max(r.captured_at for r in pregame))
     chosen: list[TapeRow] = []
     for source in (CLOSE, RUN):
-        src = [r for r in pregame if r.source == source]
+        src = [r for r in timely if r.source == source]
         if src:
             last = max(r.captured_at for r in src)
             chosen = [r for r in src if r.captured_at == last]
@@ -353,6 +431,8 @@ def attach_clv(
                 close = aliases.get((e.matchup, e.market, keys.canonical(e.selection)))
             if close is None:
                 continue
+            if not timely_close(close):
+                reasons.append(STALE_CLOSE)
         if close is not None:
             if not is_plausible_close(close.american, e.market):
                 log.warning(
