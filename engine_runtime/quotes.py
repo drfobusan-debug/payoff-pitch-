@@ -20,7 +20,7 @@ from pathlib import Path
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-PASS_KINDS = ("board", "featured", "close")
+PASS_KINDS = ("board", "featured", "close", "alt")
 
 
 @dataclass(frozen=True)
@@ -187,7 +187,7 @@ def expected_passes(
     for kind, stamps in times.items():
         stamps.sort()
         missing = 0
-        if kind == "close":  # one pass per tip cluster, not a clock: no gap to count
+        if kind in ("close", "alt"):  # per tip cluster / per card, not a clock: no gap to count
             out[kind] = {"passes": len(stamps), "missing": 0}
             continue
         for a, b in zip(stamps, stamps[1:], strict=False):
