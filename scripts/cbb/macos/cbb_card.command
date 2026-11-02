@@ -4,4 +4,6 @@
 set -uo pipefail
 # shellcheck disable=SC1091
 . "$(dirname "$0")/_env.sh"
+# New podcast episodes first, so the card prints this morning's picks (display only).
+cbb-engine podcast || echo "podcast read failed; the card prints without new picks" >&2
 cbb-engine price --email
