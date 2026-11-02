@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-94618",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "37a916eaf7df0aa863e744dc520de6a53dfc6ff1",
+ "picks": [
+  {
+   "pick_id": "c84887919743",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Zachary Cohen",
+   "episode_guid": "vsin-94618",
+   "episode_title": "Bears vs. Seahawks Predictions: Week 8 Monday Night Football odds, picks, and player props",
+   "published": "2026-11-01T22:46:09+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Seahawks",
+   "opponent": "Bears",
+   "side": null,
+   "line": -3.0,
+   "price": -107.0,
+   "units": null,
+   "seconds": 0,
+   "quote": "Seahawks -3 (-107)",
+   "reason": "https://vsin.com/nfl/bears-vs-seahawks-predictions-week-8-monday-night-football-odds-picks-and-player-props/",
+   "description": "Seahawks -3 (-107)",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "nfl"
+ ]
+}
