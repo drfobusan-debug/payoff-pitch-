@@ -29,10 +29,11 @@ from pathlib import Path
 import pandas as pd
 
 from nfl_engine.config import data_dir
-from nfl_engine.data import nflverse
+from nfl_engine.data import capture, nflverse
 from nfl_engine.features.usage import REGULAR, normalise
 from nfl_engine.market.board import OVER
-from nfl_engine.market.odds import american_to_decimal
+from nfl_engine.market.ev import ev
+from nfl_engine.market.odds import american_to_decimal, american_to_prob
 from nfl_engine.models.player import STATS
 from nfl_engine.props import FIELDS as RESEARCH_FIELDS
 from nfl_engine.props import RESEARCH_ONLY, research_path
@@ -42,6 +43,9 @@ log = logging.getLogger(__name__)
 WIN, LOSS, PUSH, VOID = "win", "loss", "push", "void"
 NO_BOX_SCORE = "no_box_score"
 NO_LINE = "no_line"
+# Close EV is read only where a bet could be placed.
+PROP_EXEC_BOOKS = ("draftkings", "betmgm")
+CloseKey = tuple[str, str, str, float | None, str, str]
 
 
 @dataclass(frozen=True)
@@ -70,6 +74,12 @@ class GradedProp:
     reason: str
     pnl: float  # flat one unit at the captured price; 0 on push and void
     graded_at: str
+    # The same book's price on the same line in the hour before kickoff. A close
+    # with both sides is de-vigged; an unpaired one keeps its price and no prob.
+    close_american: float | None = None
+    close_prob: float | None = None
+    close_ev: float | None = None  # the price taken, valued at the no-vig close
+    close_captured_at: str = ""
 
     @property
     def shadow_bet(self) -> bool:
@@ -141,8 +151,29 @@ def _actual(
     return None
 
 
+def _close_key(
+    matchup: str, player: str, market: str, line: float | None, book: str, side: str
+) -> CloseKey:
+    return (matchup, normalise(player), market, line, book, side)
+
+
+def prop_closes(
+    season: int, week: int, *, root: Path | None = None
+) -> dict[CloseKey, tuple[float, float | None, str]]:
+    """Every prop-close quote of the week; a later snapshot overrides an earlier one."""
+    out: dict[CloseKey, tuple[float, float | None, str]] = {}
+    for path in capture.snapshot_paths(season, week, capture.PROP_CLOSE_KIND, root=root):
+        for q in capture.read_snapshot(path):
+            key = _close_key(q.matchup, q.player, q.market, q.line, q.book, q.side)
+            out[key] = (q.american, q.opposite_american, q.captured_at)
+    return out
+
+
 def grade_row(
-    row: dict[str, str], scores: dict[tuple[str, str, str], float], now: str
+    row: dict[str, str],
+    scores: dict[tuple[str, str, str], float],
+    now: str,
+    closes: dict[CloseKey, tuple[float, float | None, str]] | None = None,
 ) -> GradedProp:
     line = _float(row.get("line"))
     stat = row["stat"]
@@ -160,6 +191,19 @@ def grade_row(
         won = over_hit if row["side"] == OVER else not over_hit
         result = WIN if won else LOSS
         pnl = american_to_decimal(american) - 1.0 if won else -1.0
+    close = (closes or {}).get(
+        _close_key(row["matchup"], row["player"], row["market"], line, row["book"], row["side"])
+    )
+    close_american: float | None = None
+    close_prob: float | None = None
+    close_ev: float | None = None
+    close_at = ""
+    if close is not None:
+        close_american, opposite, close_at = close
+        if opposite is not None:
+            mine, theirs = american_to_prob(close_american), american_to_prob(opposite)
+            close_prob = round(mine / (mine + theirs), 6)
+            close_ev = round(ev(close_prob, american_to_decimal(american)), 6)
     return GradedProp(
         captured_at=row["captured_at"],
         season=int(row["season"]),
@@ -183,6 +227,10 @@ def grade_row(
         reason=reason,
         pnl=round(pnl, 4),
         graded_at=now,
+        close_american=close_american,
+        close_prob=close_prob,
+        close_ev=close_ev,
+        close_captured_at=close_at,
     )
 
 
@@ -198,7 +246,8 @@ def grade_week(
         log.info("props grade: no box scores yet for %d week %d", season, week)
         return []
     now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    graded = [grade_row(row, scores, now) for row in rows]
+    closes = prop_closes(season, week, root=root)
+    graded = [grade_row(row, scores, now, closes) for row in rows]
     if write:
         path = graded_path(season, week, root=root)
         try:
@@ -280,6 +329,10 @@ def read_graded(season: int, *, root: Path | None = None) -> list[GradedProp]:
                         reason=row["reason"],
                         pnl=float(row["pnl"]),
                         graded_at=row["graded_at"],
+                        close_american=_float(row.get("close_american")),
+                        close_prob=_float(row.get("close_prob")),
+                        close_ev=_float(row.get("close_ev")),
+                        close_captured_at=row.get("close_captured_at") or "",
                     )
                 )
     return out
@@ -311,6 +364,9 @@ class PropTally:
     brier_base: float | None
     shadow_n: int
     shadow_units: float
+    # Close EV on the DK/MGM rows the model leans (model > fair) with a paired close.
+    close_n: int = 0
+    close_ev: float | None = None
 
     @property
     def shadow_roi(self) -> float | None:
@@ -326,6 +382,14 @@ def tallies(graded: list[GradedProp]) -> list[PropTally]:
         hits = [1 if g.result == WIN else 0 for g in rows]
         base = sum(hits) / len(hits)
         shadow = [g for g in rows if g.shadow_bet]
+        leans = [
+            g.close_ev
+            for g in rows
+            if g.close_ev is not None
+            and g.book in PROP_EXEC_BOOKS
+            and g.fair_prob is not None
+            and g.model_prob > g.fair_prob
+        ]
         out.append(
             PropTally(
                 basis=basis,
@@ -350,6 +414,8 @@ def tallies(graded: list[GradedProp]) -> list[PropTally]:
                 brier_base=_brier([(base, h) for h in hits]),
                 shadow_n=len(shadow),
                 shadow_units=sum(g.pnl for g in shadow),
+                close_n=len(leans),
+                close_ev=sum(leans) / len(leans) if leans else None,
             )
         )
     return out
@@ -375,6 +441,8 @@ def summary(graded: list[GradedProp]) -> list[str]:
             f" base {t.brier_base if t.brier_base is not None else nan:.4f}"
             f" | shadow n={t.shadow_n:3d}"
             f" roi {t.shadow_roi if t.shadow_roi is not None else nan:+.3f}"
+            f" | close EV DK/MGM leans n={t.close_n:4d}"
+            f" {t.close_ev if t.close_ev is not None else nan:+.4f}"
         )
     return lines
 
@@ -383,6 +451,7 @@ __all__ = [
     "GRADED_FIELDS",
     "LOSS",
     "NO_BOX_SCORE",
+    "PROP_EXEC_BOOKS",
     "PUSH",
     "VOID",
     "WIN",
@@ -393,6 +462,7 @@ __all__ = [
     "grade_week",
     "graded_path",
     "pending_weeks",
+    "prop_closes",
     "read_graded",
     "read_research",
     "summary",

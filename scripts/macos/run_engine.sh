@@ -240,10 +240,11 @@ elif [[ "$MODE" == "nfl-close" ]]; then
   # rows whose game is about to start, so CLV is read against the price at
   # kickoff and not the 08:05 job's morning number (or Thursday's, on a Sunday
   # the Mac slept through). Fetches only if a game starts inside
-  # ${NFL_CLOSE_WITHIN_MIN} min (~3 Odds API credits); otherwise free.
+  # ${NFL_CLOSE_WITHIN_MIN} min (~3 Odds API credits); otherwise free. --props
+  # also archives those games' prop prices, the prop close (~9 credits a game, one per prop market).
   arm_next_nfl_close "$(date +%w)" "$(date +%H:%M)" "$(date +%m/%d/%Y)"
   pull_latest
-  nfl-engine close --within "${NFL_CLOSE_WITHIN_MIN}" || echo "[$(date)] 'nfl-engine close' exited non-zero" >&2
+  nfl-engine close --within "${NFL_CLOSE_WITHIN_MIN}" --props || echo "[$(date)] 'nfl-engine close' exited non-zero" >&2
 elif [[ "$MODE" == "nfl-pre" ]]; then
   # Sun 11:30 and the same lead before every other kickoff window: a second
   # look at the board once the inactives are out (~90 min before kickoff), when

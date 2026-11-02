@@ -115,7 +115,13 @@ class TestResearchOnly:
 class TestRetirement:
     @pytest.mark.parametrize(
         "market",
-        ["player_pass_attempts", "player_pass_completions", "player_pass_yds", "player_rush_yds"],
+        [
+            "player_pass_attempts",
+            "player_pass_completions",
+            "player_pass_yds",
+            "player_rush_yds",
+            "player_rush_attempts",
+        ],
     )
     def test_markets_worse_than_the_base_rate_are_retired(self, market: str) -> None:
         stat = props.stat_for(market)
@@ -219,6 +225,13 @@ class TestCorrelation:
     edge: the de-vigged consensus comes from the paired books, and the price taken
     is the outlier's.
     """
+
+    @pytest.fixture(autouse=True)
+    def _two_live_markets(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        # The guard needs legs on two live markets; only receptions is live now.
+        monkeypatch.setattr(
+            props, "RETIRED_MARKETS", props.RETIRED_MARKETS - {"player_rush_attempts"}
+        )
 
     def _clean(self, player: str, market: str, line: float) -> list[QuoteRow]:
         return [
