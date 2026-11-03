@@ -421,9 +421,11 @@ else
   # 4) grade yesterday + email the ledger/report.
   ${AUDIT_CMD} || echo "[$(date)] '${AUDIT_CMD}' exited non-zero" >&2
 
-  # 5) the power screen's audit article: the last screened day graded (arms,
-  #    every kept bat vs the starter, positions vs price), the whole ledger,
-  #    and the commentary. Best effort: it never blocks the rest of the morning.
-  python scripts/power_screen_audit.py --article --email \
+  # 5) the power screen's audit article: yesterday's screen graded (arms,
+  #    every kept bat vs the starter, positions vs price), the season's ledger,
+  #    and the commentary. --if-new sends nothing on a morning after no screen,
+  #    so it closes after the last game and reopens with the next season's first
+  #    screen. Best effort: it never blocks the rest of the morning.
+  python scripts/power_screen_audit.py --article --email --if-new \
     || echo "[$(date)] power screen audit article failed" >&2
 fi
