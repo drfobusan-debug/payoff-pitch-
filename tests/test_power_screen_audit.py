@@ -111,3 +111,14 @@ def test_the_ranking_cut_splits_the_composite_into_quartiles(capsys) -> None:
     audit._print_ranking(graded)
     out = capsys.readouterr().out
     assert "rank 1-2" in out and "rank 7-8" in out
+
+
+def test_the_morning_article_closes_after_the_last_screened_day() -> None:
+    assert audit._is_new("2026-10-31", Date(2026, 11, 1))
+    assert not audit._is_new("2026-10-31", Date(2026, 11, 4))
+    assert audit._is_new("2027-03-25", Date(2027, 3, 26))
+
+
+def test_each_season_ledger_starts_over() -> None:
+    rows = [_position(day="2026-10-31"), _position(day="2027-03-25")]
+    assert [p.date for p in audit._this_season(rows, "2027-03-25")] == ["2027-03-25"]
