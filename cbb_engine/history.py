@@ -165,6 +165,10 @@ _FOLD = {
 }
 
 
+# Odds API names ESPN spells differently, as whole tokens.
+_ALIAS = {"umkc": "kansas city", "kangaroos": "roos"}
+
+
 def _norm(name: str) -> str:
     return "".join(ch for ch in name.lower() if ch.isalnum())
 
@@ -172,11 +176,12 @@ def _norm(name: str) -> str:
 def _tokens(name: str) -> frozenset[str]:
     """Team-name tokens with the Odds API / ESPN abbreviation differences folded (State↔St, Saint↔St, North↔N)."""
     out = set()
-    for raw in name.lower().replace("-", " ").replace("(", " ").replace(")", " ").split():
-        tok = _FOLD.get(raw, raw)
-        tok = "".join(ch for ch in tok if ch.isalnum())
-        if tok:
-            out.add(tok)
+    for word in name.lower().replace("-", " ").replace("(", " ").replace(")", " ").split():
+        for raw in _ALIAS.get(word, word).split():
+            tok = _FOLD.get(raw, raw)
+            tok = "".join(ch for ch in tok if ch.isalnum())
+            if tok:
+                out.add(tok)
     return frozenset(out)
 
 
@@ -192,20 +197,57 @@ def _sim(a: str, b: str) -> float:
 
 
 def match_final(home: str, away: str, games: Sequence[espn.Game]) -> tuple[int, int] | None:
-    """The day's ESPN final for (home, away); see ``match_game``."""
-    g = match_game(home, away, [g for g in games if g.final])
-    return g.final if g else None
+    """The day's ESPN final for (home, away), as (away, home) points; see ``scores``."""
+    hit = scores(home, away, games)
+    return hit[0] if hit else None
 
 
-def match_game(home: str, away: str, games: Sequence[espn.Game]) -> espn.Game | None:
+def scores(
+    home: str, away: str, games: Sequence[espn.Game]
+) -> tuple[tuple[int, int], tuple[int, int] | None] | None:
+    """(final, first half) of the day's finished game for (home, away), each as (away, home) points
+    in the caller's orientation, even when ESPN lists the teams the other way round."""
+    hit = match_oriented(home, away, [g for g in games if g.final])
+    if hit is None:
+        return None
+    game, swapped = hit
+    final = game.final
+    assert final is not None
+    h1 = (game.away_halves[0], game.home_halves[0]) if len(game.home_halves) >= 2 else None
+    if swapped:
+        final, h1 = (final[1], final[0]), ((h1[1], h1[0]) if h1 else None)
+    return final, h1
+
+
+def match_oriented(home: str, away: str, games: Sequence[espn.Game]) -> tuple[espn.Game, bool] | None:
+    """The day's ESPN game for (home, away), and whether ESPN lists the teams the other way round
+    (at neutral sites the Odds API's home team can be ESPN's away team). The reversed match is the
+    fallback and needs each team to share at least half its tokens, so a weak overlap such as
+    Kansas / Kansas City never pairs a game the other way round."""
+    game = match_game(home, away, games)
+    if game is not None:
+        return game, False
+    game = match_game(away, home, games, min_side=0.5)
+    return (game, True) if game is not None else None
+
+
+def match_game(
+    home: str, away: str, games: Sequence[espn.Game], *, min_side: float = 0.0
+) -> espn.Game | None:
     """The day's ESPN game for (home, away): exact normalized match, else the unique best token match
-    where both sides share a token (score ≥ 1.0 of 2 and ahead of the runner-up)."""
+    where both sides share a token (score ≥ 1.0 of 2 and ahead of the runner-up), each side's
+    similarity above zero and at least ``min_side``."""
     exact = {(_norm(g.home), _norm(g.away)): g for g in games}
     hit = exact.get((_norm(home), _norm(away)))
     if hit:
         return hit
     scored = sorted(
-        ((_sim(home, g.home) + _sim(away, g.away), g) for g in games if _sim(home, g.home) > 0 and _sim(away, g.away) > 0),
+        (
+            (_sim(home, g.home) + _sim(away, g.away), g)
+            for g in games
+            if min(_sim(home, g.home), _sim(away, g.away)) > 0
+            and min(_sim(home, g.home), _sim(away, g.away)) >= min_side
+        ),
         key=lambda t: -t[0],
     )
     if not scored or scored[0][0] < 1.0:
@@ -262,9 +304,7 @@ def export_day(root: Path, data_dir: Path, day: str) -> list[dict[str, object]]:
             if a.market == "game_ats" and a.line is not None and a.paired_books and a.sides[0] in ("home", "away")
         ]
         home, away = teams.get(eid, ["", ""])
-        game = match_game(home, away, [g for g in games if g.final])
-        final = game.final if game else None
-        h1 = (game.away_halves[0], game.home_halves[0]) if game and len(game.home_halves) >= 2 else None
+        final, h1 = scores(home, away, games) or (None, None)
         out.append({
             "game_date": day, "event_id": eid, "home": home, "away": away, "tip_utc": qs[0].tip_utc,
             "close_total": close_total,
@@ -300,5 +340,5 @@ def tips_from_games(games: Iterable[espn.Game], day: str) -> list[str]:
 
 __all__ = [
     "CLOSE_MARKETS", "CSV_FIELDS", "HIST_PREFIX", "close_times", "days_between", "dense_times", "match_game",
-    "export_day", "latest_scoreboard", "match_final", "plan", "pull_day", "tips_from_games", "write_csv",
+    "export_day", "latest_scoreboard", "match_final", "match_oriented", "plan", "pull_day", "scores", "tips_from_games", "write_csv",
 ]

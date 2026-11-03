@@ -275,10 +275,13 @@ def context(
         return Team(ap, net, slow, (conf in POWER) if conf else None, rest)
 
     for eid, (home, away) in teams.items():
-        g = history.match_game(home, away, games)
+        hit = history.match_oriented(home, away, games)
+        g, swapped = hit if hit else (None, False)
+        h_name, a_name = (g.away, g.home) if g and swapped else (g.home, g.away) if g else (None, None)
+        h_rank, a_rank = (g.away_rank, g.home_rank) if g and swapped else (g.home_rank, g.away_rank) if g else (None, None)
         out[eid] = GameCtx(
-            home=team(home, g.home if g else None, g.home_rank if g else None),
-            away=team(away, g.away if g else None, g.away_rank if g else None),
+            home=team(home, h_name, h_rank),
+            away=team(away, a_name, a_rank),
             neutral=bool(g and g.neutral),
             conference=bool(g and g.conference_game),
             opener=dict((opener or {}).get(eid, {})),

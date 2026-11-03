@@ -177,13 +177,25 @@ def verify_chain(rows: Iterable[Row]) -> bool:
 def record(
     root: Path, sport: str, slate_date: str
 ) -> dict[tuple[str, str, str, float | None, str], Row]:
-    """The bet of record per position: the `bet_of_record` row, latest correction wins."""
+    """The bet of record per position: its first `bet_of_record` row, carried through that row's
+    corrections (each ``supersedes`` the one before; the latest wins).
+
+    A later card pass that prices the same position again writes a second copy; neither that copy
+    nor a correction of it replaces the first chain, so grading one copy never surfaces the other.
+    """
+    rows = read_day(root, sport, slate_date)
+    child = {r.supersedes: r for r in rows if r.supersedes}
     out: dict[tuple[str, str, str, float | None, str], Row] = {}
-    superseded = {r.supersedes for r in read_day(root, sport, slate_date) if r.supersedes}
-    for r in read_day(root, sport, slate_date):
-        if r.row_hash in superseded or not r.bet_of_record:
+    for r in rows:
+        key = (r.event_id, r.market, r.side, r.line, r.book)
+        if r.supersedes or not r.bet_of_record or key in out:
             continue
-        out.setdefault((r.event_id, r.market, r.side, r.line, r.book), r)
+        tip, seen = r, {r.row_hash}
+        while (nxt := child.get(tip.row_hash)) is not None and nxt.row_hash not in seen:
+            seen.add(nxt.row_hash)
+            tip = nxt
+        if tip.bet_of_record:
+            out[key] = tip
     return out
 
 

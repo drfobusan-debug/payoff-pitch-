@@ -255,3 +255,37 @@ def test_grade_reads_earlier_cards_for_games_tipping_today_and_leaves_later_tips
     assert all(r.supersedes for r in ledger.record(tmp_path, SPORT, prev).values())
     # tomorrow's game stays untouched until its own day is graded: no "pulled" stamp
     assert all(not r.close_status and not r.supersedes for r in ledger.record(tmp_path, SPORT, DAY).values())
+
+
+def test_grade_settles_a_game_espn_lists_home_away_reversed(tmp_path: Path) -> None:
+    _priced(tmp_path)
+    _write_board(tmp_path, "c1", _close_board("c1", CLOSE_AT), kind="close")
+    # neutral site: the Odds API's home team (Duke) is ESPN's away team; 71 + 80 = 151 is over 145.5
+    game = Game(espn_id="x", start_utc="", away="Duke", home="Kansas", state="STATUS_FINAL", neutral=True,
+                conference_game=False, away_halves=(35, 36), home_halves=(40, 40))
+    written = audit.grade(tmp_path, DAY, [game], {"e1": ("Duke", "Kansas")}, pass_id="audit1", width=WIDTH)
+    assert {r.side: r.outcome for r in written if r.market == "game_total"} == {"over": "win", "under": "loss"}
+
+
+def test_record_keeps_the_first_card_copy_through_its_corrections(tmp_path: Path) -> None:
+    import os
+    from dataclasses import replace
+
+    _write_board(tmp_path, "b1", _board("b1", dk_over=130))
+    priced = card.price(tmp_path, DAY, now=NOW, pass_id="card1", pass_kind="featured", width=WIDTH)
+    assert priced is not None
+    ledger.write_once(tmp_path, SPORT, DAY, "card1", priced.rows)
+    # a second card the same day prices the same positions again
+    ledger.write_once(tmp_path, SPORT, DAY, "card2", [replace(r, pass_id="card2") for r in priced.rows])
+    first_file = ledger.pass_path(tmp_path, SPORT, DAY, "card1")
+    os.utime(first_file, (first_file.stat().st_mtime - 60,) * 2)
+    first = {k: r.row_hash for k, r in ledger.record(tmp_path, SPORT, DAY).items()}
+    assert {r.pass_id for r in ledger.record(tmp_path, SPORT, DAY).values()} == {"card1"}
+    _write_board(tmp_path, "c1", _close_board("c1", CLOSE_AT), kind="close")
+    assert audit.grade(tmp_path, DAY, [], {}, pass_id="audit0", width=WIDTH)  # close only, no finals yet
+    game = Game(espn_id="x", start_utc="", away="Kansas", home="Duke", state="STATUS_FINAL", neutral=False,
+                conference_game=False, away_halves=(40, 40), home_halves=(35, 36))
+    written = audit.grade(tmp_path, DAY, [game], {"e1": ("Duke", "Kansas")}, pass_id="audit1", width=WIDTH)
+    rec = ledger.record(tmp_path, SPORT, DAY)
+    assert written and all(r.outcome for r in rec.values())
+    assert {r.pass_id for r in rec.values()} == {"audit1"} and set(rec) == set(first)
