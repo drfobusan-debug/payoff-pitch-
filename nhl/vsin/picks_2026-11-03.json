@@ -1,0 +1,38 @@
+[
+ {
+  "slate_date": "2026-11-03",
+  "matchup": "UTA @ TOR",
+  "market": "game_total",
+  "side": "over",
+  "line": 6.0,
+  "american": -135,
+  "stake": 0.75,
+  "host": "Jonathan Davis",
+  "stamp": "2026-11-03T20:05:44+00:00",
+  "text": "Utah Mammoth/Toronto Maple Leafs Over 6 (-135) - \u00be units",
+  "outcome": null,
+  "pnl_flat": null,
+  "pnl_stake": null,
+  "close_consensus": null,
+  "clv": null,
+  "graded_at": ""
+ },
+ {
+  "slate_date": "2026-11-03",
+  "matchup": "DET @ TBL",
+  "market": "game_total",
+  "side": "over",
+  "line": 6.0,
+  "american": -122,
+  "stake": 1.0,
+  "host": "Jonathan Davis",
+  "stamp": "2026-11-03T20:05:44+00:00",
+  "text": "Detroit Red Wings/Tampa Bay Lightning Over 6 (-122) - 1 unit",
+  "outcome": null,
+  "pnl_flat": null,
+  "pnl_stake": null,
+  "close_consensus": null,
+  "clv": null,
+  "graded_at": ""
+ }
+]
