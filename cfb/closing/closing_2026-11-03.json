@@ -1,0 +1,86 @@
+{
+  "Buffalo @ Miami (OH)|game_ats|Buffalo": {
+    "american": -110.0,
+    "captured_at": "2026-11-03T23:45:22Z",
+    "kickoff_utc": "2026-11-04T01:00:00Z",
+    "line": 7.0,
+    "no_vig_prob": 0.5113539206212098
+  },
+  "Buffalo @ Miami (OH)|game_ats|Miami (OH)": {
+    "american": 101.0,
+    "captured_at": "2026-11-03T23:45:22Z",
+    "kickoff_utc": "2026-11-04T01:00:00Z",
+    "line": -7.0,
+    "no_vig_prob": 0.4886460793787901
+  },
+  "Buffalo @ Miami (OH)|game_ml|Buffalo": {
+    "american": 225.0,
+    "captured_at": "2026-11-03T23:45:22Z",
+    "kickoff_utc": "2026-11-04T01:00:00Z",
+    "line": null,
+    "no_vig_prob": 0.30034458474539094
+  },
+  "Buffalo @ Miami (OH)|game_ml|Miami (OH)": {
+    "american": -260.0,
+    "captured_at": "2026-11-03T23:45:22Z",
+    "kickoff_utc": "2026-11-04T01:00:00Z",
+    "line": null,
+    "no_vig_prob": 0.6996554152546091
+  },
+  "Buffalo @ Miami (OH)|game_total|Over": {
+    "american": -108.0,
+    "captured_at": "2026-11-03T23:45:22Z",
+    "kickoff_utc": "2026-11-04T01:00:00Z",
+    "line": 45.0,
+    "no_vig_prob": 0.5009810975257742
+  },
+  "Buffalo @ Miami (OH)|game_total|Under": {
+    "american": -108.0,
+    "captured_at": "2026-11-03T23:45:22Z",
+    "kickoff_utc": "2026-11-04T01:00:00Z",
+    "line": 45.0,
+    "no_vig_prob": 0.49901890247422565
+  },
+  "Ohio @ Akron|game_ats|Akron": {
+    "american": -106.0,
+    "captured_at": "2026-11-03T23:45:22Z",
+    "kickoff_utc": "2026-11-04T00:00:00Z",
+    "line": 12.5,
+    "no_vig_prob": 0.4995680944825378
+  },
+  "Ohio @ Akron|game_ats|Ohio": {
+    "american": -105.0,
+    "captured_at": "2026-11-03T23:45:22Z",
+    "kickoff_utc": "2026-11-04T00:00:00Z",
+    "line": -12.5,
+    "no_vig_prob": 0.5004319055174622
+  },
+  "Ohio @ Akron|game_ml|Akron": {
+    "american": 390.0,
+    "captured_at": "2026-11-03T23:45:22Z",
+    "kickoff_utc": "2026-11-04T00:00:00Z",
+    "line": null,
+    "no_vig_prob": 0.2021108701176595
+  },
+  "Ohio @ Akron|game_ml|Ohio": {
+    "american": -475.0,
+    "captured_at": "2026-11-03T23:45:22Z",
+    "kickoff_utc": "2026-11-04T00:00:00Z",
+    "line": null,
+    "no_vig_prob": 0.7978891298823406
+  },
+  "Ohio @ Akron|game_total|Over": {
+    "american": -108.0,
+    "captured_at": "2026-11-03T23:45:22Z",
+    "kickoff_utc": "2026-11-04T00:00:00Z",
+    "line": 52.0,
+    "no_vig_prob": 0.503657801776615
+  },
+  "Ohio @ Akron|game_total|Under": {
+    "american": -105.0,
+    "captured_at": "2026-11-03T23:45:22Z",
+    "kickoff_utc": "2026-11-04T00:00:00Z",
+    "line": 52.0,
+    "no_vig_prob": 0.4963421982233849
+  }
+}
