@@ -105,8 +105,54 @@ def test_card_html_has_board_and_panel_for_each_game() -> None:
     assert "Army Black Knights at Duke Blue Devils" in body and "7:00 PM ET" in body
     assert "class='buy'" in body and "Four factors" in body and "Off rtg" in body
     assert "Duke 5d rest" in body
-    bare = pdf.build_html(date(2025, 11, 10), [], {"e2": ("Gonzaga Bulldogs", "Utah Utes")}, {})
+    bare = pdf.build_html(
+        date(2025, 11, 10),
+        [],
+        {"e2": ("Gonzaga Bulldogs", "Utah Utes")},
+        {},
+        tips={"e2": "2025-11-11T03:00:00Z"},
+    )
     assert "no Torvik games logged yet" in bare
+
+
+def test_only_the_days_games_print_in_tip_order() -> None:
+    teams = {
+        "late": ("Kansas Jayhawks", "Utah Utes"),
+        "yday": ("Duke Blue Devils", "Army Black Knights"),
+        "early": ("Gonzaga Bulldogs", "Iona Gaels"),
+        "after_midnight_utc": ("UConn Huskies", "Navy Midshipmen"),
+        "tomorrow": ("Iowa Hawkeyes", "Rice Owls"),
+        "no_tip": ("Ohio State Buckeyes", "Akron Zips"),
+    }
+    tips = {
+        "late": "2025-11-11T02:00:00Z",
+        "yday": "2025-11-09T23:30:00Z",
+        "early": "2025-11-10T17:00:00Z",
+        "tomorrow": "2025-11-11T17:00:00Z",
+    }
+    priced = ledger.Row(
+        slate_date="2025-11-10",
+        event_id="after_midnight_utc",
+        tip_utc="2025-11-11T00:30:00Z",
+        market="game_total",
+        side="over",
+        line=141.5,
+        book="draftkings",
+        pass_id="p",
+        pass_kind="featured",
+        bet_of_record=True,
+        status="shadow",
+        american=-110,
+        p_fair=0.5,
+        edge=0.0,
+        tier="Pass",
+    )
+    body = pdf.build_html(date(2025, 11, 10), [priced], teams, {}, tips=tips)
+    games = ["Iona Gaels at", "Navy Midshipmen at", "Utah Utes at"]
+    assert [body.index(g) for g in games] == sorted(body.index(g) for g in games)
+    for gone in ("Army Black Knights", "Rice Owls", "Akron Zips"):
+        assert gone not in body
+    assert "3 games" in body
 
 
 def _q(at: str, market: str, side: str, line: float | None, american: float, book: str) -> object:
@@ -179,7 +225,12 @@ def test_unit_edge_rest_and_injuries_lines() -> None:
         Injury("B Big", "Oklahoma State", "F", "Knee", "Out"),
     ]
     body = pdf.build_html(
-        date(2025, 11, 9), [], {"e1": ("Duke Blue Devils", "Army Black Knights")}, s, injuries=inj
+        date(2025, 11, 9),
+        [],
+        {"e1": ("Duke Blue Devils", "Army Black Knights")},
+        s,
+        injuries=inj,
+        tips={"e1": "2025-11-09T23:00:00Z"},
     )
     assert "Duke: A Guard (G, Ankle) Out" in body and "Army: none listed" in body
     assert "not matched to a Torvik team (not shown): Oklahoma State" in body

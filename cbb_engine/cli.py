@@ -425,6 +425,7 @@ def _card_pdf(root: Path, day: Date, pass_id: str, rows: list[ledger.Row], out: 
         if payload is not None:
             injuries.archive(data_dir(), day, payload, at=quotes.now_utc())
         src, listed = injuries.latest(data_dir(), day)
+        qs = quotes.read_day(root, SPORT, day.isoformat())
         body = pdf.build_html(
             day,
             rows,
@@ -433,8 +434,9 @@ def _card_pdf(root: Path, day: Date, pass_id: str, rows: list[ledger.Row], out: 
             title=f"pass {pass_id} ·",
             injuries=listed,
             injuries_source=f"(RotoWire {src.stem[-6:-2]} UTC) " if src else "(RotoWire: none fetched) ",
-            moves=movement.moves(quotes.read_day(root, SPORT, day.isoformat()), until=quotes.now_utc()),
+            moves=movement.moves(qs, until=quotes.now_utc()),
             podcast=_podcast_view(root, day, rows),
+            tips={q.event_id: q.tip_utc for q in sorted(qs, key=lambda q: q.captured_at)},
         )
         out.write_bytes(pdf.render_pdf(body))
     except Exception:
