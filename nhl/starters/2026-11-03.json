@@ -12,10 +12,10 @@
     "status": "probable"
   },
   "CBJ": {
-    "name": "Jet Greaves",
-    "player_id": 8482982,
+    "name": "Cam Talbot",
+    "player_id": 8475660,
     "source": "rotowire",
-    "status": "probable"
+    "status": "confirmed"
   },
   "COL": {
     "name": "Scott Wedgewood",
@@ -44,8 +44,8 @@
   "MIN": {
     "name": "Jesper Wallstedt",
     "player_id": 8482661,
-    "source": "rotowire",
-    "status": "probable"
+    "source": "dailyfaceoff",
+    "status": "confirmed"
   },
   "MTL": {
     "name": "Jacob Fowler",
@@ -57,7 +57,7 @@
     "name": "Connor Hellebuyck",
     "player_id": 8476945,
     "source": "rotowire",
-    "status": "probable"
+    "status": "confirmed"
   },
   "NSH": {
     "name": "Juuse Saros",
