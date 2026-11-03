@@ -31,6 +31,7 @@ from cbb_engine import (
     podcast,
     state,
     study,
+    teamgroups,
 )
 from cbb_engine.config import SPORT, SPORT_KEY, data_dir, dry_run, load_config, runtime_root
 from cbb_engine.data import capture, espn, injuries, torvik, watch
@@ -305,26 +306,52 @@ def _manifest_teams(root: Path, day: Date) -> dict[str, tuple[str, str]]:
     return teams
 
 
+def _season_ctx(
+    root: Path, season: list[ledger.Row], day: Date
+) -> tuple[dict[str, bands.GameCtx], dict[Date, list[espn.Game]]]:
+    """Pre-tip context per event over the season's slates, and the archived ESPN boards it read."""
+    logs = bands.parse_logs(teamstats.read_logs(torvik.as_of(data_dir(), "game_logs", day).path))
+    res = torvik.as_of(data_dir(), "team_results", day).path
+    confs = {r.get("team", ""): r.get("conf", "") for r in torvik.read_csv(res)} if res else {}
+    days = sorted({Date.fromisoformat(r.slate_date) for r in season})
+    boards: dict[Date, list[espn.Game]] = {}
+    if days:
+        d = days[0] - timedelta(days=bands.REST_LOOKBACK)
+        while d <= max(days[-1], day):
+            boards[d] = history.latest_scoreboard(data_dir(), d.isoformat())
+            d += timedelta(days=1)
+    ctx: dict[str, bands.GameCtx] = {}
+    for d in days:
+        opener = bands.openers(quotes.read_day(root, SPORT, d.isoformat()))
+        res_d = torvik.as_of(data_dir(), "team_results", d).path
+        tempo = bands.tempo_thirds(torvik.read_csv(res_d)) if res_d else {}
+        ctx.update(bands.context(_manifest_teams(root, d), d, boards, logs, confs, opener, tempo))
+    return ctx, boards
+
+
 def _season_bands(root: Path, season: list[ledger.Row], day: Date) -> list[BandRead] | None:
     """Graded-only bands over the season's ledger; context from archived ESPN boards, Torvik and first captures."""
     try:
-        logs = bands.parse_logs(teamstats.read_logs(torvik.as_of(data_dir(), "game_logs", day).path))
-        res = torvik.as_of(data_dir(), "team_results", day).path
-        confs = {r.get("team", ""): r.get("conf", "") for r in torvik.read_csv(res)} if res else {}
-        days = sorted({Date.fromisoformat(r.slate_date) for r in season})
-        boards: dict[Date, list[espn.Game]] = {}
-        if days:
-            d = days[0] - timedelta(days=bands.REST_LOOKBACK)
-            while d <= days[-1]:
-                boards[d] = history.latest_scoreboard(data_dir(), d.isoformat())
-                d += timedelta(days=1)
-        ctx: dict[str, bands.GameCtx] = {}
-        for d in days:
-            opener = bands.openers(quotes.read_day(root, SPORT, d.isoformat()))
-            ctx.update(bands.context(_manifest_teams(root, d), d, boards, logs, confs, opener))
+        ctx, _ = _season_ctx(root, season, day)
         return bands.read_bands(season, ctx)
     except Exception:
         log.warning("CBB bands failed; the audit goes out without them", exc_info=True)
+        return None
+
+
+def _team_groups(root: Path, season: list[ledger.Row], day: Date) -> list[teamgroups.GroupRead] | None:
+    """Closing-line accuracy by tempo and conference pairing, one row per finished game with a timely close."""
+    try:
+        ctx, boards = _season_ctx(root, season, day)
+        games: dict[str, teamgroups.Called] = {}
+        for d in sorted(b for b in boards if season and b.isoformat() >= min(r.slate_date for r in season)):
+            teams: dict[str, tuple[str, str]] = {}
+            for back in range(audit.LOOKBACK_DAYS, -1, -1):
+                teams.update(_manifest_teams(root, d - timedelta(days=back)))
+            games.update(teamgroups.called(quotes.read_day(root, SPORT, d.isoformat()), teams, boards[d]))
+        return teamgroups.read(season, ctx, games)
+    except Exception:
+        log.warning("CBB team groups failed; the audit goes out without them", exc_info=True)
         return None
 
 
@@ -455,6 +482,7 @@ def cmd_audit(args: argparse.Namespace) -> int:
     }
     season = [r for rs in by_day.values() for r in rs]
     reads = _season_bands(root, season, day)
+    groups = _team_groups(root, season, day)
     rep["v_promotion"] = views.v_promotion(season)
     rep["v_bands"] = bands.render(reads).splitlines() if reads is not None else ["bands unavailable (see log)"]
     if args.time_travel:
@@ -462,7 +490,12 @@ def cmd_audit(args: argparse.Namespace) -> int:
         rep["time_travel_violations"] = study.time_travel(day.isoformat(), stamps)
     checks = checklist.render(checklist.run(load_config(), root, day.isoformat()))
     report = audit_report.build(
-        by_day, day, bands=reads, checklist_lines=checks.splitlines(), alts=altlines.alts(alt_path, day.isoformat())
+        by_day,
+        day,
+        bands=reads,
+        groups=groups,
+        checklist_lines=checks.splitlines(),
+        alts=altlines.alts(alt_path, day.isoformat()),
     )
     text = audit_report.render_text(report)
     out_dir = data_dir() / "audit"
