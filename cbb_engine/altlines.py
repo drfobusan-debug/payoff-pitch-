@@ -118,11 +118,11 @@ def grade(
             assert main.line is not None and q.line is not None
             f = favour(q.market, q.side, main.line, q.line)
             ha = teams.get(q.event_id)
-            game = history.match_game(ha[0], ha[1], finals) if ha else None
-            if not f or game is None or game.final is None:
+            hit = history.scores(ha[0], ha[1], finals) if ha else None
+            if not f or hit is None:
                 continue
             row = replace(main, line=q.line, american=q.american, book=q.book)
-            res = audit.outcome(row, game.final)
+            res = audit.outcome(row, hit[0])
             if not res:
                 continue
             out.append(

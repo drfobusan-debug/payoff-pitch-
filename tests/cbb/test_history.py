@@ -145,3 +145,20 @@ def test_match_final_folds_odds_api_abbreviations() -> None:
     assert history.match_final("N Carolina Tar Heels", "St Mary's Gaels", games) == (60, 80)
     assert history.match_final("Michigan St Spartans", "St Mary's Gaels", games) is None
     assert history.match_final("Duke Blue Devils", "Kansas Jayhawks", games) is None
+
+
+def test_scores_follow_the_callers_home_away_when_espn_lists_them_reversed() -> None:
+    from cbb_engine.data import espn
+
+    games = [
+        espn.Game(espn_id="1", start_utc="", away="Miami Hurricanes", home="Florida Gators", state="STATUS_FINAL",
+                  neutral=True, conference_game=False, away_halves=(36, 31), home_halves=(46, 31)),
+        espn.Game(espn_id="2", start_utc="", away="Kansas City Roos", home="Creighton Bluejays", state="STATUS_FINAL",
+                  neutral=False, conference_game=False, away_halves=(30, 25), home_halves=(40, 45)),
+    ]
+    # the Odds API called Miami the home team of this neutral-site game
+    assert history.scores("Miami Hurricanes", "Florida Gators", games) == ((77, 67), (46, 36))
+    assert history.scores("Florida Gators", "Miami Hurricanes", games) == ((67, 77), (36, 46))
+    assert history.match_final("Miami Hurricanes", "Florida Gators", games) == (77, 67)
+    assert history.scores("Creighton Bluejays", "UMKC Kangaroos", games) == ((55, 85), (30, 40))
+    assert history.scores("Kansas Jayhawks", "Creighton Bluejays", games) is None
