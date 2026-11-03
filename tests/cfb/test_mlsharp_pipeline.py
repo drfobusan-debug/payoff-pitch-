@@ -41,8 +41,8 @@ def _ctx(home_win_prob: float) -> _GameCtx:
 
 def _ml_board(home_american: float, away_american: float) -> GameOdds:
     odds = GameOdds(matchup=MATCHUP)
-    odds.add_ml("ALA", MarketQuote("b", home_american, opposite_american=away_american))
-    odds.add_ml("UGA", MarketQuote("b", away_american, opposite_american=home_american))
+    odds.add_ml("ALA", MarketQuote("draftkings", home_american, opposite_american=away_american))
+    odds.add_ml("UGA", MarketQuote("draftkings", away_american, opposite_american=home_american))
     return odds
 
 
@@ -50,7 +50,7 @@ def _ats_board(home_point: float, american: float) -> GameOdds:
     odds = GameOdds(matchup=MATCHUP)
     for side in ("ALA", "UGA"):
         odds.add_spread(
-            home_point, side, MarketQuote("b", american, opposite_american=american)
+            home_point, side, MarketQuote("draftkings", american, opposite_american=american)
         )
     return odds
 

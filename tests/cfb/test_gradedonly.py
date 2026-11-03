@@ -47,8 +47,8 @@ def _ctx() -> _GameCtx:
 
 def _board() -> GameOdds:
     odds = GameOdds(matchup="MEM @ TUL")
-    odds.add_total(55.5, True, MarketQuote("b", -110.0, opposite_american=-110.0))
-    odds.add_total(55.5, False, MarketQuote("b", -110.0, opposite_american=-110.0))
+    odds.add_total(55.5, True, MarketQuote("draftkings", -110.0, opposite_american=-110.0))
+    odds.add_total(55.5, False, MarketQuote("draftkings", -110.0, opposite_american=-110.0))
     return odds
 
 

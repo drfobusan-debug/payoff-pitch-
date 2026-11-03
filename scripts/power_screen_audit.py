@@ -39,6 +39,7 @@ import logging
 import sys
 from collections import defaultdict
 from datetime import date as Date
+from datetime import timedelta
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -88,6 +89,11 @@ def _parse_args() -> argparse.Namespace:
         help="write the audit article for --date (default: the last ledger day before today)",
     )
     p.add_argument("--run", default=None, help="with --article: grade this run of the day")
+    p.add_argument(
+        "--if-new",
+        action="store_true",
+        help="with --article: only when yesterday was screened (closes after the last game, reopens on Opening Day)",
+    )
     p.add_argument("--roster", default=None, help="override the roster path")
     p.add_argument("--email", action="store_true", help="with --article: email it")
     p.add_argument("--to", default=None, help="with --email: recipient override")
@@ -296,6 +302,16 @@ def _article_day(positions: list[Position], asked: Date | None) -> str | None:
     return days[-1] if days else None
 
 
+def _is_new(day: str, today: Date) -> bool:
+    """The article day is yesterday's screen: after the season's last game it never is again until the next."""
+    return Date.fromisoformat(day) == today - timedelta(days=1)
+
+
+def _this_season(positions: list[Position], day: str) -> list[Position]:
+    """Each season's ledger starts over; earlier seasons stay in the file and their saved audits."""
+    return [p for p in positions if p.date[:4] == day[:4]]
+
+
 def write_article(args: argparse.Namespace, cfg: Config, ledger: Path) -> int:
     """Grade the day and the ledger, write the article, and send it if asked."""
     if cfg.state_sync and not args.ledger:
@@ -305,6 +321,10 @@ def write_article(args: argparse.Namespace, cfg: Config, ledger: Path) -> int:
     if day is None:
         print(f"no recorded positions in {ledger}")
         return 0
+    if args.if_new and args.date is None and not _is_new(day, Date.today()):
+        print(f"power screen closed: nothing screened yesterday (last screened day {day})")
+        return 0
+    positions = _this_season(positions, day)
     roster_path = (
         Path(args.roster) if args.roster else cfg.audit_dir / power_roster.ROSTER_NAME
     )

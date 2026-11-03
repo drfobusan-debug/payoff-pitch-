@@ -245,6 +245,16 @@ def _starting_within(games: list[Game], now: datetime, minutes: int) -> list[Gam
     return out
 
 
+def _not_started(games: list[Game], now: datetime) -> list[Game]:
+    """Games whose kickoff has not passed; a game under way has no pregame price."""
+    out = []
+    for game in games:
+        kickoff = _parse_utc(game.kickoff_utc)
+        if kickoff is None or now < kickoff:
+            out.append(game)
+    return out
+
+
 def cmd_price(args: argparse.Namespace) -> int:
     """Price the board and append new positions.
 
@@ -261,6 +271,11 @@ def cmd_price(args: argparse.Namespace) -> int:
         print(f"no game kicks off in the next {within} min; nothing fetched")
         return 0
     fetched = _fetch(args.days)
+    now = datetime.now(tz=timezone.utc)  # re-read: a kickoff can pass during the fetch
+    started = len(fetched.games) - len(_not_started(fetched.games, now))
+    fetched.games = _not_started(fetched.games, now)
+    if started:
+        print(f"  {started} game(s) already kicked off: not priced (in-game lines are not prices)")
     if within is not None:
         fetched.games = _starting_within(fetched.games, now, within)
         print(f"  pre-kickoff pass: {len(fetched.games)} games kick off within {within} min")
@@ -376,7 +391,51 @@ def cmd_close(args: argparse.Namespace) -> int:
     )
     if missing:
         print(f"  {missing} started rows never got a closing price: CLV unscorable")
+    if getattr(args, "props", False):
+        _close_props(fetched, now, within)
     return 0
+
+
+# A prop close older than this before kickoff is not a close.
+PROP_CLOSE_WINDOW_MIN = 60
+
+
+def _utc(stamp: str | None) -> datetime | None:
+    if not stamp:
+        return None
+    try:
+        moment = datetime.fromisoformat(stamp.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return moment if moment.tzinfo else moment.replace(tzinfo=timezone.utc)
+
+
+def _close_props(fetched: Fetched, now: datetime, within: int | None) -> None:
+    """Archive the prop board of the games kicking off inside the hour: the prop close.
+
+    Only unstarted games inside ``within`` (capped at an hour) are fetched, so an
+    in-play price is never archived as a close. ``props grade`` attaches it to the
+    research rows.
+    """
+    minutes = min(within or PROP_CLOSE_WINDOW_MIN, PROP_CLOSE_WINDOW_MIN)
+    horizon = now + timedelta(minutes=minutes)
+    due = [
+        g for g in fetched.games if (k := _utc(g.kickoff_utc)) is not None and now < k <= horizon
+    ]
+    if not due:
+        print(f"prop close: no game kicks off inside {minutes} min; nothing fetched")
+        return
+    client = _client()
+    rows = client.fetch_props(due, captured_at=fetched.captured_at, max_events=len(due))
+    path = capture.write_snapshot(
+        rows, season=fetched.season, week=fetched.week, kind=capture.PROP_CLOSE_KIND
+    )
+    print(
+        f"prop close: {len(rows)} quotes on {len(due)} game(s),"
+        f" archived {path.name if path else '(nothing new)'}"
+    )
+    if client.credits_remaining is not None:
+        print(f"  Odds API credits remaining: {client.credits_remaining}")
 
 
 def _kicks_off_within(entries: list[LedgerEntry], now: datetime, minutes: int) -> bool:
@@ -1138,6 +1197,11 @@ def main(argv: list[str] | None = None) -> int:
         type=int,
         default=None,
         help="fetch only if a game kicks off inside this many minutes",
+    )
+    close.add_argument(
+        "--props",
+        action="store_true",
+        help="also archive the prop close for games kicking off inside the window",
     )
     close.add_argument("--write", action="store_true", default=True)
     close.add_argument("--no-write", dest="write", action="store_false")

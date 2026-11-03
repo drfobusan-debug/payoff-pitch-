@@ -21,8 +21,14 @@ VENV_DIR="${VENV_DIR:-$REPO_DIR/.venv}"
 ENV_FILE="${ENV_FILE:-/etc/engine.env}"
 AUDIT_CMD="${AUDIT_CMD:-mlb-engine audit --report --email}"
 MORNING_WAKE_HHMM="${MORNING_WAKE_HHMM:-10:00}"
-CLOSE_WAKE_HHMM="${CLOSE_WAKE_HHMM:-18:35}"
-DAY_CLOSE_WAKE_HHMM="${DAY_CLOSE_WAKE_HHMM:-12:45}"
+# MLB per-game close: launchd runs `close` every MLB_CLOSE_EVERY_MIN; each pass
+# fetches only the games starting within MLB_CLOSE_WITHIN_MIN that have no close
+# yet, and re-arms the next wake until MLB_CLOSE_LAST_HHMM. The morning job arms
+# the first. Must match setup_engine_autorun.sh.
+MLB_CLOSE_FIRST_WAKE_HHMM="${MLB_CLOSE_FIRST_WAKE_HHMM:-10:55}"
+MLB_CLOSE_LAST_HHMM="${MLB_CLOSE_LAST_HHMM:-22:30}"
+MLB_CLOSE_EVERY_MIN="${MLB_CLOSE_EVERY_MIN:-15}"
+MLB_CLOSE_WITHIN_MIN="${MLB_CLOSE_WITHIN_MIN:-45}"
 CFB_WAKE_HHMM="${CFB_WAKE_HHMM:-09:00}"
 # NFL pre-kickoff closes: "weekday=HH:MM" wakes (launchd weekday, 0=Sun), five
 # minutes ahead of each nfl-close run. Must match setup_engine_autorun.sh.
@@ -141,6 +147,24 @@ arm_next_nfl_close() {
   echo "[$(date)] armed NFL pre-kickoff wake for $day $best:00"
 }
 
+# MLB off-season: between MLB_OFFSEASON_FROM and MLB_OFFSEASON_TO (MM-DD,
+# wrapping the new year) the MLB steps -- slate passes, closes, react, Opta and
+# the morning audit -- are skipped; CFB/NFL passes and every wake still run.
+# MLB_SEASON_FORCE=1 runs MLB anyway (e.g. a late regrade); move the dates to
+# re-open early.
+MLB_OFFSEASON_FROM="${MLB_OFFSEASON_FROM:-11-05}"
+MLB_OFFSEASON_TO="${MLB_OFFSEASON_TO:-03-15}"
+mlb_in_season() {
+  [[ "${MLB_SEASON_FORCE:-0}" == "1" ]] && return 0
+  local today="${MLB_TODAY_MMDD:-$(date +%m-%d)}"
+  if [[ "$MLB_OFFSEASON_FROM" > "$MLB_OFFSEASON_TO" ]]; then
+    [[ "$today" < "$MLB_OFFSEASON_FROM" && ! "$today" < "$MLB_OFFSEASON_TO" ]]
+  else
+    [[ "$today" < "$MLB_OFFSEASON_FROM" || ! "$today" < "$MLB_OFFSEASON_TO" ]]
+  fi
+}
+mlb_off_note() { echo "[$(date)] MLB off-season ($MLB_OFFSEASON_FROM to $MLB_OFFSEASON_TO): skipping $1"; }
+
 if [[ "$MODE" == "night" ]]; then
   # Keep-awake only: re-arm a one-shot wake for the NEXT morning at
   # ${MORNING_WAKE_HHMM} so the machine wakes after the 03:00 sleep. No engine work.
@@ -168,24 +192,27 @@ if [[ "$MODE" == "night" ]]; then
       ;;
   esac
 elif [[ "$MODE" == "close" ]]; then
-  # Snapshot today's CLOSING market so tomorrow morning's audit can score closing
-  # line value (CLV) -- the fast way to tell whether a pick had real edge. Runs
-  # twice a day (afternoon + evening) and merges, because a started game leaves
-  # the pre-match board. Cheap (~3 credits + one per event for props).
-  mlb-engine close || echo "[$(date)] 'mlb-engine close' exited non-zero" >&2
+  # The per-game close, for tomorrow's CLV: each pass fetches only the games
+  # starting within MLB_CLOSE_WITHIN_MIN that have no close stamped yet, so each
+  # game is captured once, 30-45 min before first pitch -- the only close CLV
+  # is scored on. A pass with nothing due is one free StatsAPI call.
+  if mlb_in_season; then
+  mlb-engine close --within "${MLB_CLOSE_WITHIN_MIN}" || echo "[$(date)] 'mlb-engine close' exited non-zero" >&2
   # Lineups posted since the last slate pass, stamped with when they were seen.
   # Free (StatsAPI); the close's own slate fetch records them too, but a close
   # that finds no pre-match board exits before it writes anything.
   mlb-engine lineups || echo "[$(date)] 'mlb-engine lineups' exited non-zero" >&2
-  # Re-arm tonight's evening capture in case the Mac would sleep before it.
-  pmset_ schedule wake "$(date +%m/%d/%Y) ${CLOSE_WAKE_HHMM}:00" || echo "[$(date)] could not arm evening wake" >&2
-  # Wed/Sat/Sun evenings also arm the NFL night-before board capture. %u: 1=Mon .. 7=Sun.
-  case "$(date +%u)" in
-    3|6|7)
-      pmset_ schedule wake "$(date +%m/%d/%Y) ${NFL_EVE_WAKE_HHMM}:00" || echo "[$(date)] could not arm NFL night-before wake" >&2
-      ;;
-  esac
+  # Wake for the next pass until the day's last first pitch is closed.
+  nexthm=$(date -v+"${MLB_CLOSE_EVERY_MIN}"M +%H:%M)
+  if [[ "$nexthm" > "$(date +%H:%M)" && ! "$nexthm" > "$MLB_CLOSE_LAST_HHMM" ]]; then
+    pmset_ schedule wake "$(date -v+"${MLB_CLOSE_EVERY_MIN}"M '+%m/%d/%Y %H:%M'):00" \
+      || echo "[$(date)] could not arm the next close wake" >&2
+  fi
+  else
+    mlb_off_note "the MLB close and lineups"
+  fi
 elif [[ "$MODE" == "react" ]]; then
+  if ! mlb_in_season; then mlb_off_note "react"; exit 0; fi
   # Price-reaction watcher: poll the slate for lineups as they post and snapshot
   # the posted game's props at +0/+5/+15/+30 min, with an hourly before-price.
   # A measurement of how fast the books re-price a posted lineup -- nothing is
@@ -217,10 +244,11 @@ elif [[ "$MODE" == "nfl-close" ]]; then
   # rows whose game is about to start, so CLV is read against the price at
   # kickoff and not the 08:05 job's morning number (or Thursday's, on a Sunday
   # the Mac slept through). Fetches only if a game starts inside
-  # ${NFL_CLOSE_WITHIN_MIN} min (~3 Odds API credits); otherwise free.
+  # ${NFL_CLOSE_WITHIN_MIN} min (~3 Odds API credits); otherwise free. --props
+  # also archives those games' prop prices, the prop close (~9 credits a game, one per prop market).
   arm_next_nfl_close "$(date +%w)" "$(date +%H:%M)" "$(date +%m/%d/%Y)"
   pull_latest
-  nfl-engine close --within "${NFL_CLOSE_WITHIN_MIN}" || echo "[$(date)] 'nfl-engine close' exited non-zero" >&2
+  nfl-engine close --within "${NFL_CLOSE_WITHIN_MIN}" --props || echo "[$(date)] 'nfl-engine close' exited non-zero" >&2
 elif [[ "$MODE" == "nfl-pre" ]]; then
   # Sun 11:30 and the same lead before every other kickoff window: a second
   # look at the board once the inactives are out (~90 min before kickoff), when
@@ -256,6 +284,7 @@ elif [[ "$MODE" == slate-* ]]; then
   # keep their reasons. Same caffeinate arrangement as the morning job so
   # WeasyPrint keeps its DYLD path.
   BLOCK="${MODE#slate-}"
+  if ! mlb_in_season; then mlb_off_note "slate pass $BLOCK"; exit 0; fi
   /usr/bin/caffeinate -i -w $$ &
   arm_next_slate
   pull_latest
@@ -355,12 +384,24 @@ else
   # PID and run the engine as a direct child, so DYLD_*/SSL_CERT_FILE survive.
   /usr/bin/caffeinate -i -w $$ &
 
-  # Arm a one-shot wake for TONIGHT's closing snapshot (same calendar day), so
-  # the close daemon can fire even if the Mac would otherwise sleep by evening.
-  pmset_ schedule wake "$(date +%m/%d/%Y) ${DAY_CLOSE_WAKE_HHMM}:00" || echo "[$(date)] could not arm afternoon wake" >&2
+  # Arm the day's first per-game close pass; each pass arms the next.
+  if mlb_in_season; then
+    pmset_ schedule wake "$(date +%m/%d/%Y) ${MLB_CLOSE_FIRST_WAKE_HHMM}:00" || echo "[$(date)] could not arm the first close wake" >&2
+  fi
+  # Wed/Sat/Sun also arm the NFL night-before board capture. %u: 1=Mon .. 7=Sun.
+  case "$(date +%u)" in
+    3|6|7)
+      pmset_ schedule wake "$(date +%m/%d/%Y) ${NFL_EVE_WAKE_HHMM}:00" || echo "[$(date)] could not arm NFL night-before wake" >&2
+      ;;
+  esac
 
   # 0) take whatever has been merged since yesterday.
   pull_latest
+
+  if ! mlb_in_season; then
+    mlb_off_note "the morning slate arm, Opta, audit and power-screen article"
+    exit 0
+  fi
 
   # Arm the first of today's slate passes.
   arm_next_slate
@@ -380,9 +421,11 @@ else
   # 4) grade yesterday + email the ledger/report.
   ${AUDIT_CMD} || echo "[$(date)] '${AUDIT_CMD}' exited non-zero" >&2
 
-  # 5) the power screen's audit article: the last screened day graded (arms,
-  #    every kept bat vs the starter, positions vs price), the whole ledger,
-  #    and the commentary. Best effort: it never blocks the rest of the morning.
-  python scripts/power_screen_audit.py --article --email \
+  # 5) the power screen's audit article: yesterday's screen graded (arms,
+  #    every kept bat vs the starter, positions vs price), the season's ledger,
+  #    and the commentary. --if-new sends nothing on a morning after no screen,
+  #    so it closes after the last game and reopens with the next season's first
+  #    screen. Best effort: it never blocks the rest of the morning.
+  python scripts/power_screen_audit.py --article --email --if-new \
     || echo "[$(date)] power screen audit article failed" >&2
 fi

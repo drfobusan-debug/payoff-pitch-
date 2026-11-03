@@ -180,7 +180,9 @@ def test_a_lean_the_line_has_come_to_is_bold_with_a_legend(tmp_path):
     ws = load_workbook(out)["All"]
     market = [c.value for c in ws[1]].index("Market")
     bold = [
-        ws.cell(row=r, column=market + 1).value for r in (2, 3) if ws.cell(row=r, column=1).font.bold
+        ws.cell(row=r, column=market + 1).value
+        for r in (2, 3)
+        if ws.cell(row=r, column=1).font.bold
     ]
     assert bold == [agrees.display_category]
     assert str(ws.cell(row=5, column=1).value).startswith("Bold: the model leans")
@@ -254,3 +256,82 @@ def test_a_missed_slate_is_caught_up_even_when_yesterday_had_no_card(tmp_path, m
     assert main(["audit", "--no-email"]) == 0
     assert "2026-10-10" in {e.date for e in load_ledger(cfg.ledger_file)}
     assert emitted == [oct10]
+
+
+def test_stamp_units_backfills_conference_tier_and_top25_without_regrading(tmp_path, monkeypatch):
+    from dataclasses import replace
+
+    from cfb_engine import cli
+    from cfb_engine.audit.ledger import load_ledger, update_ledger
+    from cfb_engine.config import load_config
+    from cfb_engine.data.cfbd import GameResult
+    from cfb_engine.output.brief import GameBrief, TeamBrief
+
+    monkeypatch.setenv("CFBE_DATA_DIR", str(tmp_path))
+    monkeypatch.setenv("CFBE_STATE_SYNC", "0")
+    cfg = load_config()
+    cfg.audit_dir.mkdir(parents=True, exist_ok=True)
+    sep26 = date(2026, 9, 26)
+    brief = GameBrief(home=TeamBrief("Georgia", poll_rank=3), away=TeamBrief("Alabama"))
+    rec = replace(_rec(Tier.STRONG), game_date=sep26, brief=brief)
+    save_json([rec], cfg.predictions_file(sep26))
+    old = replace(_rec(Tier.STRONG), game_date=sep26)  # graded before the columns existed
+    update_ledger(cfg.ledger_file, entries_from_graded([(old, "win")], sep26), sep26)
+    final = GameResult(
+        home="Georgia",
+        away="Alabama",
+        home_points=27,
+        away_points=20,
+        home_conference="SEC",
+        away_conference="SEC",
+        home_division="fbs",
+        away_division="fbs",
+    )
+    monkeypatch.setattr(cli, "_result_index", lambda c, d: build_result_index([final]))
+    monkeypatch.setattr(cli, "_unit_ranks", lambda c, d: {})
+    monkeypatch.setattr(cli, "_ypp_book", lambda c, d: {})
+    before = load_ledger(cfg.ledger_file)[0]
+    assert before.conf_tier is None and before.top25 is None
+
+    assert main(["stamp-units"]) == 0
+    (after,) = load_ledger(cfg.ledger_file)
+    assert after.conf_tier == "P4-P4" and after.top25 is True
+    assert (after.result, after.pnl, after.tier) == (before.result, before.pnl, before.tier)
+
+    calls: list[date] = []
+    monkeypatch.setattr(
+        cli, "_result_index", lambda c, d: calls.append(d) or build_result_index([])
+    )
+    assert main(["stamp-units"]) == 0
+    assert calls == []  # a stamped slate is not fetched again
+
+
+def test_stamp_units_backfills_unit_ranks_on_rows_whose_blank_cells_load_as_empty(
+    tmp_path, monkeypatch
+):
+    from dataclasses import replace
+
+    from cfb_engine import cli
+    from cfb_engine.audit.ledger import load_ledger, update_ledger
+    from cfb_engine.config import load_config
+
+    monkeypatch.setenv("CFBE_DATA_DIR", str(tmp_path))
+    monkeypatch.setenv("CFBE_STATE_SYNC", "0")
+    cfg = load_config()
+    cfg.audit_dir.mkdir(parents=True, exist_ok=True)
+    sep26 = date(2026, 9, 26)
+    old = replace(_rec(Tier.STRONG), game_date=sep26)
+    update_ledger(cfg.ledger_file, entries_from_graded([(old, "win")], sep26), sep26)
+    assert load_ledger(cfg.ledger_file)[0].unit_ranks == ""  # blank cell, never stamped
+    ranks = {"Georgia": {"off": 3, "def": 40}, "Alabama": {"off": 12, "def": 2}}
+    asked: list[date] = []
+    monkeypatch.setattr(cli, "_unit_ranks", lambda c, d: asked.append(d) or ranks)
+    monkeypatch.setattr(cli, "_ypp_book", lambda c, d: {})
+    monkeypatch.setattr(cli, "_result_index", lambda c, d: build_result_index([]))
+
+    assert main(["stamp-units"]) == 0
+    (after,) = load_ledger(cfg.ledger_file)
+    assert (after.unit_ranks, after.opp_unit_ranks) == ("off:3 def:40", "off:12 def:2")
+    assert asked == [sep26]
+    assert main(["stamp-units"]) == 0
+    assert asked == [sep26]  # a stamped row is not fetched again

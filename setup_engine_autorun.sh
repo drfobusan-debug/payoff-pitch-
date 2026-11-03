@@ -112,13 +112,14 @@ AUDIT_CMD="mlb-engine audit --report --email"  # grade yesterday; defaults to ye
 NIGHT_WAKE="23:00:00"; NIGHT_RUN_HOUR=23; NIGHT_RUN_MIN=5
 FORCE_SLEEP="03:00:00"
 MORNING_WAKE_HHMM="10:00"; MORNING_RUN_HOUR=10; MORNING_RUN_MIN=5
-# Closing-line snapshots (for CLV scoring). Two of them, because a game that has
-# started is gone from the pre-match board: the evening capture alone would only
-# ever price the night slate. Captures merge, latest price per selection winning,
-# so the afternoon games keep the close taken while they were still quoted.
-CLOSE_WAKE_HHMM="18:35"; DAY_CLOSE_WAKE_HHMM="12:45"
-CLOSE_RUN_HOUR=18; CLOSE_RUN_MIN=40
-DAY_CLOSE_RUN_HOUR=12; DAY_CLOSE_RUN_MIN=50
+# The MLB per-game close (for CLV): one daemon every MLB_CLOSE_EVERY_MIN, each
+# pass fetching only the games starting within MLB_CLOSE_WITHIN_MIN without a
+# close, so every game is captured once 30-45 min before first pitch. The
+# morning job arms the first wake and each pass the next, until
+# MLB_CLOSE_LAST_HHMM. It replaces the 12:50 and 18:40 fixed-time closes,
+# which were hours early for most games and are no longer scored as closes.
+MLB_CLOSE_FIRST_WAKE_HHMM="10:55"; MLB_CLOSE_LAST_HHMM="22:30"
+MLB_CLOSE_EVERY_MIN=15; MLB_CLOSE_WITHIN_MIN=45
 # The slate passes: each prices the games starting inside the next
 # SLATE_WINDOW_HOURS and emails that block's slate PDF + bet card. The window
 # is the clock gate's number (MLBE_LINEUP_STALE_HOURS) seen from the other
@@ -188,7 +189,6 @@ LOG_ERR="/var/log/engine.err.log"
 NIGHT_LABEL="com.franz.engine.night"
 MORNING_LABEL="com.franz.engine.morning"
 CLOSE_LABEL="com.franz.engine.close"
-DAY_CLOSE_LABEL="com.franz.engine.dayclose"
 REACT_LABEL="com.franz.engine.react"
 CFB_LABEL="com.franz.engine.cfb"
 NFL_AUDIT_LABEL="com.franz.engine.nflaudit"
@@ -225,7 +225,8 @@ done
 NIGHT_PLIST="/Library/LaunchDaemons/${NIGHT_LABEL}.plist"
 MORNING_PLIST="/Library/LaunchDaemons/${MORNING_LABEL}.plist"
 CLOSE_PLIST="/Library/LaunchDaemons/${CLOSE_LABEL}.plist"
-DAY_CLOSE_PLIST="/Library/LaunchDaemons/${DAY_CLOSE_LABEL}.plist"
+# Daemons an earlier install wrote and this one no longer does.
+RETIRED_PLISTS=("/Library/LaunchDaemons/com.franz.engine.dayclose.plist")
 REACT_PLIST="/Library/LaunchDaemons/${REACT_LABEL}.plist"
 CFB_PLIST="/Library/LaunchDaemons/${CFB_LABEL}.plist"
 NFL_AUDIT_PLIST="/Library/LaunchDaemons/${NFL_AUDIT_LABEL}.plist"
@@ -241,12 +242,12 @@ for spec in $SLATE_RUNS; do
   # Wake five minutes ahead of the run so launchd finds the Mac up.
   SLATE_WAKES="$SLATE_WAKES $(printf '%02d:%02d' "$((10#${hm%%:*}))" "$((10#${hm##*:} - 5))")"
 done
-ALL_PLISTS=("$NIGHT_PLIST" "$MORNING_PLIST" "$CLOSE_PLIST" "$DAY_CLOSE_PLIST" "$REACT_PLIST" "$CFB_PLIST" "$NFL_AUDIT_PLIST" "${NFL_PLISTS[@]}" "${NFL_OPEN_PLISTS[@]}" "${NFL_CLOSE_PLISTS[@]}" "${NFL_PRE_PLISTS[@]}" "${SLATE_PLISTS[@]}")
+ALL_PLISTS=("$NIGHT_PLIST" "$MORNING_PLIST" "$CLOSE_PLIST" "$REACT_PLIST" "$CFB_PLIST" "$NFL_AUDIT_PLIST" "${NFL_PLISTS[@]}" "${NFL_OPEN_PLISTS[@]}" "${NFL_CLOSE_PLISTS[@]}" "${NFL_PRE_PLISTS[@]}" "${SLATE_PLISTS[@]}")
 
 if [[ "${1:-}" == "--uninstall" ]]; then
   echo "Uninstalling..."
   rm -f "$SUDOERS"
-  for p in "${ALL_PLISTS[@]}"; do
+  for p in "${ALL_PLISTS[@]}" "${RETIRED_PLISTS[@]}"; do
     launchctl bootout system "$p" 2>/dev/null || launchctl unload "$p" 2>/dev/null || true
     rm -f "$p"
   done
@@ -299,8 +300,9 @@ cat > "$RUNNER" <<EOF
 set -euo pipefail
 export RUN_AS_USER="$RUN_AS_USER" REPO_DIR="$REPO_DIR" VENV_DIR="$VENV_DIR"
 export ENV_FILE="$ENV_FILE" AUDIT_CMD="$AUDIT_CMD"
-export MORNING_WAKE_HHMM="$MORNING_WAKE_HHMM" CLOSE_WAKE_HHMM="$CLOSE_WAKE_HHMM"
-export DAY_CLOSE_WAKE_HHMM="$DAY_CLOSE_WAKE_HHMM" CFB_WAKE_HHMM="$CFB_WAKE_HHMM"
+export MORNING_WAKE_HHMM="$MORNING_WAKE_HHMM" CFB_WAKE_HHMM="$CFB_WAKE_HHMM"
+export MLB_CLOSE_FIRST_WAKE_HHMM="$MLB_CLOSE_FIRST_WAKE_HHMM" MLB_CLOSE_LAST_HHMM="$MLB_CLOSE_LAST_HHMM"
+export MLB_CLOSE_EVERY_MIN="$MLB_CLOSE_EVERY_MIN" MLB_CLOSE_WITHIN_MIN="$MLB_CLOSE_WITHIN_MIN"
 export NFL_WAKE_HHMM="$NFL_WAKE_HHMM" SLATE_WINDOW_HOURS="$SLATE_WINDOW_HOURS"
 export NFL_OPEN_WAKE_HHMM="$NFL_OPEN_WAKE_HHMM" NFL_EVE_WAKE_HHMM="$NFL_EVE_WAKE_HHMM"
 export SLATE_WAKES="$SLATE_WAKES"
@@ -336,10 +338,29 @@ write_plist() {  # <path> <label> <hour> <min> <mode> [weekday 0-6]
 EOF
   chown root:wheel "$1"; chmod 644 "$1"
 }
+write_interval_plist() {  # <path> <label> <seconds> <mode>
+  cat > "$1" <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+  <key>Label</key><string>$2</string>
+  <key>UserName</key><string>${RUN_AS_USER}</string>
+  <key>ProgramArguments</key>
+  <array><string>${RUNNER}</string><string>$4</string></array>
+  <key>StartInterval</key><integer>$3</integer>
+  <key>StandardOutPath</key><string>${LOG_OUT}</string>
+  <key>StandardErrorPath</key><string>${LOG_ERR}</string>
+</dict></plist>
+EOF
+  chown root:wheel "$1"; chmod 644 "$1"
+}
 write_plist "$NIGHT_PLIST"   "$NIGHT_LABEL"   "$NIGHT_RUN_HOUR"   "$NIGHT_RUN_MIN"   night
 write_plist "$MORNING_PLIST" "$MORNING_LABEL" "$MORNING_RUN_HOUR" "$MORNING_RUN_MIN" morning
-write_plist "$CLOSE_PLIST"   "$CLOSE_LABEL"   "$CLOSE_RUN_HOUR"   "$CLOSE_RUN_MIN"   close
-write_plist "$DAY_CLOSE_PLIST" "$DAY_CLOSE_LABEL" "$DAY_CLOSE_RUN_HOUR" "$DAY_CLOSE_RUN_MIN" close
+write_interval_plist "$CLOSE_PLIST" "$CLOSE_LABEL" "$((MLB_CLOSE_EVERY_MIN * 60))" close
+for p in "${RETIRED_PLISTS[@]}"; do
+  launchctl bootout system "$p" 2>/dev/null || true
+  rm -f "$p"
+done
 write_plist "$REACT_PLIST" "$REACT_LABEL" "$REACT_RUN_HOUR" "$REACT_RUN_MIN" react
 write_plist "$CFB_PLIST" "$CFB_LABEL" "$CFB_RUN_HOUR" "$CFB_RUN_MIN" cfb "$CFB_WEEKDAY"
 write_plist "$NFL_AUDIT_PLIST" "$NFL_AUDIT_LABEL" "$NFL_AUDIT_RUN_HOUR" "$NFL_AUDIT_RUN_MIN" nfl-audit "$NFL_AUDIT_WEEKDAY"
@@ -408,8 +429,8 @@ echo "==================== DONE ===================="
 echo "Verify:            pmset -g sched"
 echo "Test night run:    sudo launchctl start ${NIGHT_LABEL}"
 echo "Test morning run:  sudo launchctl start ${MORNING_LABEL}"
-echo "Test close run:    sudo launchctl start ${CLOSE_LABEL}"
-echo "Test day close:    sudo launchctl start ${DAY_CLOSE_LABEL}"
+echo "Test close run:    sudo launchctl start ${CLOSE_LABEL}   (every ${MLB_CLOSE_EVERY_MIN} min; fetches only"
+echo "                   games starting within ${MLB_CLOSE_WITHIN_MIN} min with no close yet)"
 echo "Test CFB Saturday: sudo launchctl start ${CFB_LABEL}   (prices today's board,"
 echo "                   spends Odds API credits and emails the slate)"
 echo "Test NFL pass:     sudo launchctl start ${NFL_LABELS[0]}   (prices the week,"

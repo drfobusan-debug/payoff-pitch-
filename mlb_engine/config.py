@@ -20,6 +20,7 @@ from mlb_engine.features.regression import (
     SINGLES_LD_SLOPE,
 )
 from mlb_engine.features.rolling import HR_PRIOR_WEIGHT
+from mlb_engine.market.gradedonly import GradedOnly
 from mlb_engine.models.run_env import RunEnvTilt
 
 logger = logging.getLogger(__name__)
@@ -1217,6 +1218,29 @@ class Config:
     away_ml_refuse_odds: float = field(
         default_factory=lambda: _env_float("MLBE_AWAY_ML_REFUSE_ODDS", 100.0)
     )
+
+    # The books a buy is struck at. The bet takes the best of their prices and
+    # is measured against the devigged consensus of every *other* book (see
+    # ``market.ev.evaluate``); a side none of them quotes is a Pass under
+    # ``no_execution_book``. ``MLBE_EXEC_BOOKS=`` (empty) restores the old
+    # best-of-every-book price.
+    exec_books: frozenset[str] = field(
+        default_factory=lambda: _env_set("MLBE_EXEC_BOOKS", ("draftkings", "betmgm"))
+    )
+
+    # Refuse any buy at this American price or longer, every market. 2026 buys
+    # at +200 and longer lost about 18% (n=415). ``MLBE_LONGSHOT_REFUSE_ODDS=
+    # 100000`` disables it.
+    longshot_refuse_odds: float = field(
+        default_factory=lambda: _env_float("MLBE_LONGSHOT_REFUSE_ODDS", 200.0)
+    )
+    # Refuse a batter over when the opposing starter's SIERA is at or below
+    # this: the power screen's elite-arm band (its ``SIERA_FLOOR``). 0 disables.
+    elite_arm_siera: float = field(
+        default_factory=lambda: _env_float("MLBE_ELITE_ARM_SIERA", 4.4)
+    )
+    # Markets priced and graded but never bought (see ``market.gradedonly``).
+    graded_only: GradedOnly = field(default_factory=GradedOnly.from_env)
 
     # Where the engine and the book back different sides, bet the book's side
     # (see ``recommendations.fade_disagreements``). A buy whose devigged market

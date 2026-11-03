@@ -60,7 +60,7 @@ class SideQuote:
 def _quote(quotes: list[MarketQuote], line: float | None) -> SideQuote | None:
     if not quotes:
         return None
-    res = evaluate(0.5, quotes)
+    res = evaluate(0.5, quotes, exec_books=None)
     return SideQuote(res.best_quote.american, res.fair_prob, line)
 
 

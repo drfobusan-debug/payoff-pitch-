@@ -123,8 +123,11 @@ class _Box:
 def _ranks(values: dict[str, float | None], *, high_is_good: bool) -> dict[str, Rated]:
     have = sorted(((v, t) for t, v in values.items() if v is not None), reverse=high_is_good)
     out = {t: Rated(v) for t, v in values.items()}
+    rank, prev = 0, None
     for i, (v, t) in enumerate(have, start=1):
-        out[t] = Rated(v, i)
+        if v != prev:
+            rank, prev = i, v
+        out[t] = Rated(v, rank)
     return out
 
 

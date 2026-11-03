@@ -5,8 +5,10 @@ book) seen on the execution books becomes a row — buy, pass or refusal — wit
 ``status`` from the market map. Two channels on the same anchor:
 
 * market-only: ``p_fair`` vs the execution quote (rows carry ``stale_flag``);
-* model (live totals only): ``p_model`` read off the solved v0 distribution,
-  or a ``width_unfit`` / ``anchor_miss`` / ``se_cap`` refusal.
+* model (live totals): ``p_model`` read off the solved v0 distribution,
+  or a ``width_unfit`` / ``anchor_miss`` / ``se_cap`` refusal;
+* model (research spreads, moneylines, first halves): ``p_model`` from the fitted margin
+  shape around the consensus spread (``models.margin``); market-only without ``margin.json``.
 """
 
 from __future__ import annotations
@@ -16,13 +18,16 @@ import json
 import math
 import re
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 
+from cbb_engine.cadence import parse_utc
 from cbb_engine.config import SPORT
 from cbb_engine.market import consensus
 from cbb_engine.market.gates import Thresholds, implied, market_gates, tier
 from cbb_engine.markets import BY_KEY, status_of
 from cbb_engine.models import distribution as dist
+from cbb_engine.models import margin as mg
 from engine_runtime import ledger, quotes
 
 PREREG = Path(__file__).resolve().parent / "params" / "preregistered.yaml"
@@ -35,10 +40,12 @@ def prereg_scalar(key: str, default: float) -> float:
     return float(m.group(1)) if m else default
 
 
-def params_hash(width: dist.Width | None) -> str:
+def params_hash(width: dist.Width | None, margin: mg.MarginWidth | None = None) -> str:
     h = hashlib.sha256(PREREG.read_bytes())
     if width is not None:
         h.update(json.dumps(width.sd_by_bucket, sort_keys=True).encode())
+    if margin is not None:
+        h.update(json.dumps(margin.__dict__, sort_keys=True, default=str).encode())
     return h.hexdigest()[:12]
 
 
@@ -64,11 +71,15 @@ def price(
     env_lock_hash: str = "",
     pending_events: set[str] | None = None,
     width: dist.Width | None = None,
+    margin: mg.MarginWidth | None = None,
     thr: Thresholds | None = None,
     previous: list[consensus.Anchor] | None = None,
     max_live_buys: int = 8,
     max_per_book: int = 6,
+    now: datetime | None = None,
 ) -> Priced | None:
+    """Price the latest board/featured shard; a game whose tip has passed is left out."""
+    now = now or datetime.now(timezone.utc)
     shard = latest_pricing_shard(root, day)
     if shard is None:
         return None
@@ -82,8 +93,11 @@ def price(
     pending = pending_events or set()
     out: list[ledger.Row] = []
     bet_of_record = pass_kind != "close"
+    phash = params_hash(width, margin)
+    locs = _margin_locations(anchors, day, width, margin)
     for a in anchors:
-        if not a.exec_quotes:
+        tip = parse_utc(a.tip_utc)
+        if not a.exec_quotes or tip is None or tip <= now:
             continue
         status = status_of(a.market)
         spread_line = consensus.consensus_line(anchors, a.event_id, "game_ats")
@@ -110,6 +124,9 @@ def price(
                 push = model.push_mass(a.line)
                 if push:
                     p_model = p_model / (1 - push)
+            elif margin is not None and a.market in mg.PRICED and status != "live":
+                home_mu, full_total = locs.get(a.event_id, (None, None))
+                p_model = mg.price(a.market, e.side, a.line, home_mu=home_mu, full_total=full_total, day=day, mw=margin)
             p_use = p_model if p_model is not None else p_fair
             t, edge, ev, tier_gates = tier(p_use, e.american, implied(e.american), thr)
             gates = base_gates + model_gates + tier_gates
@@ -119,7 +136,7 @@ def price(
                     book=e.book, pass_id=pass_id, pass_kind=pass_kind, bet_of_record=bet_of_record, status=status,
                     stale_flag=e.stale, quote_shard=sid, american=e.american, opposite_american=e.opposite_american,
                     books=a.books, paired_books=a.paired_books, exec_books=len(a.exec_quotes), code_sha=code_sha,
-                    env_lock_hash=env_lock_hash, params_hash=params_hash(width), model_version=MODEL_VERSION if p_model is not None else "market_only",
+                    env_lock_hash=env_lock_hash, params_hash=phash, model_version=MODEL_VERSION if p_model is not None else "market_only",
                     quality_bucket=bucket, bucket_inputs={"paired_books": float(a.paired_books), "spread_abs": abs(spread_line) if spread_line is not None else -1.0},
                     p_fair=p_fair, p_model=p_model, target_median=model.target_median if model else None,
                     sim_median=model.median if model else None, paths=model.paths if model else 0, se=model.se if model else None,
@@ -131,6 +148,23 @@ def price(
             )
     apply_exposure(out, max_live_buys=max_live_buys, max_per_book=max_per_book)
     return Priced(out, anchors, sid)
+
+
+def _margin_locations(
+    anchors: list[consensus.Anchor], day: str, width: dist.Width | None, margin: mg.MarginWidth | None
+) -> dict[str, tuple[float | None, float | None]]:
+    """Per event: the fair home margin from the consensus spread and the fair full-game total."""
+    if margin is None:
+        return {}
+    sd = margin.sd(day)
+    tsd = width.sd("all") if width else None
+    out: dict[str, tuple[float | None, float | None]] = {}
+    for eid in {a.event_id for a in anchors}:
+        out[eid] = (
+            mg.spread_mu(anchors, eid, sd, margin) if sd else None,
+            mg.total_mu(anchors, eid, tsd) if tsd else None,
+        )
+    return out
 
 
 def apply_exposure(rows: list[ledger.Row], *, max_live_buys: int, max_per_book: int) -> None:

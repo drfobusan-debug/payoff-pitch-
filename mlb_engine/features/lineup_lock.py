@@ -19,7 +19,7 @@ card, and hard-passing on it would empty most slates before the graded data says
 the passes were right.
 
 On *batter props* the sample asked for has arrived, and it says something
-weaker than a refusal. Graded buys carrying a provenance stamp:
+a gap. Graded buys carrying a provenance stamp:
 
 =====================  =====  =========
 lineup                     n        ROI
@@ -28,13 +28,13 @@ posted                   391      -1.6%
 projected                774      -9.9%
 =====================  =====  =========
 
-an 8.3pp gap at roughly 1.4 standard errors -- and split by date it does not
-repeat: the older half runs posted +15.3% against projected -4.7%, the newer
-half posted -14.7% against projected -15.9%, which is no gap at all. So a
-projected lineup caps a batter prop at Moderate rather than refusing it
-(``MLBE_LINEUP_PROVENANCE_CAP``, on): the money follows the posted lineups
-without the slate emptying on a difference the second half of the sample cannot
-find. Pitcher props are left alone -- both provenances are in profit there
+an 8.3pp gap at roughly 1.4 standard errors. Over the full 2026 ledger the
+split held (posted -3.7% on 771, projected -11.3% on 705), and the model's gap to
+the market carried less information off a projected lineup (+0.04 posted against
+-0.04 projected). So a projected lineup now refuses the buy outright on batter
+props and game lines (``MLBE_POSTED_LINEUPS_ONLY``, on), stamped
+``projected_lineup`` so probation grades the refusals; it replaces the old
+Moderate cap. Pitcher props are left alone -- both provenances are in profit there
 (+4.5% posted on 71, +2.4% projected on 132), and a starter is announced days
 before his lineup is.
 
@@ -84,7 +84,7 @@ PROJECTED = "projected"
 
 # The provenance cap covers the markets the split was measured on: a batter's
 # presence in the lineup is the thing a projection can be wrong about.
-PROVENANCE_MARKETS = "batter_"
+PROVENANCE_MARKETS = ("batter_", "game_", "f5_")
 
 
 def _env_flag(name: str, default: bool) -> bool:
@@ -144,7 +144,7 @@ class LineupLockGate:
     demote: bool = False
     stale_hours: float = DEFAULT_STALE_HOURS
     clock: bool = True
-    provenance_cap: bool = True
+    posted_only: bool = True
 
     @classmethod
     def from_env(cls) -> LineupLockGate:
@@ -152,25 +152,26 @@ class LineupLockGate:
             demote=_env_flag("MLBE_ML_LINEUP_LOCK", False),
             stale_hours=_env_float("MLBE_LINEUP_STALE_HOURS", DEFAULT_STALE_HOURS),
             clock=_env_flag("MLBE_LINEUP_CLOCK_GATE", True),
-            provenance_cap=_env_flag("MLBE_LINEUP_PROVENANCE_CAP", True),
+            posted_only=_env_flag("MLBE_POSTED_LINEUPS_ONLY", True),
         )
 
-    def caps_at_moderate(self, lock: LineupLock | None, market: str) -> tuple[bool, str]:
-        """Return (cap, reason): is this batter prop priced off an unposted lineup?
+    def refuses_projected(self, lock: LineupLock | None, market: str) -> tuple[bool, str]:
+        """Return (refuse, reason): is this buy priced off an unposted lineup?
 
-        Neutral without a lock, which is the state of a backtest: an unrecorded
-        provenance is not a projected one.
+        Batter props and game lines only; a starter is named days before his
+        lineup is. Neutral without a lock, which is the state of a backtest: an
+        unrecorded provenance is not a projected one.
         """
-        if not self.provenance_cap or lock is None:
+        if not self.posted_only or lock is None:
             return False, ""
         if not market.startswith(PROVENANCE_MARKETS):
             return False, ""
         if lock.status != PROJECTED:
             return False, ""
         return True, (
-            "lineup provenance: MODERATE cap (priced off a projected lineup; "
-            "projected batter buys returned -9.9% against -1.6% posted) -- "
-            "the late pass re-prices this hitter once he is in the lineup"
+            "lineup provenance: PASS (priced off a projected lineup; 2026 "
+            "projected buys returned -11.3% against -3.7% posted) -- the late "
+            "pass re-prices this once the lineup is posted"
         )
 
     def in_window(self, hours: float | None) -> bool:

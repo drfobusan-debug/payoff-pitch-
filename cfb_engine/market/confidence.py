@@ -83,6 +83,28 @@ class MatchupSignal:
 class Veto:
     dropped: bool
     gate: str | None = None
+    # The pass_gate a refusal is filed under, so screen_probation grades it.
+    name: str | None = None
+
+
+# Stable pass_gate names for the totals-environment vetoes.
+SHOOTOUT_GATE = "totals_shootout"
+LOW_SCORING_GATE = "totals_low_scoring"
+SHOOTOUT_REASON = "shootout environment (PPA & explosiveness above avg)"
+LOW_SCORING_REASON = "low-scoring environment (PPA & pace below avg)"
+_REASON_GATES = ((SHOOTOUT_REASON, SHOOTOUT_GATE), (LOW_SCORING_REASON, LOW_SCORING_GATE))
+
+
+def attributed_gate(pass_gate: str | None, reasons: list[str]) -> str | None:
+    """The screen that refused this row, recovered from the reason on cards saved
+    before the totals vetoes carried a gate name."""
+    if pass_gate:
+        return pass_gate
+    for reason in reasons:
+        for text, name in _REASON_GATES:
+            if reason.startswith(f"veto: {text}"):
+                return name
+    return None
 
 
 def build_signal(book: AdvancedBook, home_name: str, away_name: str) -> MatchupSignal:
@@ -215,9 +237,9 @@ def market_veto(
         expl = sig.combined_explosive_env
         if side == "over" and env is not None and pace is not None:
             if env < 0 and pace < 0:
-                return Veto(True, "low-scoring environment (PPA & pace below avg)")
+                return Veto(True, LOW_SCORING_REASON, LOW_SCORING_GATE)
         if params.veto_shootout and side == "under" and env is not None and expl is not None:
             if env > 0 and expl > 0:
-                return Veto(True, "shootout environment (PPA & explosiveness above avg)")
+                return Veto(True, SHOOTOUT_REASON, SHOOTOUT_GATE)
 
     return Veto(False)

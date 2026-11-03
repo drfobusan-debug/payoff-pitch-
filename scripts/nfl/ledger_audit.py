@@ -29,11 +29,18 @@ import statistics as st
 from collections import defaultdict
 from collections.abc import Callable
 
-from nfl_engine.audit.graduation import CLOSE_WINDOW, MIN_N, graduation_lines, has_true_close
+from nfl_engine.audit.graduation import (
+    CLOSE_WINDOW,
+    MIN_N,
+    graduation_lines,
+    has_true_close,
+    priced_before_kickoff,
+)
 from nfl_engine.audit.ledger import ENGINE, LOSS, PUSH, WIN, LedgerEntry, grade, load_ledger
 from nfl_engine.audit.tracked import tracked_lines
 from nfl_engine.cli import _final_scores, current_week, ledger_path, report_lines
 from nfl_engine.config import load_config
+from nfl_engine.market.odds import american_to_prob
 from nfl_engine.market.screens import Tier
 
 MARKETS = ("moneyline", "spread", "total")
@@ -65,6 +72,33 @@ def record_line(label: str, entries: list[LedgerEntry]) -> str:
     )
 
 
+def has_paired_close(entry: LedgerEntry) -> bool:
+    """The close was de-vigged against its opposite side; an unpaired close keeps the raw implied."""
+    if entry.close_odds is None or entry.close_prob is None:
+        return False
+    return abs(entry.close_prob - american_to_prob(entry.close_odds)) > 1e-6
+
+
+def close_ev_line(label: str, entries: list[LedgerEntry]) -> str:
+    """EV of the price taken under the no-vig close: above 0 means the lean beat the vig."""
+    values = [
+        e.clv_ev
+        for e in entries
+        if e.clv_ev is not None and has_true_close(e) and has_paired_close(e)
+    ]
+    n = len(values)
+    if n < 2:
+        return f"  close EV {label:<26} n {n:>4}  n/a"
+    mean, se = st.mean(values), st.stdev(values) / math.sqrt(n)
+    if mean - 2 * se > 0:
+        verdict = "above 0 by 2 se"
+    elif mean + 2 * se < 0:
+        verdict = "below 0 by 2 se"
+    else:
+        verdict = "within 2 se of 0: underpowered"
+    return f"  close EV {label:<26} n {n:>4}  {mean:+.4f} (se {se:.4f})  {verdict}"
+
+
 def settle_missing(entries: list[LedgerEntry], season: int | None) -> int:
     scores = _final_scores(season)
     filled = 0
@@ -85,10 +119,17 @@ def _quote_rank(entry: LedgerEntry) -> tuple[int, float]:
     return entry.paired_books, rung
 
 
+def in_game(entries: list[LedgerEntry]) -> list[LedgerEntry]:
+    """Rows priced after kickoff: live lines, not prices anyone could have bet into."""
+    return [e for e in entries if e.captured_at and e.kickoff_utc and not priced_before_kickoff(e)]
+
+
 def model_leans(graded: list[LedgerEntry]) -> list[LedgerEntry]:
+    """One lean per game-market, from rows priced before kickoff only."""
+    live = set(map(id, in_game(graded)))
     groups: dict[tuple[int, str, str, str], list[LedgerEntry]] = defaultdict(list)
     for e in graded:
-        if e.fair_prob is not None and e.result != PUSH:
+        if e.fair_prob is not None and e.result != PUSH and id(e) not in live:
             groups[(e.season, e.matchup, e.date, e.market)].append(e)
     leans = []
     for rows in groups.values():
@@ -236,15 +277,29 @@ def report(entries: list[LedgerEntry], filled: int) -> list[str]:
         )
     )
     leans = model_leans(graded)
-    out += ["", "2) One model lean per game-market (side with model > fair)", *lean_lines(leans)]
+    live = in_game(graded)
+    pregame = [e for e in graded if id(e) not in set(map(id, live))]
+    out += [
+        "",
+        "2) One model lean per game-market (side with model > fair)",
+        f"  {len(live)} graded row(s) priced after kickoff are excluded from every lean figure"
+        " below: in-game lines are not prices anyone could have bet",
+        *lean_lines(leans),
+    ]
     out += [
         "",
         "3) What each screen refused, graded on the model leans it blocked",
         *screen_lines(leans),
     ]
-    out += ["", "4) CLV / drift on the leans", *close_coverage_lines(graded)]
+    out += ["", "4) CLV / drift on the leans", *close_coverage_lines(pregame)]
     out.append(record_line("all leans", leans))
     out += [record_line(f"leans {m}", [e for e in leans if e.market == m]) for m in MARKETS]
+    out.append(
+        "  close EV = the price taken, valued at the no-vig close (timely, two-sided closes"
+        " only); it must be above 0 to beat the vig"
+    )
+    out.append(close_ev_line("all leans", leans))
+    out += [close_ev_line(f"leans {m}", [e for e in leans if e.market == m]) for m in MARKETS]
     out += ["", "5) Underdog vs favourite leans (ML: fair < .5; spread: getting points)"]
     out += underdog_lines(leans)
     out += ["", f"6) Graduation bar (all four: {MIN_N}+ buys, ROI and CLV > 1 se, both halves up)"]

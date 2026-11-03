@@ -11,18 +11,42 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import logging
 import sys
 from datetime import date as Date
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from cbb_engine import audit, cadence, card, checklist, email, history, pilot, study
+from cbb_engine import (
+    altlines,
+    audit,
+    audit_report,
+    bands,
+    cadence,
+    card,
+    checklist,
+    email,
+    history,
+    pilot,
+    podcast,
+    state,
+    study,
+)
 from cbb_engine.config import SPORT, SPORT_KEY, data_dir, dry_run, load_config, runtime_root
-from cbb_engine.data import capture, espn, torvik, watch
+from cbb_engine.data import capture, espn, injuries, torvik, watch
 from cbb_engine.markets import EVENT_MARKETS, FEATURED
 from cbb_engine.models import distribution as dist
+from cbb_engine.models import margin as mg
+from cbb_engine.output import movement, pdf, teamstats
+from engine_common.bands import BandRead
+from engine_common.podcasts import state as podcast_state
+from engine_common.podcasts.episodes import store_dir
+from engine_common.podcasts.run import read_feeds
+from engine_common.podcasts.shows import CBB, SHOWS
 from engine_runtime import ledger, quotes, runner, views
 from engine_runtime.odds_client import OddsClient
+
+log = logging.getLogger(__name__)
 
 
 def _parse_date(raw: str | None) -> Date:
@@ -55,7 +79,13 @@ def _last_pass(manifest: list[dict[str, object]], kind: str) -> datetime | None:
 
 
 def _closes_taken(manifest: list[dict[str, object]]) -> set[str]:
-    return {str(m.get("event_id", "")) for m in manifest if m.get("pass_kind") == "close"}
+    out: set[str] = set()
+    for m in manifest:
+        if m.get("pass_kind") != "close":
+            continue
+        ids = m.get("event_ids")
+        out.update(str(e) for e in ids) if isinstance(ids, list) else out.add(str(m.get("event_id", "")))
+    return out
 
 
 def cmd_capture(args: argparse.Namespace) -> int:
@@ -65,6 +95,7 @@ def cmd_capture(args: argparse.Namespace) -> int:
     client = _client()
     if client is None:
         return 2
+    state.auto_pull(trees=("quotes",))
     now = datetime.now(timezone.utc)
     at = now.strftime("%Y-%m-%dT%H:%M:%SZ")
     events = client.events(commenceTimeFrom=now.strftime("%Y-%m-%dT%H:%M:%SZ"))
@@ -149,26 +180,23 @@ def cmd_capture(args: argparse.Namespace) -> int:
         ps.run("featured", featured)
 
     taken = _closes_taken(manifest)
-    for eid in cadence.close_due(tips, now, cfg.cadence):
-        if eid in taken and not args.force:
-            continue
+    closing = {e for e in cadence.close_due(tips, now, cfg.cadence) if args.force or e not in taken}
+    if closing:
         ps = runner.start(SPORT, day.isoformat(), "close", root, started_at=at)
 
-        def close(p: runner.Pass, eid: str = eid) -> None:
-            ev = client.event(eid, FEATURED, pass_id=p.pass_id)
+        def close(p: runner.Pass) -> None:
+            evs = [e for e in client.board(FEATURED, pass_id=p.pass_id) if str(e.get("id", "")) in closing]
             p.spend(client.spent - p.credits)
-            if ev is not None:
-                shard(
-                    "close",
-                    capture.rows_from_events(
-                        [ev], captured_at=p.started_at, pass_id=p.pass_id, pass_kind="close"
-                    ),
-                    p.pass_id,
-                    event_id=eid,
-                )
+            rows = capture.rows_from_events(evs, captured_at=p.started_at, pass_id=p.pass_id, pass_kind="close")
+            shard(
+                "close", rows, p.pass_id,
+                event_ids=sorted({q.event_id for q in rows}), teams=capture.teams(evs),
+            )
 
         ps.run("close", close)
 
+    if written:
+        state.auto_push(f"cbb capture {day} {len(written)} shard(s)", trees=("quotes",))
     print(
         f"{day}: {len(tips)} game(s); wrote {written}; spent {client.spent}; remaining {client.credits_remaining}"
     )
@@ -211,6 +239,7 @@ def cmd_price(args: argparse.Namespace) -> int:
     """Write the card pass (bet of record) from the latest board/featured shard."""
     day = _parse_date(args.date)
     root = runtime_root()
+    state.auto_pull(trees=("quotes", "ledger"))
     ps = runner.start(SPORT, day.isoformat(), "featured", root)
     hits_path = data_dir() / "watch" / day.isoformat() / "hits.jsonl"
     pending = set()
@@ -229,6 +258,7 @@ def cmd_price(args: argparse.Namespace) -> int:
         env_lock_hash=ps.env_lock_hash,
         pending_events=pending,
         width=dist.load_width(),
+        margin=mg.load(),
         max_live_buys=cfg.exposure.max_live_buys,
         max_per_book=cfg.exposure.max_per_book,
     )
@@ -245,25 +275,168 @@ def cmd_price(args: argparse.Namespace) -> int:
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(text)
     print(text)
+    paths = {"card": out}
+    card_pdf = _card_pdf(root, day, ps.pass_id, priced.rows, out.with_suffix(".pdf"))
+    if card_pdf is not None:
+        paths["card_pdf"] = card_pdf
+    if not args.dry_run and cfg.alt_lines_on:
+        try:
+            client = _client(cache_ttl=0)
+            if client is not None:
+                n = altlines.capture_for(client, root, day.isoformat(), ps.pass_id, priced.rows, max_events=cfg.max_events)
+                print(f"alternate lines: {n} quote(s) for {len(altlines.tracked(priced.rows))} bought game(s)")
+        except Exception:
+            log.warning("CBB alternate lines failed; the card goes out without them", exc_info=True)
+    if not args.dry_run:
+        state.auto_push(f"cbb card {day} {ps.pass_id}", trees=("ledger", "cards", "quotes"))
     if args.email and not args.dry_run:
         print(
-            f"emailed {email.send(cfg, subject=f'CBB card {day} ({ps.pass_id})', text=text, paths={'card': out}, to=args.to)}"
+            f"emailed {email.send(cfg, subject=f'CBB card {day} ({ps.pass_id})', text=text, paths=paths, to=args.to)}"
         )
     return 0
+
+
+def _manifest_teams(root: Path, day: Date) -> dict[str, tuple[str, str]]:
+    teams: dict[str, tuple[str, str]] = {}
+    for m in quotes.read_manifest(root, SPORT, day.isoformat()):
+        tm = m.get("teams")
+        if isinstance(tm, dict):
+            teams.update({str(k): (str(v[0]), str(v[1])) for k, v in tm.items()})
+    return teams
+
+
+def _season_bands(root: Path, season: list[ledger.Row], day: Date) -> list[BandRead] | None:
+    """Graded-only bands over the season's ledger; context from archived ESPN boards, Torvik and first captures."""
+    try:
+        logs = bands.parse_logs(teamstats.read_logs(torvik.as_of(data_dir(), "game_logs", day).path))
+        res = torvik.as_of(data_dir(), "team_results", day).path
+        confs = {r.get("team", ""): r.get("conf", "") for r in torvik.read_csv(res)} if res else {}
+        days = sorted({Date.fromisoformat(r.slate_date) for r in season})
+        boards: dict[Date, list[espn.Game]] = {}
+        if days:
+            d = days[0] - timedelta(days=bands.REST_LOOKBACK)
+            while d <= days[-1]:
+                boards[d] = history.latest_scoreboard(data_dir(), d.isoformat())
+                d += timedelta(days=1)
+        ctx: dict[str, bands.GameCtx] = {}
+        for d in days:
+            opener = bands.openers(quotes.read_day(root, SPORT, d.isoformat()))
+            ctx.update(bands.context(_manifest_teams(root, d), d, boards, logs, confs, opener))
+        return bands.read_bands(season, ctx)
+    except Exception:
+        log.warning("CBB bands failed; the audit goes out without them", exc_info=True)
+        return None
+
+
+def _slate(root: Path, day: Date) -> tuple[list[ledger.Row], dict[str, tuple[str, str]]]:
+    return list(ledger.record(root, SPORT, day.isoformat()).values()), _manifest_teams(root, day)
+
+
+def _earlier_games(root: Path, day: Date) -> list[podcast.Game[podcast.Rows]]:
+    """The games within the podcast horizon before ``day``: the priced ones, plus every
+    archived ESPN game, so a pick on a game the card never priced is not carried on
+    to the team's next game."""
+    out: list[podcast.Game[podcast.Rows]] = []
+    for k in range(podcast.HORIZON.days, 0, -1):
+        d = day - timedelta(days=k)
+        rows, teams = _slate(root, d)
+        out += podcast.to_games(rows, teams, d)
+        out += podcast.espn_games(history.latest_scoreboard(data_dir(), d.isoformat()), d)
+    return out
+
+
+def _podcast_view(root: Path, day: Date, rows: list[ledger.Row]) -> podcast.PodcastView | None:
+    """The slate's podcast bets for the PDF; a failure here never stops the card."""
+    try:
+        podcast_state.auto_pull(store_dir())
+        games = podcast.to_games(rows, _manifest_teams(root, day), day)
+        return podcast.view(store_dir(), games, day, earlier=_earlier_games(root, day))
+    except Exception as exc:  # noqa: BLE001 - podcasts are display only
+        print(f"  podcast bets left off the card ({exc})")
+        return None
+
+
+def cmd_podcast(args: argparse.Namespace) -> int:
+    """Read the shows' new CBB episodes and grade their picks on ESPN finals. Prices nothing."""
+    root = runtime_root()
+    sync = not args.no_sync
+    if sync:
+        podcast_state.auto_pull(store_dir())
+        # The manifests (in quotes) name each event's teams; without them no pick places.
+        state.auto_pull(trees=("quotes", "ledger"))
+    if not args.no_read:
+        now = datetime.now(timezone.utc)
+        rep = read_feeds(
+            store_dir(), now - timedelta(days=args.days), now, league=CBB,
+            shows=[s for s in SHOWS if CBB in s.leagues],
+            transcribe_missing=not args.no_transcribe,
+        )
+        print(f"  {rep.by_league.get(CBB, 0)} CBB picks read")
+    today = datetime.now(timezone.utc).date()
+    n = 0
+    for k in range(args.days, 0, -1):
+        d = today - timedelta(days=k)
+        try:
+            rows, teams = _slate(root, d)
+            finals = history.latest_scoreboard(data_dir(), d.isoformat())
+            n += len(podcast.grade_day(store_dir(), d, rows, teams, finals, earlier=_earlier_games(root, d)))
+        except Exception as exc:  # noqa: BLE001 - podcasts are display only
+            print(f"  {d}: podcast picks not graded ({exc})")
+    print(f"  {n} CBB podcast picks graded over the last {args.days} day(s)")
+    if sync:
+        podcast_state.auto_push(store_dir(), f"cbb podcasts: through {today - timedelta(days=1)}")
+    return 0
+
+
+def _card_pdf(root: Path, day: Date, pass_id: str, rows: list[ledger.Row], out: Path) -> Path | None:
+    """Display-only PDF beside the text card; any failure leaves the text card as the card."""
+    try:
+        logs = torvik.as_of(data_dir(), "game_logs", day).path
+        adj = torvik.as_of(data_dir(), "team_results", day).path
+        stats = teamstats.season(teamstats.read_logs(logs), day, torvik.read_csv(adj) if adj else ())
+        payload = injuries.fetch()
+        if payload is not None:
+            injuries.archive(data_dir(), day, payload, at=quotes.now_utc())
+        src, listed = injuries.latest(data_dir(), day)
+        body = pdf.build_html(
+            day,
+            rows,
+            _manifest_teams(root, day),
+            stats,
+            title=f"pass {pass_id} ·",
+            injuries=listed,
+            injuries_source=f"(RotoWire {src.stem[-6:-2]} UTC) " if src else "(RotoWire: none fetched) ",
+            moves=movement.moves(quotes.read_day(root, SPORT, day.isoformat()), until=quotes.now_utc()),
+            podcast=_podcast_view(root, day, rows),
+        )
+        out.write_bytes(pdf.render_pdf(body))
+    except Exception:
+        log.warning("CBB card PDF failed; sending the text card only", exc_info=True)
+        return None
+    return out
 
 
 def cmd_audit(args: argparse.Namespace) -> int:
     """Grade yesterday's bet-of-record rows against close shards + ESPN finals; print the views."""
     day = _parse_date(args.date)
     root = runtime_root()
+    state.auto_pull(trees=("quotes", "ledger"))
     games = espn.ESPNClient().scoreboard(day, archive=data_dir()) if not args.offline else []
+    # Games tipping today were priced on earlier cards too; their manifests name the teams.
     teams: dict[str, tuple[str, str]] = {}
-    for m in quotes.read_manifest(root, SPORT, day.isoformat()):
-        extra = m.get("extra")
-        if isinstance(extra, dict) and isinstance(extra.get("teams"), dict):
-            teams.update({str(k): (str(v[0]), str(v[1])) for k, v in extra["teams"].items()})
+    for back in range(audit.LOOKBACK_DAYS, -1, -1):
+        teams.update(_manifest_teams(root, day - timedelta(days=back)))
     ps = runner.start(SPORT, day.isoformat(), "board", root)
-    written = audit.grade(root, day.isoformat(), games, teams, pass_id=ps.pass_id)
+    written = audit.grade(root, day.isoformat(), games, teams, pass_id=ps.pass_id, width=dist.load_width(), margin=mg.load())
+    if written:
+        state.auto_push(f"cbb grade {day}", trees=("ledger",))
+    alt_path = data_dir() / "audit" / "alt_ledger.csv"
+    if games:
+        try:
+            n_alt = altlines.save_day(alt_path, day.isoformat(), altlines.grade(root, day.isoformat(), games, teams))
+            print(f"graded {n_alt} alternate line(s) (tracked only) -> {alt_path}")
+        except Exception:
+            log.warning("CBB alternate-line grading failed", exc_info=True)
     rows = list(ledger.record(root, SPORT, day.isoformat()).values())
     rungs = [
         "v0_shape",
@@ -277,29 +450,41 @@ def cmd_audit(args: argparse.Namespace) -> int:
     # The stake bar is season-to-date: eight live buys a day never reach 100 in one slate,
     # and a prior season's buys may not vouch for this one (seasons turn over 1 July).
     start = Date(day.year if day.month >= 7 else day.year - 1, 7, 1).isoformat()
-    season = [
-        r
+    by_day = {
+        d: list(ledger.record(root, SPORT, d).values())
         for d in sorted(p.name for p in (root / "ledger" / SPORT).glob("*") if p.is_dir())
         if start <= d <= day.isoformat()
-        for r in ledger.record(root, SPORT, d).values()
-    ]
+    }
+    season = [r for rs in by_day.values() for r in rs]
+    reads = _season_bands(root, season, day)
     rep["v_promotion"] = views.v_promotion(season)
+    rep["v_bands"] = bands.render(reads).splitlines() if reads is not None else ["bands unavailable (see log)"]
     if args.time_travel:
         stamps = [("quote", q.captured_at) for q in shards] + [("row", r.tip_utc) for r in rows]
         rep["time_travel_violations"] = study.time_travel(day.isoformat(), stamps)
-    text = (
-        checklist.render(checklist.run(load_config(), root, day.isoformat()))
-        + "\n\n"
-        + audit.render(rep)
+    checks = checklist.render(checklist.run(load_config(), root, day.isoformat()))
+    report = audit_report.build(
+        by_day, day, bands=reads, checklist_lines=checks.splitlines(), alts=altlines.alts(alt_path, day.isoformat())
     )
-    out = data_dir() / "audit" / f"{day.isoformat()}.json"
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(text)
+    text = audit_report.render_text(report)
+    out_dir = data_dir() / "audit"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / f"{day.isoformat()}.json").write_text(audit.render(rep))
+    page = audit_report.render_html(report)
+    html_out = out_dir / f"cbb_audit_{day.isoformat()}.html"
+    html_out.write_text(page, encoding="utf-8")
+    paths = {"audit_html": html_out}
+    try:
+        pdf_out = out_dir / f"CBB_Audit_{day.isoformat()}.pdf"
+        pdf_out.write_bytes(pdf.render_pdf(page))
+        paths = {"audit_pdf": pdf_out}
+    except Exception:
+        log.warning("CBB audit PDF failed; attaching the HTML report instead", exc_info=True)
     print(text)
-    print(f"graded {len(written)} row(s)")
+    print(f"graded {len(written)} row(s); report in {out_dir}")
     if args.email:
         print(
-            f"emailed {email.send(load_config(), subject=f'CBB audit {day}', text=text, paths={'audit': out}, to=args.to)}"
+            f"emailed {email.send(load_config(), subject=report.subject, text=text, paths=paths, to=args.to)}"
         )
     return 0
 
@@ -312,6 +497,9 @@ def cmd_budget(args: argparse.Namespace) -> int:
         event_cost=len(EVENT_MARKETS) if cfg.event_markets_on else 0,
         regions=len(cfg.regions.split(",")),
     )
+    if cfg.alt_lines_on:
+        out["alt_lines"] = altlines.daily_cost(args.games, cfg.max_events, len(cfg.regions.split(",")))
+        out["total"] += out["alt_lines"]
     print(json.dumps({"games": args.games, "regions": cfg.regions, **out}, indent=2))
     return 0
 
@@ -467,6 +655,12 @@ def build_parser() -> argparse.ArgumentParser:
     pr.add_argument("--email", action="store_true")
     pr.add_argument("--to")
     pr.set_defaults(func=cmd_price)
+    po = sub.add_parser("podcast", help="read the shows' CBB picks and grade them (prices nothing)")
+    po.add_argument("--days", type=int, default=3)
+    po.add_argument("--no-read", action="store_true", help="only grade what was already read")
+    po.add_argument("--no-transcribe", action="store_true")
+    po.add_argument("--no-sync", action="store_true")
+    po.set_defaults(func=cmd_podcast)
     au = sub.add_parser(
         "audit", help="grade bet-of-record rows (close shards + ESPN finals), print the views"
     )

@@ -420,7 +420,7 @@ def test_integrity_line_and_schedule_bands_render_only_with_a_graded_ledger():
     page = render_html(build_card(rows, day=DAY, graded=graded, draws=10, bands=[band]))
     assert "Ledger integrity:" in page and "no duplicates" in page
     assert (
-        "Schedule bands" in page and "rest_host_ats" in page and "probation (3/100 games)" in page
+        "Schedule bands" in page and "rest_host_ats" in page and "probation (3/150 games)" in page
     )
 
 
@@ -485,3 +485,42 @@ def test_card_prints_ratings_and_four_factors_or_says_none_are_archived(scratch)
     assert "BOS O vs NYK D" in page and "NYK O vs BOS D" in page and "class='tn'" in page
     bare = render_html(build_card(rows, day=DAY))
     assert "no regular-season box scores archived yet" in bare and "Four factors" not in bare
+
+
+def test_tied_values_share_a_rank():
+    r = teamstats._ranks({"A": 1.0, "B": 2.0, "C": 2.0, "D": None}, high_is_good=True)
+    assert (r["B"].rank, r["C"].rank, r["A"].rank, r["D"].rank) == (1, 1, 3, None)
+
+
+def test_espn_fetch_archives_a_day_without_games(monkeypatch, tmp_path):
+    calls: list[object] = []
+
+    class _Resp:
+        def raise_for_status(self) -> None:
+            pass
+
+        def json(self) -> dict[str, object]:
+            return {"events": []}
+
+    monkeypatch.setattr(context.requests, "get", lambda *a, **k: calls.append(k) or _Resp())
+    idle = date(2025, 10, 5)
+    fetch = context.espn_fetch(tmp_path)
+    assert fetch(idle) == [] and boxes.read_results(tmp_path, idle) == []
+    teamstats.season_finals(tmp_path, idle + timedelta(days=1), fetch)
+    assert len(calls) == 5  # Oct 1-4 asked once; Oct 5 already archived
+    teamstats.season_finals(tmp_path, idle + timedelta(days=1), fetch)
+    assert len(calls) == 5
+
+
+def test_espn_fetch_does_not_archive_a_scoreboard_without_events(monkeypatch, tmp_path):
+    class _Resp:
+        def raise_for_status(self) -> None:
+            pass
+
+        def json(self) -> dict[str, object]:
+            return {"code": 500, "message": "upstream"}
+
+    monkeypatch.setattr(context.requests, "get", lambda *a, **k: _Resp())
+    day = date(2025, 10, 5)
+    assert context.espn_fetch(tmp_path)(day) is None
+    assert boxes.read_results(tmp_path, day) is None
