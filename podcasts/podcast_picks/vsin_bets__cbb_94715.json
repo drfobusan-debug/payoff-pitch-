@@ -1,0 +1,60 @@
+{
+ "episode_guid": "vsin-94715",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "3d7b7b0e090335ea3119614b2f68026dfbb11e50",
+ "picks": [
+  {
+   "pick_id": "205c94a7dcea",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-94715",
+   "episode_title": "College Basketball Picks for Tuesday, November 3 from Adam Burke",
+   "published": "2026-11-03T14:11:33+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Stetson",
+   "opponent": "South Carolina",
+   "side": null,
+   "line": 19.5,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Stetson +19.5",
+   "reason": "https://vsin.com/college-basketball/college-basketball-picks-for-tuesday-november-3-from-adam-burke/",
+   "description": "Stetson +19.5",
+   "league": "cbb",
+   "edge": "",
+   "fair_line": null
+  },
+  {
+   "pick_id": "0961c85a9146",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-94715",
+   "episode_title": "College Basketball Picks for Tuesday, November 3 from Adam Burke",
+   "published": "2026-11-03T14:11:33+00:00",
+   "kind": "official",
+   "market": "game_total",
+   "team": "North Florida",
+   "opponent": "Cal Baptist",
+   "side": "under",
+   "line": 155.5,
+   "price": null,
+   "units": null,
+   "seconds": 1,
+   "quote": "Under 155.5",
+   "reason": "https://vsin.com/college-basketball/college-basketball-picks-for-tuesday-november-3-from-adam-burke/",
+   "description": "Under 155.5",
+   "league": "cbb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cbb"
+ ]
+}
