@@ -1,0 +1,60 @@
+{
+ "episode_guid": "6f136f92-d418-11f1-808b-8b9e9182cdff",
+ "model": "gpt-4o-mini",
+ "prompt_version": "picks-v2",
+ "transcript_sha": "ac5dfc4c3c01c15b303ee0b73b7758bee7702c64",
+ "picks": [
+  {
+   "pick_id": "165021604009",
+   "show": "c2c_hoops",
+   "show_name": "Coast to Coast Hoops (VSiN)",
+   "host": "Greg Peterson",
+   "episode_guid": "6f136f92-d418-11f1-808b-8b9e9182cdff",
+   "episode_title": "10/30/26-Coast To Coast Hoops",
+   "published": "2026-10-30T07:00:00-04:00",
+   "kind": "lean",
+   "market": "other",
+   "team": "Iowa",
+   "opponent": null,
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "seconds": 1440,
+   "quote": "I think a school like an Iowa is one to be a Levanque on.",
+   "reason": "Greg thinks Iowa could surprise this season due to their coaching and returning players.",
+   "description": "Iowa Hawkeyes could be a surprise team this season.",
+   "league": "cbb",
+   "edge": "",
+   "fair_line": null
+  },
+  {
+   "pick_id": "726d7fc2dd95",
+   "show": "c2c_hoops",
+   "show_name": "Coast to Coast Hoops (VSiN)",
+   "host": "Greg Peterson",
+   "episode_guid": "6f136f92-d418-11f1-808b-8b9e9182cdff",
+   "episode_title": "10/30/26-Coast To Coast Hoops",
+   "published": "2026-10-30T07:00:00-04:00",
+   "kind": "lean",
+   "market": "other",
+   "team": "Miami",
+   "opponent": null,
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "seconds": 1684,
+   "quote": "I think this Miami team, Greg, especially, you know, with the kind of NIL, that they're dropping as well. They're going to be really fun.",
+   "reason": "Greg believes Miami has a lot of potential due to their strong roster and NIL support.",
+   "description": "Miami Hurricanes to be a competitive team this season.",
+   "league": "cbb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cbb"
+ ]
+}

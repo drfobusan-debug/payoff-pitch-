@@ -1,0 +1,60 @@
+{
+ "episode_guid": "84791678-d294-11f1-a752-bf414193922c",
+ "model": "gpt-4o-mini",
+ "prompt_version": "picks-v2",
+ "transcript_sha": "4bad6f71b3f06610d4746e67e70a1c483cddcd21",
+ "picks": [
+  {
+   "pick_id": "3052ee205b7d",
+   "show": "c2c_hoops",
+   "show_name": "Coast to Coast Hoops (VSiN)",
+   "host": "Greg Peterson",
+   "episode_guid": "84791678-d294-11f1-a752-bf414193922c",
+   "episode_title": "10/28/26-Coast To Coast Hoops",
+   "published": "2026-10-28T07:00:00-04:00",
+   "kind": "official",
+   "market": "other",
+   "team": "Wichita State",
+   "opponent": null,
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "seconds": 1092,
+   "quote": "I like Paul Mills and Wichita. That was a breakthrough year last year, 24 Wednesday. Bring back a bunch of continuity. I like them.",
+   "reason": "Wichita State has a strong returning roster and continuity from last season.",
+   "description": "Wichita State to win their respective regular season league.",
+   "league": "cbb",
+   "edge": "continuity from last season",
+   "fair_line": null
+  },
+  {
+   "pick_id": "b37762832cf7",
+   "show": "c2c_hoops",
+   "show_name": "Coast to Coast Hoops (VSiN)",
+   "host": "Greg Peterson",
+   "episode_guid": "84791678-d294-11f1-a752-bf414193922c",
+   "episode_title": "10/28/26-Coast To Coast Hoops",
+   "published": "2026-10-28T07:00:00-04:00",
+   "kind": "official",
+   "market": "other",
+   "team": "UIC",
+   "opponent": null,
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "seconds": 1092,
+   "quote": "I like this UIC team in the Valley. Those are the two leagues we did today.",
+   "reason": "UIC has a strong returning roster and continuity from last season.",
+   "description": "UIC to win their respective regular season league.",
+   "league": "cbb",
+   "edge": "continuity from last season",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cbb"
+ ]
+}
