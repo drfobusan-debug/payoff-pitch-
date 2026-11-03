@@ -51,7 +51,7 @@
     "name": "Jacob Fowler",
     "player_id": 8484170,
     "source": "rotowire",
-    "status": "probable"
+    "status": "confirmed"
   },
   "NJD": {
     "name": "Connor Hellebuyck",
@@ -69,19 +69,19 @@
     "name": "Dylan Garand",
     "player_id": 8482193,
     "source": "rotowire",
-    "status": "probable"
+    "status": "confirmed"
   },
   "PHI": {
-    "name": "Joseph Woll",
-    "player_id": 8479361,
+    "name": "Dan Vladar",
+    "player_id": 8478435,
     "source": "rotowire",
-    "status": "probable"
+    "status": "confirmed"
   },
   "PIT": {
     "name": "Arturs Silovs",
     "player_id": 8481668,
     "source": "rotowire",
-    "status": "probable"
+    "status": "confirmed"
   },
   "STL": {
     "name": "Joel Hofer",
@@ -123,6 +123,6 @@
     "name": "Logan Thompson",
     "player_id": 8480313,
     "source": "rotowire",
-    "status": "probable"
+    "status": "confirmed"
   }
 }
