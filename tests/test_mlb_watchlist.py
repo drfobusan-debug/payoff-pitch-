@@ -100,3 +100,15 @@ def test_the_card_prints_the_block(tmp_path: Path) -> None:
     assert "always-Over" in md and f"{wl.MIN_N} more games" in md
     assert "What we're watching" in render_html([], date(2027, 4, 3), watching=w)
     assert "Schedule unavailable" in wl.markdown(wl.build(tmp_path, [], WEIGHTS_VERSION))[2]
+
+
+def test_a_later_card_reads_every_season_since_registration(tmp_path: Path, monkeypatch) -> None:
+    from datetime import date
+    from types import SimpleNamespace
+
+    from mlb_engine import cli
+
+    seen: list[int] = []
+    monkeypatch.setattr(wl, "fetch_schedule", lambda get, season, d: seen.append(season) or [])
+    assert cli._watchlist(SimpleNamespace(audit_dir=tmp_path), date(2028, 5, 1)) is not None  # type: ignore[arg-type]
+    assert seen == [2027, 2028]
