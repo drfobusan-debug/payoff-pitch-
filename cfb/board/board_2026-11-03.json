@@ -1,0 +1,86 @@
+{
+  "Buffalo @ Miami (OH)|game_ats|Buffalo": {
+    "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 6.0,
+    "no_vig_prob": 0.5014180792238586
+  },
+  "Buffalo @ Miami (OH)|game_ats|Miami (OH)": {
+    "american": -104.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -6.0,
+    "no_vig_prob": 0.4985819207761415
+  },
+  "Buffalo @ Miami (OH)|game_ml|Buffalo": {
+    "american": 200.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.3279246667133575
+  },
+  "Buffalo @ Miami (OH)|game_ml|Miami (OH)": {
+    "american": -225.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.6720753332866426
+  },
+  "Buffalo @ Miami (OH)|game_total|Over": {
+    "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 44.5,
+    "no_vig_prob": 0.5010976954772252
+  },
+  "Buffalo @ Miami (OH)|game_total|Under": {
+    "american": -107.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 44.5,
+    "no_vig_prob": 0.49890230452277495
+  },
+  "Ohio @ Akron|game_ats|Akron": {
+    "american": 100.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 14.0,
+    "no_vig_prob": 0.4977079326429104
+  },
+  "Ohio @ Akron|game_ats|Ohio": {
+    "american": -107.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -14.0,
+    "no_vig_prob": 0.5022920673570896
+  },
+  "Ohio @ Akron|game_ml|Akron": {
+    "american": 450.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.1791980393646086
+  },
+  "Ohio @ Akron|game_ml|Ohio": {
+    "american": -575.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.8208019606353915
+  },
+  "Ohio @ Akron|game_total|Over": {
+    "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 51.0,
+    "no_vig_prob": 0.5014059469463824
+  },
+  "Ohio @ Akron|game_total|Under": {
+    "american": -107.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 51.0,
+    "no_vig_prob": 0.4985940530536176
+  }
+}
