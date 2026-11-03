@@ -17,6 +17,7 @@ from datetime import date as Date
 from datetime import timedelta
 from html import escape
 
+from cbb_engine import teamgroups
 from cbb_engine.bands import main_rows
 from engine_common.bands import MIN_N as BAND_MIN_N
 from engine_common.bands import BandRead
@@ -342,6 +343,7 @@ def build(
     day: Date,
     *,
     bands: Sequence[BandRead] | None = None,
+    groups: Sequence[teamgroups.GroupRead] | None = None,
     checklist_lines: Sequence[str] = (),
     recent: int = 7,
     alts: Sequence[alt_rt.Alt] = (),
@@ -391,6 +393,16 @@ def build(
             "" if reads else "bands unavailable (see log)",
         )
     )
+    s_sec.tables.append(
+        Table(
+            f"Team groups: how well the close called each kind of game (one row per game; called at {BAND_MIN_N} games and 2 SE)",
+            teamgroups.HEAD,
+            teamgroups.table(groups or []),
+            ("" if groups is not None else "team groups unavailable (see log). ")
+            + "Close miss = mean |result - closing line|; vs rest = this group's miss less every other game's; "
+            "bias > 0 = favourites / Overs beat the close. " + teamgroups.CONTINUITY_NOTE,
+        )
+    )
     gates = [g for g in views.v_gate(season) if int(g["n"]) > 0]  # type: ignore[call-overload]
     s_sec.tables.append(
         Table(
@@ -432,6 +444,11 @@ def build(
         )
     )
     findings = _findings(w_buys, s_buys, season, promo, reads)
+    findings += [
+        f"Team group {g.group} ({g.market}): {g.verdict} (n={g.games} games)."
+        for g in groups or []
+        if g.dimension != "all" and g.games >= BAND_MIN_N and g.verdict != "no difference"
+    ]
     sections = [w_sec, s_sec]
     if checklist_lines:
         sections.append(Section("Go/no-go checklist", list(checklist_lines)))
