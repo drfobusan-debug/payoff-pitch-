@@ -23,7 +23,7 @@ from __future__ import annotations
 
 import json
 import logging
-from collections.abc import Iterable, Iterator
+from collections.abc import Callable, Iterable, Iterator
 from dataclasses import dataclass, field, replace
 from datetime import date as Date
 from datetime import datetime, timezone
@@ -45,7 +45,7 @@ from nhl_engine.features import strength
 from nhl_engine.features.starters import Starter, load_overrides, overrides_path, starter_for
 from nhl_engine.market.board import EXEC_BOOKS, Selection, matchups, selections
 from nhl_engine.market.pricing import anchor, is_prop, stamp
-from nhl_engine.models import markets
+from nhl_engine.models import goals, markets
 from nhl_engine.models import props as propm
 from nhl_engine.models.goals import GameRates, game_rates, goalie_factor
 from nhl_engine.models.periods import SimResult, simulate
@@ -588,6 +588,34 @@ def one_buy_per_side(rows: list[LedgerRow]) -> list[LedgerRow]:
     return rows
 
 
+def with_finishing_split(
+    league: dict[str, float],
+    prior: PreseasonPrior,
+    games: dict[str, tuple[str, str, str]],
+    inputs: Callable[[str], TeamInputs],
+) -> dict[str, float]:
+    """Add the slate's mean team finishing and last season's league finishing to
+    ``league`` (``goals.FIN_TEAM_MEAN`` / ``goals.FIN_LAST``) and log the gap."""
+    codes = sorted({c for away, home, _ in games.values() for c in (away, home) if c in CODES})
+    fins = [inputs(c).rates.get("fin60_5v5", float("nan")) for c in codes]
+    fins = [f for f in fins if f == f]
+    if not fins:
+        return league
+    team_mean = sum(fins) / len(fins)
+    last = prior.league.get("fin60_5v5", float("nan"))
+    lg = league.get("fin60_5v5", float("nan"))
+    log.info(
+        "finishing g/60: league %+.3f last season %+.3f slate team mean %+.3f "
+        "-> own-league per side %+.3f, split level %+.3f",
+        lg,
+        last,
+        team_mean,
+        team_mean - lg,
+        lg - last,
+    )
+    return {**league, goals.FIN_TEAM_MEAN: team_mean, goals.FIN_LAST: last}
+
+
 def run_slate(
     quotes: list[QuoteRow],
     *,
@@ -641,6 +669,7 @@ def run_slate(
             )
         return cache[code]
 
+    league = with_finishing_split(league, prior, games, inputs)
     for i, (matchup, (away, home, event_id)) in enumerate(sorted(games.items())):
         if home not in CODES or away not in CODES:
             out.unpriced.append(f"{matchup}: unknown team code")
