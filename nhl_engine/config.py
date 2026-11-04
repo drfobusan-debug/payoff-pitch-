@@ -353,13 +353,6 @@ class SimParams:
     # teams and goalies the sim scored 1.031/1.038/1.022/1.047 x too few reg+OT
     # goals in 2022-2025 (LEAGUE_STUDY); pooled 1.035.
     goal_level: float = 1.035
-    # Finishing as skill + level: ``own - mean(teams on the slate)`` (sums to
-    # zero) plus ``league(shrunk) - league(last season)`` on both sides, so a
-    # league finishing above last year raises the total instead of taxing every
-    # team (team finishing half-trusts in ~183 games, the league rate in 400
-    # team-games, so in October ``own - league`` is negative league-wide).
-    # Off until the October close test (2023, 2024) is run with it on.
-    finishing_split: bool = field(default_factory=lambda: _env_bool("NHLE_FIN_SPLIT", False))
     ot_home_intercept: float = 0.181
     ot_strength_slope: float = 3.37
     so_home: float = 0.5
