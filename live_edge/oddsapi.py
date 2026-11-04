@@ -16,7 +16,13 @@ from live_edge.espn import norm_team
 
 log = logging.getLogger(__name__)
 
-SPORT_KEY = {"nfl": "americanfootball_nfl", "cfb": "americanfootball_ncaaf"}
+SPORT_KEY = {
+    "nfl": "americanfootball_nfl",
+    "cfb": "americanfootball_ncaaf",
+    "nba": "basketball_nba",
+    "cbb": "basketball_ncaab",
+    "nhl": "icehockey_nhl",
+}
 BASE = "https://api.the-odds-api.com/v4/sports"
 MARKETS = "h2h,spreads,totals"
 
@@ -105,14 +111,14 @@ class LiveOddsClient:
     def available(self) -> bool:
         return bool(self.api_key)
 
-    def fetch(self, sport: str) -> list[EventQuotes]:
+    def fetch(self, sport: str, markets: str = MARKETS) -> list[EventQuotes]:
         if not self.available():
             return []
         url = f"{BASE}/{SPORT_KEY[sport]}/odds"
         params = {
             "apiKey": self.api_key or "",
             "regions": self.regions,
-            "markets": MARKETS,
+            "markets": markets,
             "oddsFormat": "american",
         }
         try:
