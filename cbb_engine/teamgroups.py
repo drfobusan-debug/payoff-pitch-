@@ -41,6 +41,7 @@ class Called:
     total: float | None
     home_margin: int
     points: int
+    h1_points: int | None = None
 
     def result(self, market: str) -> float | None:
         """Result less the close: favourite cover margin (spread) or points over the total."""
@@ -78,9 +79,16 @@ def called(
         hit = history.scores(ha[0], ha[1], games) if ha else None
         if hit is None:
             continue
-        (away, home), _ = hit
+        (away, home), h1 = hit
         lines = main_lines(qs)
-        out[eid] = Called(eid, lines.get(("game_ats", "home")), lines.get(("game_total", "over")), home - away, home + away)
+        out[eid] = Called(
+            eid,
+            lines.get(("game_ats", "home")),
+            lines.get(("game_total", "over")),
+            home - away,
+            home + away,
+            sum(h1) if h1 else None,
+        )
     return out
 
 

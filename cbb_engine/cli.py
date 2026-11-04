@@ -13,6 +13,7 @@ import csv
 import json
 import logging
 import sys
+from collections.abc import Mapping, Sequence
 from datetime import date as Date
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -44,7 +45,7 @@ from engine_common.podcasts import state as podcast_state
 from engine_common.podcasts.episodes import store_dir
 from engine_common.podcasts.run import read_feeds
 from engine_common.podcasts.shows import CBB, SHOWS
-from engine_runtime import ledger, quotes, runner, views
+from engine_runtime import faststart, ledger, quotes, runner, views
 from engine_runtime.odds_client import OddsClient
 
 log = logging.getLogger(__name__)
@@ -347,20 +348,44 @@ def _season_bands(root: Path, season: list[ledger.Row], day: Date) -> list[BandR
         return None
 
 
-def _team_groups(root: Path, season: list[ledger.Row], day: Date) -> list[teamgroups.GroupRead] | None:
-    """Closing-line accuracy by tempo and conference pairing, one row per finished game with a timely close."""
+def _called_by_day(
+    root: Path, season: list[ledger.Row], boards: Mapping[Date, Sequence[espn.Game]]
+) -> dict[Date, dict[str, teamgroups.Called]]:
+    """Per slate day, every event with a timely close and a matched ESPN final."""
+    out: dict[Date, dict[str, teamgroups.Called]] = {}
+    for d in sorted(b for b in boards if season and b.isoformat() >= min(r.slate_date for r in season)):
+        teams: dict[str, tuple[str, str]] = {}
+        for back in range(audit.LOOKBACK_DAYS, -1, -1):
+            teams.update(_manifest_teams(root, d - timedelta(days=back)))
+        out[d] = teamgroups.called(quotes.read_day(root, SPORT, d.isoformat()), teams, boards[d])
+    return out
+
+
+def _team_groups(
+    root: Path, season: list[ledger.Row], day: Date
+) -> tuple[list[teamgroups.GroupRead] | None, list[faststart.Read] | None]:
+    """Closing-line accuracy by tempo and conference pairing, and the first-half fast-start study,
+    one row per finished game with a timely close."""
     try:
         ctx, boards = _season_ctx(root, season, day)
-        games: dict[str, teamgroups.Called] = {}
-        for d in sorted(b for b in boards if season and b.isoformat() >= min(r.slate_date for r in season)):
-            teams: dict[str, tuple[str, str]] = {}
-            for back in range(audit.LOOKBACK_DAYS, -1, -1):
-                teams.update(_manifest_teams(root, d - timedelta(days=back)))
-            games.update(teamgroups.called(quotes.read_day(root, SPORT, d.isoformat()), teams, boards[d]))
-        return teamgroups.read(season, ctx, games)
+        by_day = _called_by_day(root, season, boards)
     except Exception:
         log.warning("CBB team groups failed; the audit goes out without them", exc_info=True)
-        return None
+        return None, None
+    groups: list[teamgroups.GroupRead] | None
+    try:
+        groups = teamgroups.read(season, ctx, {e: c for cs in by_day.values() for e, c in cs.items()})
+    except Exception:
+        log.warning("CBB team groups failed; the audit goes out without them", exc_info=True)
+        groups = None
+    obs = [
+        faststart.Obs(c.event_id, d.isoformat(), c.total, c.h1_points, c.points)
+        for d, cs in by_day.items()
+        for c in cs.values()
+        if c.total is not None and c.h1_points is not None
+    ]
+    half = faststart.read("half", obs)
+    return groups, [half] if half else []
 
 
 def _slate(root: Path, day: Date) -> tuple[list[ledger.Row], dict[str, tuple[str, str]]]:
@@ -492,7 +517,7 @@ def cmd_audit(args: argparse.Namespace) -> int:
     }
     season = [r for rs in by_day.values() for r in rs]
     reads = _season_bands(root, season, day)
-    groups = _team_groups(root, season, day)
+    groups, fast = _team_groups(root, season, day)
     rep["v_promotion"] = views.v_promotion(season)
     rep["v_bands"] = bands.render(reads).splitlines() if reads is not None else ["bands unavailable (see log)"]
     if args.time_travel:
@@ -504,6 +529,7 @@ def cmd_audit(args: argparse.Namespace) -> int:
         day,
         bands=reads,
         groups=groups,
+        fast=fast,
         checklist_lines=checks.splitlines(),
         alts=altlines.alts(alt_path, day.isoformat()),
     )
