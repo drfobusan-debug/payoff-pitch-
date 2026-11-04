@@ -1,42 +1,42 @@
 {
   "Buffalo @ Miami (OH)|game_ats|Buffalo": {
-    "american": -110.0,
-    "captured_at": "2026-11-03T23:45:22Z",
+    "american": 104.0,
+    "captured_at": "2026-11-04T00:45:17Z",
     "kickoff_utc": "2026-11-04T01:00:00Z",
-    "line": 7.0,
-    "no_vig_prob": 0.5113539206212098
+    "line": 6.5,
+    "no_vig_prob": 0.4799559539459438
   },
   "Buffalo @ Miami (OH)|game_ats|Miami (OH)": {
-    "american": 101.0,
-    "captured_at": "2026-11-03T23:45:22Z",
+    "american": -116.0,
+    "captured_at": "2026-11-04T00:45:17Z",
     "kickoff_utc": "2026-11-04T01:00:00Z",
-    "line": -7.0,
-    "no_vig_prob": 0.4886460793787901
+    "line": -6.5,
+    "no_vig_prob": 0.5200440460540562
   },
   "Buffalo @ Miami (OH)|game_ml|Buffalo": {
     "american": 225.0,
-    "captured_at": "2026-11-03T23:45:22Z",
+    "captured_at": "2026-11-04T00:45:17Z",
     "kickoff_utc": "2026-11-04T01:00:00Z",
     "line": null,
-    "no_vig_prob": 0.30034458474539094
+    "no_vig_prob": 0.302695525115626
   },
   "Buffalo @ Miami (OH)|game_ml|Miami (OH)": {
     "american": -260.0,
-    "captured_at": "2026-11-03T23:45:22Z",
+    "captured_at": "2026-11-04T00:45:17Z",
     "kickoff_utc": "2026-11-04T01:00:00Z",
     "line": null,
-    "no_vig_prob": 0.6996554152546091
+    "no_vig_prob": 0.6973044748843741
   },
   "Buffalo @ Miami (OH)|game_total|Over": {
     "american": -108.0,
-    "captured_at": "2026-11-03T23:45:22Z",
+    "captured_at": "2026-11-04T00:45:17Z",
     "kickoff_utc": "2026-11-04T01:00:00Z",
     "line": 45.0,
     "no_vig_prob": 0.5009810975257742
   },
   "Buffalo @ Miami (OH)|game_total|Under": {
     "american": -108.0,
-    "captured_at": "2026-11-03T23:45:22Z",
+    "captured_at": "2026-11-04T00:45:17Z",
     "kickoff_utc": "2026-11-04T01:00:00Z",
     "line": 45.0,
     "no_vig_prob": 0.49901890247422565
