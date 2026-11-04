@@ -50,8 +50,16 @@ from engine_runtime.odds_client import OddsClient
 log = logging.getLogger(__name__)
 
 
-def _parse_date(raw: str | None) -> Date:
-    return Date.fromisoformat(raw) if raw else datetime.now(timezone.utc).date()
+def _parse_date(raw: str | None, now: datetime | None = None) -> Date:
+    """The slate day, on the same US clock ``capture.slate_date_of`` files games under.
+
+    The UTC date rolls over at 7 pm Eastern, so a default taken from it made every
+    evening tick look for tomorrow's slate: tonight's 7-11 pm tips, most of a
+    slate, never reached a close pass.
+    """
+    if raw:
+        return Date.fromisoformat(raw)
+    return (now or datetime.now(timezone.utc)).astimezone(capture.ET).date()
 
 
 def _client(cache_ttl: int | None = None) -> OddsClient | None:
