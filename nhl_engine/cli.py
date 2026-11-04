@@ -43,7 +43,7 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from engine_runtime.odds_client import OddsClient
-from nhl_engine import closetest, email, history, outputs, pipeline, report, state
+from nhl_engine import closetest, decompose, email, history, outputs, pipeline, report, state
 from nhl_engine.audit import (
     bands,
     grade,
@@ -927,6 +927,53 @@ def cmd_closetest(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_decompose(args: argparse.Namespace) -> int:
+    """Which sim input carries the goal-level gap (offline, no credits; analysis only)."""
+    out = Path(args.out) if args.out else output_dir() / f"decompose_{args.start}_{args.end}.csv"
+    if args.action == "report":
+        print(decompose.report(decompose.read_csv(out)))
+        return 0
+    cfg = load_config()
+    root = data_dir()
+    start, end = _parse_date(args.start), _parse_date(args.end)
+    nhl = NHLAPIClient(cache_dir=cache_dir() / "nhlapi")
+    mp = MoneyPuckClient(cache_dir=cache_dir())
+    priors: dict[int, preseason.PreseasonPrior] = {}
+    rows: list[decompose.Row] = []
+    done = (
+        {r.game_date for r in decompose.read_csv(out)}
+        if out.is_file() and not args.fresh
+        else set()
+    )
+    if done:
+        rows = decompose.read_csv(out)
+    for day, games in sorted(_history_schedule(nhl, start, end).items()):
+        if day.isoformat() in done:
+            continue
+        season = season_of(day)
+        if season not in priors:
+            priors[season] = preseason.build(
+                mp, season, r_yy=cfg.prior.r_yy, today=Date(season, 10, 1)
+            )
+        results = {g.matchup: r for g in games if (r := nhl.result(g)) is not None and r.decided}
+        day_rows = decompose.rebuild_day(
+            root=root,
+            day=day,
+            season=season,
+            cfg=cfg,
+            mp=mp,
+            prior=priors[season],
+            games=games,
+            results=results,
+        )
+        rows.extend(day_rows)
+        decompose.write_csv(rows, out)
+        print(f"{day}: {len(day_rows)} games")
+    print(f"{len(rows)} games -> {out}")
+    print(decompose.report(rows))
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="nhl-engine")
     parser.add_argument("-v", "--verbose", action="store_true")
@@ -1059,6 +1106,13 @@ def build_parser() -> argparse.ArgumentParser:
     ct.add_argument("--out", help="observations CSV (resumes per day unless --fresh)")
     ct.add_argument("--fresh", action="store_true")
     ct.set_defaults(func=cmd_closetest)
+    dc = sub.add_parser("decompose", help="which sim input carries the goal-level gap (offline)")
+    dc.add_argument("action", choices=["run", "report"])
+    dc.add_argument("--start", required=True)
+    dc.add_argument("--end", required=True)
+    dc.add_argument("--out", help="per-game CSV (resumes per day unless --fresh)")
+    dc.add_argument("--fresh", action="store_true")
+    dc.set_defaults(func=cmd_decompose)
     return parser
 
 
