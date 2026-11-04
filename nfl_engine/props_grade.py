@@ -30,11 +30,11 @@ import pandas as pd
 
 from nfl_engine.config import data_dir
 from nfl_engine.data import capture, nflverse
-from nfl_engine.features.usage import REGULAR, normalise
+from nfl_engine.features.usage import PROJECTED, REGULAR, add_touchdowns, normalise
 from nfl_engine.market.board import OVER
 from nfl_engine.market.ev import ev
 from nfl_engine.market.odds import american_to_decimal, american_to_prob
-from nfl_engine.models.player import STATS
+from nfl_engine.models.player import TOUCHDOWNS
 from nfl_engine.props import FIELDS as RESEARCH_FIELDS
 from nfl_engine.props import RESEARCH_ONLY, research_path
 
@@ -127,7 +127,8 @@ def box_scores(season: int, week: int) -> dict[tuple[str, str, str], float]:
     if frame.empty:
         return {}
     name_col = "player_display_name" if "player_display_name" in frame.columns else "player_name"
-    stats = [stat for stat in STATS if stat in frame.columns]
+    frame = add_touchdowns(frame)
+    stats = [stat for stat in PROJECTED if stat in frame.columns]
     out: dict[tuple[str, str, str], float] = {}
     for row in frame[[name_col, "team", *stats]].to_dict("records"):
         name = normalise(str(row[name_col]))
@@ -180,7 +181,14 @@ def grade_row(
     actual = _actual(scores, row["player"], row["matchup"], stat)
     american = float(row["american"])
     result, reason, pnl = VOID, "", 0.0
-    if line is None:
+    if stat == TOUCHDOWNS:
+        if actual is None:
+            reason = NO_BOX_SCORE
+        else:
+            won = (actual >= 1) == (row["side"] == "yes")
+            result = WIN if won else LOSS
+            pnl = american_to_decimal(american) - 1.0 if won else -1.0
+    elif line is None:
         reason = NO_LINE
     elif actual is None:
         reason = NO_BOX_SCORE

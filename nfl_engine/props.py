@@ -53,7 +53,9 @@ from nfl_engine.models.player import (
     RECEPTIONS,
     RUSHING_YARDS,
     TARGETS,
+    TOUCHDOWNS,
     Projection,
+    anytime_prob,
     prob_over,
 )
 
@@ -78,6 +80,10 @@ MARKET_STATS = {
 # Targets are projected and reported, but no book in the feed quotes them; the
 # mapping exists so a feed that starts to is priced rather than dropped.
 MARKET_STATS["player_targets"] = TARGETS
+# Anytime scorer: a yes/no market with no line. Books usually post only the yes,
+# and an unpaired yes gets no fair price here, so most rows are model-only.
+MARKET_STATS["player_anytime_td"] = TOUCHDOWNS
+YES, NO = "yes", "no"
 
 # Markets whose projection measured *worse* than the base rate out of time: every
 # quarterback market (attempts 0.2537 vs 0.2500, completions 0.2551 vs 0.2498,
@@ -182,7 +188,7 @@ def _quotes_by_line(
     """Group archived rows by the position they are all quotes on."""
     grouped: dict[tuple[str, str, str, float | None], list[QuoteRow]] = {}
     for row in rows:
-        if row.side not in (OVER, UNDER):
+        if row.side not in (OVER, UNDER, YES, NO):
             continue
         grouped.setdefault((row.matchup, row.market, normalise(row.player), row.line), []).append(
             row
@@ -241,7 +247,10 @@ def _price_one(
     basis: str = BASIS,
 ) -> PricedProp:
     line = row.line
-    if projection is None or line is None:
+    if projection is not None and stat == TOUCHDOWNS:
+        scores = anytime_prob(projection.mean)
+        model_prob, push_prob = (scores if row.side == YES else 1.0 - scores), 0.0
+    elif projection is None or line is None:
         model_prob, push_prob = 0.0, 0.0
     else:
         prob = prob_over(stat, projection.mean, line)
