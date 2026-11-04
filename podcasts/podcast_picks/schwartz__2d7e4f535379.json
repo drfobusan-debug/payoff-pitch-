@@ -1,0 +1,57 @@
+{
+ "episode_guid": "KoItOXUIoDGUlScvJSkkxUB9nw29fCgm",
+ "model": "gpt-4o-mini",
+ "prompt_version": "picks-v2",
+ "transcript_sha": "8d327828c9e2f525b2a83391a5a089d951bd631a",
+ "picks": [
+  {
+   "pick_id": "723931d2fe9a",
+   "show": "schwartz",
+   "show_name": "Schwartz Football Show",
+   "host": "Mitchell Schwartz",
+   "episode_guid": "KoItOXUIoDGUlScvJSkkxUB9nw29fCgm",
+   "episode_title": "Chiefs Goal Line Disaster + Bears Super Bowl Hype & Lamar Injury | The Schwartz Football Show",
+   "published": "2026-11-03T18:51:27-05:00",
+   "kind": "official",
+   "market": "other",
+   "team": "Bears",
+   "opponent": null,
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "seconds": 1111,
+   "quote": "I told you I'd wager them to win the Super Bowl before the Jeffrey Simmons trade.",
+   "reason": "Mitchell believes the Bears have a strong chance to win the Super Bowl based on their recent performance and roster improvements.",
+   "description": "Bears to win the Super Bowl.",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [
+  {
+   "league": "nfl",
+   "kind": "official",
+   "host": "Geoff Schwartz",
+   "team": "Bears",
+   "opponent": null,
+   "market": "other",
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "stamp": "[19:28]",
+   "quote": "I told you I'd wager them to win the Super Bowl before the Jeffrey Simmons trade.",
+   "edge": "",
+   "fair_line": null,
+   "reason": "Geoff believes the Bears have a strong chance to succeed in the playoffs after their recent performance.",
+   "description": "Bears to win the Super Bowl.",
+   "why": "bad stamp"
+  }
+ ],
+ "leagues": [
+  "nfl",
+  "cfb"
+ ]
+}
