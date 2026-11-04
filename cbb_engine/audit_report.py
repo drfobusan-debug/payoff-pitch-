@@ -290,7 +290,7 @@ def _scope(title: str, rows: list[ledger.Row], end: Date, *, weekly: bool) -> tu
         ),
         Table(
             "Grading coverage",
-            ("slate", "rows of record", "graded", "close pre-tip", "close pulled", "buys graded"),
+            ("slate", "rows of record", "graded", "close pre-tip", "no close", "buys graded"),
             coverage(rows),
         ),
     ]
