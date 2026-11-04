@@ -42,6 +42,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
+from engine_runtime import faststart
 from engine_runtime.odds_client import OddsClient
 from nhl_engine import closetest, decompose, email, history, outputs, pipeline, report, state
 from nhl_engine.audit import (
@@ -717,6 +718,7 @@ def cmd_audit(args: argparse.Namespace) -> int:
             _starters_for(all_rows),
             _screen_context(root, all_rows),
             scheduled=_scheduled_for(sorted({r.slate_date for r in all_rows})),
+            fast=_fast_start(root, all_rows, day),
         )
         if stale:
             audit.findings.append(stale_note)
@@ -741,6 +743,56 @@ def cmd_audit(args: argparse.Namespace) -> int:
             except email.EmailNotConfigured as exc:
                 print(f"email skipped: {exc}", file=sys.stderr)
     return 0
+
+
+NHL_CUTS = {"end of P1": 1, "end of P2": 2}
+
+
+def _fast_night(root: Path, night: Date) -> list[dict]:
+    """A night's fast-start observations, written once under ``faststart/`` after its finals."""
+    path = root / "faststart" / f"{night.isoformat()}.json"
+    if path.exists():
+        return json.loads(path.read_text())
+    results, starts = _results_for(night)
+    if not results or any(not r.is_final for r in results.values()):
+        return []
+    quotes = capture.read_day(root, night)
+    event = {q.matchup: q.event_id for q in quotes}
+    tips = {event[m]: t for m, t in starts.items() if m in event}
+    totals = faststart.close_totals(quotes, tips)
+    out = []
+    for m, g in results.items():
+        eid = event.get(m)
+        reg = sorted((p for p in g.periods if p.kind == "REG"), key=lambda p: p.number)
+        if eid not in totals or len(reg) < 3:
+            continue
+        final = float(g.final_away + g.final_home)
+        periods = [p.away + p.home for p in reg]
+        for cut, o in faststart.checkpoints(
+            eid, night.isoformat(), totals[eid], periods, final, NHL_CUTS
+        ).items():
+            out.append({"checkpoint": cut, **asdict(o)})
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(out))
+    return out
+
+
+def _fast_start(root: Path, rows: list[ledger.LedgerRow], through: Date) -> list[faststart.Read]:
+    """P1 / P2 goals against the timely close total; each night's NHL API finals are read once."""
+    by_cut: dict[str, list[faststart.Obs]] = {c: [] for c in NHL_CUTS}
+    for night in sorted({r.slate_date for r in rows}):
+        day = Date.fromisoformat(night)
+        if day > through:
+            continue
+        try:
+            obs = _fast_night(root, day)
+        except Exception as exc:  # noqa: BLE001 - one bad night must not sink the report
+            log.warning("fast-start obs for %s unavailable: %s", night, exc)
+            continue
+        for o in obs:
+            cut = o.pop("checkpoint")
+            by_cut.setdefault(cut, []).append(faststart.Obs(**o))
+    return [r for c, obs in by_cut.items() if (r := faststart.read(c, obs)) is not None]
 
 
 def _backfill_timing(root: Path, rows: list[ledger.LedgerRow]) -> None:
