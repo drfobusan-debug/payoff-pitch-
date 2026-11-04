@@ -876,6 +876,9 @@ def cmd_history(args: argparse.Namespace) -> int:
         print(f"unknown anchor(s) {unknown}; choose from {list(history.ANCHORS)}", file=sys.stderr)
         return 2
     markets = tuple(m.strip() for m in args.markets.split(",")) if args.markets else CORE_MARKETS
+    if args.part and not args.part.isalnum():
+        print(f"--part must be letters/digits, got {args.part!r}", file=sys.stderr)
+        return 2
     report = history.pull(
         client,
         data_dir(),
@@ -884,6 +887,7 @@ def cmd_history(args: argparse.Namespace) -> int:
         markets=markets,
         budget=args.budget,
         min_credits=args.min_credits if args.min_credits is not None else cfg.history.min_credits,
+        part=args.part,
     )
     print(json.dumps(asdict(report), indent=2))
     if args.push:
@@ -1257,6 +1261,12 @@ def build_parser() -> argparse.ArgumentParser:
     hi.add_argument("--budget", type=int, required=True, help="max credits this run may spend")
     hi.add_argument(
         "--min-credits", type=int, help="balance floor (default NBAE_HISTORY_MIN_CREDITS)"
+    )
+    hi.add_argument(
+        "--part",
+        default="",
+        help="store as <event>_<anchor>.<part> (e.g. props) so events already held "
+        "for another market set are pulled again",
     )
     hi.add_argument("--since", help="first slate date to pull")
     hi.add_argument("--until", help="last slate date to pull")

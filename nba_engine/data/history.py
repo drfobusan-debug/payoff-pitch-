@@ -14,7 +14,10 @@ markets at a set of *anchors* -- minutes before the scheduled tip:
 Each response is stored verbatim, gzipped, at
 ``<data>/history/raw/<YYYY-MM-DD>/<event_id>_<anchor>.json.gz`` -- one file per
 (event, anchor), immutable, so a rerun skips what it already holds and a merge
-between machines is a set union. The API serves the last snapshot *at or before*
+between machines is a set union. A second market set pulled later for the same
+events (the props, after a game-lines pull) goes under a *part*,
+``<event_id>_<anchor>.<part>.json.gz``, so the held game-lines file does not
+make the pull skip it; ``history_rows`` reads every part of an anchor. The API serves the last snapshot *at or before*
 the requested time, so a close is never a post-tip price; ``history_rows`` still
 drops any snapshot stamped at or after the tip.
 
@@ -56,8 +59,15 @@ def history_dir(data_dir: Path) -> Path:
     return data_dir / "history"
 
 
-def raw_path(data_dir: Path, day: Date, event_id: str, anchor: str) -> Path:
-    return history_dir(data_dir) / "raw" / day.isoformat() / f"{event_id}_{anchor}.json.gz"
+def raw_path(data_dir: Path, day: Date, event_id: str, anchor: str, part: str = "") -> Path:
+    name = f"{event_id}_{anchor}.{part}" if part else f"{event_id}_{anchor}"
+    return history_dir(data_dir) / "raw" / day.isoformat() / f"{name}.json.gz"
+
+
+def _anchor_part(path: Path) -> tuple[str, str]:
+    """(anchor, part) from ``<event>_<anchor>[.<part>].json.gz``."""
+    anchor, _, part = path.name.removesuffix(".json.gz").rsplit("_", 1)[-1].partition(".")
+    return anchor, part
 
 
 def events_path(data_dir: Path, day: Date) -> Path:
@@ -152,6 +162,7 @@ def pull(
     markets: tuple[str, ...] = CORE_MARKETS,
     budget: int,
     min_credits: int,
+    part: str = "",
 ) -> PullReport:
     """Fetch every (event, anchor) not already archived, newest day first."""
     report = PullReport()
@@ -171,7 +182,7 @@ def pull(
             if tip is None:
                 continue
             for anchor in anchors:
-                path = raw_path(data_dir, day, game.event_id, anchor)
+                path = raw_path(data_dir, day, game.event_id, anchor, part)
                 if path.exists():
                     report.skipped += 1
                     continue
@@ -204,12 +215,12 @@ def iter_raw(data_dir: Path, day: Date, anchor: str | None = None) -> Iterator[P
     directory = history_dir(data_dir) / "raw" / day.isoformat()
     if not directory.is_dir():
         return iter(())
-    pattern = f"*_{anchor}.json.gz" if anchor else "*.json.gz"
-    return iter(sorted(directory.glob(pattern)))
+    paths = directory.glob("*.json.gz")
+    return iter(sorted(p for p in paths if anchor is None or _anchor_part(p)[0] == anchor))
 
 
 def history_rows(data_dir: Path, day: Date, anchor: str = "close") -> list[QuoteRow]:
-    """Archived rows for a day's events at one anchor, stamped with the snapshot time.
+    """Archived rows for a day's events at one anchor (every part), stamped with the snapshot time.
 
     A snapshot taken at or after the event's tip is dropped: it is not a close.
     """
@@ -232,7 +243,10 @@ def history_rows(data_dir: Path, day: Date, anchor: str = "close") -> list[Quote
 
 
 def coverage(data_dir: Path, days: list[Date]) -> dict[str, object]:
-    """Events listed vs (event, anchor) files held, per anchor, over ``days``."""
+    """Events listed vs (event, anchor) files held, per anchor, over ``days``.
+
+    A part is counted under its own ``<anchor>.<part>`` key, added only when held.
+    """
     listed = 0
     held: dict[str, int] = {a: 0 for a in ANCHORS}
     empty: dict[str, int] = {a: 0 for a in ANCHORS}
@@ -242,9 +256,13 @@ def coverage(data_dir: Path, days: list[Date]) -> dict[str, object]:
         if isinstance(payload, dict) and isinstance(payload.get("data"), list):
             listed += len(games_from(payload["data"], day))
         for raw in iter_raw(data_dir, day):
-            anchor = raw.name.rsplit("_", 1)[-1].removesuffix(".json.gz")
-            if anchor not in held:
+            anchor, part = _anchor_part(raw)
+            if anchor not in ANCHORS:
                 continue
+            if part:
+                anchor = f"{anchor}.{part}"
+                held.setdefault(anchor, 0)
+                empty.setdefault(anchor, 0)
             body = _read_gz(raw)
             if isinstance(body, dict) and body.get("data"):
                 held[anchor] += 1
