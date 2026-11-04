@@ -60,3 +60,37 @@ def test_small_sample_says_underpowered_with_games_needed() -> None:
     r = faststart.read("half", noisy)
     assert r is not None and r.verdict.startswith("underpowered (needs ~")
     assert faststart.table([r])[0][0] == "half"
+
+
+class _Q:
+    def __init__(
+        self, at: str, eid: str, line: float, side: str = "over", market: str = "game_total"
+    ) -> None:
+        self.captured_at, self.event_id, self.market, self.side, self.line = (
+            at,
+            eid,
+            market,
+            side,
+            line,
+        )
+
+
+def test_close_totals_take_the_newest_timely_pre_tip_capture() -> None:
+    tip = "2026-11-02T23:00:00Z"
+    qs = [
+        _Q("2026-11-02T22:20:00Z", "e", 220.0),
+        _Q("2026-11-02T22:50:00Z", "e", 222.0),
+        _Q("2026-11-02T22:50:00Z", "e", 224.0),
+        _Q("2026-11-02T22:50:00Z", "e", 230.0, side="under"),
+        _Q("2026-11-02T23:05:00Z", "e", 240.0),  # in play: not a close
+        _Q("2026-11-02T21:00:00Z", "old", 210.0),  # 2 h before tip: stale
+    ]
+    tips = {"e": tip, "old": tip}
+    assert faststart.close_totals(qs, tips) == {"e": 223.0}
+
+
+def test_checkpoints_cut_the_periods() -> None:
+    out = faststart.checkpoints(
+        "g", "2026-11-02", 220.0, [60, 50, 55, 57, 10], 232.0, {"Q1": 1, "half": 2}
+    )
+    assert out["Q1"].so_far == 60 and out["half"].so_far == 110 and out["half"].final == 232.0

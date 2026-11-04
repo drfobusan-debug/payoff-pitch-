@@ -22,8 +22,11 @@ and roughly how many games it would need. SEs are heteroskedasticity-robust (HC1
 from __future__ import annotations
 
 import math
-from collections.abc import Iterable, Sequence
+import statistics
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
+from datetime import datetime
+from typing import Protocol
 
 import numpy as np
 
@@ -41,6 +44,63 @@ class Obs:
     pregame: float  # the timely pregame total
     so_far: float  # both teams' points at the checkpoint
     final: float  # both teams' final points, as the total is graded
+
+
+class _Quote(Protocol):
+    @property
+    def captured_at(self) -> str: ...
+    @property
+    def event_id(self) -> str: ...
+    @property
+    def market(self) -> str: ...
+    @property
+    def side(self) -> str: ...
+    @property
+    def line(self) -> float | None: ...
+
+
+def _utc(stamp: str) -> datetime | None:
+    try:
+        return datetime.fromisoformat(stamp.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+
+
+def close_totals(
+    quotes: Iterable[_Quote],
+    tips: Mapping[str, str],
+    *,
+    market: str = "game_total",
+    max_min: float = 45.0,
+) -> dict[str, float]:
+    """Per event, the median Over line across books in the newest capture before tip,
+    kept only when that capture is within ``max_min`` of tip (the engines' timely close)."""
+    seen: dict[str, dict[str, list[float]]] = {}
+    for q in quotes:
+        if q.market != market or q.side.lower() != "over" or q.line is None:
+            continue
+        tip, at = _utc(tips.get(q.event_id, "")), _utc(q.captured_at)
+        if tip is None or at is None or not (0 < (tip - at).total_seconds() <= max_min * 60):
+            continue
+        seen.setdefault(q.event_id, {}).setdefault(q.captured_at, []).append(q.line)
+    return {e: statistics.median(by_at[max(by_at)]) for e, by_at in seen.items()}
+
+
+def checkpoints(
+    game_id: str,
+    day: str,
+    pregame: float,
+    periods: Sequence[int],
+    final: float,
+    cuts: Mapping[str, int],
+) -> dict[str, Obs]:
+    """One ``Obs`` per checkpoint label, ``periods`` being both teams' points per period and
+    ``cuts`` the number of periods each checkpoint covers (e.g. {"Q1": 1, "half": 2})."""
+    return {
+        label: Obs(game_id, day, pregame, float(sum(periods[:k])), final)
+        for label, k in cuts.items()
+        if len(periods) > k
+    }
 
 
 def gaps(obs: Iterable[Obs], *, min_prior: int = MIN_PRIOR) -> list[tuple[Obs, float, float]]:
@@ -184,4 +244,4 @@ def table(reads: Sequence[Read]) -> list[tuple[str, ...]]:
     ]
 
 
-__all__ = ["HEAD", "NOTE", "Obs", "Read", "gaps", "read", "table"]
+__all__ = ["HEAD", "NOTE", "Obs", "Read", "checkpoints", "close_totals", "gaps", "read", "table"]
