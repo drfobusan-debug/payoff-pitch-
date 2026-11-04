@@ -7,8 +7,8 @@
   buy, in probability points × 100; ``clv_exec`` = implied(close exec) − implied(bought) × 100.
   An early or after-tip close is ``early`` / ``post_tip`` and carries no CLV.
 * outcome: full-game and first-half totals, spreads and moneylines, passes included, on the
-  ESPN final and half scores matched by ``history.match_game`` (folded team-name tokens) on the
-  shard's teams; a first-half moneyline tied at the half is a push.
+  ESPN final and half scores matched by ``history.scores`` (folded team-name tokens, either
+  home/away order) on the shard's teams; a first-half moneyline tied at the half is a push.
 
 Grading writes a correction row in a new pass (``supersedes`` = the original
 ``row_hash``, still ``bet_of_record``) so ``ledger.record`` returns the graded row;
@@ -209,10 +209,9 @@ def _grade_rows(
             g.close_status = missed.get(r.event_id, "pulled")
         home_away = teams.get(r.event_id)
         if home_away:
-            game = history.match_game(home_away[0], home_away[1], [x for x in games if x.final])
-            final = game.final if game else None
-            if game is not None and final:
-                h1 = (game.away_halves[0], game.home_halves[0]) if len(game.home_halves) >= 2 else None
+            hit = history.scores(home_away[0], home_away[1], games)
+            if hit is not None:
+                final, h1 = hit
                 g.outcome = outcome(r, final, h1)
                 g.pnl = pnl(r, g.outcome)
         out.append(g)

@@ -41,6 +41,7 @@ class Team:
     slow: bool | None = None
     power: bool | None = None
     rest: int | None = None  # days since the previous game
+    pace: str | None = None  # "slow" / "mid" / "fast": season-to-date tempo third
 
 
 @dataclass(frozen=True)
@@ -221,6 +222,22 @@ def profile(logs: Sequence[LogGame], before: Date) -> dict[str, tuple[int | None
     }
 
 
+def tempo_thirds(results: Iterable[Mapping[str, str]]) -> dict[str, str]:
+    """Torvik adjusted tempo (``adjt``, team_results) cut into thirds: "slow" / "mid" / "fast"."""
+    pace: dict[str, float] = {}
+    for r in results:
+        try:
+            pace[r.get("team", "")] = float(r.get("adjt", ""))
+        except ValueError:
+            continue
+    ranked = sorted(pace, key=lambda t: pace[t])
+    n = len(ranked)
+    return {
+        t: "slow" if i < n * SLOW_SHARE else "fast" if i >= n * (1 - SLOW_SHARE) else "mid"
+        for i, t in enumerate(ranked)
+    }
+
+
 def rest_days(team: str, day: Date, boards: Mapping[Date, Sequence[espn.Game]]) -> int | None:
     """Days since ``team``'s (ESPN name) previous game; None when no board in the lookback has one."""
     for back in range(1, REST_LOOKBACK + 1):
@@ -259,11 +276,14 @@ def context(
     logs: Sequence[LogGame],
     confs: Mapping[str, str],
     opener: Mapping[str, Mapping[tuple[str, str], float]] | None = None,
+    tempo: Mapping[str, str] | None = None,
 ) -> dict[str, GameCtx]:
     """Pre-tip context per event from the day's ESPN board (rank, venue, conference flag),
-    earlier boards (rest), Torvik logs before ``day`` (net rank, tempo) and conference membership."""
+    earlier boards (rest), Torvik logs before ``day`` (net rank, tempo), conference membership and
+    ``tempo`` (each Torvik team's adjusted-tempo third as of ``day``)."""
     prof = profile(logs, day)
-    tv = sorted(set(prof) | set(confs))
+    thirds = tempo or {}
+    tv = sorted(set(prof) | set(confs) | set(thirds))
     games = boards.get(day, ())
     out: dict[str, GameCtx] = {}
 
@@ -272,13 +292,16 @@ def context(
         net, slow = prof.get(t, (None, None)) if t else (None, None)
         conf = confs.get(t) if t else None
         rest = rest_days(espn_name, day, boards) if espn_name else None
-        return Team(ap, net, slow, (conf in POWER) if conf else None, rest)
+        return Team(ap, net, slow, (conf in POWER) if conf else None, rest, thirds.get(t) if t else None)
 
     for eid, (home, away) in teams.items():
-        g = history.match_game(home, away, games)
+        hit = history.match_oriented(home, away, games)
+        g, swapped = hit if hit else (None, False)
+        h_name, a_name = (g.away, g.home) if g and swapped else (g.home, g.away) if g else (None, None)
+        h_rank, a_rank = (g.away_rank, g.home_rank) if g and swapped else (g.home_rank, g.away_rank) if g else (None, None)
         out[eid] = GameCtx(
-            home=team(home, g.home if g else None, g.home_rank if g else None),
-            away=team(away, g.away if g else None, g.away_rank if g else None),
+            home=team(home, h_name, h_rank),
+            away=team(away, a_name, a_rank),
             neutral=bool(g and g.neutral),
             conference=bool(g and g.conference_game),
             opener=dict((opener or {}).get(eid, {})),
@@ -288,5 +311,5 @@ def context(
 
 __all__ = [
     "BANDS", "GameCtx", "LogGame", "Team", "context", "main_lines", "main_rows", "market_expected",
-    "openers", "parse_logs", "profile", "read_bands", "render", "rest_days",
+    "openers", "parse_logs", "profile", "read_bands", "render", "rest_days", "tempo_thirds",
 ]

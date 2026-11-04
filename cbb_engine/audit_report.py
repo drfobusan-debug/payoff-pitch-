@@ -17,12 +17,13 @@ from datetime import date as Date
 from datetime import timedelta
 from html import escape
 
+from cbb_engine import teamgroups
 from cbb_engine.bands import main_rows
 from engine_common.bands import MIN_N as BAND_MIN_N
 from engine_common.bands import BandRead
 from engine_common.promotion import MIN_BUYS
 from engine_runtime import altlines as alt_rt
-from engine_runtime import ledger, views
+from engine_runtime import faststart, ledger, views
 
 Z = 1.96
 EDGE_BANDS = (("edge 2-3%", 0.02, 0.03), ("edge 3-5%", 0.03, 0.05), ("edge 5%+", 0.05, 1.0))
@@ -289,7 +290,7 @@ def _scope(title: str, rows: list[ledger.Row], end: Date, *, weekly: bool) -> tu
         ),
         Table(
             "Grading coverage",
-            ("slate", "rows of record", "graded", "close pre-tip", "close pulled", "buys graded"),
+            ("slate", "rows of record", "graded", "close pre-tip", "no close", "buys graded"),
             coverage(rows),
         ),
     ]
@@ -342,6 +343,8 @@ def build(
     day: Date,
     *,
     bands: Sequence[BandRead] | None = None,
+    groups: Sequence[teamgroups.GroupRead] | None = None,
+    fast: Sequence[faststart.Read] | None = None,
     checklist_lines: Sequence[str] = (),
     recent: int = 7,
     alts: Sequence[alt_rt.Alt] = (),
@@ -391,6 +394,26 @@ def build(
             "" if reads else "bands unavailable (see log)",
         )
     )
+    s_sec.tables.append(
+        Table(
+            f"Team groups: how well the close called each kind of game (one row per game; called at {BAND_MIN_N} games and 2 SE)",
+            teamgroups.HEAD,
+            teamgroups.table(groups or []),
+            ("" if groups is not None else "team groups unavailable (see log). ")
+            + "Close miss = mean |result - closing line|; vs rest = this group's miss less every other game's; "
+            "bias > 0 = favourites / Overs beat the close. " + teamgroups.CONTINUITY_NOTE,
+        )
+    )
+    s_sec.tables.append(
+        Table(
+            "Fast starts: does the first half stay in the final? (one row per game with a timely close)",
+            faststart.HEAD,
+            faststart.table(fast or []),
+            ("" if fast is not None else "fast-start study unavailable (see log). ")
+            + ("" if fast else f"needs {faststart.MIN_PRIOR}+ earlier games first. ")
+            + faststart.NOTE,
+        )
+    )
     gates = [g for g in views.v_gate(season) if int(g["n"]) > 0]  # type: ignore[call-overload]
     s_sec.tables.append(
         Table(
@@ -432,6 +455,11 @@ def build(
         )
     )
     findings = _findings(w_buys, s_buys, season, promo, reads)
+    findings += [
+        f"Team group {g.group} ({g.market}): {g.verdict} (n={g.games} games)."
+        for g in groups or []
+        if g.dimension != "all" and g.games >= BAND_MIN_N and g.verdict != "no difference"
+    ]
     sections = [w_sec, s_sec]
     if checklist_lines:
         sections.append(Section("Go/no-go checklist", list(checklist_lines)))

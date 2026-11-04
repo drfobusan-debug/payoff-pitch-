@@ -168,8 +168,15 @@ def _watchlist(cfg: Config, slate_date: Date) -> watchlist.Watchlist | None:
     """The card's "What we're watching" block; a failure drops the block, never the card."""
     from mlb_engine.output.daily_worksheet import WEIGHTS_VERSION
 
+    # Every season since the bands were registered, so a 2028 card still reads 2027's rows.
+    first = int(watchlist.REGISTERED[:4])
     try:
-        schedule = watchlist.fetch_schedule(MLBStatsClient()._get, slate_date.year, cfg.audit_dir)
+        get = MLBStatsClient()._get
+        schedule = [
+            g
+            for season in range(first, slate_date.year + 1)
+            for g in watchlist.fetch_schedule(get, season, cfg.audit_dir)
+        ]
     except Exception as exc:  # noqa: BLE001 - the schedule bands just read nothing
         logging.getLogger(__name__).warning("watchlist: no schedule (%s)", exc)
         schedule = []

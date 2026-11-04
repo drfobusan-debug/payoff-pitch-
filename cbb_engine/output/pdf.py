@@ -15,6 +15,7 @@ from datetime import datetime
 from statistics import fmean, pstdev
 from zoneinfo import ZoneInfo
 
+from cbb_engine.data.capture import slate_date_of
 from cbb_engine.data.injuries import Injury
 from cbb_engine.output.movement import Move
 from cbb_engine.output.teamstats import Factors, Rated, Split, TeamStats, match_team
@@ -45,6 +46,10 @@ table.inner { width: 100%; } .rk { color: #999; font-size: 6.5pt; } .on { backgr
 """
 
 _MARKETS = {"game_total": "Total", "game_ats": "Spread", "game_ml": "Moneyline"}
+
+
+def _utc(tip_utc: str) -> datetime:
+    return datetime.fromisoformat(tip_utc.replace("Z", "+00:00"))
 
 
 def _tip(tip_utc: str) -> str:
@@ -363,8 +368,11 @@ def build_html(
     injuries_source: str = "",
     moves: Mapping[str, Sequence[Move]] | None = None,
     podcast: PodcastView | None = None,
+    tips: Mapping[str, str] | None = None,
 ) -> str:
-    """``teams`` maps event_id -> (home, away) as named by the Odds API.
+    """``teams`` maps event_id -> (home, away) as named by the Odds API; ``tips`` maps
+    event_id -> tip (UTC) for games the card did not price. Only games tipping on ``day``
+    (US Eastern) print, in tip order; a game with no known tip is left off.
 
     ``podcast`` adds the shows' bets under each game and their records at the back.
     """
@@ -378,15 +386,15 @@ def build_html(
     buys = sum(1 for r in rows if r.is_buy and r.status == "live")
     blocks = []
     order: list[str] = []
-    for eid in sorted(
-        set(by_event) | set(teams), key=lambda e: (by_event[e][0].tip_utc if by_event[e] else "", e)
-    ):
+    tip_of = {**(tips or {}), **{e: rs[0].tip_utc for e, rs in by_event.items()}}
+    todays = [e for e in set(by_event) | set(teams) if slate_date_of(tip_of.get(e, "")) == day.isoformat()]
+    for eid in sorted(todays, key=lambda e: (_utc(tip_of[e]), e)):
         home_name, away_name = teams.get(eid, ("", ""))
         if not home_name:
             continue
         away, home = (stats.get(match_team(n, stats) or "") for n in (away_name, home_name))
         an, hn = (t.team if t else n.split()[0] for t, n in ((away, away_name), (home, home_name)))
-        tip = _tip(by_event[eid][0].tip_utc) if by_event[eid] else ""
+        tip = _tip(tip_of[eid])
         order.append(f"{away_name} @ {home_name}")
         blocks.append(
             f"<div class='game'><div class='gh'>{html.escape(away_name)} at {html.escape(home_name)} "

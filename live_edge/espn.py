@@ -19,6 +19,9 @@ SUMMARY = {
 SCOREBOARD = {
     "nfl": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard",
     "cfb": "https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?groups=80&limit=300",
+    "nba": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard",
+    "cbb": "https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?groups=50&limit=400",
+    "nhl": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/scoreboard",
 }
 
 
@@ -37,6 +40,8 @@ class LiveGame:
     kickoff: str = ""
     home_aliases: tuple[str, ...] = ()
     away_aliases: tuple[str, ...] = ()
+    #: ESPN's status name, e.g. ``STATUS_HALFTIME`` or ``STATUS_END_PERIOD``.
+    detail: str = ""
 
     @property
     def matchup(self) -> str:
@@ -110,6 +115,7 @@ def parse_scoreboard(payload: dict) -> list[LiveGame]:
                 kickoff=str(ev.get("date", "")),
                 home_aliases=_aliases(home["team"]),
                 away_aliases=_aliases(away["team"]),
+                detail=str(status.get("name", "")),
             )
         )
     return games

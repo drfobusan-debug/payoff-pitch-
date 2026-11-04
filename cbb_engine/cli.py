@@ -13,6 +13,7 @@ import csv
 import json
 import logging
 import sys
+from collections.abc import Mapping, Sequence
 from datetime import date as Date
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -31,6 +32,7 @@ from cbb_engine import (
     podcast,
     state,
     study,
+    teamgroups,
 )
 from cbb_engine.config import SPORT, SPORT_KEY, data_dir, dry_run, load_config, runtime_root
 from cbb_engine.data import capture, espn, injuries, torvik, watch
@@ -43,14 +45,22 @@ from engine_common.podcasts import state as podcast_state
 from engine_common.podcasts.episodes import store_dir
 from engine_common.podcasts.run import read_feeds
 from engine_common.podcasts.shows import CBB, SHOWS
-from engine_runtime import ledger, quotes, runner, views
+from engine_runtime import faststart, ledger, quotes, runner, views
 from engine_runtime.odds_client import OddsClient
 
 log = logging.getLogger(__name__)
 
 
-def _parse_date(raw: str | None) -> Date:
-    return Date.fromisoformat(raw) if raw else datetime.now(timezone.utc).date()
+def _parse_date(raw: str | None, now: datetime | None = None) -> Date:
+    """The slate day, on the same US clock ``capture.slate_date_of`` files games under.
+
+    The UTC date rolls over at 7 pm Eastern, so a default taken from it made every
+    evening tick look for tomorrow's slate: tonight's 7-11 pm tips, most of a
+    slate, never reached a close pass.
+    """
+    if raw:
+        return Date.fromisoformat(raw)
+    return (now or datetime.now(timezone.utc)).astimezone(capture.ET).date()
 
 
 def _client(cache_ttl: int | None = None) -> OddsClient | None:
@@ -305,27 +315,77 @@ def _manifest_teams(root: Path, day: Date) -> dict[str, tuple[str, str]]:
     return teams
 
 
+def _season_ctx(
+    root: Path, season: list[ledger.Row], day: Date
+) -> tuple[dict[str, bands.GameCtx], dict[Date, list[espn.Game]]]:
+    """Pre-tip context per event over the season's slates, and the archived ESPN boards it read."""
+    logs = bands.parse_logs(teamstats.read_logs(torvik.as_of(data_dir(), "game_logs", day).path))
+    res = torvik.as_of(data_dir(), "team_results", day).path
+    confs = {r.get("team", ""): r.get("conf", "") for r in torvik.read_csv(res)} if res else {}
+    days = sorted({Date.fromisoformat(r.slate_date) for r in season})
+    boards: dict[Date, list[espn.Game]] = {}
+    if days:
+        d = days[0] - timedelta(days=bands.REST_LOOKBACK)
+        while d <= max(days[-1], day):
+            boards[d] = history.latest_scoreboard(data_dir(), d.isoformat())
+            d += timedelta(days=1)
+    ctx: dict[str, bands.GameCtx] = {}
+    for d in days:
+        opener = bands.openers(quotes.read_day(root, SPORT, d.isoformat()))
+        res_d = torvik.as_of(data_dir(), "team_results", d).path
+        tempo = bands.tempo_thirds(torvik.read_csv(res_d)) if res_d else {}
+        ctx.update(bands.context(_manifest_teams(root, d), d, boards, logs, confs, opener, tempo))
+    return ctx, boards
+
+
 def _season_bands(root: Path, season: list[ledger.Row], day: Date) -> list[BandRead] | None:
     """Graded-only bands over the season's ledger; context from archived ESPN boards, Torvik and first captures."""
     try:
-        logs = bands.parse_logs(teamstats.read_logs(torvik.as_of(data_dir(), "game_logs", day).path))
-        res = torvik.as_of(data_dir(), "team_results", day).path
-        confs = {r.get("team", ""): r.get("conf", "") for r in torvik.read_csv(res)} if res else {}
-        days = sorted({Date.fromisoformat(r.slate_date) for r in season})
-        boards: dict[Date, list[espn.Game]] = {}
-        if days:
-            d = days[0] - timedelta(days=bands.REST_LOOKBACK)
-            while d <= days[-1]:
-                boards[d] = history.latest_scoreboard(data_dir(), d.isoformat())
-                d += timedelta(days=1)
-        ctx: dict[str, bands.GameCtx] = {}
-        for d in days:
-            opener = bands.openers(quotes.read_day(root, SPORT, d.isoformat()))
-            ctx.update(bands.context(_manifest_teams(root, d), d, boards, logs, confs, opener))
+        ctx, _ = _season_ctx(root, season, day)
         return bands.read_bands(season, ctx)
     except Exception:
         log.warning("CBB bands failed; the audit goes out without them", exc_info=True)
         return None
+
+
+def _called_by_day(
+    root: Path, season: list[ledger.Row], boards: Mapping[Date, Sequence[espn.Game]]
+) -> dict[Date, dict[str, teamgroups.Called]]:
+    """Per slate day, every event with a timely close and a matched ESPN final."""
+    out: dict[Date, dict[str, teamgroups.Called]] = {}
+    for d in sorted(b for b in boards if season and b.isoformat() >= min(r.slate_date for r in season)):
+        teams: dict[str, tuple[str, str]] = {}
+        for back in range(audit.LOOKBACK_DAYS, -1, -1):
+            teams.update(_manifest_teams(root, d - timedelta(days=back)))
+        out[d] = teamgroups.called(quotes.read_day(root, SPORT, d.isoformat()), teams, boards[d])
+    return out
+
+
+def _team_groups(
+    root: Path, season: list[ledger.Row], day: Date
+) -> tuple[list[teamgroups.GroupRead] | None, list[faststart.Read] | None]:
+    """Closing-line accuracy by tempo and conference pairing, and the first-half fast-start study,
+    one row per finished game with a timely close."""
+    try:
+        ctx, boards = _season_ctx(root, season, day)
+        by_day = _called_by_day(root, season, boards)
+    except Exception:
+        log.warning("CBB team groups failed; the audit goes out without them", exc_info=True)
+        return None, None
+    groups: list[teamgroups.GroupRead] | None
+    try:
+        groups = teamgroups.read(season, ctx, {e: c for cs in by_day.values() for e, c in cs.items()})
+    except Exception:
+        log.warning("CBB team groups failed; the audit goes out without them", exc_info=True)
+        groups = None
+    obs = [
+        faststart.Obs(c.event_id, d.isoformat(), c.total, c.h1_points, c.points)
+        for d, cs in by_day.items()
+        for c in cs.values()
+        if c.total is not None and c.h1_points is not None
+    ]
+    half = faststart.read("half", obs)
+    return groups, [half] if half else []
 
 
 def _slate(root: Path, day: Date) -> tuple[list[ledger.Row], dict[str, tuple[str, str]]]:
@@ -398,6 +458,7 @@ def _card_pdf(root: Path, day: Date, pass_id: str, rows: list[ledger.Row], out: 
         if payload is not None:
             injuries.archive(data_dir(), day, payload, at=quotes.now_utc())
         src, listed = injuries.latest(data_dir(), day)
+        qs = quotes.read_day(root, SPORT, day.isoformat())
         body = pdf.build_html(
             day,
             rows,
@@ -406,8 +467,9 @@ def _card_pdf(root: Path, day: Date, pass_id: str, rows: list[ledger.Row], out: 
             title=f"pass {pass_id} ·",
             injuries=listed,
             injuries_source=f"(RotoWire {src.stem[-6:-2]} UTC) " if src else "(RotoWire: none fetched) ",
-            moves=movement.moves(quotes.read_day(root, SPORT, day.isoformat()), until=quotes.now_utc()),
+            moves=movement.moves(qs, until=quotes.now_utc()),
             podcast=_podcast_view(root, day, rows),
+            tips={q.event_id: q.tip_utc for q in sorted(qs, key=lambda q: q.captured_at)},
         )
         out.write_bytes(pdf.render_pdf(body))
     except Exception:
@@ -455,6 +517,7 @@ def cmd_audit(args: argparse.Namespace) -> int:
     }
     season = [r for rs in by_day.values() for r in rs]
     reads = _season_bands(root, season, day)
+    groups, fast = _team_groups(root, season, day)
     rep["v_promotion"] = views.v_promotion(season)
     rep["v_bands"] = bands.render(reads).splitlines() if reads is not None else ["bands unavailable (see log)"]
     if args.time_travel:
@@ -462,7 +525,13 @@ def cmd_audit(args: argparse.Namespace) -> int:
         rep["time_travel_violations"] = study.time_travel(day.isoformat(), stamps)
     checks = checklist.render(checklist.run(load_config(), root, day.isoformat()))
     report = audit_report.build(
-        by_day, day, bands=reads, checklist_lines=checks.splitlines(), alts=altlines.alts(alt_path, day.isoformat())
+        by_day,
+        day,
+        bands=reads,
+        groups=groups,
+        fast=fast,
+        checklist_lines=checks.splitlines(),
+        alts=altlines.alts(alt_path, day.isoformat()),
     )
     text = audit_report.render_text(report)
     out_dir = data_dir() / "audit"

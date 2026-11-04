@@ -18,6 +18,7 @@ from cfb_engine.config import Config
 from cfb_engine.output.audit_report import _CSS
 from cfb_engine.output.render import to_pdf
 from engine_runtime import altlines as alt_rt
+from engine_runtime import faststart
 
 logger = logging.getLogger(__name__)
 
@@ -179,11 +180,27 @@ def _alt_html(
     )
 
 
+def _fast_html(fast: list[faststart.Read]) -> str:
+    rows = faststart.table(fast)
+    head = "".join(f"<th>{escape(h)}</th>" for h in faststart.HEAD)
+    body = "".join("<tr>" + "".join(f"<td>{escape(c)}</td>" for c in r) + "</tr>" for r in rows)
+    table = (
+        f"<table><tr>{head}</tr>{body}</table>"
+        if rows
+        else f"<p>Needs {faststart.MIN_PRIOR}+ earlier games with a timely close and CFBD quarters.</p>"
+    )
+    return (
+        "<h2>Fast starts: does the early score stay in the final? (ledger to date)</h2>"
+        f"{table}<p class='fine'>{escape(faststart.NOTE)}</p>"
+    )
+
+
 def build_weekly_article(
     report: WeeklyAudit,
     alts: list[alt_rt.Alt] | None = None,
     flagged: list[alt_rt.Alt] | None = None,
     main: list[alt_rt.Alt] | None = None,
+    fast: list[faststart.Read] | None = None,
 ) -> str:
     title = f"Weekly Audit: {report.start:%b} {report.start.day} - {report.end:%b} {report.end.day}, {report.end.year}"
     return (
@@ -195,6 +212,7 @@ def build_weekly_article(
         f"{_scope_html(report.week, 'By slate')}"
         f"{_scope_html(report.ledger, 'By week')}"
         f"{_alt_html(alts or [], flagged, main)}"
+        f"{_fast_html(fast or [])}"
         "<p class='fine'>Break-even = the win rate the prices taken demanded. 95% range = "
         "ROI plus or minus 1.96 standard errors (never narrower than a coin flip at those "
         "prices), and nothing under 30 bets is called beyond noise; 'needs ~N' is how many bets this ROI would "
@@ -208,7 +226,12 @@ def build_weekly_article(
 
 
 def generate_weekly_report(
-    report: WeeklyAudit, cfg: Config, *, email: bool, to: str | None
+    report: WeeklyAudit,
+    cfg: Config,
+    *,
+    email: bool,
+    to: str | None,
+    fast: list[faststart.Read] | None = None,
 ) -> dict[str, Path | None]:
     """Write the weekly article HTML + PDF and optionally email the PDF."""
     out: dict[str, Path | None] = {"html": None, "pdf": None}
@@ -217,6 +240,7 @@ def generate_weekly_report(
         altlines.alts(cfg.alt_ledger_file),
         altlines.alts(cfg.alt_ledger_file, flagged_only=True),
         altlines.alts(cfg.alt_ledger_file, main_line=True),
+        fast,
     )
     iso = report.end.isoformat()
     cfg.output_dir.mkdir(parents=True, exist_ok=True)

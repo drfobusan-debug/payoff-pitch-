@@ -87,6 +87,7 @@ from cfb_engine.state import auto_pull, auto_push
 from engine_common.podcasts import state as podcast_state
 from engine_common.podcasts.episodes import store_dir
 from engine_common.podcasts.shows import CFB
+from engine_runtime import faststart
 
 _EASTERN = ZoneInfo("America/New_York")
 _AUDIT_CATCH_UP_DAYS = 14
@@ -774,12 +775,32 @@ def cmd_weekly(cfg: Config, args: argparse.Namespace) -> int:
     if not entries:
         print("Ledger is empty; run `cfb-engine audit` first.")
         return 1
-    report = weekly_audit(_timely_clv(cfg, entries), _audit_day(args))
-    out = generate_weekly_report(report, cfg, email=not args.no_email, to=args.to)
+    end = _audit_day(args)
+    report = weekly_audit(_timely_clv(cfg, entries), end)
+    out = generate_weekly_report(
+        report, cfg, email=not args.no_email, to=args.to, fast=_fast_start(cfg, entries, end)
+    )
     for line in report.week.findings + report.ledger.findings:
         print(f"- {line}")
     print(f"Wrote weekly audit -> {out['pdf'] or out['html']}")
     return 0
+
+
+def _fast_start(cfg: Config, entries: list[LedgerEntry], end: Date) -> list[faststart.Read]:
+    """The fast-start study over every slate through ``end`` (empty without a CFBD key)."""
+    from cfb_engine.audit import faststart as cfb_fast
+    from cfb_engine.data.cfbd import CFBDClient
+
+    days = sorted({e.date for e in entries if Date.fromisoformat(e.date) <= end})
+    closings = {d: load_closing(cfg.closing_file(Date.fromisoformat(d))) for d in days}
+    cfbd = CFBDClient(cfg.creds.cfbd_api_key)
+    seasons = sorted({_season(cfg, Date.fromisoformat(d)) for d in days})
+    try:
+        games = [g for s in seasons for g in cfbd.fetch_line_scores(s)]
+    except Exception as exc:  # noqa: BLE001 - a study table must not stop the audit
+        logging.getLogger(__name__).warning("fast-start study skipped: %s", exc)
+        return []
+    return cfb_fast.reads(closings, games)
 
 
 def cmd_calibrate(cfg: Config, args: argparse.Namespace) -> int:
@@ -1180,7 +1201,9 @@ def _build_parser() -> argparse.ArgumentParser:
     sub.add_parser("early-report", help="Tuesday cards vs Saturday cards on the same slates")
     add_common(sub.add_parser("audit", help="grade a slate and update the ledger"), email=True)
     sub.add_parser("alt-report", help="record of the tracked alternate spreads and totals")
-    sub.add_parser("alt-regrade", help="regrade saved alternate lines with engine prices (no credits)")
+    sub.add_parser(
+        "alt-regrade", help="regrade saved alternate lines with engine prices (no credits)"
+    )
     sub.add_parser("repair-closes", help="purge in-play quotes from saved closes and re-stamp CLV")
     sub.add_parser(
         "stamp-units",
