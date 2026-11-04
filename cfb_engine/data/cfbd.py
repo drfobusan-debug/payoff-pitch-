@@ -32,6 +32,7 @@ from dataclasses import dataclass
 from datetime import date as Date
 from datetime import timedelta
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import requests
 
@@ -51,6 +52,9 @@ from cfb_engine.data.teamnames import school_key
 # deadline so one dropped connection does not cost a Saturday's card the way it
 # cost an August one.
 from mlb_engine.data import http
+
+if TYPE_CHECKING:
+    from cfb_engine.audit.faststart import LineScore
 
 log = logging.getLogger(__name__)
 
@@ -436,6 +440,26 @@ class CFBDClient:
             if not home or not away:
                 continue
             out.append(GameResult(str(home), str(away), int(hp), int(ap), **_conferences(row)))
+        return out
+
+    def fetch_line_scores(self, season: int) -> list[LineScore]:
+        """Every completed game's points by quarter (overtime periods after the fourth)."""
+        from cfb_engine.audit.faststart import LineScore
+
+        out: list[LineScore] = []
+        for row in self._games(season):
+            hq = row.get("home_line_scores", row.get("homeLineScores"))
+            aq = row.get("away_line_scores", row.get("awayLineScores"))
+            home = row.get("home_team", row.get("homeTeam"))
+            away = row.get("away_team", row.get("awayTeam"))
+            if not isinstance(hq, list) or not isinstance(aq, list) or not home or not away:
+                continue
+            if not all(isinstance(x, (int, float)) for x in [*hq, *aq]):
+                continue
+            start = str(row.get("start_date") or row.get("startDate") or "")
+            out.append(
+                LineScore(str(home), str(away), start, tuple(map(int, hq)), tuple(map(int, aq)))
+            )
         return out
 
     def fetch_all_results(self, season: int) -> list[GameResult]:
