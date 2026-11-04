@@ -896,6 +896,8 @@ def cmd_history(args: argparse.Namespace) -> int:
 
 
 def cmd_coverage(args: argparse.Namespace) -> int:
+    if load_config().state_sync:
+        state.auto_pull(data_dir(), trees=("history",))
     for season in args.season:
         print(season, json.dumps(history.coverage(data_dir(), history.season_days(season))))
     return 0
