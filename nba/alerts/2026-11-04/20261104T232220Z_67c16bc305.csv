@@ -1,0 +1,4 @@
+detected_at,game_date,event_id,matchup,kind,detail,before,after
+2026-11-04T23:22:20Z,2026-11-04,05200821a78e4f6db8131cff1652550f,ATL @ WAS,settled,line steady over the last 2 poll(s),"{""ml"": 0.4572564612326044, ""spread"": 2.0, ""total"": 230.0}","{""ml"": 0.4572564612326044, ""spread"": 2.0, ""total"": 230.0}"
+2026-11-04T23:22:20Z,2026-11-04,0b5966b7b96eb844618eea8f215a0c71,UTA @ NOP,settled,line steady over the last 2 poll(s),"{""ml"": 0.6361132966168371, ""spread"": -4.5, ""total"": 232.0}","{""ml"": 0.6355146866140983, ""spread"": -4.5, ""total"": 232.0}"
+2026-11-04T23:22:20Z,2026-11-04,38fdb396939e8aabebd93cb509618927,CLE @ OKC,settled,line steady over the last 2 poll(s),"{""ml"": 0.5942571785268415, ""spread"": -3.5, ""total"": 226.5}","{""ml"": 0.5962732919254659, ""spread"": -3.5, ""total"": 226.5}"
