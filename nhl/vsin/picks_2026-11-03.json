@@ -10,12 +10,12 @@
   "host": "Jonathan Davis",
   "stamp": "2026-11-03T20:05:44+00:00",
   "text": "Utah Mammoth/Toronto Maple Leafs Over 6 (-135) - \u00be units",
-  "outcome": null,
-  "pnl_flat": null,
-  "pnl_stake": null,
+  "outcome": "loss",
+  "pnl_flat": -1.0,
+  "pnl_stake": -0.75,
   "close_consensus": null,
   "clv": null,
-  "graded_at": ""
+  "graded_at": "2026-11-04T14:30:45Z"
  },
  {
   "slate_date": "2026-11-03",
@@ -28,11 +28,11 @@
   "host": "Jonathan Davis",
   "stamp": "2026-11-03T20:05:44+00:00",
   "text": "Detroit Red Wings/Tampa Bay Lightning Over 6 (-122) - 1 unit",
-  "outcome": null,
-  "pnl_flat": null,
-  "pnl_stake": null,
-  "close_consensus": null,
-  "clv": null,
-  "graded_at": ""
+  "outcome": "push",
+  "pnl_flat": 0.0,
+  "pnl_stake": 0.0,
+  "close_consensus": 0.5108342361863488,
+  "clv": -0.038715313363200776,
+  "graded_at": "2026-11-04T14:30:45Z"
  }
 ]
