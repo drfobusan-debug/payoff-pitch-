@@ -25,6 +25,7 @@ from html import escape
 from pathlib import Path
 
 from engine_runtime import altlines as alt_rt
+from engine_runtime import faststart
 from nhl_engine.audit import altlines
 from nhl_engine.audit import bands as bnd
 from nhl_engine.audit import screens as scr
@@ -160,6 +161,7 @@ class LedgerAudit:
     timing: list[NightTiming] = field(default_factory=list)
     exec_buys: Tally = field(default_factory=Tally)  # buys placed at an EXEC_BOOKS book
     alts: list[tuple[str, ...]] = field(default_factory=list)  # alt-lines table rows
+    fast: list[faststart.Read] = field(default_factory=list)  # fast-start study, P1 / P2
 
     @property
     def clv_p(self) -> float:
@@ -366,6 +368,7 @@ def build(
     starters: Starters | None = None,
     context: scr.Context | None = None,
     scheduled: Mapping[str, Sequence[str]] | None = None,
+    fast: Sequence[faststart.Read] | None = None,
 ) -> LedgerAudit:
     total = len(rows)
     late = [r for r in rows if r.priced_late and r.outcome is not None]
@@ -397,6 +400,7 @@ def build(
         timing=timing,
         exec_buys=_tally([r for r in buys if r.book in EXEC_BOOKS]),
         alts=alt_rt.table(altlines.alts(rows)),
+        fast=list(fast or []),
     )
     audit.findings = _findings(audit)
     return audit
@@ -479,7 +483,17 @@ HEADER_NOTE = (
 )
 
 
-BAND_HEAD = ["band", "bets", "W-L", "units", "vs market", "ROI", "SE (u, by game)", "halves", "verdict"]
+BAND_HEAD = [
+    "band",
+    "bets",
+    "W-L",
+    "units",
+    "vs market",
+    "ROI",
+    "SE (u, by game)",
+    "halves",
+    "verdict",
+]
 
 
 def _band_title(a: LedgerAudit) -> str:
@@ -584,8 +598,15 @@ def render_md(a: LedgerAudit, *, as_of: str) -> str:
     lines += ["", "## Alternate lines: points bought vs sold", "", alt_rt.NOTE, ""]
     lines += [f"| {' | '.join(alt_rt.HEAD)} |", "|" + "---|" * len(alt_rt.HEAD)]
     lines += [f"| {' | '.join(r)} |" for r in a.alts] or ["no graded alternate lines yet"]
+    lines += ["", f"## {FAST_TITLE}", "", faststart.NOTE, ""]
+    lines += [f"| {' | '.join(faststart.HEAD)} |", "|" + "---|" * len(faststart.HEAD)]
+    lines += [f"| {' | '.join(r)} |" for r in faststart.table(a.fast)] or [FAST_EMPTY]
     lines += ["", "## Scorecard (all rows)", "", "```", a.scorecard_text.rstrip(), "```", ""]
     return "\n".join(lines)
+
+
+FAST_TITLE = "Fast starts: do early goals stay in the final? (one row per game, timely close)"
+FAST_EMPTY = f"needs {faststart.MIN_PRIOR}+ earlier games with a timely close and a final first"
 
 
 CSS = """
@@ -680,8 +701,14 @@ def render_html(a: LedgerAudit, *, as_of: str) -> str:
     )
     parts.append(f"<h2>{escape(_band_title(a))}</h2><p class='sub'>{escape(_band_note(a))}</p>")
     parts.append(_table(BAND_HEAD, _band_rows(a.bands)))
-    parts.append(f"<h2>Alternate lines: points bought vs sold</h2><p class='sub'>{escape(alt_rt.NOTE)}</p>")
+    parts.append(
+        f"<h2>Alternate lines: points bought vs sold</h2><p class='sub'>{escape(alt_rt.NOTE)}</p>"
+    )
     parts.append(_table(alt_rt.HEAD, a.alts) if a.alts else "<p>no graded alternate lines yet</p>")
+    parts.append(f"<h2>{FAST_TITLE}</h2><p class='sub'>{escape(faststart.NOTE)}</p>")
+    parts.append(
+        _table(list(faststart.HEAD), faststart.table(a.fast)) if a.fast else f"<p>{FAST_EMPTY}</p>"
+    )
     parts.append(f"<h2>Scorecard (all rows)</h2><pre>{escape(a.scorecard_text)}</pre>")
     return f"<!DOCTYPE html><html><head><meta charset='utf-8'><style>{CSS}</style></head><body>{''.join(parts)}</body></html>"
 
