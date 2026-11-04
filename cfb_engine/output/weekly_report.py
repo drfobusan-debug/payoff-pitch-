@@ -158,7 +158,9 @@ def _alt_table(alts: list[alt_rt.Alt], empty: str) -> str:
     return f"<table><tr>{head}</tr>{body}</table>" if rows else f"<p>{escape(empty)}</p>"
 
 
-def _alt_html(alts: list[alt_rt.Alt], flagged: list[alt_rt.Alt] | None = None) -> str:
+def _alt_html(
+    alts: list[alt_rt.Alt], flagged: list[alt_rt.Alt] | None = None, main: list[alt_rt.Alt] | None = None
+) -> str:
     return (
         "<h2>Alternate lines: points bought vs sold (ledger to date)</h2>"
         "<p class='fine'>Fetched beside every spread buy and graded-only total; 'beside buys' "
@@ -168,9 +170,13 @@ def _alt_html(alts: list[alt_rt.Alt], flagged: list[alt_rt.Alt] | None = None) -
         "<p class='fine'>Each rung priced at the card's main-line probability moved along the sim's "
         "normal margin or total, within 3.5 points of the main number. A rung is a candidate when its edge "
         "over that book's two-way no-vig price and its EV pass the main-line buy bars and its edge beats "
-        "the main line's; the best candidate per game is flagged, so each game counts once. Never bet; "
+        "the main line's by at least 1 point; the best candidate per game is flagged, so each game counts once. Never bet; "
         "graded to show which number to take instead of the main one.</p>"
         f"{_alt_table(flagged or [], 'No engine-flagged rungs graded yet.')}"
+        "<h2>The main line on the same games</h2>"
+        "<p class='fine'>The card's own number and price on each flagged rung's game, bucketed by the "
+        "rung it was flagged against. The flagged rung earns its place only if it beats this table.</p>"
+        f"{_alt_table(main or [], 'No engine-flagged rungs graded yet.')}"
     )
 
 
@@ -193,6 +199,7 @@ def build_weekly_article(
     report: WeeklyAudit,
     alts: list[alt_rt.Alt] | None = None,
     flagged: list[alt_rt.Alt] | None = None,
+    main: list[alt_rt.Alt] | None = None,
     fast: list[faststart.Read] | None = None,
 ) -> str:
     title = f"Weekly Audit: {report.start:%b} {report.start.day} - {report.end:%b} {report.end.day}, {report.end.year}"
@@ -204,7 +211,7 @@ def build_weekly_article(
         f"{_lead(report)}"
         f"{_scope_html(report.week, 'By slate')}"
         f"{_scope_html(report.ledger, 'By week')}"
-        f"{_alt_html(alts or [], flagged)}"
+        f"{_alt_html(alts or [], flagged, main)}"
         f"{_fast_html(fast or [])}"
         "<p class='fine'>Break-even = the win rate the prices taken demanded. 95% range = "
         "ROI plus or minus 1.96 standard errors (never narrower than a coin flip at those "
@@ -232,6 +239,7 @@ def generate_weekly_report(
         report,
         altlines.alts(cfg.alt_ledger_file),
         altlines.alts(cfg.alt_ledger_file, flagged_only=True),
+        altlines.alts(cfg.alt_ledger_file, main_line=True),
         fast,
     )
     iso = report.end.isoformat()
