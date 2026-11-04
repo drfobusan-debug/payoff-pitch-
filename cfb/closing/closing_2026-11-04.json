@@ -1,0 +1,128 @@
+{
+  "Ball State @ UMass|game_ats|Ball State": {
+    "american": -102.0,
+    "captured_at": "2026-11-04T23:45:30Z",
+    "kickoff_utc": "2026-11-05T00:05:00Z",
+    "line": 2.5,
+    "no_vig_prob": 0.49478037920110157
+  },
+  "Ball State @ UMass|game_ats|UMass": {
+    "american": -106.0,
+    "captured_at": "2026-11-04T23:45:30Z",
+    "kickoff_utc": "2026-11-05T00:05:00Z",
+    "line": -2.5,
+    "no_vig_prob": 0.5052196207988985
+  },
+  "Ball State @ UMass|game_ml|Ball State": {
+    "american": 120.0,
+    "captured_at": "2026-11-04T23:45:30Z",
+    "kickoff_utc": "2026-11-05T00:05:00Z",
+    "line": null,
+    "no_vig_prob": 0.4439872650173512
+  },
+  "Ball State @ UMass|game_ml|UMass": {
+    "american": -135.0,
+    "captured_at": "2026-11-04T23:45:30Z",
+    "kickoff_utc": "2026-11-05T00:05:00Z",
+    "line": null,
+    "no_vig_prob": 0.5560127349826488
+  },
+  "Ball State @ UMass|game_total|Over": {
+    "american": -108.0,
+    "captured_at": "2026-11-04T23:45:30Z",
+    "kickoff_utc": "2026-11-05T00:05:00Z",
+    "line": 49.0,
+    "no_vig_prob": 0.49943769427662743
+  },
+  "Ball State @ UMass|game_total|Under": {
+    "american": -108.0,
+    "captured_at": "2026-11-04T23:45:30Z",
+    "kickoff_utc": "2026-11-05T00:05:00Z",
+    "line": 49.0,
+    "no_vig_prob": 0.5005623057233726
+  },
+  "Central Michig @ Eastern Michig|game_ats|Central Michig": {
+    "american": 100.0,
+    "captured_at": "2026-11-04T23:45:30Z",
+    "kickoff_utc": "2026-11-05T00:30:00Z",
+    "line": -3.0,
+    "no_vig_prob": 0.4890587668434371
+  },
+  "Central Michig @ Eastern Michig|game_ats|Eastern Michig": {
+    "american": -110.0,
+    "captured_at": "2026-11-04T23:45:30Z",
+    "kickoff_utc": "2026-11-05T00:30:00Z",
+    "line": 3.0,
+    "no_vig_prob": 0.510941233156563
+  },
+  "Central Michig @ Eastern Michig|game_ml|Central Michig": {
+    "american": -130.0,
+    "captured_at": "2026-11-04T23:45:30Z",
+    "kickoff_utc": "2026-11-05T00:30:00Z",
+    "line": null,
+    "no_vig_prob": 0.5623056104028824
+  },
+  "Central Michig @ Eastern Michig|game_ml|Eastern Michig": {
+    "american": 126.0,
+    "captured_at": "2026-11-04T23:45:30Z",
+    "kickoff_utc": "2026-11-05T00:30:00Z",
+    "line": null,
+    "no_vig_prob": 0.4376943895971176
+  },
+  "Central Michig @ Eastern Michig|game_total|Over": {
+    "american": -110.0,
+    "captured_at": "2026-11-04T23:45:30Z",
+    "kickoff_utc": "2026-11-05T00:30:00Z",
+    "line": 44.5,
+    "no_vig_prob": 0.5028635508055528
+  },
+  "Central Michig @ Eastern Michig|game_total|Under": {
+    "american": -105.0,
+    "captured_at": "2026-11-04T23:45:30Z",
+    "kickoff_utc": "2026-11-05T00:30:00Z",
+    "line": 44.5,
+    "no_vig_prob": 0.49713644919444727
+  },
+  "Toledo @ Sacramento Sta|game_ats|Sacramento Sta": {
+    "american": -106.0,
+    "captured_at": "2026-11-04T23:45:30Z",
+    "kickoff_utc": "2026-11-05T00:00:00Z",
+    "line": 25.5,
+    "no_vig_prob": 0.5009153333073819
+  },
+  "Toledo @ Sacramento Sta|game_ats|Toledo": {
+    "american": -106.0,
+    "captured_at": "2026-11-04T23:45:30Z",
+    "kickoff_utc": "2026-11-05T00:00:00Z",
+    "line": -25.5,
+    "no_vig_prob": 0.49908466669261814
+  },
+  "Toledo @ Sacramento Sta|game_ml|Sacramento Sta": {
+    "american": 1400.0,
+    "captured_at": "2026-11-04T23:45:30Z",
+    "kickoff_utc": "2026-11-05T00:00:00Z",
+    "line": null,
+    "no_vig_prob": 0.06804179047595527
+  },
+  "Toledo @ Sacramento Sta|game_ml|Toledo": {
+    "american": -2200.0,
+    "captured_at": "2026-11-04T23:45:30Z",
+    "kickoff_utc": "2026-11-05T00:00:00Z",
+    "line": null,
+    "no_vig_prob": 0.9319582095240447
+  },
+  "Toledo @ Sacramento Sta|game_total|Over": {
+    "american": -108.0,
+    "captured_at": "2026-11-04T23:45:30Z",
+    "kickoff_utc": "2026-11-05T00:00:00Z",
+    "line": 52.5,
+    "no_vig_prob": 0.4985289456869849
+  },
+  "Toledo @ Sacramento Sta|game_total|Under": {
+    "american": -108.0,
+    "captured_at": "2026-11-04T23:45:30Z",
+    "kickoff_utc": "2026-11-05T00:00:00Z",
+    "line": 52.5,
+    "no_vig_prob": 0.5014710543130151
+  }
+}
