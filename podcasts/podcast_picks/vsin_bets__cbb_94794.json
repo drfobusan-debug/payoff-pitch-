@@ -1,0 +1,60 @@
+{
+ "episode_guid": "vsin-94794",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "21dc8da6315a649530ac4a9323a81353efb8521b",
+ "picks": [
+  {
+   "pick_id": "40edb1b3e509",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-94794",
+   "episode_title": "College Basketball Picks for Wednesday, November 4 from Adam Burke",
+   "published": "2026-11-04T16:18:45+00:00",
+   "kind": "official",
+   "market": "game_total",
+   "team": "Southeastern Louisiana",
+   "opponent": "Auburn",
+   "side": "over",
+   "line": 150.5,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Over 150.5",
+   "reason": "https://vsin.com/college-basketball/college-basketball-picks-for-wednesday-november-4-from-adam-burke/",
+   "description": "Over 150.5",
+   "league": "cbb",
+   "edge": "",
+   "fair_line": null
+  },
+  {
+   "pick_id": "b0864e2f6b9e",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-94794",
+   "episode_title": "College Basketball Picks for Wednesday, November 4 from Adam Burke",
+   "published": "2026-11-04T16:18:45+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Saint Mary",
+   "opponent": "North Dakota State",
+   "side": null,
+   "line": -13.5,
+   "price": null,
+   "units": null,
+   "seconds": 1,
+   "quote": "Saint Mary's -13.5",
+   "reason": "https://vsin.com/college-basketball/college-basketball-picks-for-wednesday-november-4-from-adam-burke/",
+   "description": "Saint Mary's -13.5",
+   "league": "cbb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cbb"
+ ]
+}
