@@ -1,0 +1,60 @@
+{
+ "episode_guid": "d9efd1e4-689c-45dd-96e1-502a9c6cce67",
+ "model": "gpt-4o-mini",
+ "prompt_version": "picks-v2",
+ "transcript_sha": "cd1fe95e5bb59a527d916d71aaf25d69820ff646",
+ "picks": [
+  {
+   "pick_id": "452273961a7b",
+   "show": "duncd_on",
+   "show_name": "Dunc'd On Basketball",
+   "host": "Nate Duncan",
+   "episode_guid": "d9efd1e4-689c-45dd-96e1-502a9c6cce67",
+   "episode_title": "8 in 65 (Western Conference 11.4.26) + Tuesday Daily Duncs (11/3/26)",
+   "published": "2026-11-04T10:36:21-05:00",
+   "kind": "lean",
+   "market": "other",
+   "team": "Lakers",
+   "opponent": null,
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "seconds": 498,
+   "quote": "I would take the over on that 46 wins that Darko has a Matt Darko is pretty conservative",
+   "reason": "Nate believes the Lakers will exceed their projected win total due to their strong start and performance.",
+   "description": "Over 46 wins for the Lakers.",
+   "league": "nba",
+   "edge": "",
+   "fair_line": null
+  },
+  {
+   "pick_id": "289085853e85",
+   "show": "duncd_on",
+   "show_name": "Dunc'd On Basketball",
+   "host": "Nate Duncan",
+   "episode_guid": "d9efd1e4-689c-45dd-96e1-502a9c6cce67",
+   "episode_title": "8 in 65 (Western Conference 11.4.26) + Tuesday Daily Duncs (11/3/26)",
+   "published": "2026-11-04T10:36:21-05:00",
+   "kind": "official",
+   "market": "other",
+   "team": "Warriors",
+   "opponent": null,
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "seconds": 1147,
+   "quote": "I picked their under is that just as a practical consideration in the modern NBA, these players in their late 30s aren't going to play every game",
+   "reason": "Nate is officially betting on the Warriors to go under their win total due to concerns about their aging roster.",
+   "description": "Under on the Warriors' win total.",
+   "league": "nba",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "nba"
+ ]
+}
