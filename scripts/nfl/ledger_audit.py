@@ -29,6 +29,7 @@ import statistics as st
 from collections import defaultdict
 from collections.abc import Callable
 
+from engine_runtime import faststart
 from nfl_engine.audit.graduation import (
     CLOSE_WINDOW,
     MIN_N,
@@ -40,6 +41,7 @@ from nfl_engine.audit.ledger import ENGINE, LOSS, PUSH, WIN, LedgerEntry, grade,
 from nfl_engine.audit.tracked import tracked_lines
 from nfl_engine.cli import _final_scores, current_week, ledger_path, report_lines
 from nfl_engine.config import load_config
+from nfl_engine.data import nflverse
 from nfl_engine.market.odds import american_to_prob
 from nfl_engine.market.screens import Tier
 
@@ -309,6 +311,93 @@ def report(entries: list[LedgerEntry], filled: int) -> list[str]:
     return out
 
 
+NFL_CUTS = {"end of Q1": 1, "half": 2, "end of Q3": 3}
+
+
+def close_totals(entries: list[LedgerEntry]) -> dict[tuple[str, str], float]:
+    """(matchup, date) -> the timely close total: per book, the Over rung whose two-sided
+    close is nearest a coin flip; the median of those across books."""
+    rungs: dict[tuple[str, str], dict[str, tuple[float, float]]] = defaultdict(dict)
+    for e in entries:
+        if e.market != "total" or e.side != "over" or e.line is None or e.close_prob is None:
+            continue
+        if not (has_true_close(e) and has_paired_close(e)):
+            continue
+        near = abs(e.close_prob - 0.5)
+        held = rungs[(e.matchup, e.date)].get(e.book)
+        if held is None or near < held[0]:
+            rungs[(e.matchup, e.date)][e.book] = (near, e.line)
+    return {k: st.median(line for _, line in by_book.values()) for k, by_book in rungs.items()}
+
+
+def quarter_points(pbp: object) -> dict[tuple[str, str], list[int]]:
+    """(``AWAY @ HOME``, game date) -> both teams' points in each of the four quarters."""
+    out: dict[tuple[str, str], list[int]] = {}
+    plays = pbp[
+        [
+            "game_id",
+            "game_date",
+            "home_team",
+            "away_team",
+            "qtr",
+            "total_home_score",
+            "total_away_score",
+        ]
+    ]  # type: ignore[index]
+    plays = plays.dropna(subset=["total_home_score", "total_away_score"])
+    for (_gid, day, home, away), g in plays.groupby(
+        ["game_id", "game_date", "home_team", "away_team"]
+    ):
+        pts = g.total_home_score + g.total_away_score
+        upto = [int(pts[g.qtr <= q].max()) if (g.qtr <= q).any() else 0 for q in range(1, 5)]
+        out[(f"{away} @ {home}", str(day))] = [
+            upto[0],
+            *(b - a for a, b in zip(upto, upto[1:], strict=False)),
+        ]
+    return out
+
+
+def fast_start_reads(
+    entries: list[LedgerEntry], quarters: dict[tuple[str, str], list[int]]
+) -> list[faststart.Read]:
+    finals = {
+        (e.matchup, e.date): float(e.home_score + e.away_score)
+        for e in entries
+        if e.home_score is not None and e.away_score is not None
+    }
+    by_cut: dict[str, list[faststart.Obs]] = {c: [] for c in NFL_CUTS}
+    for key, total in close_totals(entries).items():
+        if key not in finals or key not in quarters:
+            continue
+        gid = f"{key[1]} {key[0]}"
+        for cut, o in faststart.checkpoints(
+            gid, key[1], total, quarters[key], finals[key], NFL_CUTS
+        ).items():
+            by_cut[cut].append(o)
+    return [r for c, obs in by_cut.items() if (r := faststart.read(c, obs)) is not None]
+
+
+def fast_start_lines(entries: list[LedgerEntry]) -> list[str]:
+    out = [
+        "",
+        "8) Fast starts: does the early score stay in the final? (one row per game, timely close)",
+    ]
+    try:
+        quarters: dict[tuple[str, str], list[int]] = {}
+        for season in sorted({e.season for e in entries}):
+            quarters.update(quarter_points(nflverse.play_by_play(season)))
+        reads = fast_start_reads(entries, quarters)
+    except Exception as exc:  # noqa: BLE001 - a study table must not stop the audit
+        return [*out, f"  unavailable ({exc})"]
+    out.append("  " + " | ".join(faststart.HEAD))
+    out += ["  " + " | ".join(r) for r in faststart.table(reads)]
+    if not reads:
+        out.append(
+            f"  needs {faststart.MIN_PRIOR}+ earlier games with a timely close and a final first"
+        )
+    return [*out, "  " + faststart.NOTE]
+
+
 def email_audit(text: str, *, season: int | None, ledger_csv: bytes, to: str | None) -> str:
     """Send the audit text as the body, with it and the ledger CSV attached."""
     from nfl_engine.output.email import send_package
@@ -347,6 +436,7 @@ def main(argv: list[str] | None = None) -> None:
     if args.email:
         lines += ["", "nfl-engine report --all", *report_lines(entries), ""]
     lines += report(entries, filled)
+    lines += fast_start_lines(entries)
     text = "\n".join(lines)
     print(text)
     if not args.email:
