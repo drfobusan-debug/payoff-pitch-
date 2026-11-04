@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-94712",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "51eeac86d401362f45c5239bc1de03dd30f67b00",
+ "picks": [
+  {
+   "pick_id": "71fed0ca3bee",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-94712",
+   "episode_title": "College Football Week 10 Picks: Central Michigan vs. Eastern Michigan",
+   "published": "2026-11-03T13:42:13+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Central Michigan",
+   "opponent": "Eastern Michigan",
+   "side": null,
+   "line": 1.5,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Central Michigan +1.5",
+   "reason": "https://vsin.com/college-football/college-football-week-10-picks-central-michigan-vs-eastern-michigan/",
+   "description": "Central Michigan +1.5",
+   "league": "cfb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cfb"
+ ]
+}

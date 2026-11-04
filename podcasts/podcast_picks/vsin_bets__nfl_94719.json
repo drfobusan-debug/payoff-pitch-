@@ -1,0 +1,60 @@
+{
+ "episode_guid": "vsin-94719",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "9f938d969628447e2d661e7ebc52d1a8a138bd68",
+ "picks": [
+  {
+   "pick_id": "5f1e5a51cb0c",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Zachary Cohen",
+   "episode_guid": "vsin-94719",
+   "episode_title": "Jaguars vs. Ravens Predictions: Week 9 Thursday Night Football odds, picks, and player props",
+   "published": "2026-11-03T19:15:34+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Ravens",
+   "opponent": "Jaguars",
+   "side": null,
+   "line": 10.5,
+   "price": -127.0,
+   "units": null,
+   "seconds": 0,
+   "quote": "Ravens +10.5 (-127)",
+   "reason": "https://vsin.com/nfl/jaguars-vs-ravens-predictions-week-9-thursday-night-football-odds-picks-and-player-props/",
+   "description": "Ravens +10.5 (-127)",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  },
+  {
+   "pick_id": "9c125a393125",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Zachary Cohen",
+   "episode_guid": "vsin-94719",
+   "episode_title": "Jaguars vs. Ravens Predictions: Week 9 Thursday Night Football odds, picks, and player props",
+   "published": "2026-11-03T19:15:34+00:00",
+   "kind": "official",
+   "market": "game_ml",
+   "team": "Ravens",
+   "opponent": "Jaguars",
+   "side": null,
+   "line": null,
+   "price": 410.0,
+   "units": 0.25,
+   "seconds": 1,
+   "quote": "Ravens ML (+410 - 0.25 units)",
+   "reason": "https://vsin.com/nfl/jaguars-vs-ravens-predictions-week-9-thursday-night-football-odds-picks-and-player-props/",
+   "description": "Ravens ML (+410 - 0.25 units)",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "nfl"
+ ]
+}

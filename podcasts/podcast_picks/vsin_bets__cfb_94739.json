@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-94739",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "1d14c61b305e2094ecaa258b2106a129b6c6b3c5",
+ "picks": [
+  {
+   "pick_id": "4856015341bd",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-94739",
+   "episode_title": "College Football Week 10 Picks: UTSA vs. Florida Atlantic",
+   "published": "2026-11-03T20:41:29+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Florida Atlantic",
+   "opponent": "UTSA",
+   "side": null,
+   "line": 7.0,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Florida Atlantic +7",
+   "reason": "https://vsin.com/college-football/college-football-week-10-picks-utsa-vs-florida-atlantic/",
+   "description": "Florida Atlantic +7",
+   "league": "cfb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cfb"
+ ]
+}
