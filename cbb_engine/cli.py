@@ -350,8 +350,8 @@ def _season_ctx(
     ctx: dict[str, bands.GameCtx] = {}
     for d, group in sorted(by_day.items()):
         res_d = torvik.as_of(data_dir(), "team_results", d).path
-        tempo = bands.tempo_thirds(torvik.read_csv(res_d)) if res_d else {}
-        ctx.update(bands.context(group, d, boards, logs, confs, opener, tempo))
+        table = torvik.read_csv(res_d) if res_d else []
+        ctx.update(bands.context(group, d, boards, logs, confs, opener, bands.tempo_thirds(table), bands.torvik_ranks(table)))
     return ctx, boards
 
 

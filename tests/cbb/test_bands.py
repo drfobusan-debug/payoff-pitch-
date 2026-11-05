@@ -108,6 +108,16 @@ def test_context_reads_rank_venue_power_and_net_rank() -> None:
     assert (ctx.away.ap, ctx.away.power, ctx.away.net_rank) == (None, False, 2)
 
 
+def test_context_falls_back_to_torvik_rank_until_a_team_has_a_logged_game() -> None:
+    board = [_game("Kentucky Wildcats", "Toledo Rockets")]
+    logs = [bands.LogGame(Date(2025, 1, 1), "Kentucky", 70, 90, 60)]
+    ctx = bands.context({"e": ("Kentucky Wildcats", "Toledo Rockets")}, Date(2025, 1, 10), {Date(2025, 1, 10): board},
+                        logs, {"Kentucky": "SEC", "Toledo": "MAC"}, ranks={"Kentucky": 5, "Toledo": 150})["e"]
+    assert ctx.home.net_rank == 1  # a logged game wins over the table
+    assert ctx.away.net_rank == 150
+    assert bands.torvik_ranks([{"team": "A", "rank": "3"}, {"team": "B", "rank": ""}]) == {"A": 3}
+
+
 def _on(day: str, tip: str, **kw: object) -> ledger.Row:
     r = _row("e", "game_total", "over", 140.5, day=day, **kw)  # type: ignore[arg-type]
     r.tip_utc = tip
