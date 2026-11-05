@@ -18,7 +18,7 @@ from datetime import timedelta
 
 from cbb_engine import history
 from cbb_engine.audit import pnl
-from cbb_engine.data import espn
+from cbb_engine.data import capture, espn
 from cbb_engine.output import teamstats
 from engine_common.bands import BandRead
 from engine_runtime import ledger, quotes
@@ -269,6 +269,12 @@ def main_lines(qs: Sequence[quotes.Quote]) -> dict[tuple[str, str], float]:
     return {k: sorted(v)[len(v) // 2] for k, v in lines.items()}
 
 
+def tip_day(tip_utc: str) -> Date | None:
+    """The US calendar day a game tips on, so pre-tip stats can stop the day before it."""
+    day = capture.slate_date_of(tip_utc)
+    return Date.fromisoformat(day) if day else None
+
+
 def context(
     teams: Mapping[str, tuple[str, str]],
     day: Date,
@@ -311,5 +317,5 @@ def context(
 
 __all__ = [
     "BANDS", "GameCtx", "LogGame", "Team", "context", "main_lines", "main_rows", "market_expected",
-    "openers", "parse_logs", "profile", "read_bands", "render", "rest_days", "tempo_thirds",
+    "openers", "parse_logs", "profile", "read_bands", "render", "rest_days", "tempo_thirds", "tip_day",
 ]

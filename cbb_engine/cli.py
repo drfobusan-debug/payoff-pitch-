@@ -318,23 +318,40 @@ def _manifest_teams(root: Path, day: Date) -> dict[str, tuple[str, str]]:
 def _season_ctx(
     root: Path, season: list[ledger.Row], day: Date
 ) -> tuple[dict[str, bands.GameCtx], dict[Date, list[espn.Game]]]:
-    """Pre-tip context per event over the season's slates, and the archived ESPN boards it read."""
+    """Pre-tip context per event over the season's slates, and the archived ESPN boards it read.
+
+    An event sits on every slate that captured it, so each one is read as of its own tip day:
+    Torvik logs stop the day before it tips, never on a later slate that already holds its result."""
     logs = bands.parse_logs(teamstats.read_logs(torvik.as_of(data_dir(), "game_logs", day).path))
     res = torvik.as_of(data_dir(), "team_results", day).path
     confs = {r.get("team", ""): r.get("conf", "") for r in torvik.read_csv(res)} if res else {}
-    days = sorted({Date.fromisoformat(r.slate_date) for r in season})
+    slates = sorted({Date.fromisoformat(r.slate_date) for r in season})
+    tips: dict[str, Date] = {}
+    for r in season:
+        t = bands.tip_day(r.tip_utc)
+        if t:
+            tips.setdefault(r.event_id, t)
+    teams: dict[str, tuple[str, str]] = {}
+    opener: dict[str, dict[tuple[str, str], float]] = {}
+    by_day: dict[Date, dict[str, tuple[str, str]]] = {}
+    for d in slates:
+        for eid, o in bands.openers(quotes.read_day(root, SPORT, d.isoformat())).items():
+            opener.setdefault(eid, o)
+        for eid, tm in _manifest_teams(root, d).items():
+            if eid not in teams:
+                teams[eid] = tm
+                by_day.setdefault(tips.get(eid, d), {})[eid] = tm
     boards: dict[Date, list[espn.Game]] = {}
-    if days:
-        d = days[0] - timedelta(days=bands.REST_LOOKBACK)
-        while d <= max(days[-1], day):
+    if by_day:
+        d = min(by_day) - timedelta(days=bands.REST_LOOKBACK)
+        while d <= max(*by_day, day):
             boards[d] = history.latest_scoreboard(data_dir(), d.isoformat())
             d += timedelta(days=1)
     ctx: dict[str, bands.GameCtx] = {}
-    for d in days:
-        opener = bands.openers(quotes.read_day(root, SPORT, d.isoformat()))
+    for d, group in sorted(by_day.items()):
         res_d = torvik.as_of(data_dir(), "team_results", d).path
         tempo = bands.tempo_thirds(torvik.read_csv(res_d)) if res_d else {}
-        ctx.update(bands.context(_manifest_teams(root, d), d, boards, logs, confs, opener, tempo))
+        ctx.update(bands.context(group, d, boards, logs, confs, opener, tempo))
     return ctx, boards
 
 
