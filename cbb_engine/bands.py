@@ -260,6 +260,17 @@ def tempo_thirds(results: Iterable[Mapping[str, str]]) -> dict[str, str]:
     }
 
 
+def torvik_ranks(results: Iterable[Mapping[str, str]]) -> dict[str, int]:
+    """Torvik's own rank per team from an archived ``team_results`` table (pre-season until games land)."""
+    out: dict[str, int] = {}
+    for r in results:
+        try:
+            out[r.get("team", "")] = int(r.get("rank", ""))
+        except ValueError:
+            continue
+    return out
+
+
 def rest_days(team: str, day: Date, boards: Mapping[Date, Sequence[espn.Game]]) -> int | None:
     """Days since ``team``'s (ESPN name) previous game; None when no board in the lookback has one."""
     for back in range(1, REST_LOOKBACK + 1):
@@ -305,19 +316,24 @@ def context(
     confs: Mapping[str, str],
     opener: Mapping[str, Mapping[tuple[str, str], float]] | None = None,
     tempo: Mapping[str, str] | None = None,
+    ranks: Mapping[str, int] | None = None,
 ) -> dict[str, GameCtx]:
     """Pre-tip context per event from the day's ESPN board (rank, venue, conference flag),
     earlier boards (rest), Torvik logs before ``day`` (net rank, tempo), conference membership and
-    ``tempo`` (each Torvik team's adjusted-tempo third as of ``day``)."""
+    ``tempo`` (each Torvik team's adjusted-tempo third as of ``day``). ``ranks`` is Torvik's archived
+    rank as of ``day``; it stands in for the net rank while a team has no logged game yet."""
     prof = profile(logs, day)
     thirds = tempo or {}
-    tv = sorted(set(prof) | set(confs) | set(thirds))
+    tv_rank = ranks or {}
+    tv = sorted(set(prof) | set(confs) | set(thirds) | set(tv_rank))
     games = boards.get(day, ())
     out: dict[str, GameCtx] = {}
 
     def team(name: str, espn_name: str | None, ap: int | None) -> Team:
         t = teamstats.match_team(name, tv)
         net, slow = prof.get(t, (None, None)) if t else (None, None)
+        if net is None and t:
+            net = tv_rank.get(t)
         conf = confs.get(t) if t else None
         rest = rest_days(espn_name, day, boards) if espn_name else None
         return Team(ap, net, slow, (conf in POWER) if conf else None, rest, thirds.get(t) if t else None)
@@ -339,5 +355,5 @@ def context(
 
 __all__ = [
     "BANDS", "GameCtx", "LogGame", "Team", "context", "main_lines", "main_rows", "market_expected", "one_slate_per_game",
-    "openers", "parse_logs", "profile", "read_bands", "render", "rest_days", "tempo_thirds", "tip_day",
+    "openers", "parse_logs", "profile", "read_bands", "render", "rest_days", "tempo_thirds", "tip_day", "torvik_ranks",
 ]
