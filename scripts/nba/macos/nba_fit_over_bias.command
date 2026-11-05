@@ -1,8 +1,8 @@
 #!/bin/bash
 # Fit the prop Over bias on the Mac (stats.nba/ESPN reach, the history archive):
-# check archive coverage, archive the ESPN finals, then fit and push
-# params/over_bias to engine-state. Free -- no Odds API credits. Seasons default
-# to 2023-24..2025-26; pass --season ... to replace them.
+# pull the history archive (props included) from engine-state and check its coverage,
+# archive the ESPN finals, then fit and push params/over_bias to engine-state. Free --
+# no Odds API credits. Seasons default to 2023-24..2025-26; pass --season ... to replace them.
 set -uo pipefail
 _src=$0
 while [ -L "$_src" ]; do
