@@ -26,7 +26,7 @@ from datetime import date as Date
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
-from cfb_engine.audit import altlines, early, shop, snapshot, watchlist
+from cfb_engine.audit import altlines, closefill, early, shop, snapshot, watchlist
 from cfb_engine.audit.availability import read_log, summarize
 from cfb_engine.audit.clv import (
     ClosingQuote,
@@ -38,6 +38,7 @@ from cfb_engine.audit.clv import (
     load_closing,
     merge_closing,
     save_closing,
+    timely_close,
     timely_clv,
     timely_only,
 )
@@ -1023,6 +1024,103 @@ def cmd_repair_closes(cfg: Config, args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_close_backfill(cfg: Config, args: argparse.Namespace) -> int:
+    """Buy the per-game close for graded buys that have none, from Odds API history.
+
+    One historical snapshot ``--lead`` minutes before each kickoff window; only sides
+    without a timely close are written, then the ledger's CLV is re-stamped. Without
+    ``--buy`` it prints the plan and its credit cost and spends nothing.
+    """
+    _state_pull(cfg)
+    entries = load_ledger(cfg.ledger_file)
+    need = closefill.missing(
+        entries, lambda iso: load_closing(cfg.closing_file(Date.fromisoformat(iso)))
+    )
+    if args.date:
+        need = {d: m for d, m in need.items() if d == args.date}
+    if not need:
+        print("Every graded buy already has a timely close; nothing to buy")
+        return 0
+    odds = OddsAPIClient(
+        cfg.creds.odds_api_key,
+        regions=cfg.odds_regions,
+        cache_dir=cfg.odds_cache_dir,
+        cache_ttl=10**9,
+    )
+    if args.buy and not odds.available():
+        print("No Odds API key (ODDS_API_KEY); nothing bought")
+        return 1
+    plan: dict[str, dict[str, list[str]]] = {}
+    unknown: dict[str, set[str]] = {}
+    for iso, matchups in sorted(need.items()):
+        day = Date.fromisoformat(iso)
+        path = cfg.predictions_file(day)
+        recs = load_json(path) if path.exists() else []
+        kicks = {r.matchup: r.kickoff_utc for r in recs if r.matchup in matchups and r.kickoff_utc}
+        lost = matchups - set(kicks)
+        if lost and args.buy:
+            found = odds.historical_kickoffs(day)
+            kicks |= {m: found[m] for m in lost if found.get(m)}
+            lost = matchups - set(kicks)
+        if lost:
+            unknown[iso] = lost
+        plan[iso] = closefill.windows(kicks, args.lead)
+    snaps = sum(len(w) for w in plan.values())
+    guess = 0 if args.buy else sum(len(m) for m in unknown.values())
+    lookups = 0 if args.buy else len(unknown)
+    games = sum(len(m) for m in need.values())
+    print(
+        f"{games} game(s) on {len(need)} slate(s) lack a timely close: {snaps} snapshot(s)"
+        + (f" + up to {guess} for {guess} game(s) with no stored kickoff" if guess else "")
+        + f", about {closefill.cost(snaps + guess, cfg.odds_regions, lookups)} credits"
+    )
+    if not args.buy:
+        for iso, lost in sorted(unknown.items()):
+            print(f"  {iso}: kickoff looked up at buy time for {', '.join(sorted(lost))}")
+        print("Plan only; rerun with --buy to spend the credits")
+        return 0
+    filled_total = 0
+    for iso, wins in plan.items():
+        day = Date.fromisoformat(iso)
+        closing = load_closing(cfg.closing_file(day))
+        before = sum(1 for q in closing.values() if timely_close(q))
+        for at, group in wins.items():
+            stamp, slate, board = odds.fetch_historical_board(day, at)
+            seen = _parse_utc(stamp)
+            if seen is None:
+                print(f"{iso} {at}: no snapshot returned")
+                continue
+            fresh = closing_quotes(slate, board, now=seen)
+            want = set(group)
+            closing = closefill.fill(
+                closing, {k: q for k, q in fresh.items() if k.split("|", 1)[0] in want}
+            )
+        added = sum(1 for q in closing.values() if timely_close(q)) - before
+        filled_total += added
+        save_closing(closing, cfg.closing_file(day))
+        day_rows = [e for e in entries if e.date == iso]
+        _restamp_clv(cfg, day_rows, timely_only(closing)[0])
+        update_ledger(cfg.ledger_file, day_rows, day)
+        missed = need[iso] - {k.split("|", 1)[0] for k, q in closing.items() if timely_close(q)}
+        tail = f"; still no close for {', '.join(sorted(missed))}" if missed else ""
+        print(f"{iso}: {added} timely close side(s) added{tail}")
+    stamped = sum(1 for e in load_ledger(cfg.ledger_file) if e.clv is not None)
+    print(f"Added {filled_total} close side(s); {stamped} ledger rows now carry a timely close")
+    if odds.credits_remaining is not None:
+        print(f"Odds API credits remaining: {odds.credits_remaining:,}")
+    if filled_total:
+        _state_push(cfg, f"cfb close-backfill: {filled_total} historical closes")
+    return 0
+
+
+def _parse_utc(stamp: str) -> datetime | None:
+    try:
+        t = datetime.fromisoformat(stamp.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return t if t.tzinfo else t.replace(tzinfo=timezone.utc)
+
+
 def cmd_shop(cfg: Config, args: argparse.Namespace) -> int:
     """Totals graded at the card's number vs the best allowed number vs Kalshi."""
     _state_pull(cfg)
@@ -1203,6 +1301,20 @@ def _build_parser() -> argparse.ArgumentParser:
         "alt-regrade", help="regrade saved alternate lines with engine prices (no credits)"
     )
     sub.add_parser("repair-closes", help="purge in-play quotes from saved closes and re-stamp CLV")
+    bf = sub.add_parser(
+        "close-backfill", help="buy the historical close for graded buys that have none"
+    )
+    bf.add_argument("--date", help="only this slate date YYYY-MM-DD (default: every slate)")
+    bf.add_argument(
+        "--buy", action="store_true", help="spend the credits (default: print the plan)"
+    )
+    bf.add_argument(
+        "--lead",
+        type=float,
+        default=closefill.LEAD_MIN,
+        metavar="MIN",
+        help="minutes before kickoff to read the snapshot (default: 10; must be under 45)",
+    )
     sub.add_parser(
         "stamp-units",
         help="stamp pre-slate unit ranks (ATS/ML), YPP tags (totals), conference tier and AP "
@@ -1248,6 +1360,7 @@ _DISPATCH = {
     "early-report": cmd_early_report,
     "audit": cmd_audit,
     "repair-closes": cmd_repair_closes,
+    "close-backfill": cmd_close_backfill,
     "stamp-units": cmd_stamp_units,
     "shop": cmd_shop,
     "report": cmd_report,
