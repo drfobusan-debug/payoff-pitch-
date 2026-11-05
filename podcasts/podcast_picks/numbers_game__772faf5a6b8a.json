@@ -1,0 +1,55 @@
+{
+ "episode_guid": "4a5b16c8-fc25-44d7-9da5-a29ed6924174",
+ "model": "gpt-4o-mini",
+ "prompt_version": "picks-v2",
+ "transcript_sha": "019993aae9128b6aab73260b402a141df443cd8c",
+ "picks": [],
+ "rejected": [
+  {
+   "league": "nfl",
+   "kind": "official",
+   "host": "Gill Alexander",
+   "team": "New England Patriots",
+   "opponent": null,
+   "market": "other",
+   "side": null,
+   "line": 24.5,
+   "price": -135,
+   "units": 1,
+   "stamp": "39:10",
+   "quote": "Under 24 and a half new england patriots the team total you can go up to minus 135",
+   "edge": "Warren Sharp's analysis",
+   "fair_line": null,
+   "reason": "The Patriots have struggled offensively, making this total a solid bet.",
+   "description": "Under 24.5 Patriots team total",
+   "why": "quote not in transcript near stamp"
+  },
+  {
+   "league": "nfl",
+   "kind": "official",
+   "host": "Gill Alexander",
+   "team": "New England Patriots",
+   "opponent": null,
+   "market": "other",
+   "side": null,
+   "line": 24.5,
+   "price": -135,
+   "units": 1,
+   "stamp": "[39:26]",
+   "quote": "Under 24 and a half new england patriots the team total",
+   "edge": "Warren Sharp's analysis suggests this is a strong play.",
+   "fair_line": null,
+   "reason": "The Patriots have struggled offensively, making this total a solid bet.",
+   "description": "Under 24.5 New England Patriots team total",
+   "why": "bad stamp"
+  }
+ ],
+ "leagues": [
+  "cfb",
+  "nfl",
+  "mlb",
+  "nba",
+  "cbb",
+  "nhl"
+ ]
+}
