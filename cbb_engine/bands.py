@@ -129,12 +129,34 @@ BANDS: tuple[tuple[str, Pred], ...] = (
 )
 
 
-def main_rows(rows: Iterable[ledger.Row]) -> list[ledger.Row]:
-    """One graded row per (game, market, side): the most-quoted line, median price; date order."""
-    groups: dict[tuple[str, str, str, str], list[ledger.Row]] = defaultdict(list)
+def one_slate_per_game(rows: Iterable[ledger.Row]) -> list[ledger.Row]:
+    """Keep each (game, market, side) from one slate only, so a game captured on several daily slates counts once.
+
+    The slate of its own US tip day wins; failing that the latest slate before it, else the earliest.
+    """
+    by_bet: dict[tuple[str, str, str], list[ledger.Row]] = defaultdict(list)
     for r in rows:
-        if r.bet_of_record and r.market in MAIN and r.outcome in ("win", "loss", "push") and r.pnl is not None and r.p_fair:
-            groups[(r.slate_date, r.event_id, r.market, r.side)].append(r)
+        by_bet[(r.event_id, r.market, r.side)].append(r)
+    out: list[ledger.Row] = []
+    for rs in by_bet.values():
+        slates = sorted({r.slate_date for r in rs})
+        tip = tip_day(max(rs, key=lambda r: r.slate_date).tip_utc)
+        day = tip.isoformat() if tip else ""
+        before = [d for d in slates if d <= day]
+        keep = before[-1] if before else slates[0]
+        out += [r for r in rs if r.slate_date == keep]
+    return out
+
+
+def main_rows(rows: Iterable[ledger.Row]) -> list[ledger.Row]:
+    """One graded row per (game, market, side) from the game's own slate: the most-quoted line, median price."""
+    groups: dict[tuple[str, str, str, str], list[ledger.Row]] = defaultdict(list)
+    graded = [
+        r for r in rows
+        if r.bet_of_record and r.market in MAIN and r.outcome in ("win", "loss", "push") and r.pnl is not None and r.p_fair
+    ]
+    for r in one_slate_per_game(graded):
+        groups[(r.slate_date, r.event_id, r.market, r.side)].append(r)
     out: list[ledger.Row] = []
     for rs in groups.values():
         by_line: dict[float | None, list[ledger.Row]] = defaultdict(list)
@@ -316,6 +338,6 @@ def context(
 
 
 __all__ = [
-    "BANDS", "GameCtx", "LogGame", "Team", "context", "main_lines", "main_rows", "market_expected",
+    "BANDS", "GameCtx", "LogGame", "Team", "context", "main_lines", "main_rows", "market_expected", "one_slate_per_game",
     "openers", "parse_logs", "profile", "read_bands", "render", "rest_days", "tempo_thirds", "tip_day",
 ]

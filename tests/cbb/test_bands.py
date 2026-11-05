@@ -106,3 +106,24 @@ def test_context_reads_rank_venue_power_and_net_rank() -> None:
     assert ctx.neutral and not ctx.conference
     assert (ctx.home.ap, ctx.home.power, ctx.home.net_rank) == (17, True, 1)
     assert (ctx.away.ap, ctx.away.power, ctx.away.net_rank) == (None, False, 2)
+
+
+def _on(day: str, tip: str, **kw: object) -> ledger.Row:
+    r = _row("e", "game_total", "over", 140.5, day=day, **kw)  # type: ignore[arg-type]
+    r.tip_utc = tip
+    return r
+
+
+def test_a_game_on_three_slates_counts_once_from_its_own_tip_day() -> None:
+    tip = "2026-11-03T00:30:00Z"  # Monday 7:30 pm ET, so Monday Nov 2 is its slate
+    rows = [_on(d, tip) for d in ("2026-11-01", "2026-11-02", "2026-11-03")]
+    (r,) = bands.main_rows(rows)
+    assert r.slate_date == "2026-11-02"
+
+
+def test_without_its_tip_day_slate_the_latest_earlier_slate_wins() -> None:
+    tip = "2026-11-03T00:30:00Z"
+    assert [r.slate_date for r in bands.one_slate_per_game([_on(d, tip) for d in ("2026-11-01", "2026-11-03")])] == [
+        "2026-11-01"
+    ]
+    assert [r.slate_date for r in bands.one_slate_per_game([_on("2026-11-04", tip)])] == ["2026-11-04"]
