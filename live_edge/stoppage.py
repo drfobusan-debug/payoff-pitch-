@@ -19,6 +19,7 @@ It never makes or blocks a ticket.
 
     python -m live_edge.stoppage run --sport nba --hours 7
     python -m live_edge.stoppage report --sport nba
+    python -m live_edge.stoppage run --sport cbb --hours 14 --email   # email the report at the end
 """
 
 from __future__ import annotations
@@ -34,6 +35,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 
+from live_edge import mail
 from live_edge.engine import data_dir, match_event, now_iso
 from live_edge.espn import LiveGame, fetch_scoreboard
 from live_edge.oddsapi import EventQuotes, LiveOddsClient, age_seconds
@@ -406,6 +408,44 @@ class Study:
         return "\n".join(lines)
 
 
+def slate(study: Study, since: str) -> tuple[str, str]:
+    """(subject, body): this run's tickets, then the running report."""
+    grades = {g["espn_id"]: g for g in study.read("grades.jsonl")}
+    mine = [t for t in study.read("tickets.jsonl") if t["at"] >= since]
+    seen = {
+        s["espn_id"]
+        for s in study.read("tape.jsonl")
+        if s["kind"] == "stoppage" and s["primary"] and s["at"] >= since
+    }
+    rows = [f"This run (since {since}): {len(seen)} games at the stoppage, {len(mine)} tickets"]
+    for t in mine:
+        g = grades.get(t["espn_id"], {})
+        price = "no DK/BetMGM price" if t["price"] is None else f"{t['book']} {t['price']:+g}"
+        lead = f"; lead-adjusted {t['lead_side'] or '-'} {g.get('lead_result') or ''}".rstrip()
+        rows.append(
+            f"  {t['matchup']}: {t['side']} {t['line']:g} ({price}), live {t['live']:g} "
+            f"fair {t['fair']:g} gap {t['gap']:+g}; final {g.get('final', '-')} "
+            f"{g.get('result') or 'unsettled'}{lead if study.sport in LEAD_ADJ else ''}"
+        )
+    settled = sum(t["espn_id"] in grades for t in mine)
+    subject = (
+        f"{study.sport.upper()} live-total paper test {since[:10]}: "
+        f"{len(mine)} tickets, {settled} settled"
+    )
+    return subject, "\n".join([*rows, "", "Running totals", study.report()])
+
+
+def email_slate(study: Study, since: str) -> int:
+    subject, body = slate(study, since)
+    try:
+        to = mail.send(subject, body)
+    except mail.EmailNotConfigured as exc:
+        print(f"not emailed: {exc}", file=sys.stderr)
+        return 2
+    print(f"emailed {subject!r} -> {to}")
+    return 0
+
+
 def run(
     study: Study,
     client: LiveOddsClient,
@@ -417,6 +457,7 @@ def run(
 ) -> None:
     deadline = time.monotonic() + hours * 3600
     spent = idle = 0
+    seen_live = False
     while time.monotonic() < deadline:
         now = datetime.now(timezone.utc)
         try:
@@ -429,6 +470,8 @@ def run(
             if out["snapshots"] or out["tickets"] or out["graded"]:
                 print(f"[{now_iso()}] {study.sport}: {out}, credits used {spent}", flush=True)
             live = any(g.status == "in" for g in games)
+            seen_live = seen_live or live
+            waiting = not seen_live and any(g.status == "pre" for g in games)
             soon = any(
                 g.status == "pre"
                 and (ko := _ts(g.kickoff))
@@ -437,8 +480,9 @@ def run(
             )
         except Exception as exc:  # noqa: BLE001 - the loop must survive a bad tick
             log.warning("tick failed: %s", exc)
-            live = soon = False
-        idle = 0 if live or soon else idle + 1
+            live = soon = waiting = False
+        # Before the first tip the loop waits; it can start hours early on a launchd schedule.
+        idle = 0 if live or soon or waiting else idle + 1
         if idle >= idle_exit:
             print("no live games and none within the hour; stopping")
             break
@@ -457,11 +501,15 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--hours", type=float, default=8.0)
     ap.add_argument("--max-credits", type=int, default=600, help="Odds API calls (1 credit each)")
     ap.add_argument("--idle-exit", type=int, default=10)
+    ap.add_argument("--email", action="store_true", help="email the report (run: this run's slate)")
+    ap.add_argument("--since", help="report --email: tickets from this UTC stamp (default today)")
     args = ap.parse_args(argv)
     logging.basicConfig(level=logging.WARNING, format="%(levelname)s %(message)s")
     study = Study(args.sport)
     if args.cmd == "report":
         print(study.report())
+        if args.email:
+            return email_slate(study, args.since or now_iso()[:10])
         return 0
     client = LiveOddsClient(os.getenv("THE_ODDS_API_KEY") or os.getenv("ODDS_API_KEY"))
     if not client.available():
@@ -475,6 +523,7 @@ def main(argv: list[str] | None = None) -> int:
         )
         print(study.tick(games, events, now))
         return 0
+    since = now_iso()
     run(
         study,
         client,
@@ -484,7 +533,7 @@ def main(argv: list[str] | None = None) -> int:
         idle_exit=args.idle_exit,
     )
     print(study.report())
-    return 0
+    return email_slate(study, since) if args.email else 0
 
 
 if __name__ == "__main__":
