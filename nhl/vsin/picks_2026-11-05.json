@@ -1,0 +1,38 @@
+[
+ {
+  "slate_date": "2026-11-05",
+  "matchup": "UTA @ MTL",
+  "market": "game_total",
+  "side": "over",
+  "line": 6.5,
+  "american": -118,
+  "stake": 0.5,
+  "host": "Jonathan Davis",
+  "stamp": "2026-11-05T19:19:21+00:00",
+  "text": "Over 6.5 (-118) - \u00bd unit",
+  "outcome": null,
+  "pnl_flat": null,
+  "pnl_stake": null,
+  "close_consensus": null,
+  "clv": null,
+  "graded_at": ""
+ },
+ {
+  "slate_date": "2026-11-05",
+  "matchup": "NSH @ COL",
+  "market": "game_total",
+  "side": "over",
+  "line": 6.5,
+  "american": -105,
+  "stake": 1.0,
+  "host": "Jonathan Davis",
+  "stamp": "2026-11-05T19:19:21+00:00",
+  "text": "Over 6.5 (-105) - 1 unit",
+  "outcome": null,
+  "pnl_flat": null,
+  "pnl_stake": null,
+  "close_consensus": null,
+  "clv": null,
+  "graded_at": ""
+ }
+]
