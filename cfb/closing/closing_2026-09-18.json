@@ -1,45 +1,45 @@
 {
   "Houston @ Texas Tech|game_ats|Houston": {
     "american": -108.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "captured_at": "2026-09-18T23:45:36Z",
+    "kickoff_utc": "2026-09-19T00:00:00Z",
     "line": 7.5,
-    "no_vig_prob": 0.5010413806651723
+    "no_vig_prob": 0.5008161303000761
   },
   "Houston @ Texas Tech|game_ats|Texas Tech": {
     "american": -104.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "captured_at": "2026-09-18T23:45:36Z",
+    "kickoff_utc": "2026-09-19T00:00:00Z",
     "line": -7.5,
-    "no_vig_prob": 0.49895861933482777
+    "no_vig_prob": 0.499183869699924
   },
   "Houston @ Texas Tech|game_ml|Houston": {
     "american": 267.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "captured_at": "2026-09-18T23:45:36Z",
+    "kickoff_utc": "2026-09-19T00:00:00Z",
     "line": null,
-    "no_vig_prob": 0.26845640381068975
+    "no_vig_prob": 0.26873600233804645
   },
   "Houston @ Texas Tech|game_ml|Texas Tech": {
     "american": -310.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "captured_at": "2026-09-18T23:45:36Z",
+    "kickoff_utc": "2026-09-19T00:00:00Z",
     "line": null,
-    "no_vig_prob": 0.7315435961893103
+    "no_vig_prob": 0.7312639976619537
   },
   "Houston @ Texas Tech|game_total|Over": {
     "american": -108.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "captured_at": "2026-09-18T23:45:36Z",
+    "kickoff_utc": "2026-09-19T00:00:00Z",
     "line": 52.5,
-    "no_vig_prob": 0.5013890613029695
+    "no_vig_prob": 0.5002860615540062
   },
   "Houston @ Texas Tech|game_total|Under": {
-    "american": -104.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "american": -108.0,
+    "captured_at": "2026-09-18T23:45:36Z",
+    "kickoff_utc": "2026-09-19T00:00:00Z",
     "line": 52.5,
-    "no_vig_prob": 0.4986109386970305
+    "no_vig_prob": 0.4997139384459939
   },
   "Miami @ Wake Forest|game_ats|Miami": {
     "american": -108.0,

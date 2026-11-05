@@ -43,86 +43,86 @@
   },
   "Penn State Nit @ Northwestern|game_ats|Northwestern": {
     "american": -102.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "captured_at": "2026-10-02T23:45:36Z",
+    "kickoff_utc": "2026-10-03T00:00:00Z",
     "line": 2.5,
-    "no_vig_prob": 0.49027070029876996
+    "no_vig_prob": 0.49035487630418
   },
   "Penn State Nit @ Northwestern|game_ats|Penn State Nit": {
     "american": -109.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "captured_at": "2026-10-02T23:45:36Z",
+    "kickoff_utc": "2026-10-03T00:00:00Z",
     "line": -2.5,
-    "no_vig_prob": 0.5097292997012302
+    "no_vig_prob": 0.50964512369582
   },
   "Penn State Nit @ Northwestern|game_ml|Northwestern": {
     "american": 120.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "captured_at": "2026-10-02T23:45:36Z",
+    "kickoff_utc": "2026-10-03T00:00:00Z",
     "line": null,
-    "no_vig_prob": 0.4445516698235559
+    "no_vig_prob": 0.4455160829569197
   },
   "Penn State Nit @ Northwestern|game_ml|Penn State Nit": {
-    "american": -135.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "american": -132.0,
+    "captured_at": "2026-10-02T23:45:36Z",
+    "kickoff_utc": "2026-10-03T00:00:00Z",
     "line": null,
-    "no_vig_prob": 0.5554483301764442
+    "no_vig_prob": 0.5544839170430803
   },
   "Penn State Nit @ Northwestern|game_total|Over": {
-    "american": 101.0,
-    "captured_at": "",
-    "kickoff_utc": "",
-    "line": 46.5,
-    "no_vig_prob": 0.5007124737310943
+    "american": -108.0,
+    "captured_at": "2026-10-02T23:45:36Z",
+    "kickoff_utc": "2026-10-03T00:00:00Z",
+    "line": 47.0,
+    "no_vig_prob": 0.5024859773511581
   },
   "Penn State Nit @ Northwestern|game_total|Under": {
-    "american": -105.0,
-    "captured_at": "",
-    "kickoff_utc": "",
-    "line": 46.5,
-    "no_vig_prob": 0.49928752626890577
+    "american": -103.0,
+    "captured_at": "2026-10-02T23:45:36Z",
+    "kickoff_utc": "2026-10-03T00:00:00Z",
+    "line": 47.0,
+    "no_vig_prob": 0.49751402264884204
   },
   "Pittsburgh @ Virginia Tech|game_ats|Pittsburgh": {
     "american": -105.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "captured_at": "2026-10-02T22:45:36Z",
+    "kickoff_utc": "2026-10-02T23:00:00Z",
     "line": 1.5,
-    "no_vig_prob": 0.4986480866107105
+    "no_vig_prob": 0.49887480393458555
   },
   "Pittsburgh @ Virginia Tech|game_ats|Virginia Tech": {
-    "american": -104.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "american": -105.0,
+    "captured_at": "2026-10-02T22:45:36Z",
+    "kickoff_utc": "2026-10-02T23:00:00Z",
     "line": -1.5,
-    "no_vig_prob": 0.5013519133892896
+    "no_vig_prob": 0.5011251960654144
   },
   "Pittsburgh @ Virginia Tech|game_ml|Pittsburgh": {
-    "american": 112.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "american": 109.0,
+    "captured_at": "2026-10-02T22:45:36Z",
+    "kickoff_utc": "2026-10-02T23:00:00Z",
     "line": null,
-    "no_vig_prob": 0.4668016767557074
+    "no_vig_prob": 0.46822847344363094
   },
   "Pittsburgh @ Virginia Tech|game_ml|Virginia Tech": {
-    "american": -118.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "american": -120.0,
+    "captured_at": "2026-10-02T22:45:36Z",
+    "kickoff_utc": "2026-10-02T23:00:00Z",
     "line": null,
-    "no_vig_prob": 0.5331983232442926
+    "no_vig_prob": 0.5317715265563691
   },
   "Pittsburgh @ Virginia Tech|game_total|Over": {
-    "american": -108.0,
-    "captured_at": "",
-    "kickoff_utc": "",
-    "line": 53.0,
-    "no_vig_prob": 0.502408393764525
+    "american": -105.0,
+    "captured_at": "2026-10-02T22:45:36Z",
+    "kickoff_utc": "2026-10-02T23:00:00Z",
+    "line": 54.0,
+    "no_vig_prob": 0.49846928507825183
   },
   "Pittsburgh @ Virginia Tech|game_total|Under": {
-    "american": -105.0,
-    "captured_at": "",
-    "kickoff_utc": "",
-    "line": 53.0,
-    "no_vig_prob": 0.49759160623547494
+    "american": -110.0,
+    "captured_at": "2026-10-02T22:45:36Z",
+    "kickoff_utc": "2026-10-02T23:00:00Z",
+    "line": 54.0,
+    "no_vig_prob": 0.501530714921748
   }
 }

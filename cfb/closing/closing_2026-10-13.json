@@ -1,45 +1,45 @@
 {
   "Delaware @ Middle Tenness|game_ats|Delaware": {
-    "american": -103.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "american": -105.0,
+    "captured_at": "2026-10-13T22:45:36Z",
+    "kickoff_utc": "2026-10-13T23:00:00Z",
     "line": -1.0,
-    "no_vig_prob": 0.4951198515357714
+    "no_vig_prob": 0.4999030533386446
   },
   "Delaware @ Middle Tenness|game_ats|Middle Tenness": {
-    "american": -108.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "american": -104.0,
+    "captured_at": "2026-10-13T22:45:36Z",
+    "kickoff_utc": "2026-10-13T23:00:00Z",
     "line": 1.0,
-    "no_vig_prob": 0.5048801484642286
+    "no_vig_prob": 0.5000969466613554
   },
   "Delaware @ Middle Tenness|game_ml|Delaware": {
-    "american": -110.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "american": -114.0,
+    "captured_at": "2026-10-13T22:45:36Z",
+    "kickoff_utc": "2026-10-13T23:00:00Z",
     "line": null,
-    "no_vig_prob": 0.5087305782062006
+    "no_vig_prob": 0.5168325684059434
   },
   "Delaware @ Middle Tenness|game_ml|Middle Tenness": {
-    "american": -104.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "american": 100.0,
+    "captured_at": "2026-10-13T22:45:36Z",
+    "kickoff_utc": "2026-10-13T23:00:00Z",
     "line": null,
-    "no_vig_prob": 0.49126942179379934
+    "no_vig_prob": 0.4831674315940566
   },
   "Delaware @ Middle Tenness|game_total|Over": {
-    "american": -105.0,
-    "captured_at": "",
-    "kickoff_utc": "",
-    "line": 48.5,
-    "no_vig_prob": 0.4978779799021977
+    "american": -108.0,
+    "captured_at": "2026-10-13T22:45:36Z",
+    "kickoff_utc": "2026-10-13T23:00:00Z",
+    "line": 49.5,
+    "no_vig_prob": 0.49873384951138516
   },
   "Delaware @ Middle Tenness|game_total|Under": {
     "american": -108.0,
-    "captured_at": "",
-    "kickoff_utc": "",
-    "line": 48.5,
-    "no_vig_prob": 0.5021220200978024
+    "captured_at": "2026-10-13T22:45:36Z",
+    "kickoff_utc": "2026-10-13T23:00:00Z",
+    "line": 49.5,
+    "no_vig_prob": 0.5012661504886148
   },
   "Florida Intern @ Jacksonville S|game_ats|Florida Intern": {
     "american": -110.0,

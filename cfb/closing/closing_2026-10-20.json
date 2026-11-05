@@ -1,43 +1,43 @@
 {
   "Middle Tenness @ Florida Intern|game_ats|Florida Intern": {
-    "american": 100.0,
-    "captured_at": "",
-    "kickoff_utc": "",
-    "line": -10.5,
-    "no_vig_prob": 0.48742019373576817
+    "american": -110.0,
+    "captured_at": "2026-10-20T22:45:36Z",
+    "kickoff_utc": "2026-10-20T23:00:00Z",
+    "line": -10.0,
+    "no_vig_prob": 0.502314061515788
   },
   "Middle Tenness @ Florida Intern|game_ats|Middle Tenness": {
-    "american": -112.0,
-    "captured_at": "",
-    "kickoff_utc": "",
-    "line": 10.5,
-    "no_vig_prob": 0.5125798062642317
+    "american": -105.0,
+    "captured_at": "2026-10-20T22:45:36Z",
+    "kickoff_utc": "2026-10-20T23:00:00Z",
+    "line": 10.0,
+    "no_vig_prob": 0.49768593848421205
   },
   "Middle Tenness @ Florida Intern|game_ml|Florida Intern": {
     "american": -391.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "captured_at": "2026-10-20T22:45:36Z",
+    "kickoff_utc": "2026-10-20T23:00:00Z",
     "line": null,
-    "no_vig_prob": 0.7701873850041633
+    "no_vig_prob": 0.7694821217992973
   },
   "Middle Tenness @ Florida Intern|game_ml|Middle Tenness": {
-    "american": 333.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "american": 325.0,
+    "captured_at": "2026-10-20T22:45:36Z",
+    "kickoff_utc": "2026-10-20T23:00:00Z",
     "line": null,
-    "no_vig_prob": 0.22981261499583663
+    "no_vig_prob": 0.2305178782007026
   },
   "Middle Tenness @ Florida Intern|game_total|Over": {
     "american": -108.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "captured_at": "2026-10-20T22:45:36Z",
+    "kickoff_utc": "2026-10-20T23:00:00Z",
     "line": 46.5,
     "no_vig_prob": 0.5020422233023752
   },
   "Middle Tenness @ Florida Intern|game_total|Under": {
     "american": -105.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "captured_at": "2026-10-20T22:45:36Z",
+    "kickoff_utc": "2026-10-20T23:00:00Z",
     "line": 46.5,
     "no_vig_prob": 0.49795777669762475
   },

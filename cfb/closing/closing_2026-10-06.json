@@ -1,44 +1,44 @@
 {
   "Southern Missi @ Troy|game_ats|Southern Missi": {
-    "american": -106.0,
-    "captured_at": "",
-    "kickoff_utc": "",
-    "line": 10.0,
-    "no_vig_prob": 0.5010302808543444
+    "american": 100.0,
+    "captured_at": "2026-10-06T23:45:36Z",
+    "kickoff_utc": "2026-10-07T00:00:00Z",
+    "line": 9.5,
+    "no_vig_prob": 0.4900491511796293
   },
   "Southern Missi @ Troy|game_ats|Troy": {
-    "american": -105.0,
-    "captured_at": "",
-    "kickoff_utc": "",
-    "line": -10.0,
-    "no_vig_prob": 0.4989697191456556
+    "american": -108.0,
+    "captured_at": "2026-10-06T23:45:36Z",
+    "kickoff_utc": "2026-10-07T00:00:00Z",
+    "line": -9.5,
+    "no_vig_prob": 0.5099508488203708
   },
   "Southern Missi @ Troy|game_ml|Southern Missi": {
-    "american": 325.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "american": 320.0,
+    "captured_at": "2026-10-06T23:45:36Z",
+    "kickoff_utc": "2026-10-07T00:00:00Z",
     "line": null,
-    "no_vig_prob": 0.23016414562118245
+    "no_vig_prob": 0.23360965757758917
   },
   "Southern Missi @ Troy|game_ml|Troy": {
-    "american": -400.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "american": -375.0,
+    "captured_at": "2026-10-06T23:45:36Z",
+    "kickoff_utc": "2026-10-07T00:00:00Z",
     "line": null,
-    "no_vig_prob": 0.7698358543788176
+    "no_vig_prob": 0.7663903424224108
   },
   "Southern Missi @ Troy|game_total|Over": {
-    "american": -108.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "american": -105.0,
+    "captured_at": "2026-10-06T23:45:36Z",
+    "kickoff_utc": "2026-10-07T00:00:00Z",
     "line": 51.5,
-    "no_vig_prob": 0.5004046499130812
+    "no_vig_prob": 0.5035012891044839
   },
   "Southern Missi @ Troy|game_total|Under": {
-    "american": -108.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "american": -103.0,
+    "captured_at": "2026-10-06T23:45:36Z",
+    "kickoff_utc": "2026-10-07T00:00:00Z",
     "line": 51.5,
-    "no_vig_prob": 0.49959535008691885
+    "no_vig_prob": 0.49649871089551617
   }
 }

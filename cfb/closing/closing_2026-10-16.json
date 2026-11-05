@@ -1,128 +1,128 @@
 {
   "Appalachian St @ Coastal Caroli|game_ats|Appalachian St": {
-    "american": -102.0,
-    "captured_at": "",
-    "kickoff_utc": "",
-    "line": -1.5,
-    "no_vig_prob": 0.4883851140030616
+    "american": -110.0,
+    "captured_at": "2026-10-16T23:45:36Z",
+    "kickoff_utc": "2026-10-17T00:00:00Z",
+    "line": -1.0,
+    "no_vig_prob": 0.4989397794741306
   },
   "Appalachian St @ Coastal Caroli|game_ats|Coastal Caroli": {
-    "american": -113.0,
-    "captured_at": "",
-    "kickoff_utc": "",
-    "line": 1.5,
-    "no_vig_prob": 0.5116148859969383
+    "american": -110.0,
+    "captured_at": "2026-10-16T23:45:36Z",
+    "kickoff_utc": "2026-10-17T00:00:00Z",
+    "line": 1.0,
+    "no_vig_prob": 0.5010602205258694
   },
   "Appalachian St @ Coastal Caroli|game_ml|Appalachian St": {
-    "american": -110.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "american": -106.0,
+    "captured_at": "2026-10-16T23:45:36Z",
+    "kickoff_utc": "2026-10-17T00:00:00Z",
     "line": null,
-    "no_vig_prob": 0.5121928128337977
+    "no_vig_prob": 0.5022557239278419
   },
   "Appalachian St @ Coastal Caroli|game_ml|Coastal Caroli": {
-    "american": 100.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "american": -105.0,
+    "captured_at": "2026-10-16T23:45:36Z",
+    "kickoff_utc": "2026-10-17T00:00:00Z",
     "line": null,
-    "no_vig_prob": 0.48780718716620225
+    "no_vig_prob": 0.4977442760721581
   },
   "Appalachian St @ Coastal Caroli|game_total|Over": {
-    "american": -105.0,
-    "captured_at": "",
-    "kickoff_utc": "",
-    "line": 49.0,
-    "no_vig_prob": 0.4980992568094124
+    "american": -108.0,
+    "captured_at": "2026-10-16T23:45:36Z",
+    "kickoff_utc": "2026-10-17T00:00:00Z",
+    "line": 48.5,
+    "no_vig_prob": 0.502251781597757
   },
   "Appalachian St @ Coastal Caroli|game_total|Under": {
-    "american": -108.0,
-    "captured_at": "",
-    "kickoff_utc": "",
-    "line": 49.0,
-    "no_vig_prob": 0.5019007431905875
+    "american": -105.0,
+    "captured_at": "2026-10-16T23:45:36Z",
+    "kickoff_utc": "2026-10-17T00:00:00Z",
+    "line": 48.5,
+    "no_vig_prob": 0.497748218402243
   },
   "Memphis @ Tulane|game_ats|Memphis": {
     "american": -114.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "captured_at": "2026-10-16T23:15:36Z",
+    "kickoff_utc": "2026-10-16T23:30:00Z",
     "line": -6.5,
-    "no_vig_prob": 0.5128886335418666
+    "no_vig_prob": 0.5134030579297292
   },
   "Memphis @ Tulane|game_ats|Tulane": {
     "american": 103.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "captured_at": "2026-10-16T23:15:36Z",
+    "kickoff_utc": "2026-10-16T23:30:00Z",
     "line": 6.5,
-    "no_vig_prob": 0.4871113664581332
+    "no_vig_prob": 0.4865969420702708
   },
   "Memphis @ Tulane|game_ml|Memphis": {
-    "american": -250.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "american": -245.0,
+    "captured_at": "2026-10-16T23:15:36Z",
+    "kickoff_utc": "2026-10-16T23:30:00Z",
     "line": null,
-    "no_vig_prob": 0.6923015173604804
+    "no_vig_prob": 0.6913264682531391
   },
   "Memphis @ Tulane|game_ml|Tulane": {
-    "american": 219.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "american": 215.0,
+    "captured_at": "2026-10-16T23:15:36Z",
+    "kickoff_utc": "2026-10-16T23:30:00Z",
     "line": null,
-    "no_vig_prob": 0.3076984826395196
+    "no_vig_prob": 0.30867353174686096
   },
   "Memphis @ Tulane|game_total|Over": {
     "american": -110.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "captured_at": "2026-10-16T23:15:36Z",
+    "kickoff_utc": "2026-10-16T23:30:00Z",
     "line": 55.5,
-    "no_vig_prob": 0.5055691732531887
+    "no_vig_prob": 0.5063134506786653
   },
   "Memphis @ Tulane|game_total|Under": {
-    "american": -105.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "american": -103.0,
+    "captured_at": "2026-10-16T23:15:36Z",
+    "kickoff_utc": "2026-10-16T23:30:00Z",
     "line": 55.5,
-    "no_vig_prob": 0.4944308267468112
+    "no_vig_prob": 0.4936865493213347
   },
   "Washington @ Purdue|game_ats|Purdue": {
     "american": -110.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "captured_at": "2026-10-16T23:45:36Z",
+    "kickoff_utc": "2026-10-17T00:00:00Z",
     "line": -3.0,
-    "no_vig_prob": 0.5093744687811581
+    "no_vig_prob": 0.5089837225690937
   },
   "Washington @ Purdue|game_ats|Washington": {
     "american": 102.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "captured_at": "2026-10-16T23:45:36Z",
+    "kickoff_utc": "2026-10-17T00:00:00Z",
     "line": 3.0,
-    "no_vig_prob": 0.49062553121884195
+    "no_vig_prob": 0.4910162774309062
   },
   "Washington @ Purdue|game_ml|Purdue": {
-    "american": -159.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "american": -155.0,
+    "captured_at": "2026-10-16T23:45:36Z",
+    "kickoff_utc": "2026-10-17T00:00:00Z",
     "line": null,
-    "no_vig_prob": 0.5966561366155642
+    "no_vig_prob": 0.5917750587389721
   },
   "Washington @ Purdue|game_ml|Washington": {
-    "american": 144.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "american": 138.0,
+    "captured_at": "2026-10-16T23:45:36Z",
+    "kickoff_utc": "2026-10-17T00:00:00Z",
     "line": null,
-    "no_vig_prob": 0.40334386338443595
+    "no_vig_prob": 0.4082249412610279
   },
   "Washington @ Purdue|game_total|Over": {
     "american": 100.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "captured_at": "2026-10-16T23:45:36Z",
+    "kickoff_utc": "2026-10-17T00:00:00Z",
     "line": 50.5,
-    "no_vig_prob": 0.49861381681164485
+    "no_vig_prob": 0.49503615130752376
   },
   "Washington @ Purdue|game_total|Under": {
-    "american": -106.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "american": -110.0,
+    "captured_at": "2026-10-16T23:45:36Z",
+    "kickoff_utc": "2026-10-17T00:00:00Z",
     "line": 50.5,
-    "no_vig_prob": 0.5013861831883553
+    "no_vig_prob": 0.5049638486924762
   }
 }

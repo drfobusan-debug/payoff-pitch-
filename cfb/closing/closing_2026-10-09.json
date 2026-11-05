@@ -1,171 +1,171 @@
 {
   "Florida State @ Louisville|game_ats|Florida State": {
-    "american": -106.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "american": -104.0,
+    "captured_at": "2026-10-09T22:45:36Z",
+    "kickoff_utc": "2026-10-09T23:00:00Z",
     "line": 4.0,
-    "no_vig_prob": 0.49996218190546543
+    "no_vig_prob": 0.4981005209124406
   },
   "Florida State @ Louisville|game_ats|Louisville": {
-    "american": -106.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "american": -108.0,
+    "captured_at": "2026-10-09T22:45:36Z",
+    "kickoff_utc": "2026-10-09T23:00:00Z",
     "line": -4.0,
-    "no_vig_prob": 0.5000378180945346
+    "no_vig_prob": 0.5018994790875595
   },
   "Florida State @ Louisville|game_ml|Florida State": {
     "american": 165.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "captured_at": "2026-10-09T22:45:36Z",
+    "kickoff_utc": "2026-10-09T23:00:00Z",
     "line": null,
-    "no_vig_prob": 0.3734868528408313
+    "no_vig_prob": 0.37354491931138784
   },
   "Florida State @ Louisville|game_ml|Louisville": {
     "american": -183.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "captured_at": "2026-10-09T22:45:36Z",
+    "kickoff_utc": "2026-10-09T23:00:00Z",
     "line": null,
-    "no_vig_prob": 0.6265131471591687
+    "no_vig_prob": 0.6264550806886122
   },
   "Florida State @ Louisville|game_total|Over": {
     "american": -110.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "captured_at": "2026-10-09T22:45:36Z",
+    "kickoff_utc": "2026-10-09T23:00:00Z",
     "line": 60.5,
-    "no_vig_prob": 0.5077706575814558
+    "no_vig_prob": 0.5037790676506492
   },
   "Florida State @ Louisville|game_total|Under": {
-    "american": 100.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "american": -105.0,
+    "captured_at": "2026-10-09T22:45:36Z",
+    "kickoff_utc": "2026-10-09T23:00:00Z",
     "line": 60.5,
-    "no_vig_prob": 0.49222934241854416
+    "no_vig_prob": 0.4962209323493509
   },
   "Iowa @ Washington|game_ats|Iowa": {
-    "american": -110.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "american": -109.0,
+    "captured_at": "2026-10-10T00:45:36Z",
+    "kickoff_utc": "2026-10-10T01:00:00Z",
     "line": 3.0,
-    "no_vig_prob": 0.51613247273154
+    "no_vig_prob": 0.5125924358173021
   },
   "Iowa @ Washington|game_ats|Washington": {
-    "american": 104.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "american": 100.0,
+    "captured_at": "2026-10-10T00:45:36Z",
+    "kickoff_utc": "2026-10-10T01:00:00Z",
     "line": -3.0,
-    "no_vig_prob": 0.4838675272684601
+    "no_vig_prob": 0.487407564182698
   },
   "Iowa @ Washington|game_ml|Iowa": {
-    "american": 130.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "american": 135.0,
+    "captured_at": "2026-10-10T00:45:36Z",
+    "kickoff_utc": "2026-10-10T01:00:00Z",
     "line": null,
-    "no_vig_prob": 0.42216247001213036
+    "no_vig_prob": 0.42024696226151664
   },
   "Iowa @ Washington|game_ml|Washington": {
-    "american": -150.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "american": -145.0,
+    "captured_at": "2026-10-10T00:45:36Z",
+    "kickoff_utc": "2026-10-10T01:00:00Z",
     "line": null,
-    "no_vig_prob": 0.5778375299878697
+    "no_vig_prob": 0.5797530377384834
   },
   "Iowa @ Washington|game_total|Over": {
-    "american": -110.0,
-    "captured_at": "",
-    "kickoff_utc": "",
-    "line": 41.0,
-    "no_vig_prob": 0.5063156749264134
+    "american": -106.0,
+    "captured_at": "2026-10-10T00:45:36Z",
+    "kickoff_utc": "2026-10-10T01:00:00Z",
+    "line": 40.5,
+    "no_vig_prob": 0.4998953187475492
   },
   "Iowa @ Washington|game_total|Under": {
-    "american": -101.0,
-    "captured_at": "",
-    "kickoff_utc": "",
-    "line": 41.0,
-    "no_vig_prob": 0.49368432507358656
+    "american": -106.0,
+    "captured_at": "2026-10-10T00:45:36Z",
+    "kickoff_utc": "2026-10-10T01:00:00Z",
+    "line": 40.5,
+    "no_vig_prob": 0.5001046812524509
   },
   "Iowa State @ BYU|game_ats|BYU": {
     "american": -105.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "captured_at": "2026-10-10T02:00:36Z",
+    "kickoff_utc": "2026-10-10T02:15:00Z",
     "line": -11.5,
-    "no_vig_prob": 0.49819570141880926
+    "no_vig_prob": 0.4971185877899531
   },
   "Iowa State @ BYU|game_ats|Iowa State": {
-    "american": -105.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "american": -106.0,
+    "captured_at": "2026-10-10T02:00:36Z",
+    "kickoff_utc": "2026-10-10T02:15:00Z",
     "line": 11.5,
-    "no_vig_prob": 0.5018042985811907
+    "no_vig_prob": 0.5028814122100469
   },
   "Iowa State @ BYU|game_ml|BYU": {
     "american": -450.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "captured_at": "2026-10-10T02:00:36Z",
+    "kickoff_utc": "2026-10-10T02:15:00Z",
     "line": null,
-    "no_vig_prob": 0.7907538704415583
+    "no_vig_prob": 0.7909460404209687
   },
   "Iowa State @ BYU|game_ml|Iowa State": {
-    "american": 375.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "american": 390.0,
+    "captured_at": "2026-10-10T02:00:36Z",
+    "kickoff_utc": "2026-10-10T02:15:00Z",
     "line": null,
-    "no_vig_prob": 0.2092461295584417
+    "no_vig_prob": 0.20905395957903133
   },
   "Iowa State @ BYU|game_total|Over": {
     "american": -107.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "captured_at": "2026-10-10T02:00:36Z",
+    "kickoff_utc": "2026-10-10T02:15:00Z",
     "line": 46.5,
-    "no_vig_prob": 0.5043884294400863
+    "no_vig_prob": 0.5019134987842515
   },
   "Iowa State @ BYU|game_total|Under": {
-    "american": -102.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "american": -105.0,
+    "captured_at": "2026-10-10T02:00:36Z",
+    "kickoff_utc": "2026-10-10T02:15:00Z",
     "line": 46.5,
-    "no_vig_prob": 0.4956115705599138
+    "no_vig_prob": 0.4980865012157486
   },
   "Washington Sta @ Utah State|game_ats|Utah State": {
     "american": -106.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "captured_at": "2026-10-10T00:45:36Z",
+    "kickoff_utc": "2026-10-10T01:00:00Z",
     "line": -4.0,
-    "no_vig_prob": 0.49950232711839443
+    "no_vig_prob": 0.5
   },
   "Washington Sta @ Utah State|game_ats|Washington Sta": {
     "american": -106.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "captured_at": "2026-10-10T00:45:36Z",
+    "kickoff_utc": "2026-10-10T01:00:00Z",
     "line": 4.0,
-    "no_vig_prob": 0.5004976728816056
+    "no_vig_prob": 0.5
   },
   "Washington Sta @ Utah State|game_ml|Utah State": {
     "american": -175.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "captured_at": "2026-10-10T00:45:36Z",
+    "kickoff_utc": "2026-10-10T01:00:00Z",
     "line": null,
-    "no_vig_prob": 0.6203311037995637
+    "no_vig_prob": 0.6204998267547098
   },
   "Washington Sta @ Utah State|game_ml|Washington Sta": {
-    "american": 158.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "american": 155.0,
+    "captured_at": "2026-10-10T00:45:36Z",
+    "kickoff_utc": "2026-10-10T01:00:00Z",
     "line": null,
-    "no_vig_prob": 0.37966889620043637
+    "no_vig_prob": 0.3795001732452901
   },
   "Washington Sta @ Utah State|game_total|Over": {
-    "american": -105.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "american": -110.0,
+    "captured_at": "2026-10-10T00:45:36Z",
+    "kickoff_utc": "2026-10-10T01:00:00Z",
     "line": 43.5,
-    "no_vig_prob": 0.5020114390711599
+    "no_vig_prob": 0.5078176284759996
   },
   "Washington Sta @ Utah State|game_total|Under": {
     "american": -105.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "captured_at": "2026-10-10T00:45:36Z",
+    "kickoff_utc": "2026-10-10T01:00:00Z",
     "line": 43.5,
-    "no_vig_prob": 0.4979885609288402
+    "no_vig_prob": 0.4921823715240004
   },
   "Wyoming @ San Jose State|game_ats|San Jose State": {
     "american": -106.0,

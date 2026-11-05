@@ -1,45 +1,45 @@
 {
   "Missouri State @ Western Kentuc|game_ats|Missouri State": {
     "american": -110.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "captured_at": "2026-10-08T22:45:36Z",
+    "kickoff_utc": "2026-10-08T23:00:00Z",
     "line": -1.5,
-    "no_vig_prob": 0.5034151619489089
+    "no_vig_prob": 0.5017514383092843
   },
   "Missouri State @ Western Kentuc|game_ats|Western Kentuc": {
-    "american": -104.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "american": -106.0,
+    "captured_at": "2026-10-08T22:45:36Z",
+    "kickoff_utc": "2026-10-08T23:00:00Z",
     "line": 1.5,
-    "no_vig_prob": 0.4965848380510912
+    "no_vig_prob": 0.4982485616907157
   },
   "Missouri State @ Western Kentuc|game_ml|Missouri State": {
-    "american": -121.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "american": -120.0,
+    "captured_at": "2026-10-08T22:45:36Z",
+    "kickoff_utc": "2026-10-08T23:00:00Z",
     "line": null,
-    "no_vig_prob": 0.5317451207421136
+    "no_vig_prob": 0.5297045320420187
   },
   "Missouri State @ Western Kentuc|game_ml|Western Kentuc": {
     "american": 110.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "captured_at": "2026-10-08T22:45:36Z",
+    "kickoff_utc": "2026-10-08T23:00:00Z",
     "line": null,
-    "no_vig_prob": 0.46825487925788656
+    "no_vig_prob": 0.47029546795798133
   },
   "Missouri State @ Western Kentuc|game_total|Over": {
     "american": -105.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "captured_at": "2026-10-08T22:45:36Z",
+    "kickoff_utc": "2026-10-08T23:00:00Z",
     "line": 56.5,
-    "no_vig_prob": 0.49686690696275976
+    "no_vig_prob": 0.4953588473158142
   },
   "Missouri State @ Western Kentuc|game_total|Under": {
     "american": -110.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "captured_at": "2026-10-08T22:45:36Z",
+    "kickoff_utc": "2026-10-08T23:00:00Z",
     "line": 56.5,
-    "no_vig_prob": 0.5031330930372403
+    "no_vig_prob": 0.5046411526841859
   },
   "Sam Houston St @ Liberty|game_ats|Liberty": {
     "american": -110.0,
@@ -85,43 +85,43 @@
   },
   "South Alabama @ Arkansas State|game_ats|Arkansas State": {
     "american": -107.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "captured_at": "2026-10-08T23:15:36Z",
+    "kickoff_utc": "2026-10-08T23:30:00Z",
     "line": -3.0,
-    "no_vig_prob": 0.5079193707728452
+    "no_vig_prob": 0.5082202177540954
   },
   "South Alabama @ Arkansas State|game_ats|South Alabama": {
     "american": -101.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "captured_at": "2026-10-08T23:15:36Z",
+    "kickoff_utc": "2026-10-08T23:30:00Z",
     "line": 3.0,
-    "no_vig_prob": 0.49208062922715473
+    "no_vig_prob": 0.49177978224590463
   },
   "South Alabama @ Arkansas State|game_ml|Arkansas State": {
-    "american": -155.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "american": -157.0,
+    "captured_at": "2026-10-08T23:15:36Z",
+    "kickoff_utc": "2026-10-08T23:30:00Z",
     "line": null,
-    "no_vig_prob": 0.5926252387948512
+    "no_vig_prob": 0.5947341327268141
   },
   "South Alabama @ Arkansas State|game_ml|South Alabama": {
     "american": 142.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "captured_at": "2026-10-08T23:15:36Z",
+    "kickoff_utc": "2026-10-08T23:30:00Z",
     "line": null,
-    "no_vig_prob": 0.4073747612051488
+    "no_vig_prob": 0.405265867273186
   },
   "South Alabama @ Arkansas State|game_total|Over": {
     "american": -108.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "captured_at": "2026-10-08T23:15:36Z",
+    "kickoff_utc": "2026-10-08T23:30:00Z",
     "line": 59.5,
     "no_vig_prob": 0.5013723384509569
   },
   "South Alabama @ Arkansas State|game_total|Under": {
     "american": -105.0,
-    "captured_at": "",
-    "kickoff_utc": "",
+    "captured_at": "2026-10-08T23:15:36Z",
+    "kickoff_utc": "2026-10-08T23:30:00Z",
     "line": 59.5,
     "no_vig_prob": 0.49862766154904314
   },
