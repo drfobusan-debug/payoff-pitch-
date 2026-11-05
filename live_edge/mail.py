@@ -1,8 +1,9 @@
 """Email a live-edge report as plain text (same Gmail/SMTP env as the engine emails).
 
-GMAIL_USER (or EMAIL_ADDRESS)   sending address
+GMAIL_USER (or EMAIL_ADDRESS)   sending address; falls back to the recipient, as cbb_engine does
 GMAIL_APP_PASSWORD              Gmail app password
-LIVE_EDGE_EMAIL_TO              recipient; falls back to CBBE_EMAIL_TO, MLBE_EMAIL_TO, GMAIL_USER
+LIVE_EDGE_EMAIL_TO              recipient; falls back through RECIPIENT_KEYS (the engines'
+                                addresses), then GMAIL_USER, then the MLB/CFB audit default
 SMTP_HOST / SMTP_PORT           default smtp.gmail.com:465 (implicit TLS)
 """
 
@@ -16,6 +17,20 @@ from email.message import EmailMessage
 
 import certifi
 
+RECIPIENT_KEYS = (
+    "LIVE_EDGE_EMAIL_TO",
+    "CBBE_EMAIL_TO",
+    "NBAE_EMAIL_TO",
+    "NHLE_EMAIL_TO",
+    "NFLE_EMAIL_TO",
+    "CFBE_EMAIL_TO",
+    "MLBE_EMAIL_TO",
+    "MLB_EMAIL_TO",
+    "AUDIT_EMAIL",
+    "MLBE_AUDIT_EMAIL",
+)
+DEFAULT_TO = "drfobusan@gmail.com"  # the MLBE_AUDIT_EMAIL / CFBE_AUDIT_EMAIL default
+
 
 class EmailNotConfigured(RuntimeError):
     pass
@@ -24,18 +39,9 @@ class EmailNotConfigured(RuntimeError):
 def addresses() -> tuple[str, str]:
     if not os.getenv("GMAIL_APP_PASSWORD"):
         raise EmailNotConfigured("GMAIL_APP_PASSWORD is not set")
-    sender = os.getenv("GMAIL_USER") or os.getenv("EMAIL_ADDRESS") or ""
-    to = next(
-        (
-            v
-            for k in ("LIVE_EDGE_EMAIL_TO", "CBBE_EMAIL_TO", "MLBE_EMAIL_TO")
-            if (v := os.getenv(k))
-        ),
-        sender,
-    )
-    if not sender or not to:
-        raise EmailNotConfigured("no sender/recipient (GMAIL_USER, LIVE_EDGE_EMAIL_TO)")
-    return sender, to
+    user = os.getenv("GMAIL_USER") or os.getenv("EMAIL_ADDRESS")
+    to = next((v for k in RECIPIENT_KEYS if (v := os.getenv(k))), user or DEFAULT_TO)
+    return user or to, to
 
 
 def build(sender: str, to: str, subject: str, text: str) -> EmailMessage:

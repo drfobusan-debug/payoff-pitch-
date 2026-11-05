@@ -48,9 +48,14 @@ def test_no_gmail_password_is_reported_not_raised(tmp_path, monkeypatch, capsys)
 
 
 def test_the_recipient_falls_back_through_the_engine_addresses(monkeypatch):
-    for k in ("LIVE_EDGE_EMAIL_TO", "CBBE_EMAIL_TO", "MLBE_EMAIL_TO", "EMAIL_ADDRESS"):
+    for k in (*mail.RECIPIENT_KEYS, "EMAIL_ADDRESS", "GMAIL_USER"):
         monkeypatch.delenv(k, raising=False)
     monkeypatch.setenv("GMAIL_APP_PASSWORD", "x")
+    # Only the password set: the audit default, sent from itself (as cbb_engine does).
+    assert mail.addresses() == (mail.DEFAULT_TO, mail.DEFAULT_TO)
+    monkeypatch.setenv("MLB_EMAIL_TO", "mlb@x.com")
+    assert mail.addresses() == ("mlb@x.com", "mlb@x.com")
+    monkeypatch.delenv("MLB_EMAIL_TO")
     monkeypatch.setenv("GMAIL_USER", "me@x.com")
     assert mail.addresses() == ("me@x.com", "me@x.com")
     monkeypatch.setenv("CBBE_EMAIL_TO", "cbb@x.com")
