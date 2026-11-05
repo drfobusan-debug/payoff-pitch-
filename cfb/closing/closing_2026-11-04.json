@@ -43,45 +43,45 @@
   },
   "Central Michig @ Eastern Michig|game_ats|Central Michig": {
     "american": 100.0,
-    "captured_at": "2026-11-04T23:45:30Z",
-    "kickoff_utc": "2026-11-05T00:30:00Z",
+    "captured_at": "2026-11-05T00:15:24Z",
+    "kickoff_utc": "2026-11-05T00:35:00Z",
     "line": -3.0,
     "no_vig_prob": 0.4890587668434371
   },
   "Central Michig @ Eastern Michig|game_ats|Eastern Michig": {
     "american": -110.0,
-    "captured_at": "2026-11-04T23:45:30Z",
-    "kickoff_utc": "2026-11-05T00:30:00Z",
+    "captured_at": "2026-11-05T00:15:24Z",
+    "kickoff_utc": "2026-11-05T00:35:00Z",
     "line": 3.0,
     "no_vig_prob": 0.510941233156563
   },
   "Central Michig @ Eastern Michig|game_ml|Central Michig": {
-    "american": -130.0,
-    "captured_at": "2026-11-04T23:45:30Z",
-    "kickoff_utc": "2026-11-05T00:30:00Z",
+    "american": -138.0,
+    "captured_at": "2026-11-05T00:15:24Z",
+    "kickoff_utc": "2026-11-05T00:35:00Z",
     "line": null,
-    "no_vig_prob": 0.5623056104028824
+    "no_vig_prob": 0.5644080666031788
   },
   "Central Michig @ Eastern Michig|game_ml|Eastern Michig": {
     "american": 126.0,
-    "captured_at": "2026-11-04T23:45:30Z",
-    "kickoff_utc": "2026-11-05T00:30:00Z",
+    "captured_at": "2026-11-05T00:15:24Z",
+    "kickoff_utc": "2026-11-05T00:35:00Z",
     "line": null,
-    "no_vig_prob": 0.4376943895971176
+    "no_vig_prob": 0.43559193339682123
   },
   "Central Michig @ Eastern Michig|game_total|Over": {
-    "american": -110.0,
-    "captured_at": "2026-11-04T23:45:30Z",
-    "kickoff_utc": "2026-11-05T00:30:00Z",
+    "american": -108.0,
+    "captured_at": "2026-11-05T00:15:24Z",
+    "kickoff_utc": "2026-11-05T00:35:00Z",
     "line": 44.5,
-    "no_vig_prob": 0.5028635508055528
+    "no_vig_prob": 0.5007384041343997
   },
   "Central Michig @ Eastern Michig|game_total|Under": {
     "american": -105.0,
-    "captured_at": "2026-11-04T23:45:30Z",
-    "kickoff_utc": "2026-11-05T00:30:00Z",
+    "captured_at": "2026-11-05T00:15:24Z",
+    "kickoff_utc": "2026-11-05T00:35:00Z",
     "line": 44.5,
-    "no_vig_prob": 0.49713644919444727
+    "no_vig_prob": 0.4992615958656003
   },
   "Toledo @ Sacramento Sta|game_ats|Sacramento Sta": {
     "american": -106.0,
