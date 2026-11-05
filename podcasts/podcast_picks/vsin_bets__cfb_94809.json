@@ -1,0 +1,60 @@
+{
+ "episode_guid": "vsin-94809",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "cd90af6493647dcaaa7f11701d1d5e05f6b185f1",
+ "picks": [
+  {
+   "pick_id": "2491cb9c0dd0",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-94809",
+   "episode_title": "College Football Week 10 Picks: Nebraska vs. Illinois; TCU vs. Arizona",
+   "published": "2026-11-04T18:00:38+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Illinois",
+   "opponent": "Nebraska",
+   "side": null,
+   "line": 4.5,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Illinois +4.5",
+   "reason": "https://vsin.com/college-football/college-football-week-10-picks-nebraska-vs-illinois-tcu-vs-arizona/",
+   "description": "Illinois +4.5",
+   "league": "cfb",
+   "edge": "",
+   "fair_line": null
+  },
+  {
+   "pick_id": "4d4c513e5001",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-94809",
+   "episode_title": "College Football Week 10 Picks: Nebraska vs. Illinois; TCU vs. Arizona",
+   "published": "2026-11-04T18:00:38+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Arizona",
+   "opponent": "TCU",
+   "side": null,
+   "line": -9.0,
+   "price": null,
+   "units": null,
+   "seconds": 1,
+   "quote": "Arizona -9",
+   "reason": "https://vsin.com/college-football/college-football-week-10-picks-nebraska-vs-illinois-tcu-vs-arizona/",
+   "description": "Arizona -9",
+   "league": "cfb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cfb"
+ ]
+}
