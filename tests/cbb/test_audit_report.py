@@ -116,3 +116,12 @@ def test_cmd_audit_emails_the_pdf(tmp_path: Path, monkeypatch: pytest.MonkeyPatc
 def test_cmd_audit_falls_back_to_html_when_the_pdf_fails(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     sent = _run_audit(tmp_path, monkeypatch, pdf_ok=False)
     assert list(sent) == ["audit_html"]
+
+
+def test_a_buy_repeated_on_the_next_slate_counts_once() -> None:
+    first, again = _row("2026-11-05", "a"), _row("2026-11-06", "a")
+    first.tip_utc = again.tip_utc = "2026-11-06T00:30:00Z"  # Nov 5, 7:30 pm ET
+    (r,) = audit_report.live_buys([first, again])
+    assert r.slate_date == "2026-11-05"
+    assert int(audit_report.briers([first, again])[0][1]) == 1
+    assert [c[1] for c in audit_report.coverage([first, again])] == ["1", "1"]  # per-slate coverage is untouched

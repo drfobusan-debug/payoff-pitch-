@@ -18,7 +18,7 @@ from datetime import timedelta
 from html import escape
 
 from cbb_engine import teamgroups
-from cbb_engine.bands import main_rows
+from cbb_engine.bands import main_rows, one_slate_per_game
 from engine_common.bands import MIN_N as BAND_MIN_N
 from engine_common.bands import BandRead
 from engine_common.promotion import MIN_BUYS
@@ -175,16 +175,21 @@ def _seg_table(title: str, segs: Iterable[Seg], note: str = "") -> Table:
 
 
 def _graded(rows: Iterable[ledger.Row]) -> list[ledger.Row]:
-    return [r for r in rows if r.bet_of_record and r.outcome in ("win", "loss", "push")]
+    """Graded rows of record, each game from one slate (a game on several daily slates counts once)."""
+    return one_slate_per_game(r for r in rows if r.bet_of_record and r.outcome in ("win", "loss", "push"))
 
 
 def live_buys(rows: Iterable[ledger.Row]) -> list[ledger.Row]:
-    return [r for r in _graded(rows) if r.status == "live" and r.is_buy]
+    return one_slate_per_game(
+        r for r in rows if r.bet_of_record and r.outcome in ("win", "loss", "push") and r.status == "live" and r.is_buy
+    )
 
 
 def paper_buys(rows: Iterable[ledger.Row]) -> list[ledger.Row]:
     """Research/shadow rows that cleared every gate: what the engine would have bought."""
-    return [r for r in _graded(rows) if r.status != "live" and r.is_buy]
+    return one_slate_per_game(
+        r for r in rows if r.bet_of_record and r.outcome in ("win", "loss", "push") and r.status != "live" and r.is_buy
+    )
 
 
 def briers(rows: Iterable[ledger.Row]) -> list[tuple[str, ...]]:
