@@ -10,7 +10,12 @@ NHL) makes tickets; the other stoppages are written to the tape only. A gap coun
 when the median book is past the screen and the next poll still has the same score
 and a gap past the screen on the same side. A game whose lead at the stoppage is
 at or past the sport's margin is a pass. One ticket a game, priced at the better of
-DraftKings/BetMGM on the confirming snapshot; a missing price stays missing.
+DraftKings/BetMGM on the confirming snapshot; a missing price stays missing. Both the
+pregame number and the live total are medians of at least three fresh two-sided books.
+
+Where the final-score study found the lead at the stoppage moves the final (CBB), a
+lead-adjusted fair number is written next to the frozen one and graded on each ticket.
+It never makes or blocks a ticket.
 
     python -m live_edge.stoppage run --sport nba --hours 7
     python -m live_edge.stoppage report --sport nba
@@ -39,6 +44,7 @@ EXEC_BOOKS = ("draftkings", "betmgm")
 CLOSE_MIN = 45.0  # the pregame number is the newest median within this many minutes of start
 PRE_EVERY_MIN = 10.0
 STALE_SECS = 300.0  # a book's total older than this is left out of the median
+MIN_BOOKS = 3  # fewer fresh two-sided books than this and there is no median
 
 
 @dataclass(frozen=True)
@@ -61,6 +67,21 @@ RULES: dict[str, Rule] = {
     "cbb": Rule(0.47, 1.12, 4.0, 15, 8, {1: "half"}, 1),
     "nhl": Rule(0.64, 1.0, 1.0, 3, 8, {1: "end of P1", 2: "end of P2"}, 2),
 }
+
+# Graded only. (lead from, points) added to the frozen fair number, centered on the games
+# under the pass margin. CBB half, 14,018 regular-season games 2023-24 to 2026-27
+# (scripts/live_total_study.py): lead 0-5 +0.39 +/- 0.15, 6-10 -0.18 +/- 0.18,
+# 11-14 -0.73 +/- 0.24. NFL, NBA and NHL bands are within 1 SE of zero, so none.
+LEAD_ADJ: dict[str, tuple[tuple[int, float], ...]] = {
+    "cbb": ((0, 0.4), (6, -0.2), (11, -0.7)),
+}
+
+
+def lead_adj(sport: str, lead: int) -> float | None:
+    bands = LEAD_ADJ.get(sport)
+    if not bands:
+        return None
+    return next(adj for start, adj in reversed(bands) if lead >= start)
 
 
 def stoppage(rule: Rule, g: LiveGame) -> tuple[str, bool] | None:
@@ -108,7 +129,7 @@ def median_line(rows: dict[str, dict[str, object]]) -> tuple[float | None, int]:
         and r["under"] is not None
         and (r["age"] is None or float(r["age"]) <= STALE_SECS)  # type: ignore[arg-type]
     ]
-    return (statistics.median(lines), len(lines)) if lines else (None, 0)
+    return (statistics.median(lines) if len(lines) >= MIN_BOOKS else None), len(lines)
 
 
 def fair(rule: Rule, pregame: float, so_far: int) -> tuple[float, float]:
@@ -260,6 +281,8 @@ class Study:
             "surprise": None,
             "fair": None,
             "gap": None,
+            "fair_lead": None,
+            "gap_lead": None,
             "books": rows,
         }
         if stop[1] and pre and live is not None:
@@ -269,6 +292,12 @@ class Study:
                 fair=round(fair_total, 3),
                 gap=round(live - fair_total, 3),
             )
+            adj = lead_adj(self.sport, abs(home - away))
+            if adj is not None:
+                snap.update(
+                    fair_lead=round(fair_total + adj, 3),
+                    gap_lead=round(live - fair_total - adj, 3),
+                )
         return snap
 
     def _confirms(self, prev: dict | None, cur: dict) -> bool:
@@ -288,6 +317,8 @@ class Study:
             if snap["live"] < snap["pregame"]
             else None
         )
+        gl, s = snap.get("gap_lead"), self.rule.screen
+        lead = None if gl is None else "under" if gl >= s else "over" if gl <= -s else None
         row = {
             "espn_id": snap["espn_id"],
             "odds_id": snap["odds_id"],
@@ -305,9 +336,12 @@ class Study:
             "screen": self.rule.screen,
             "side": side,
             "naive_side": naive,
+            "fair_lead": snap.get("fair_lead"),
+            "gap_lead": gl,
+            "lead_side": lead,
             "paper_only": True,
         }
-        for key, which in (("", side), ("naive_", naive)):
+        for key, which in (("", side), ("naive_", naive), ("lead_", lead)):
             pick = best_book(snap["books"], which) if which else None
             # No DK/BetMGM quote: graded at the median line, its price left missing.
             row[f"{key}book"], row[f"{key}line"], row[f"{key}price"] = pick or (
@@ -320,8 +354,8 @@ class Study:
     @staticmethod
     def _grade(t: dict, final: int, stamp: str) -> dict:
         row = {"espn_id": t["espn_id"], "final": final, "graded_at": stamp}
-        for key in ("", "naive_"):
-            side, line = t[f"{key}side"], t[f"{key}line"]
+        for key in ("", "naive_", "lead_"):
+            side, line = t.get(f"{key}side"), t.get(f"{key}line")
             if side is None or line is None:
                 row[f"{key}result"], row[f"{key}units"] = None, None
                 continue
@@ -345,13 +379,18 @@ class Study:
             f"confirmed gaps (tickets): {len(tickets)}; settled: "
             f"{sum(t['espn_id'] in grades for t in tickets)}",
         ]
-        for key, name in (("", "screened"), ("naive_", "naive (live > pregame: under)")):
+        named = [("", "screened"), ("naive_", "naive (live > pregame: under)")]
+        if self.sport in LEAD_ADJ:
+            named.append(("lead_", "lead-adjusted (graded only; blank when inside the screen)"))
+        for key, name in named:
             res = [grades[t["espn_id"]] for t in tickets if t["espn_id"] in grades]
-            w = sum(g[f"{key}result"] == "win" for g in res)
-            lo = sum(g[f"{key}result"] == "loss" for g in res)
-            p = sum(g[f"{key}result"] == "push" for g in res)
-            units = [g[f"{key}units"] for g in res if g[f"{key}units"] is not None]
-            missing = sum(g[f"{key}result"] is not None and g[f"{key}units"] is None for g in res)
+            w = sum(g.get(f"{key}result") == "win" for g in res)
+            lo = sum(g.get(f"{key}result") == "loss" for g in res)
+            p = sum(g.get(f"{key}result") == "push" for g in res)
+            units = [g[f"{key}units"] for g in res if g.get(f"{key}units") is not None]
+            missing = sum(
+                g.get(f"{key}result") is not None and g.get(f"{key}units") is None for g in res
+            )
             roi = f"{sum(units) / len(units):+.1%}" if units else "n/a"
             lines.append(
                 f"{name}: {w}-{lo}-{p}, ROI {roi} on {len(units)} priced; "
