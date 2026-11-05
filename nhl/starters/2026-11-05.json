@@ -18,8 +18,8 @@
     "status": "probable"
   },
   "CBJ": {
-    "name": "Jet Greaves",
-    "player_id": 8482982,
+    "name": "Cam Talbot",
+    "player_id": 8475660,
     "source": "rotowire",
     "status": "probable"
   },
@@ -54,10 +54,10 @@
     "status": "probable"
   },
   "MTL": {
-    "name": "Jacob Fowler",
-    "player_id": 8484170,
+    "name": "Jakub Dobes",
+    "player_id": 8482487,
     "source": "rotowire",
-    "status": "probable"
+    "status": "confirmed"
   },
   "NJD": {
     "name": "Connor Hellebuyck",
@@ -75,13 +75,13 @@
     "name": "Semyon Varlamov",
     "player_id": 8473575,
     "source": "rotowire",
-    "status": "probable"
+    "status": "confirmed"
   },
   "NYR": {
-    "name": "James Reimer",
-    "player_id": 8473503,
+    "name": "Dylan Garand",
+    "player_id": 8482193,
     "source": "rotowire",
-    "status": "probable"
+    "status": "confirmed"
   },
   "PHI": {
     "name": "Dan Vladar",
@@ -93,7 +93,7 @@
     "name": "Arturs Silovs",
     "player_id": 8481668,
     "source": "rotowire",
-    "status": "probable"
+    "status": "confirmed"
   },
   "STL": {
     "name": "Joel Hofer",
@@ -123,6 +123,6 @@
     "name": "Stuart Skinner",
     "player_id": 8479973,
     "source": "rotowire",
-    "status": "probable"
+    "status": "confirmed"
   }
 }
