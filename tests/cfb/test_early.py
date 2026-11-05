@@ -20,7 +20,9 @@ from cfb_engine.data.cfbd import CFBDClient
 from cfb_engine.market.board import GameOdds
 from cfb_engine.market.ev import MarketQuote
 from cfb_engine.market.tiers import Tier
+from cfb_engine.output.weekly_report import build_weekly_article
 from cfb_engine.pipeline import Pipeline
+from cfb_engine.recommendations import Recommendation, save_json
 from cfb_engine.schemas import Game, Slate, TeamGameInfo
 from cfb_engine.state import PREFIX, pull_state, push_state
 
@@ -198,3 +200,93 @@ def test_the_early_card_and_its_ledger_travel_on_the_state_branch(
     pulled = pull_state(box, repo=repo, branch="engine-state", dates=("2026-11-07",))
     assert {"early_2026-11-07.json", "early_ledger.csv"} <= set(pulled.pulled)
     assert (box / "audit" / "early_2026-11-07.json").read_text() == '[{"who": "tue"}]'
+
+
+def _rec(selection: str, line: float, team_side: str, exp_margin: float) -> Recommendation:
+    return Recommendation(
+        game_date=SAT,
+        game_id="1",
+        matchup="UGA @ ALA",
+        market="game_ats",
+        selection=selection,
+        model_prob=0.55,
+        line=line,
+        team_side=team_side,
+        exp_margin=exp_margin,
+    )
+
+
+def _ev(e: LedgerEntry, clv_ev: float | None) -> LedgerEntry:
+    e.clv_ev = clv_ev
+    return e
+
+
+def test_model_gap_reads_the_cover_margin_from_the_sides_own_line() -> None:
+    assert early.model_gap(_rec("ALA -7.0", -7.0, "home", 10.5)) == 3.5
+    assert early.model_gap(_rec("UGA +7.0", 7.0, "away", 10.5)) == -3.5
+    ml = _rec("ALA ML", -7.0, "home", 10.5)
+    ml.market = "game_ml"
+    assert early.model_gap(ml) is None
+
+
+def test_gap_sides_keeps_the_side_three_points_off_bought_or_not() -> None:
+    cards = {
+        SAT.isoformat(): [_rec("ALA -7.0", -7.0, "home", 10.0), _rec("UGA +7.0", 7.0, "away", 10.0)]
+    }
+    rows = [
+        _e("ALA -6.5", -6.5, "win", tier=Tier.PASS.value),  # line moved, same side
+        _e("UGA +6.5", 6.5, "loss"),
+        _e("ALA -6.5", -6.5, "win", day="2026-10-31"),
+    ]
+    kept = early.gap_sides(cards, rows)
+    assert [e.selection for e in kept] == ["ALA -6.5"] and kept[0].date == SAT.isoformat()
+    assert early.gap_sides(cards, rows, gap=3.5) == []
+
+
+def test_close_bar_waits_for_its_games_then_needs_a_positive_mean() -> None:
+    few = early.close_bar(
+        "x", [_ev(_e("ALA -7.0", -7.0, "win"), 0.02), _ev(_e("ALA -7.0", -7.0, "win"), None)]
+    )
+    assert (few.n, few.verdict) == (1, f"needs {early.BAR_GAMES - 1} more")
+    up = early.close_bar("x", [_ev(_e("ALA -7.0", -7.0, "win"), v) for v in [0.03, -0.01] * 75])
+    assert up.n == 150 and up.close_ev is not None and abs(up.close_ev - 0.01) < 1e-9
+    assert up.se is not None and up.verdict == "pass"
+    down = early.close_bar("x", [_ev(_e("ALA -7.0", -7.0, "win"), -0.01)] * 150)
+    assert down.verdict == "fail"
+
+
+def test_bars_judge_saturday_only_on_the_slates_tuesday_priced() -> None:
+    card = {SAT.isoformat(): [_rec("ALA -7.0", -7.0, "home", 12.0)]}
+    other = {"2026-10-31": [_rec("ALA -7.0", -7.0, "home", 12.0)]}
+    tue = [_ev(_e("ALA -7.0", -7.0, "win"), 0.04)]
+    sat = [
+        _ev(_e("ALA -7.5", -7.5, "win"), -0.02),
+        _ev(_e("ALA -7.0", -7.0, "loss", day="2026-10-31"), 0.5),
+    ]
+    t, s = early.bars(card, tue, {**card, **other}, sat)
+    assert (t.n, t.close_ev, s.n, s.close_ev) == (1, 0.04, 1, -0.02)
+    assert early.compare(tue, sat)[0].close_ev == 0.04
+
+
+def test_early_report_and_weekly_print_the_bar(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from cfb_engine.audit.ledger import load_ledger, update_ledger
+    from cfb_engine.audit.weekly import weekly_audit
+
+    monkeypatch.setenv("CFBE_DATA_DIR", str(tmp_path))
+    monkeypatch.setenv("CFBE_STATE_SYNC", "0")
+    cfg = Config()
+    cfg.ensure_dirs()
+    save_json([_rec("ALA -7.0", -7.0, "home", 12.0)], cfg.early_file(SAT))
+    save_json([_rec("ALA -7.5", -7.5, "home", 9.0)], cfg.predictions_file(SAT))
+    update_ledger(cfg.early_ledger_file, [_ev(_e("ALA -7.0", -7.0, "win"), 0.04)], SAT)
+    update_ledger(cfg.ledger_file, [_ev(_e("ALA -7.5", -7.5, "win"), -0.02)], SAT)
+    assert cli.cmd_early_report(cfg, argparse.Namespace()) == 0
+    out = capsys.readouterr().out
+    assert "EV at close" in out and "+4.0%" in out
+    assert "Tuesday spreads, model 3+ pts off the line" in out and "needs 149 more" in out
+    bars = cli._early_bars(cfg)
+    assert [b.n for b in bars] == [1, 0]  # Saturday's 9-pt margin is 1.5 off -7.5
+    html = build_weekly_article(weekly_audit(load_ledger(cfg.ledger_file), SAT), early_bars=bars)
+    assert "Early card" in html and "needs 149 more" in html

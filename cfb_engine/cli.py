@@ -24,6 +24,7 @@ import os
 import sys
 from datetime import date as Date
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from cfb_engine.audit import altlines, closefill, early, shop, snapshot, watchlist
@@ -400,21 +401,47 @@ def cmd_early(cfg: Config, args: argparse.Namespace) -> int:
     return 0
 
 
+def _cards(paths: dict[str, Path]) -> dict[str, list[Recommendation]]:
+    return {day: load_json(path) for day, path in paths.items() if path.exists()}
+
+
+def _early_bars(cfg: Config) -> list[early.CloseBar]:
+    """Tuesday's pre-registered spread bar beside the same rule on Saturday's card."""
+    rows = load_ledger(cfg.early_ledger_file)
+    days = sorted({e.date for e in rows})
+    if not days:
+        return []
+    tuesday = _cards({d: cfg.early_file(Date.fromisoformat(d)) for d in days})
+    saturday = _cards({d: cfg.predictions_file(Date.fromisoformat(d)) for d in tuesday})
+    return early.bars(tuesday, rows, saturday, load_ledger(cfg.ledger_file))
+
+
+def _cents(v: float | None) -> str:
+    return f"{v:+.1%}" if v is not None else ""
+
+
 def cmd_early_report(cfg: Config, args: argparse.Namespace) -> int:
+    _state_pull(cfg)
     rows = early.compare(load_ledger(cfg.early_ledger_file), load_ledger(cfg.ledger_file))
     if not rows[0].n:
         print("No graded early cards yet.")
         return 0
     print(
-        f"{'group':40s} {'n':>4s} {'W-L-P':>9s} {'units':>8s} {'ROI':>7s} {'CLV pts':>8s} {'pts vs Sat':>10s}"
+        f"{'group':40s} {'n':>4s} {'W-L-P':>9s} {'units':>8s} {'ROI':>7s} {'CLV pts':>8s} "
+        f"{'EV at close':>11s} {'pts vs Sat':>10s}"
     )
     for r in rows:
         clv = f"{r.clv_pts:+.2f}" if r.clv_pts is not None else ""
         gained = f"{r.pts_gained:+.2f}" if r.pts_gained is not None else ""
         wlp = f"{r.wins}-{r.losses}-{r.pushes}"
         print(
-            f"{r.label:40s} {r.n:4d} {wlp:>9s} {r.units:+8.2f} {r.roi:+7.1%} {clv:>8s} {gained:>10s}"
+            f"{r.label:40s} {r.n:4d} {wlp:>9s} {r.units:+8.2f} {r.roi:+7.1%} {clv:>8s} "
+            f"{_cents(r.close_ev):>11s} {gained:>10s}"
         )
+    print(f"\nPre-registered bar: positive EV at the close over {early.BAR_GAMES} games")
+    for b in _early_bars(cfg):
+        se = f"± {b.se:.1%}" if b.se is not None else ""
+        print(f"{b.label:55s} {b.n:4d} {_cents(b.close_ev):>7s} {se:>8s}  {b.verdict}")
     return 0
 
 
@@ -777,7 +804,12 @@ def cmd_weekly(cfg: Config, args: argparse.Namespace) -> int:
     end = _audit_day(args)
     report = weekly_audit(_timely_clv(cfg, entries), end)
     out = generate_weekly_report(
-        report, cfg, email=not args.no_email, to=args.to, fast=_fast_start(cfg, entries, end)
+        report,
+        cfg,
+        email=not args.no_email,
+        to=args.to,
+        fast=_fast_start(cfg, entries, end),
+        early_bars=_early_bars(cfg),
     )
     for line in report.week.findings + report.ledger.findings:
         print(f"- {line}")
