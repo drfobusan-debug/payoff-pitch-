@@ -1,0 +1,128 @@
+{
+  "Kent State @ Bowling Green|game_ats|Bowling Green": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -5.5,
+    "no_vig_prob": 0.5
+  },
+  "Kent State @ Bowling Green|game_ats|Kent State": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 5.5,
+    "no_vig_prob": 0.5
+  },
+  "Kent State @ Bowling Green|game_ml|Bowling Green": {
+    "american": -205.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.6526071710487539
+  },
+  "Kent State @ Bowling Green|game_ml|Kent State": {
+    "american": 182.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.34739282895124607
+  },
+  "Kent State @ Bowling Green|game_total|Over": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 45.5,
+    "no_vig_prob": 0.5
+  },
+  "Kent State @ Bowling Green|game_total|Under": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 45.5,
+    "no_vig_prob": 0.5
+  },
+  "Ohio @ Miami (OH)|game_ats|Miami (OH)": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -1.5,
+    "no_vig_prob": 0.5
+  },
+  "Ohio @ Miami (OH)|game_ats|Ohio": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 1.5,
+    "no_vig_prob": 0.5
+  },
+  "Ohio @ Miami (OH)|game_ml|Miami (OH)": {
+    "american": -118.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.5172448063611534
+  },
+  "Ohio @ Miami (OH)|game_ml|Ohio": {
+    "american": -102.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.48275519363884656
+  },
+  "Ohio @ Miami (OH)|game_total|Over": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 48.5,
+    "no_vig_prob": 0.5
+  },
+  "Ohio @ Miami (OH)|game_total|Under": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 48.5,
+    "no_vig_prob": 0.5
+  },
+  "Western Michig @ Akron|game_ats|Akron": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 14.5,
+    "no_vig_prob": 0.5096401028277635
+  },
+  "Western Michig @ Akron|game_ats|Western Michig": {
+    "american": -102.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -14.5,
+    "no_vig_prob": 0.4903598971722365
+  },
+  "Western Michig @ Akron|game_ml|Akron": {
+    "american": 480.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.17073207283646374
+  },
+  "Western Michig @ Akron|game_ml|Western Michig": {
+    "american": -649.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.8292679271635364
+  },
+  "Western Michig @ Akron|game_total|Over": {
+    "american": -115.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 46.5,
+    "no_vig_prob": 0.5108342361863488
+  },
+  "Western Michig @ Akron|game_total|Under": {
+    "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 46.5,
+    "no_vig_prob": 0.4891657638136511
+  }
+}
