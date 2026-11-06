@@ -5,13 +5,17 @@ stake when, read as one series in date order:
 
 * at least ``MIN_BUYS`` graded buys;
 * ROI not negative, in both halves of the ledger;
-* CLV lower 95% bound above zero (the close has moved toward the bets);
+* close-implied ROI lower 95% bound above zero, where close-implied ROI is
+  ``closing no-vig prob of our side x decimal price taken - 1``: the prices we
+  took were worth money at the close, juice included (Whelan: a little closing
+  line value is not a winner; the move has to clear the hold);
 * model Brier no worse than the market's on the same rows (a market with no
   model probability can never clear).
 
 Results alone cannot confirm a +3-5% edge inside a season (1,600+ bets at 2 SE),
 so this bar asks the close to vouch for the record. It labels a stake; it never
-picks a bet or moves a price.
+picks a bet or moves a price, and close-implied ROI is known only at tip, so it
+never screens a bet before it is placed.
 """
 
 from __future__ import annotations
@@ -24,15 +28,24 @@ STAKE_UNITS = 0.5
 PAPER, LEAN = "paper", "Lean (probation)"
 
 
+def decimal(american: float) -> float:
+    return 1.0 + (american / 100.0 if american > 0 else 100.0 / -american)
+
+
+def close_roi(close_prob: float, american: float) -> float:
+    """Expected return per unit of the price taken, under the closing no-vig probability."""
+    return close_prob * decimal(american) - 1.0
+
+
 @dataclass(frozen=True)
 class Promotion:
     market: str
     n: int
     roi: float
     halves: tuple[float, float]  # ROI, older then newer half
-    clv_n: int
-    clv_mean: float
-    clv_lo: float  # lower 95% bound on the mean CLV
+    close_n: int  # buys with a timely close
+    close_roi: float  # mean close-implied ROI
+    close_roi_lo: float  # lower 95% bound on the mean close-implied ROI
     brier_model: float | None
     brier_market: float | None
 
@@ -42,8 +55,8 @@ class Promotion:
             self.n >= MIN_BUYS
             and self.roi >= 0
             and min(self.halves) >= 0
-            and self.clv_n > 1
-            and self.clv_lo > 0
+            and self.close_n > 1
+            and self.close_roi_lo > 0
             and self.brier_model is not None
             and self.brier_market is not None
             and self.brier_model <= self.brier_market
@@ -71,8 +84,8 @@ class Promotion:
             out.append(f"{self.needed} more buys")
         if self.roi < 0 or min(self.halves) < 0:
             out.append("ROI")
-        if self.clv_n < 2 or self.clv_lo <= 0:
-            out.append("CLV")
+        if self.close_n < 2 or self.close_roi_lo <= 0:
+            out.append("close ROI")
         if self.brier_model is None or self.brier_market is None:
             out.append("no model")
         elif self.brier_model > self.brier_market:
@@ -87,15 +100,15 @@ def _mean(xs: list[float]) -> float:
 def read(
     market: str,
     pnls: list[float],
-    clvs: list[float],
+    close_rois: list[float],
     brier_model: float | None,
     brier_market: float | None,
 ) -> Promotion:
-    """``pnls`` in date order (one per graded buy); ``clvs`` for the buys with a timely close."""
+    """``pnls`` in date order (one per graded buy); ``close_rois`` for the buys with a timely close."""
     h = len(pnls) // 2
-    n = len(clvs)
-    m = _mean(clvs)
-    se = math.sqrt(sum((c - m) ** 2 for c in clvs) / (n - 1) / n) if n > 1 else float("inf")
+    n = len(close_rois)
+    m = _mean(close_rois)
+    se = math.sqrt(sum((c - m) ** 2 for c in close_rois) / (n - 1) / n) if n > 1 else float("inf")
     return Promotion(
         market,
         len(pnls),
@@ -109,4 +122,16 @@ def read(
     )
 
 
-__all__ = ["LEAN", "MIN_BUYS", "PAPER", "STAKE_UNITS", "Promotion", "read"]
+BAR_TEXT = "ROI ≥ 0 in both halves, close-implied ROI lower bound > 0, Brier ≤ market"
+
+__all__ = [
+    "BAR_TEXT",
+    "LEAN",
+    "MIN_BUYS",
+    "PAPER",
+    "STAKE_UNITS",
+    "Promotion",
+    "close_roi",
+    "decimal",
+    "read",
+]
