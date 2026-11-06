@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-94850",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "f9d7fe16e2b72f6c03bc3440ae2fb763b783eb78",
+ "picks": [
+  {
+   "pick_id": "087cabaf8f0a",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-94850",
+   "episode_title": "NFL Survivor Pool Week 9 Picks",
+   "published": "2026-11-05T05:14:18+00:00",
+   "kind": "official",
+   "market": "other",
+   "team": null,
+   "opponent": null,
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Seahawks",
+   "reason": "https://vsin.com/nfl/nfl-survivor-pool-week-9-picks/",
+   "description": "Seahawks",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "nfl"
+ ]
+}
