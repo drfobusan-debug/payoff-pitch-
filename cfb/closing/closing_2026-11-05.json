@@ -1,0 +1,86 @@
+{
+  "James Madison @ Southern Missi|game_ats|James Madison": {
+    "american": -106.0,
+    "captured_at": "2026-11-06T00:15:34Z",
+    "kickoff_utc": "2026-11-06T01:00:00Z",
+    "line": -13.5,
+    "no_vig_prob": 0.4998004816583087
+  },
+  "James Madison @ Southern Missi|game_ats|Southern Missi": {
+    "american": -106.0,
+    "captured_at": "2026-11-06T00:15:34Z",
+    "kickoff_utc": "2026-11-06T01:00:00Z",
+    "line": 13.5,
+    "no_vig_prob": 0.5001995183416913
+  },
+  "James Madison @ Southern Missi|game_ml|James Madison": {
+    "american": -550.0,
+    "captured_at": "2026-11-06T00:15:34Z",
+    "kickoff_utc": "2026-11-06T01:00:00Z",
+    "line": null,
+    "no_vig_prob": 0.8201364036631261
+  },
+  "James Madison @ Southern Missi|game_ml|Southern Missi": {
+    "american": 460.0,
+    "captured_at": "2026-11-06T00:15:34Z",
+    "kickoff_utc": "2026-11-06T01:00:00Z",
+    "line": null,
+    "no_vig_prob": 0.17986359633687388
+  },
+  "James Madison @ Southern Missi|game_total|Over": {
+    "american": -102.0,
+    "captured_at": "2026-11-06T00:15:34Z",
+    "kickoff_utc": "2026-11-06T01:00:00Z",
+    "line": 58.5,
+    "no_vig_prob": 0.4903603469229399
+  },
+  "James Madison @ Southern Missi|game_total|Under": {
+    "american": -110.0,
+    "captured_at": "2026-11-06T00:15:34Z",
+    "kickoff_utc": "2026-11-06T01:00:00Z",
+    "line": 58.5,
+    "no_vig_prob": 0.50963965307706
+  },
+  "UTSA @ Florida Atlant|game_ats|Florida Atlant": {
+    "american": -103.0,
+    "captured_at": "2026-11-06T00:15:34Z",
+    "kickoff_utc": "2026-11-06T00:30:00Z",
+    "line": 7.0,
+    "no_vig_prob": 0.4922307986408345
+  },
+  "UTSA @ Florida Atlant|game_ats|UTSA": {
+    "american": -109.0,
+    "captured_at": "2026-11-06T00:15:34Z",
+    "kickoff_utc": "2026-11-06T00:30:00Z",
+    "line": -7.0,
+    "no_vig_prob": 0.5077692013591656
+  },
+  "UTSA @ Florida Atlant|game_ml|Florida Atlant": {
+    "american": 240.0,
+    "captured_at": "2026-11-06T00:15:34Z",
+    "kickoff_utc": "2026-11-06T00:30:00Z",
+    "line": null,
+    "no_vig_prob": 0.2936940016116021
+  },
+  "UTSA @ Florida Atlant|game_ml|UTSA": {
+    "american": -272.0,
+    "captured_at": "2026-11-06T00:15:34Z",
+    "kickoff_utc": "2026-11-06T00:30:00Z",
+    "line": null,
+    "no_vig_prob": 0.7063059983883979
+  },
+  "UTSA @ Florida Atlant|game_total|Over": {
+    "american": -105.0,
+    "captured_at": "2026-11-06T00:15:34Z",
+    "kickoff_utc": "2026-11-06T00:30:00Z",
+    "line": 72.5,
+    "no_vig_prob": 0.49933119993875347
+  },
+  "UTSA @ Florida Atlant|game_total|Under": {
+    "american": -105.0,
+    "captured_at": "2026-11-06T00:15:34Z",
+    "kickoff_utc": "2026-11-06T00:30:00Z",
+    "line": 72.5,
+    "no_vig_prob": 0.5006688000612465
+  }
+}
