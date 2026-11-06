@@ -14,7 +14,7 @@ from __future__ import annotations
 from collections import defaultdict
 from dataclasses import dataclass, field
 
-from engine_common import promotion
+from engine_common import closecheck, promotion
 from nhl_engine.audit.ledger import LedgerRow
 
 PROBATION_N = 100
@@ -33,6 +33,8 @@ class Bucket:
     dual_rule: int = 0
     pnls: list[float] = field(default_factory=list)
     clvs: list[float] = field(default_factory=list)
+    close_rois: list[float] = field(default_factory=list)
+    graded: list[closecheck.Graded] = field(default_factory=list)
 
     def add(self, r: LedgerRow) -> None:
         if r.outcome is None:
@@ -51,6 +53,14 @@ class Bucket:
             self.clv_sum += r.clv
             self.clv_n += 1
             self.clvs.append(r.clv)
+        if r.close_consensus is not None and r.close_fresh:
+            self.close_rois.append(promotion.close_roi(r.close_consensus, r.american))
+            if r.outcome != "push":
+                self.graded.append(
+                    closecheck.Graded(
+                        r.close_consensus, r.american, r.outcome == "win", r.pnl or 0.0
+                    )
+                )
         if r.dual_rule_differs:
             self.dual_rule += 1
 
@@ -106,7 +116,7 @@ class Scorecard:
             p = promotion.read(
                 mk,
                 b.pnls,
-                b.clvs,
+                b.close_rois,
                 float(d["brier_model"]) if b.decided else None,
                 float(d["brier_market"]) if b.decided else None,
             )
@@ -116,7 +126,9 @@ class Scorecard:
                 "needed": p.needed,
                 "status": p.status,
                 "stake": p.stake,
-                "clv_lo": p.clv_lo,
+                "close_n": p.close_n,
+                "close_roi": p.close_roi,
+                "close_roi_lo": p.close_roi_lo,
                 "halves": p.halves,
                 "why_not": p.why_not,
             }
@@ -131,12 +143,16 @@ class Scorecard:
                 promotion.read(
                     mk,
                     b.pnls,
-                    b.clvs,
+                    b.close_rois,
                     float(d["brier_model"]) if b.decided else None,
                     float(d["brier_market"]) if b.decided else None,
                 )
             )
         return out
+
+    def closecheck(self) -> list[closecheck.BucketRead]:
+        """The devigged close against results, by price range, over all buys."""
+        return closecheck.read(g for b in self.buys_by_market.values() for g in b.graded)
 
     def render(self) -> str:
         lines = ["market           n   W-L-P     roi     clv   brier(model/mkt)  dual"]
@@ -154,19 +170,37 @@ class Scorecard:
             lines.append(f"  {t:<14s} {b.n:4d}  roi {d['roi']:+.3f}  clv {d['clv']:+.3f}")
         lines.append("")
         lines.append(
-            "probation (buys per market; needs 100, roi>=0 both halves, CLV lower bound>0,"
-            " brier<=market -> Lean (probation), 0.5u)"
+            "probation (buys per market; needs 100, roi>=0 both halves, close-implied ROI"
+            " lower bound>0, brier<=market -> Lean (probation), 0.5u)"
         )
         for mk, p in self.probation().items():
             status = p["status"] if p["cleared"] else f"paper: {p['why_not']}"
             lines.append(
-                f"  {mk:<15s} {p['n']!s:>4s}  roi {p['roi']:+.3f}  clv_lo {p['clv_lo']:+.4f}  {status}"
+                f"  {mk:<15s} {p['n']!s:>4s}  roi {p['roi']:+.3f}  clv {p['clv']:+.4f}"
+                f"  close_roi {p['close_roi']:+.4f} (lo {p['close_roi_lo']:+.4f}, n={p['close_n']})"
+                f"  {status}"
             )
         lines.append("")
         lines.append("sim would-be buys (unanchored sim, graded-only; same bar)")
         for mk, p in self.sim_probation().items():
             status = p["status"] if p["cleared"] else f"paper: {p['why_not']}"
             lines.append(f"  {mk:<15s} {p['n']!s:>4s}  roi {p['roi']:+.3f}  {status}")
+        checks = self.closecheck()
+        if checks:
+            lines.append("")
+            lines.append(closecheck.TITLE)
+            lines.append(
+                "  "
+                + "  ".join(
+                    f"{h:<16s}" if i == 0 else f"{h:>12s}" for i, h in enumerate(closecheck.HEAD)
+                )
+            )
+            for c in checks:
+                cells = closecheck.row(c)
+                lines.append(
+                    "  "
+                    + "  ".join(f"{c:<16s}" if i == 0 else f"{c:>12s}" for i, c in enumerate(cells))
+                )
         return "\n".join(lines) + "\n"
 
 

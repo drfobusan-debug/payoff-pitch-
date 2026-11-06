@@ -20,16 +20,16 @@ from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
 from datetime import date as Date
 
-from engine_common import promotion
+from engine_common import closecheck, promotion
 from engine_common.bands import CALL_SE, MIN_N, BandRead
 from engine_common.odds import american_to_prob
 from engine_common.podcasts import render as podcast_render
 from engine_common.podcasts.render import CSS as PODCAST_CSS
 from engine_common.podcasts.render import game_block as podcast_game_block
 from engine_common.podcasts.render import records_block as podcast_records_block
-from engine_common.promotion import MIN_BUYS, Promotion
+from engine_common.promotion import BAR_TEXT, MIN_BUYS, Promotion
 from nba_engine.audit import scorecard
-from nba_engine.audit.ledger import CLOSE, LedgerRow, timely_close
+from nba_engine.audit.ledger import LedgerRow, timely_close
 from nba_engine.audit.settle import LOSS, WIN
 from nba_engine.data import teamnames
 from nba_engine.data.capture import MARKET_MAP
@@ -222,6 +222,7 @@ class SlateCard:
     integrity: scorecard.Integrity | None = None
     bands: tuple[BandRead, ...] = ()
     promotions: tuple[Promotion, ...] = ()
+    closecheck: tuple[closecheck.BucketRead, ...] = ()
 
     @property
     def rows(self) -> list[LedgerRow]:
@@ -287,6 +288,7 @@ def build_card(
         integrity=scorecard.integrity(graded) if graded else None,
         bands=tuple(bands),
         promotions=tuple(_promotions(graded)),
+        closecheck=tuple(_closecheck(graded)),
     )
 
 
@@ -306,11 +308,24 @@ def _promotions(graded: Sequence[LedgerRow]) -> list[Promotion]:
             pairs = list(zip(decided, won, strict=True))
             bm = sum((float(r.model_prob or 0.0) - w) ** 2 for r, w in pairs) / len(pairs)
             bk = sum((float(r.fair or 0.0) - w) ** 2 for r, w in pairs) / len(pairs)
-        clvs = [
-            r.clv for r in rs if r.close_status == CLOSE and r.clv is not None and timely_close(r)
-        ]
-        out.append(promotion.read(market, [r.pnl or 0.0 for r in rs], clvs, bm, bk))
+        rois = [r.clv_ev for r in rs if r.clv_ev is not None and timely_close(r)]
+        out.append(promotion.read(market, [r.pnl or 0.0 for r in rs], rois, bm, bk))
     return out
+
+
+def _closecheck(graded: Sequence[LedgerRow]) -> list[closecheck.BucketRead]:
+    """The devigged close against results by price range, over graded buys with a timely close."""
+    return closecheck.read(
+        closecheck.Graded(
+            float(r.close_fair or 0.0), float(r.american or 0.0), r.outcome == WIN, r.pnl or 0.0
+        )
+        for r in graded
+        if r.is_buy
+        and r.outcome in (WIN, LOSS)
+        and r.close_fair is not None
+        and r.american is not None
+        and timely_close(r)
+    )
 
 
 # -- HTML --------------------------------------------------------------------
@@ -752,8 +767,23 @@ def _promotion_line(card: SlateCard) -> str:
         return f"<p class='ctx'>Stake bar: {items}. Every other market stays paper.</p>"
     waits = "; ".join(f"{_e(p.market)} ({_e(p.why_not)})" for p in card.promotions)
     return (
-        f"<p class='muted'>Stake bar: no market has cleared paper ({MIN_BUYS} graded buys, ROI ≥ 0"
-        f" in both halves, CLV lower bound > 0, Brier ≤ market). Waiting on: {waits}.</p>"
+        f"<p class='muted'>Stake bar: no market has cleared paper ({MIN_BUYS} graded buys,"
+        f" {BAR_TEXT}). Waiting on: {waits}.</p>"
+    )
+
+
+def _closecheck_table(card: SlateCard) -> str:
+    """Close vs results by price range: whether the devig behind close-implied ROI holds."""
+    if not card.closecheck:
+        return ""
+    rows = "".join(
+        "<tr>" + "".join(f"<td>{_e(c)}</td>" for c in closecheck.row(b)) + "</tr>"
+        for b in card.closecheck
+    )
+    head = "".join(f"<th>{_e(h)}</th>" for h in closecheck.HEAD)
+    return (
+        f"<p class='muted'>{_e(closecheck.TITLE)}</p>"
+        f"<table class='record'><thead><tr>{head}</tr></thead><tbody>{rows}</tbody></table>"
     )
 
 
@@ -823,7 +853,7 @@ def render_html(card: SlateCard, podcast: PodcastView | None = None) -> str:
         f"<style>{_STYLE}{PODCAST_CSS if podcast else ''}</style></head>"
         f"<body>{masthead}<p class='lead'>{lead}</p>{''.join(notes)}{body}"
         f"{_slate_bets(card)}{_summary_table(card)}{_record_table(card)}"
-        f"{_integrity_line(card)}{_promotion_line(card)}{_bands_table(card)}"
+        f"{_integrity_line(card)}{_promotion_line(card)}{_closecheck_table(card)}{_bands_table(card)}"
         f"{podcast_records_block(podcast, [g.matchup for g in card.games])}{fine}</body></html>"
     )
 
