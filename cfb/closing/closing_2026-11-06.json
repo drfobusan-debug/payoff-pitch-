@@ -1,0 +1,212 @@
+{
+  "Nebraska @ Illinois|game_ats|Illinois": {
+    "american": -110.0,
+    "captured_at": "2026-11-06T23:45:35Z",
+    "kickoff_utc": "2026-11-07T01:00:00Z",
+    "line": 4.5,
+    "no_vig_prob": 0.5097487342069428
+  },
+  "Nebraska @ Illinois|game_ats|Nebraska": {
+    "american": 101.0,
+    "captured_at": "2026-11-06T23:45:35Z",
+    "kickoff_utc": "2026-11-07T01:00:00Z",
+    "line": -4.5,
+    "no_vig_prob": 0.4902512657930572
+  },
+  "Nebraska @ Illinois|game_ml|Illinois": {
+    "american": 170.0,
+    "captured_at": "2026-11-06T23:45:35Z",
+    "kickoff_utc": "2026-11-07T01:00:00Z",
+    "line": null,
+    "no_vig_prob": 0.368109162909912
+  },
+  "Nebraska @ Illinois|game_ml|Nebraska": {
+    "american": -182.0,
+    "captured_at": "2026-11-06T23:45:35Z",
+    "kickoff_utc": "2026-11-07T01:00:00Z",
+    "line": null,
+    "no_vig_prob": 0.631890837090088
+  },
+  "Nebraska @ Illinois|game_total|Over": {
+    "american": -108.0,
+    "captured_at": "2026-11-06T23:45:35Z",
+    "kickoff_utc": "2026-11-07T01:00:00Z",
+    "line": 52.0,
+    "no_vig_prob": 0.5015485760601617
+  },
+  "Nebraska @ Illinois|game_total|Under": {
+    "american": -105.0,
+    "captured_at": "2026-11-06T23:45:35Z",
+    "kickoff_utc": "2026-11-07T01:00:00Z",
+    "line": 52.0,
+    "no_vig_prob": 0.49845142393983827
+  },
+  "New Mexico @ Nevada|game_ats|Nevada": {
+    "american": -108.0,
+    "captured_at": "2026-11-06T23:45:35Z",
+    "kickoff_utc": "2026-11-07T02:00:00Z",
+    "line": 10.0,
+    "no_vig_prob": 0.5001556929460567
+  },
+  "New Mexico @ Nevada|game_ats|New Mexico": {
+    "american": -108.0,
+    "captured_at": "2026-11-06T23:45:35Z",
+    "kickoff_utc": "2026-11-07T02:00:00Z",
+    "line": -10.0,
+    "no_vig_prob": 0.4998443070539434
+  },
+  "New Mexico @ Nevada|game_ml|Nevada": {
+    "american": 340.0,
+    "captured_at": "2026-11-06T23:45:35Z",
+    "kickoff_utc": "2026-11-07T02:00:00Z",
+    "line": null,
+    "no_vig_prob": 0.2288315529709957
+  },
+  "New Mexico @ Nevada|game_ml|New Mexico": {
+    "american": -390.0,
+    "captured_at": "2026-11-06T23:45:35Z",
+    "kickoff_utc": "2026-11-07T02:00:00Z",
+    "line": null,
+    "no_vig_prob": 0.7711684470290043
+  },
+  "New Mexico @ Nevada|game_total|Over": {
+    "american": -105.0,
+    "captured_at": "2026-11-06T23:45:35Z",
+    "kickoff_utc": "2026-11-07T02:00:00Z",
+    "line": 38.5,
+    "no_vig_prob": 0.49709068314249827
+  },
+  "New Mexico @ Nevada|game_total|Under": {
+    "american": -108.0,
+    "captured_at": "2026-11-06T23:45:35Z",
+    "kickoff_utc": "2026-11-07T02:00:00Z",
+    "line": 38.5,
+    "no_vig_prob": 0.5029093168575017
+  },
+  "South Florida @ East Carolina|game_ats|East Carolina": {
+    "american": -108.0,
+    "captured_at": "2026-11-06T23:45:35Z",
+    "kickoff_utc": "2026-11-07T00:30:00Z",
+    "line": -1.0,
+    "no_vig_prob": 0.5024144175788351
+  },
+  "South Florida @ East Carolina|game_ats|South Florida": {
+    "american": -104.0,
+    "captured_at": "2026-11-06T23:45:35Z",
+    "kickoff_utc": "2026-11-07T00:30:00Z",
+    "line": 1.0,
+    "no_vig_prob": 0.4975855824211649
+  },
+  "South Florida @ East Carolina|game_ml|East Carolina": {
+    "american": -113.0,
+    "captured_at": "2026-11-06T23:45:35Z",
+    "kickoff_utc": "2026-11-07T00:30:00Z",
+    "line": null,
+    "no_vig_prob": 0.5116249539054111
+  },
+  "South Florida @ East Carolina|game_ml|South Florida": {
+    "american": -103.0,
+    "captured_at": "2026-11-06T23:45:35Z",
+    "kickoff_utc": "2026-11-07T00:30:00Z",
+    "line": null,
+    "no_vig_prob": 0.4883750460945889
+  },
+  "South Florida @ East Carolina|game_total|Over": {
+    "american": -105.0,
+    "captured_at": "2026-11-06T23:45:35Z",
+    "kickoff_utc": "2026-11-07T00:30:00Z",
+    "line": 39.5,
+    "no_vig_prob": 0.494031259730131
+  },
+  "South Florida @ East Carolina|game_total|Under": {
+    "american": -110.0,
+    "captured_at": "2026-11-06T23:45:35Z",
+    "kickoff_utc": "2026-11-07T00:30:00Z",
+    "line": 39.5,
+    "no_vig_prob": 0.5059687402698692
+  },
+  "TCU @ Arizona|game_ats|Arizona": {
+    "american": -105.0,
+    "captured_at": "2026-11-06T23:45:35Z",
+    "kickoff_utc": "2026-11-07T03:15:00Z",
+    "line": -7.0,
+    "no_vig_prob": 0.4937305288179157
+  },
+  "TCU @ Arizona|game_ats|TCU": {
+    "american": -107.0,
+    "captured_at": "2026-11-06T23:45:35Z",
+    "kickoff_utc": "2026-11-07T03:15:00Z",
+    "line": 7.0,
+    "no_vig_prob": 0.5062694711820843
+  },
+  "TCU @ Arizona|game_ml|Arizona": {
+    "american": -255.0,
+    "captured_at": "2026-11-06T23:45:35Z",
+    "kickoff_utc": "2026-11-07T03:15:00Z",
+    "line": null,
+    "no_vig_prob": 0.704446271568677
+  },
+  "TCU @ Arizona|game_ml|TCU": {
+    "american": 235.0,
+    "captured_at": "2026-11-06T23:45:35Z",
+    "kickoff_utc": "2026-11-07T03:15:00Z",
+    "line": null,
+    "no_vig_prob": 0.295553728431323
+  },
+  "TCU @ Arizona|game_total|Over": {
+    "american": -108.0,
+    "captured_at": "2026-11-06T23:45:35Z",
+    "kickoff_utc": "2026-11-07T03:15:00Z",
+    "line": 46.5,
+    "no_vig_prob": 0.5012692006548222
+  },
+  "TCU @ Arizona|game_total|Under": {
+    "american": -105.0,
+    "captured_at": "2026-11-06T23:45:35Z",
+    "kickoff_utc": "2026-11-07T03:15:00Z",
+    "line": 46.5,
+    "no_vig_prob": 0.4987307993451779
+  },
+  "Virginia Tech @ SMU|game_ats|SMU": {
+    "american": -108.0,
+    "captured_at": "2026-11-06T23:45:35Z",
+    "kickoff_utc": "2026-11-07T00:05:00Z",
+    "line": -5.5,
+    "no_vig_prob": 0.5039783752357009
+  },
+  "Virginia Tech @ SMU|game_ats|Virginia Tech": {
+    "american": -104.0,
+    "captured_at": "2026-11-06T23:45:35Z",
+    "kickoff_utc": "2026-11-07T00:05:00Z",
+    "line": 5.5,
+    "no_vig_prob": 0.4960216247642993
+  },
+  "Virginia Tech @ SMU|game_ml|SMU": {
+    "american": -200.0,
+    "captured_at": "2026-11-06T23:45:35Z",
+    "kickoff_utc": "2026-11-07T00:05:00Z",
+    "line": null,
+    "no_vig_prob": 0.6513157418717248
+  },
+  "Virginia Tech @ SMU|game_ml|Virginia Tech": {
+    "american": 180.0,
+    "captured_at": "2026-11-06T23:45:35Z",
+    "kickoff_utc": "2026-11-07T00:05:00Z",
+    "line": null,
+    "no_vig_prob": 0.34868425812827525
+  },
+  "Virginia Tech @ SMU|game_total|Over": {
+    "american": -110.0,
+    "captured_at": "2026-11-06T23:45:35Z",
+    "kickoff_utc": "2026-11-07T00:05:00Z",
+    "line": 56.5,
+    "no_vig_prob": 0.503908456238185
+  },
+  "Virginia Tech @ SMU|game_total|Under": {
+    "american": -105.0,
+    "captured_at": "2026-11-06T23:45:35Z",
+    "kickoff_utc": "2026-11-07T00:05:00Z",
+    "line": 56.5,
+    "no_vig_prob": 0.49609154376181497
+  }
+}
