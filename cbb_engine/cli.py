@@ -465,6 +465,22 @@ def cmd_podcast(args: argparse.Namespace) -> int:
     return 0
 
 
+def _half_fit(root: Path, day: Date) -> faststart.Read | None:
+    """This season's first-half read for the card's halftime worksheet; None when it cannot be built."""
+    try:
+        season = [
+            r
+            for d in sorted(p.name for p in (root / "ledger" / SPORT).glob("*") if p.is_dir())
+            if d < day.isoformat()
+            for r in ledger.record(root, SPORT, d).values()
+        ]
+        _, fast = _team_groups(root, season, day)
+    except Exception:
+        log.warning("CBB first-half fit failed; the card prints the rule without it", exc_info=True)
+        return None
+    return fast[0] if fast else None
+
+
 def _card_pdf(root: Path, day: Date, pass_id: str, rows: list[ledger.Row], out: Path) -> Path | None:
     """Display-only PDF beside the text card; any failure leaves the text card as the card."""
     try:
@@ -487,6 +503,7 @@ def _card_pdf(root: Path, day: Date, pass_id: str, rows: list[ledger.Row], out: 
             moves=movement.moves(qs, until=quotes.now_utc()),
             podcast=_podcast_view(root, day, rows),
             tips={q.event_id: q.tip_utc for q in sorted(qs, key=lambda q: q.captured_at)},
+            fast=_half_fit(root, day),
         )
         out.write_bytes(pdf.render_pdf(body))
     except Exception:
