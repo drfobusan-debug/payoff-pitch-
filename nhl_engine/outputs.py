@@ -83,6 +83,7 @@ def _row_line(r: LedgerRow) -> str:
 def render_card(card: SlateCard) -> str:
     lines = [
         f"NHL card {card.slate_date}  [{card.tag}]  priced {card.priced_at}  prior {card.prior_version}",
+        *([card.level_note] if card.level_note else []),
         "",
     ]
     buys = [r for r in card.rows if r.is_buy]

@@ -238,7 +238,8 @@ def test_totals_anchor_is_its_own_weight_and_sides_keep_the_cap(monkeypatch):
     thr = GateParams()
     assert thr.anchor_for("game_ml") == pytest.approx(0.90)
     assert thr.anchor_for("game_pl_alt") == pytest.approx(0.90)
-    assert thr.anchor_for("game_total") == pytest.approx(0.60)
-    assert thr.anchor_for("game_total_alt") == pytest.approx(0.60)
+    assert thr.anchor_for("game_total") == pytest.approx(1.0)
+    assert thr.anchor_for("game_total_alt") == pytest.approx(1.0)
+    assert "game_total" not in thr.live_markets
     monkeypatch.setenv("NHLE_TOTAL_ANCHOR", "0.75")
     assert GateParams().anchor_for("game_total") == pytest.approx(0.75)

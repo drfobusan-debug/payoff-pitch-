@@ -9,6 +9,15 @@ close for the home moneyline and the main total, joined to the official final.
 Decision rule, fixed before the pull (ML and totals fitted separately):
     (result − p_close) = b · (p_sim − p_close)      OLS, no intercept
     |b| ≤ 1 SE  → graded-only;  b > 1 SE → anchor ≈ 1 − b, probation-gated.
+
+Walk-forward level rerun (``run --level-fit``; fixed 2026-11, before it is run): each
+night's ``goal_level`` is fitted by ``nhl_engine.level`` on earlier nights' main-total
+closes only, then ``compare --against <fixed CSV>`` reads both CSVs on the games they
+share. "Accuracy against the close" is the mean squared gap ``(p_sim − p_close)²``.
+    * The nightly fit stays only if it is no less accurate than the fixed level on
+      BOTH the main total and the home puck line; otherwise it comes back out.
+    * Sim weight on totals stays zero unless the walk-forward totals slope is
+      clearly above zero: b > 2 SE.
 """
 
 from __future__ import annotations
@@ -24,7 +33,8 @@ from pathlib import Path
 
 import pandas as pd
 
-from nhl_engine import history, pipeline
+from nhl_engine import history, level, pipeline
+from nhl_engine.audit.grade import settle
 from nhl_engine.audit.ledger import LedgerRow
 from nhl_engine.calibration import Calibrator
 from nhl_engine.config import Config
@@ -46,6 +56,7 @@ FIELDS = (
     "sim_total",
     "goals",
     "goalie_status",
+    "level",
 )
 
 
@@ -61,6 +72,23 @@ class Obs:
     sim_total: float | None
     goals: int | None
     goalie_status: str
+    level: float | None = None  # goal_level the night was priced at (None = fixed)
+
+
+def main_totals(obs: Iterable[Obs], *, base: float) -> list[level.MainTotal]:
+    """The main-total rows as ``level.MainTotal``, the close standing in for the market."""
+    return [
+        level.MainTotal(
+            o.game_date,
+            o.matchup,
+            o.line,
+            o.p_sim,
+            o.p_close,
+            o.level if o.level is not None else base,
+        )
+        for o in obs
+        if o.market == "game_total" and o.line is not None
+    ]
 
 
 def goalie_overrides(
@@ -96,6 +124,7 @@ def observe(card: pipeline.SlateCard, results: dict[str, GameResult]) -> list[Ob
             continue
         goals = res.final_home + res.final_away
         sim_total = g.summary.get("exp_total", math.nan)
+        lvl = next((r.goal_level for r in g.rows if r.goal_level is not None), None)
         ml = next((r for r in g.rows if r.market == "game_ml" and r.side == g.home), None)
         if ml is not None:
             out.append(
@@ -110,6 +139,7 @@ def observe(card: pipeline.SlateCard, results: dict[str, GameResult]) -> list[Ob
                     None if math.isnan(sim_total) else sim_total,
                     goals,
                     g.goalie_status,
+                    lvl,
                 )
             )
         tot = _main_total(g.rows)
@@ -127,9 +157,46 @@ def observe(card: pipeline.SlateCard, results: dict[str, GameResult]) -> list[Ob
                     None if math.isnan(sim_total) else sim_total,
                     goals,
                     g.goalie_status,
+                    lvl,
                 )
             )
+        pl = _main_pl(g.rows, g.home)
+        if pl is not None:
+            outcome = settle(
+                market=pl.market,
+                side=pl.side,
+                entity=pl.entity,
+                line=pl.line,
+                ot_rule=pl.ot_rule,
+                res=res,
+            )
+            if outcome is not None:
+                out.append(
+                    Obs(
+                        card.slate_date.isoformat(),
+                        g.matchup,
+                        "game_pl",
+                        pl.line,
+                        pl.model_prob,
+                        pl.consensus,
+                        {"win": 1.0, "loss": 0.0}.get(outcome, 0.5),
+                        None if math.isnan(sim_total) else sim_total,
+                        goals,
+                        g.goalie_status,
+                        lvl,
+                    )
+                )
     return out
+
+
+def _main_pl(rows: list[LedgerRow], home: str) -> LedgerRow | None:
+    """The home side's ±1.5 puck line (the row nearest a coin flip if several)."""
+    pls = [
+        r
+        for r in rows
+        if r.market == "game_pl" and r.side == home and r.line is not None and abs(r.line) == 1.5
+    ]
+    return min(pls, key=lambda r: abs(r.consensus - 0.5)) if pls else None
 
 
 def rebuild_day(
@@ -264,14 +331,54 @@ def read_csv(path: Path) -> list[Obs]:
                     float(r["sim_total"]) if r["sim_total"] else None,
                     int(r["goals"]) if r["goals"] else None,
                     r["goalie_status"],
+                    float(r["level"]) if r.get("level") else None,
                 )
             )
     return out
 
 
+def _close_mse(obs: Iterable[Obs]) -> float:
+    rows = list(obs)
+    return sum((o.p_sim - o.p_close) ** 2 for o in rows) / len(rows) if rows else math.nan
+
+
+def compare(fixed: Sequence[Obs], walk: Sequence[Obs]) -> str:
+    """The preregistered walk-forward verdict (module docstring) on the games both CSVs hold."""
+    lines = []
+    keep = True
+    for m in ("game_total", "game_pl"):
+        a = {(o.game_date, o.matchup): o for o in fixed if o.market == m}
+        b = {(o.game_date, o.matchup): o for o in walk if o.market == m}
+        keys = sorted(a.keys() & b.keys())
+        fa, fb = [a[k] for k in keys], [b[k] for k in keys]
+        ma, mb = _close_mse(fa), _close_mse(fb)
+        ba, bb = fit(fa, m), fit(fb, m)
+        ok = len(keys) > 0 and mb <= ma
+        keep = keep and ok
+        lines.append(
+            f"{m}: n={len(keys)} gap to close (mean sq) fixed {ma:.5f} vs nightly {mb:.5f} "
+            f"-> {'no less accurate' if ok else 'LESS accurate'}; "
+            f"Brier vs results fixed {ba.brier_sim:.4f} / nightly {bb.brier_sim:.4f} / close {bb.brier_close:.4f}; "
+            f"mean p fixed {ba.mean_sim:.3f} / nightly {bb.mean_sim:.3f} / close {bb.mean_close:.3f}"
+        )
+    tot = fit(walk, "game_total")
+    clear = math.isfinite(tot.se) and tot.slope > 2 * tot.se
+    lines.append(
+        "nightly fit: "
+        + ("keep" if keep else "take it back out (fixed level returns)")
+        + f"; totals slope {tot.slope:+.3f} (se {tot.se:.3f}) -> "
+        + (
+            f"sim weight earned: anchor ~ {max(0.0, min(1.0, 1 - tot.slope)):.2f}, probation-gated"
+            if clear
+            else "sim weight on totals stays zero (slope not > 2 SE)"
+        )
+    )
+    return "\n".join(lines)
+
+
 def report(obs: Sequence[Obs]) -> str:
     lines = []
-    for m in ("game_ml", "game_total"):
+    for m in ("game_ml", "game_total", "game_pl"):
         f = fit(obs, m)
         lines.append(
             f"{m}: n={f.n} slope={f.slope:.3f} se={f.se:.3f} -> {f.verdict}; "
