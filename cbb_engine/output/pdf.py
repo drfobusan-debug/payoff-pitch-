@@ -52,11 +52,14 @@ _MARKETS = {"game_total": "Total", "game_ats": "Spread", "game_ml": "Moneyline"}
 
 
 class FastFit(Protocol):
-    share: float
-    b: float
-    se: float
-    n: int
-
+    @property
+    def share(self) -> float: ...
+    @property
+    def b(self) -> float: ...
+    @property
+    def se(self) -> float: ...
+    @property
+    def n(self) -> int: ...
     @property
     def verdict(self) -> str: ...
 
