@@ -42,46 +42,46 @@
     "no_vig_prob": 0.49845142393983827
   },
   "New Mexico @ Nevada|game_ats|Nevada": {
-    "american": -108.0,
-    "captured_at": "2026-11-07T00:45:34Z",
+    "american": -105.0,
+    "captured_at": "2026-11-07T01:45:38Z",
     "kickoff_utc": "2026-11-07T02:00:00Z",
-    "line": 10.0,
-    "no_vig_prob": 0.5001471127235174
+    "line": 10.5,
+    "no_vig_prob": 0.5032405901444297
   },
   "New Mexico @ Nevada|game_ats|New Mexico": {
-    "american": -109.0,
-    "captured_at": "2026-11-07T00:45:34Z",
+    "american": -105.0,
+    "captured_at": "2026-11-07T01:45:38Z",
     "kickoff_utc": "2026-11-07T02:00:00Z",
-    "line": -10.0,
-    "no_vig_prob": 0.49985288727648264
+    "line": -10.5,
+    "no_vig_prob": 0.4967594098555703
   },
   "New Mexico @ Nevada|game_ml|Nevada": {
-    "american": 340.0,
-    "captured_at": "2026-11-07T00:45:34Z",
+    "american": 333.0,
+    "captured_at": "2026-11-07T01:45:38Z",
     "kickoff_utc": "2026-11-07T02:00:00Z",
     "line": null,
-    "no_vig_prob": 0.22879710286967753
+    "no_vig_prob": 0.22885707928795707
   },
   "New Mexico @ Nevada|game_ml|New Mexico": {
     "american": -390.0,
-    "captured_at": "2026-11-07T00:45:34Z",
+    "captured_at": "2026-11-07T01:45:38Z",
     "kickoff_utc": "2026-11-07T02:00:00Z",
     "line": null,
-    "no_vig_prob": 0.7712028971303225
+    "no_vig_prob": 0.7711429207120429
   },
   "New Mexico @ Nevada|game_total|Over": {
     "american": -104.0,
-    "captured_at": "2026-11-07T00:45:34Z",
+    "captured_at": "2026-11-07T01:45:38Z",
     "kickoff_utc": "2026-11-07T02:00:00Z",
     "line": 38.5,
-    "no_vig_prob": 0.49649911917185785
+    "no_vig_prob": 0.4964653644800401
   },
   "New Mexico @ Nevada|game_total|Under": {
     "american": -108.0,
-    "captured_at": "2026-11-07T00:45:34Z",
+    "captured_at": "2026-11-07T01:45:38Z",
     "kickoff_utc": "2026-11-07T02:00:00Z",
     "line": 38.5,
-    "no_vig_prob": 0.503500880828142
+    "no_vig_prob": 0.5035346355199598
   },
   "South Florida @ East Carolina|game_ats|East Carolina": {
     "american": -108.0,
@@ -126,46 +126,46 @@
     "no_vig_prob": 0.506743901343878
   },
   "TCU @ Arizona|game_ats|Arizona": {
-    "american": -102.0,
-    "captured_at": "2026-11-07T00:45:34Z",
+    "american": -106.0,
+    "captured_at": "2026-11-07T01:45:38Z",
     "kickoff_utc": "2026-11-07T03:15:00Z",
-    "line": -7.0,
-    "no_vig_prob": 0.49007516431285125
+    "line": -6.5,
+    "no_vig_prob": 0.5078968634852002
   },
   "TCU @ Arizona|game_ats|TCU": {
-    "american": -112.0,
-    "captured_at": "2026-11-07T00:45:34Z",
+    "american": -102.0,
+    "captured_at": "2026-11-07T01:45:38Z",
     "kickoff_utc": "2026-11-07T03:15:00Z",
-    "line": 7.0,
-    "no_vig_prob": 0.5099248356871486
+    "line": 6.5,
+    "no_vig_prob": 0.49210313651479987
   },
   "TCU @ Arizona|game_ml|Arizona": {
-    "american": -255.0,
-    "captured_at": "2026-11-07T00:45:34Z",
+    "american": -245.0,
+    "captured_at": "2026-11-07T01:45:38Z",
     "kickoff_utc": "2026-11-07T03:15:00Z",
     "line": null,
-    "no_vig_prob": 0.7039621682114088
+    "no_vig_prob": 0.6988446538808083
   },
   "TCU @ Arizona|game_ml|TCU": {
-    "american": 235.0,
-    "captured_at": "2026-11-07T00:45:34Z",
+    "american": 230.0,
+    "captured_at": "2026-11-07T01:45:38Z",
     "kickoff_utc": "2026-11-07T03:15:00Z",
     "line": null,
-    "no_vig_prob": 0.29603783178859117
+    "no_vig_prob": 0.3011553461191917
   },
   "TCU @ Arizona|game_total|Over": {
     "american": -108.0,
-    "captured_at": "2026-11-07T00:45:34Z",
+    "captured_at": "2026-11-07T01:45:38Z",
     "kickoff_utc": "2026-11-07T03:15:00Z",
     "line": 46.5,
-    "no_vig_prob": 0.5012692006548222
+    "no_vig_prob": 0.5005508121123912
   },
   "TCU @ Arizona|game_total|Under": {
     "american": -105.0,
-    "captured_at": "2026-11-07T00:45:34Z",
+    "captured_at": "2026-11-07T01:45:38Z",
     "kickoff_utc": "2026-11-07T03:15:00Z",
     "line": 46.5,
-    "no_vig_prob": 0.4987307993451779
+    "no_vig_prob": 0.49944918788760895
   },
   "Virginia Tech @ SMU|game_ats|SMU": {
     "american": -108.0,
