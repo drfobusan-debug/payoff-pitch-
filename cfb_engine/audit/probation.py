@@ -74,6 +74,7 @@ from cfb_engine.market import (
     unitranks,
     yppmatch,
 )
+from cfb_engine.market.odds import american_to_decimal
 from cfb_engine.market.tiers import Tier
 
 # One Saturday contributes roughly 20-50 buys, so 100 is a few weeks rather than
@@ -84,6 +85,9 @@ DEFAULT_MIN_N = 100
 # floor let through), but they are counterfactual -- graded at a price we never
 # actually took -- so they get the same bar rather than a lower one.
 DEFAULT_MIN_REFUSED = 100
+# Size bar: the excess over the market must clear this many of its own standard
+# errors. One SE let a 30-rule table print a false "finding" every few weeks.
+CALL_SE = 2.0
 
 # Unlike the MLB engine, this one has no retired feature basis to start the
 # window at: there is no graded CFB history at all yet, so the default window is
@@ -122,11 +126,14 @@ class Probation:
     kind: str  # "market" | "screen" | "candidate" | "upgrade" | "rule"
     n: int
     roi: float  # mean per-unit return
-    se: float  # standard error of that mean
+    se: float  # standard error of the mean excess over the market
     first_half: float  # ROI over the older half of the window
     second_half: float  # ROI over the newer half
     status: str
     finding: str
+    # Mean per-unit return less what the market expected at the price taken:
+    # the number the verdict is read on, so a -300 band cannot "lose" on vig.
+    excess: float = 0.0
 
     @property
     def actionable(self) -> bool:
@@ -148,21 +155,36 @@ def _decided(entries: list[LedgerEntry]) -> list[LedgerEntry]:
     return [e for e in entries if e.result != PUSH and e.odds is not None]
 
 
-def _roi_se(entries: list[LedgerEntry]) -> tuple[float, float]:
-    """Mean per-unit return and its standard error.
+def market_expected(e: LedgerEntry) -> float:
+    """What a flat 1u at the price taken returns on average if the no-vig price is right.
+
+    ``fair_prob x (dec - 1) - (1 - fair_prob)``: the hold the book charged, as a
+    negative number. Zero when the row carries no fair price, so an unpriced
+    band falls back to the raw-return baseline.
+    """
+    if e.fair_prob is None or e.odds is None:
+        return 0.0
+    return e.fair_prob * (american_to_decimal(e.odds) - 1.0) - (1.0 - e.fair_prob)
+
+
+def _excess(entries: list[LedgerEntry]) -> list[float]:
+    return [e.pnl - market_expected(e) for e in entries]
+
+
+def _mean_se(values: list[float]) -> tuple[float, float]:
+    """Mean and its standard error over the individual bets.
 
     The unit of variance is the individual bet, not the day: a market's ROI is an
     average of one-unit stakes, so its uncertainty is the spread of those returns
     over the root of their count. Reporting ROI without this is how a 50-bet cell
     comes to look like a finding.
     """
-    pnl = [e.pnl for e in entries]
-    if not pnl:
+    if not values:
         return 0.0, 0.0
-    mean = fmean(pnl)
-    if len(pnl) < 2:
+    mean = fmean(values)
+    if len(values) < 2:
         return mean, 0.0
-    return mean, stdev(pnl) / (len(pnl) ** 0.5)
+    return mean, stdev(values) / (len(values) ** 0.5)
 
 
 def _halves(entries: list[LedgerEntry]) -> tuple[list[LedgerEntry], list[LedgerEntry]]:
@@ -182,6 +204,10 @@ def _mean(entries: list[LedgerEntry]) -> float:
     return fmean([e.pnl for e in entries]) if entries else 0.0
 
 
+def _mean_excess(entries: list[LedgerEntry]) -> float:
+    return fmean(_excess(entries)) if entries else 0.0
+
+
 def _judge(
     name: str,
     kind: str,
@@ -197,9 +223,11 @@ def _judge(
     screen's refusals are graded as the bets we would have made.
     """
     n = len(entries)
-    roi, se = _roi_se(entries)
+    roi = _mean(entries)
+    excess, se = _mean_se(_excess(entries))
     older, newer = _halves(entries)
     h1, h2 = _mean(older), _mean(newer)
+    x1, x2 = _mean_excess(older), _mean_excess(newer)
     sign = -1.0 if losing_is_bad else 1.0
     label = {
         "market": "buys",
@@ -220,11 +248,12 @@ def _judge(
             WATCHING,
             f"{name}: {n} graded {label} ({roi * 100:+.1f}%) -- under the {min_n} "
             "needed to judge; no action",
+            excess,
         )
-    # Condition 2: worse (or better, for a screen) than zero by over one SE.
-    beyond_se = sign * roi > se if se > 0 else sign * roi > 0
-    # Condition 3: both halves agree.
-    consistent = sign * h1 > 0 and sign * h2 > 0
+    # Condition 2: worse (or better, for a screen) than the market by over CALL_SE SEs.
+    beyond_se = sign * excess > CALL_SE * se if se > 0 else sign * excess > 0
+    # Condition 3: both halves agree, on the same excess.
+    consistent = sign * x1 > 0 and sign * x2 > 0
     if beyond_se and consistent:
         status = {
             "market": SHUT,
@@ -256,10 +285,15 @@ def _judge(
             h1,
             h2,
             status,
-            f"{name}: {n} {label} {verb} (se {se * 100:.1f}), "
+            f"{name}: {n} {label} {verb}, {excess * 100:+.1f}% vs the market (se {se * 100:.1f}), "
             f"{h1 * 100:+.1f}% then {h2 * 100:+.1f}% across the halves -> {act}",
+            excess,
         )
-    why = "the halves disagree" if not consistent else "inside one standard error of zero"
+    why = (
+        "the halves disagree"
+        if not consistent
+        else f"inside {CALL_SE:.0f} standard errors of the market"
+    )
     return Probation(
         name,
         kind,
@@ -269,8 +303,9 @@ def _judge(
         h1,
         h2,
         CLEAR,
-        f"{name}: {n} {label} at {roi * 100:+.1f}% (se {se * 100:.1f}), "
-        f"{h1 * 100:+.1f}% then {h2 * 100:+.1f}% -- {why}; no action",
+        f"{name}: {n} {label} at {roi * 100:+.1f}%, {excess * 100:+.1f}% vs the market "
+        f"(se {se * 100:.1f}), {h1 * 100:+.1f}% then {h2 * 100:+.1f}% -- {why}; no action",
+        excess,
     )
 
 
