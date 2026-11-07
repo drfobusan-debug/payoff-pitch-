@@ -127,45 +127,45 @@
   },
   "TCU @ Arizona|game_ats|Arizona": {
     "american": -106.0,
-    "captured_at": "2026-11-07T01:45:38Z",
+    "captured_at": "2026-11-07T03:00:47Z",
     "kickoff_utc": "2026-11-07T03:15:00Z",
     "line": -6.5,
-    "no_vig_prob": 0.5078968634852002
+    "no_vig_prob": 0.501662856469938
   },
   "TCU @ Arizona|game_ats|TCU": {
-    "american": -102.0,
-    "captured_at": "2026-11-07T01:45:38Z",
+    "american": -106.0,
+    "captured_at": "2026-11-07T03:00:47Z",
     "kickoff_utc": "2026-11-07T03:15:00Z",
     "line": 6.5,
-    "no_vig_prob": 0.49210313651479987
+    "no_vig_prob": 0.4983371435300619
   },
   "TCU @ Arizona|game_ml|Arizona": {
-    "american": -245.0,
-    "captured_at": "2026-11-07T01:45:38Z",
+    "american": -235.0,
+    "captured_at": "2026-11-07T03:00:47Z",
     "kickoff_utc": "2026-11-07T03:15:00Z",
     "line": null,
-    "no_vig_prob": 0.6988446538808083
+    "no_vig_prob": 0.6834346894338583
   },
   "TCU @ Arizona|game_ml|TCU": {
-    "american": 230.0,
-    "captured_at": "2026-11-07T01:45:38Z",
+    "american": 210.0,
+    "captured_at": "2026-11-07T03:00:47Z",
     "kickoff_utc": "2026-11-07T03:15:00Z",
     "line": null,
-    "no_vig_prob": 0.3011553461191917
+    "no_vig_prob": 0.31656531056614173
   },
   "TCU @ Arizona|game_total|Over": {
     "american": -108.0,
-    "captured_at": "2026-11-07T01:45:38Z",
+    "captured_at": "2026-11-07T03:00:47Z",
     "kickoff_utc": "2026-11-07T03:15:00Z",
     "line": 46.5,
-    "no_vig_prob": 0.5005508121123912
+    "no_vig_prob": 0.4996248090195408
   },
   "TCU @ Arizona|game_total|Under": {
-    "american": -105.0,
-    "captured_at": "2026-11-07T01:45:38Z",
+    "american": -108.0,
+    "captured_at": "2026-11-07T03:00:47Z",
     "kickoff_utc": "2026-11-07T03:15:00Z",
     "line": 46.5,
-    "no_vig_prob": 0.49944918788760895
+    "no_vig_prob": 0.5003751909804592
   },
   "Virginia Tech @ SMU|game_ats|SMU": {
     "american": -108.0,
