@@ -5,6 +5,8 @@ from __future__ import annotations
 import logging
 import re
 from dataclasses import dataclass
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 import requests
 
@@ -150,9 +152,18 @@ def fetch_pregame_line(
         return None
 
 
+BOARD_TZ = ZoneInfo("America/New_York")
+
+
+def board_day(now: datetime | None = None) -> str:
+    """ESPN's slate day (Eastern), as the ``dates`` query value."""
+    return (now or datetime.now(BOARD_TZ)).astimezone(BOARD_TZ).strftime("%Y%m%d")
+
+
 def fetch_scoreboard(sport: str, timeout: float = 15.0) -> list[LiveGame]:
+    """Today's board, asked for by date so an early poll never gets a stale or empty day."""
     try:
-        resp = requests.get(SCOREBOARD[sport], timeout=timeout)
+        resp = requests.get(SCOREBOARD[sport], params={"dates": board_day()}, timeout=timeout)
         resp.raise_for_status()
         return parse_scoreboard(resp.json())
     except (requests.RequestException, ValueError) as exc:

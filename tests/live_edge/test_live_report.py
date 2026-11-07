@@ -91,6 +91,51 @@ def test_the_loop_waits_for_the_first_tip_then_exits_when_idle(tmp_path, monkeyp
     assert len(left) == 40 - 10
 
 
+def test_an_empty_or_stale_board_before_the_first_tip_is_not_idle(tmp_path, monkeypatch):
+    # 11-07: launchd started at 10:00 ET, ESPN showed nothing for 13 min and the loop quit
+    # before the noon tips. Empty boards, failed fetches and yesterday's finals all wait.
+    stale = game("post", 75, 70, 2, 0, "STATUS_FINAL")
+    boards = (
+        [[]] * 15
+        + [[stale]] * 15
+        + [None]  # a raised fetch
+        + [[game("in", 20, 18, 1, 600, "STATUS_IN_PROGRESS")]]
+        + [[game("post", 75, 70, 2, 0, "STATUS_FINAL")]] * 40
+    )
+    calls = iter(boards)
+
+    def board(sport):
+        b = next(calls)
+        if b is None:
+            raise RuntimeError("espn down")
+        return b
+
+    monkeypatch.setattr(stoppage, "fetch_scoreboard", board)
+    monkeypatch.setattr(stoppage.time, "sleep", lambda s: None)
+    stoppage.run(
+        Study("cbb", tmp_path), _NoOdds(), interval=1, hours=1, max_credits=0, idle_exit=10
+    )
+    assert len(list(calls)) == 40 - 10
+
+
+def test_the_hours_deadline_bounds_a_day_with_no_games(tmp_path, monkeypatch):
+    clock = iter(range(0, 10_000, 100))
+    monkeypatch.setattr(stoppage.time, "monotonic", lambda: next(clock))
+    monkeypatch.setattr(stoppage.time, "sleep", lambda s: None)
+    n = 0
+
+    def board(sport):
+        nonlocal n
+        n += 1
+        return []
+
+    monkeypatch.setattr(stoppage, "fetch_scoreboard", board)
+    stoppage.run(
+        Study("cbb", tmp_path), _NoOdds(), interval=1, hours=0.1, max_credits=0, idle_exit=10
+    )
+    assert 0 < n <= 5
+
+
 def _install(repo: Path, home: Path) -> subprocess.CompletedProcess[str]:
     bin_dir = home / "bin"
     bin_dir.mkdir(exist_ok=True)
