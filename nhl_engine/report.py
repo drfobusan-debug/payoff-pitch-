@@ -626,12 +626,26 @@ def best_bets(rows: list[LedgerRow]) -> list[LedgerRow]:
     return out[:BEST_BETS]
 
 
+ARITHMETIC = ("model ", "anchored ")  # the pricing stamp's own numbers, already on the line
+
+
 def _why(r: LedgerRow) -> str:
-    """The row's own first reason that is not the anchor arithmetic."""
+    """The row's first substantive reason; empty when it only carries the price arithmetic."""
     for reason in r.reasons:
-        if not reason.startswith("anchored"):
+        if not reason.startswith(ARITHMETIC):
             return reason
     return ""
+
+
+def _probs(r: LedgerRow) -> str:
+    """The probability the edge was read from, with the raw sim beside it when anchored."""
+    bet = r.bet_prob if r.bet_prob is not None else r.model_prob
+    sim = (
+        f" (sim {r.model_prob:.0%})"
+        if r.bet_prob is not None and abs(r.bet_prob - r.model_prob) >= 0.005
+        else ""
+    )
+    return f"bet {bet:.0%}{sim} vs market {r.consensus:.0%}"
 
 
 def _best_bets_block(rows: list[LedgerRow]) -> str:
@@ -640,7 +654,7 @@ def _best_bets_block(rows: list[LedgerRow]) -> str:
         return ""
     items = "".join(
         f"<li><b>{escape(r.matchup)} — {escape(_sel(r))} {_american(r.american)}</b> ({escape(r.book)}) · "
-        f"model {r.model_prob:.0%} vs market {r.consensus:.0%}, edge {_signed(r.edge)} · <i>{escape(r.tier)}</i>"
+        f"{_probs(r)}, edge {_signed(r.edge)} · <i>{escape(r.tier)}</i>"
         + (f" — {escape(_why(r))}" if _why(r) else "")
         + "</li>"
         for r in best

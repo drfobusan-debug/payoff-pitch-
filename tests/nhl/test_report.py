@@ -292,3 +292,17 @@ def test_best_bets_rank_tier_then_edge_one_per_game_market():
     a.tier, b.tier, c.tier = "Strong buy", "Moderate buy", "Moderate buy"
     best = report.best_bets([d, c, b, a])
     assert [(r.market, r.side) for r in best] == [("game_ml", "H"), ("game_total", "over")]
+
+
+def test_best_bet_line_shows_the_anchored_prob_and_skips_the_arithmetic():
+    r = _row("game_total", "under", 0.03, buy=True)
+    r.model_prob, r.bet_prob, r.consensus = 0.57, 0.536, 0.506
+    r.reasons = [
+        "model 0.536 vs consensus 0.506 edge +0.030 EV +0.021",
+        "anchored 0.60 to market: sim 0.570 -> bet 0.536",
+        "goalies confirmed",
+    ]
+    html = report._best_bets_block([r])
+    assert "bet 54% (sim 57%) vs market 51%" in html and "— goalies confirmed" in html
+    r.reasons = r.reasons[:2]
+    assert "— " not in report._best_bets_block([r]).split("</i>")[1].split("</li>")[0]
