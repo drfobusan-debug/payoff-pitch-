@@ -1,87 +1,87 @@
 {
   "Air Force @ Army|game_ats|Air Force": {
     "american": -106.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:30:00Z",
     "line": 4.0,
-    "no_vig_prob": 0.5010034452750386
+    "no_vig_prob": 0.5002318729592186
   },
   "Air Force @ Army|game_ats|Army": {
     "american": -106.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:30:00Z",
     "line": -4.0,
-    "no_vig_prob": 0.49899655472496146
+    "no_vig_prob": 0.4997681270407816
   },
   "Air Force @ Army|game_ml|Air Force": {
     "american": 159.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:30:00Z",
     "line": null,
     "no_vig_prob": 0.3816861889992439
   },
   "Air Force @ Army|game_ml|Army": {
     "american": -175.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:30:00Z",
     "line": null,
     "no_vig_prob": 0.6183138110007561
   },
   "Air Force @ Army|game_total|Over": {
-    "american": -109.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "american": -105.0,
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:30:00Z",
     "line": 43.5,
-    "no_vig_prob": 0.5043776560007559
+    "no_vig_prob": 0.4987916079584377
   },
   "Air Force @ Army|game_total|Under": {
-    "american": -105.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "american": -106.0,
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:30:00Z",
     "line": 43.5,
-    "no_vig_prob": 0.49562234399924415
+    "no_vig_prob": 0.5012083920415623
   },
   "Alabama @ LSU|game_ats|Alabama": {
-    "american": -106.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "american": -108.0,
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T20:30:00Z",
     "line": 6.0,
-    "no_vig_prob": 0.5004734819784089
+    "no_vig_prob": 0.4998506062697399
   },
   "Alabama @ LSU|game_ats|LSU": {
-    "american": -105.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "american": -108.0,
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T20:30:00Z",
     "line": -6.0,
-    "no_vig_prob": 0.49952651802159115
+    "no_vig_prob": 0.50014939373026
   },
   "Alabama @ LSU|game_ml|Alabama": {
     "american": 195.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T20:30:00Z",
     "line": null,
-    "no_vig_prob": 0.3326928618793451
+    "no_vig_prob": 0.33724893398841654
   },
   "Alabama @ LSU|game_ml|LSU": {
-    "american": -220.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "american": -210.0,
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T20:30:00Z",
     "line": null,
-    "no_vig_prob": 0.667307138120655
+    "no_vig_prob": 0.6627510660115835
   },
   "Alabama @ LSU|game_total|Over": {
-    "american": -106.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "american": -105.0,
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T20:30:00Z",
-    "line": 53.5,
-    "no_vig_prob": 0.5014294948049265
+    "line": 54.5,
+    "no_vig_prob": 0.49484062974505383
   },
   "Alabama @ LSU|game_total|Under": {
-    "american": -104.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "american": -108.0,
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T20:30:00Z",
-    "line": 53.5,
-    "no_vig_prob": 0.49857050519507357
+    "line": 54.5,
+    "no_vig_prob": 0.5051593702549462
   },
   "Arkansas @ Auburn|game_ats|Arkansas": {
     "american": -104.0,
@@ -169,126 +169,126 @@
   },
   "Boise State @ Colorado State|game_ats|Boise State": {
     "american": -106.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T23:00:00Z",
     "line": -16.0,
     "no_vig_prob": 0.5007726258295937
   },
   "Boise State @ Colorado State|game_ats|Colorado State": {
     "american": -106.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T23:00:00Z",
     "line": 16.0,
     "no_vig_prob": 0.49922737417040636
   },
   "Boise State @ Colorado State|game_ml|Boise State": {
     "american": -770.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T23:00:00Z",
     "line": null,
-    "no_vig_prob": 0.8589253516093893
+    "no_vig_prob": 0.8559857904371505
   },
   "Boise State @ Colorado State|game_ml|Colorado State": {
-    "american": 783.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "american": 610.0,
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T23:00:00Z",
     "line": null,
-    "no_vig_prob": 0.14107464839061082
+    "no_vig_prob": 0.14401420956284952
   },
   "Boise State @ Colorado State|game_total|Over": {
     "american": -109.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T23:00:00Z",
     "line": 68.5,
     "no_vig_prob": 0.5077700687375695
   },
   "Boise State @ Colorado State|game_total|Under": {
     "american": -103.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T23:00:00Z",
     "line": 68.5,
     "no_vig_prob": 0.4922299312624305
   },
   "Charlotte @ UAB|game_ats|Charlotte": {
     "american": -109.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T20:30:00Z",
-    "line": 8.5,
-    "no_vig_prob": 0.508224279075278
+    "line": 7.5,
+    "no_vig_prob": 0.5016760971342231
   },
   "Charlotte @ UAB|game_ats|UAB": {
-    "american": -101.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "american": -103.0,
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T20:30:00Z",
-    "line": -8.5,
-    "no_vig_prob": 0.4917757209247219
+    "line": -7.5,
+    "no_vig_prob": 0.4983239028657769
   },
   "Charlotte @ UAB|game_ml|Charlotte": {
     "american": 275.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T20:30:00Z",
     "line": null,
-    "no_vig_prob": 0.26240081961541784
+    "no_vig_prob": 0.2667682159919676
   },
   "Charlotte @ UAB|game_ml|UAB": {
     "american": -300.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T20:30:00Z",
     "line": null,
-    "no_vig_prob": 0.7375991803845823
+    "no_vig_prob": 0.7332317840080325
   },
   "Charlotte @ UAB|game_total|Over": {
     "american": -107.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T20:30:00Z",
     "line": 47.5,
-    "no_vig_prob": 0.49928673798760353
+    "no_vig_prob": 0.4989115400707024
   },
   "Charlotte @ UAB|game_total|Under": {
     "american": -108.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T20:30:00Z",
     "line": 47.5,
-    "no_vig_prob": 0.5007132620123965
+    "no_vig_prob": 0.5010884599292977
   },
   "Cincinnati @ Houston|game_ats|Cincinnati": {
-    "american": -110.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "american": -106.0,
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T20:30:00Z",
-    "line": 10.5,
-    "no_vig_prob": 0.505415710643307
+    "line": 10.0,
+    "no_vig_prob": 0.4987855872198897
   },
   "Cincinnati @ Houston|game_ats|Houston": {
     "american": -105.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T20:30:00Z",
-    "line": -10.5,
-    "no_vig_prob": 0.49458428935669296
+    "line": -10.0,
+    "no_vig_prob": 0.5012144127801104
   },
   "Cincinnati @ Houston|game_ml|Cincinnati": {
-    "american": 325.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "american": 310.0,
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T20:30:00Z",
     "line": null,
-    "no_vig_prob": 0.23718029005821742
+    "no_vig_prob": 0.23874480307114654
   },
   "Cincinnati @ Houston|game_ml|Houston": {
     "american": -370.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T20:30:00Z",
     "line": null,
-    "no_vig_prob": 0.7628197099417826
+    "no_vig_prob": 0.7612551969288535
   },
   "Cincinnati @ Houston|game_total|Over": {
     "american": -110.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T20:30:00Z",
     "line": 61.0,
     "no_vig_prob": 0.5049033501919724
   },
   "Cincinnati @ Houston|game_total|Under": {
     "american": -103.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T20:30:00Z",
     "line": 61.0,
     "no_vig_prob": 0.49509664980802753
@@ -337,42 +337,42 @@
   },
   "Colorado @ Arizona State|game_ats|Arizona State": {
     "american": -113.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:30:00Z",
     "line": -3.0,
     "no_vig_prob": 0.5162847355942273
   },
   "Colorado @ Arizona State|game_ats|Colorado": {
     "american": 101.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:30:00Z",
     "line": 3.0,
     "no_vig_prob": 0.4837152644057728
   },
   "Colorado @ Arizona State|game_ml|Arizona State": {
     "american": -152.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:30:00Z",
     "line": null,
     "no_vig_prob": 0.5873420726898237
   },
   "Colorado @ Arizona State|game_ml|Colorado": {
     "american": 137.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:30:00Z",
     "line": null,
     "no_vig_prob": 0.4126579273101763
   },
   "Colorado @ Arizona State|game_total|Over": {
     "american": -108.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:30:00Z",
     "line": 47.5,
     "no_vig_prob": 0.5047834367050669
   },
   "Colorado @ Arizona State|game_total|Under": {
     "american": -105.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:30:00Z",
     "line": 47.5,
     "no_vig_prob": 0.4952165632949331
@@ -505,84 +505,84 @@
   },
   "Fresno State @ Utah State|game_ats|Fresno State": {
     "american": 101.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T02:30:00Z",
     "line": -1.0,
     "no_vig_prob": 0.49495185820982623
   },
   "Fresno State @ Utah State|game_ats|Utah State": {
     "american": -109.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T02:30:00Z",
     "line": 1.0,
     "no_vig_prob": 0.5050481417901737
   },
   "Fresno State @ Utah State|game_ml|Fresno State": {
     "american": -108.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T02:30:00Z",
     "line": null,
     "no_vig_prob": 0.5082335107114708
   },
   "Fresno State @ Utah State|game_ml|Utah State": {
     "american": -102.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T02:30:00Z",
     "line": null,
     "no_vig_prob": 0.4917664892885293
   },
   "Fresno State @ Utah State|game_total|Over": {
-    "american": -103.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "american": -106.0,
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T02:30:00Z",
     "line": 43.5,
-    "no_vig_prob": 0.49548895785676783
+    "no_vig_prob": 0.4984104306662082
   },
   "Fresno State @ Utah State|game_total|Under": {
     "american": -105.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T02:30:00Z",
     "line": 43.5,
-    "no_vig_prob": 0.5045110421432323
+    "no_vig_prob": 0.5015895693337918
   },
   "Georgia @ Ole Miss|game_ats|Georgia": {
-    "american": -110.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "american": -108.0,
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:30:00Z",
     "line": -3.5,
-    "no_vig_prob": 0.5010069871980531
+    "no_vig_prob": 0.5005766131169019
   },
   "Georgia @ Ole Miss|game_ats|Ole Miss": {
     "american": -108.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:30:00Z",
     "line": 3.5,
-    "no_vig_prob": 0.4989930128019468
+    "no_vig_prob": 0.4994233868830982
   },
   "Georgia @ Ole Miss|game_ml|Georgia": {
     "american": -170.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:30:00Z",
     "line": null,
-    "no_vig_prob": 0.6122991321784028
+    "no_vig_prob": 0.6127696079883086
   },
   "Georgia @ Ole Miss|game_ml|Ole Miss": {
     "american": 153.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:30:00Z",
     "line": null,
-    "no_vig_prob": 0.3877008678215972
+    "no_vig_prob": 0.38723039201169146
   },
   "Georgia @ Ole Miss|game_total|Over": {
     "american": -110.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:30:00Z",
     "line": 56.5,
     "no_vig_prob": 0.5016517381779881
   },
   "Georgia @ Ole Miss|game_total|Under": {
     "american": -105.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:30:00Z",
     "line": 56.5,
     "no_vig_prob": 0.498348261822012
@@ -631,84 +631,84 @@
   },
   "Hawaii @ UTEP|game_ats|Hawaii": {
     "american": -101.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T02:30:00Z",
     "line": -7.5,
     "no_vig_prob": 0.4963655017565335
   },
   "Hawaii @ UTEP|game_ats|UTEP": {
     "american": -106.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T02:30:00Z",
     "line": 7.5,
     "no_vig_prob": 0.5036344982434665
   },
   "Hawaii @ UTEP|game_ml|Hawaii": {
     "american": -300.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T02:30:00Z",
     "line": null,
     "no_vig_prob": 0.7257615844954345
   },
   "Hawaii @ UTEP|game_ml|UTEP": {
     "american": 260.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T02:30:00Z",
     "line": null,
     "no_vig_prob": 0.2742384155045657
   },
   "Hawaii @ UTEP|game_total|Over": {
     "american": -108.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T02:30:00Z",
     "line": 48.5,
     "no_vig_prob": 0.5016211353053057
   },
   "Hawaii @ UTEP|game_total|Under": {
     "american": -105.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T02:30:00Z",
     "line": 48.5,
     "no_vig_prob": 0.4983788646946943
   },
   "Iowa @ Northwestern|game_ats|Iowa": {
     "american": -106.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:30:00Z",
     "line": -3.0,
     "no_vig_prob": 0.5009793635930647
   },
   "Iowa @ Northwestern|game_ats|Northwestern": {
     "american": -105.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:30:00Z",
     "line": 3.0,
     "no_vig_prob": 0.49902063640693534
   },
   "Iowa @ Northwestern|game_ml|Iowa": {
     "american": -150.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:30:00Z",
     "line": null,
     "no_vig_prob": 0.5814017197835474
   },
   "Iowa @ Northwestern|game_ml|Northwestern": {
     "american": 135.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:30:00Z",
     "line": null,
     "no_vig_prob": 0.4185982802164527
   },
   "Iowa @ Northwestern|game_total|Over": {
     "american": -108.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:30:00Z",
     "line": 42.5,
     "no_vig_prob": 0.502861681965784
   },
   "Iowa @ Northwestern|game_total|Under": {
     "american": -104.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:30:00Z",
     "line": 42.5,
     "no_vig_prob": 0.4971383180342161
@@ -757,210 +757,210 @@
   },
   "Kentucky @ Tennessee|game_ats|Kentucky": {
     "american": -106.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T23:15:00Z",
     "line": 6.0,
     "no_vig_prob": 0.5012206360533553
   },
   "Kentucky @ Tennessee|game_ats|Tennessee": {
     "american": -106.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T23:15:00Z",
     "line": -6.0,
     "no_vig_prob": 0.49877936394664485
   },
   "Kentucky @ Tennessee|game_ml|Kentucky": {
     "american": 185.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T23:15:00Z",
     "line": null,
     "no_vig_prob": 0.3449386359257006
   },
   "Kentucky @ Tennessee|game_ml|Tennessee": {
     "american": -198.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T23:15:00Z",
     "line": null,
     "no_vig_prob": 0.6550613640742994
   },
   "Kentucky @ Tennessee|game_total|Over": {
     "american": -105.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T23:15:00Z",
     "line": 49.5,
     "no_vig_prob": 0.49535204507960706
   },
   "Kentucky @ Tennessee|game_total|Under": {
     "american": -110.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T23:15:00Z",
     "line": 49.5,
     "no_vig_prob": 0.5046479549203929
   },
   "Liberty @ New Mexico Sta|game_ats|Liberty": {
-    "american": -106.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "american": -103.0,
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T01:00:00Z",
-    "line": -15.5,
-    "no_vig_prob": 0.5
+    "line": -14.5,
+    "no_vig_prob": 0.4986951570182092
   },
   "Liberty @ New Mexico Sta|game_ats|New Mexico Sta": {
-    "american": -106.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "american": -108.0,
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T01:00:00Z",
-    "line": 15.5,
-    "no_vig_prob": 0.5
+    "line": 14.5,
+    "no_vig_prob": 0.5013048429817908
   },
   "Liberty @ New Mexico Sta|game_ml|Liberty": {
     "american": -700.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T01:00:00Z",
     "line": null,
-    "no_vig_prob": 0.8471778458098912
+    "no_vig_prob": 0.8439366823249865
   },
   "Liberty @ New Mexico Sta|game_ml|New Mexico Sta": {
     "american": 570.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T01:00:00Z",
     "line": null,
-    "no_vig_prob": 0.15282215419010903
+    "no_vig_prob": 0.15606331767501372
   },
   "Liberty @ New Mexico Sta|game_total|Over": {
     "american": -108.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T01:00:00Z",
     "line": 46.5,
-    "no_vig_prob": 0.49969862645995394
+    "no_vig_prob": 0.49990685037415417
   },
   "Liberty @ New Mexico Sta|game_total|Under": {
     "american": -108.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T01:00:00Z",
     "line": 46.5,
-    "no_vig_prob": 0.5003013735400461
+    "no_vig_prob": 0.5000931496258458
   },
   "Louisiana Tech @ Troy|game_ats|Louisiana Tech": {
     "american": -105.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T21:00:00Z",
     "line": -7.0,
     "no_vig_prob": 0.49133302357277
   },
   "Louisiana Tech @ Troy|game_ats|Troy": {
     "american": -110.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T21:00:00Z",
     "line": 7.0,
     "no_vig_prob": 0.50866697642723
   },
   "Louisiana Tech @ Troy|game_ml|Louisiana Tech": {
     "american": -250.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T21:00:00Z",
     "line": null,
     "no_vig_prob": 0.6978942283794765
   },
   "Louisiana Tech @ Troy|game_ml|Troy": {
     "american": 235.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T21:00:00Z",
     "line": null,
     "no_vig_prob": 0.3021057716205235
   },
   "Louisiana Tech @ Troy|game_total|Over": {
     "american": -108.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T21:00:00Z",
     "line": 47.5,
     "no_vig_prob": 0.5025798726552021
   },
   "Louisiana Tech @ Troy|game_total|Under": {
     "american": -105.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T21:00:00Z",
     "line": 47.5,
     "no_vig_prob": 0.49742012734479785
   },
   "Louisville @ Georgia Tech|game_ats|Georgia Tech": {
     "american": -106.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:30:00Z",
     "line": 14.5,
     "no_vig_prob": 0.5011039712304877
   },
   "Louisville @ Georgia Tech|game_ats|Louisville": {
     "american": -106.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:30:00Z",
     "line": -14.5,
     "no_vig_prob": 0.49889602876951233
   },
   "Louisville @ Georgia Tech|game_ml|Georgia Tech": {
     "american": 480.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:30:00Z",
     "line": null,
     "no_vig_prob": 0.16775481367056488
   },
   "Louisville @ Georgia Tech|game_ml|Louisville": {
     "american": -625.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:30:00Z",
     "line": null,
     "no_vig_prob": 0.8322451863294351
   },
   "Louisville @ Georgia Tech|game_total|Over": {
     "american": -105.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:30:00Z",
     "line": 62.5,
     "no_vig_prob": 0.4966507063577605
   },
   "Louisville @ Georgia Tech|game_total|Under": {
     "american": -108.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:30:00Z",
     "line": 62.5,
     "no_vig_prob": 0.5033492936422396
   },
   "Marshall @ Georgia Southe|game_ats|Georgia Southe": {
     "american": -110.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T20:30:00Z",
     "line": -7.0,
     "no_vig_prob": 0.5105581999114378
   },
   "Marshall @ Georgia Southe|game_ats|Marshall": {
     "american": -101.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T20:30:00Z",
     "line": 7.0,
     "no_vig_prob": 0.48944180008856225
   },
   "Marshall @ Georgia Southe|game_ml|Georgia Southe": {
     "american": -270.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T20:30:00Z",
     "line": null,
     "no_vig_prob": 0.7078834711514499
   },
   "Marshall @ Georgia Southe|game_ml|Marshall": {
     "american": 250.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T20:30:00Z",
     "line": null,
     "no_vig_prob": 0.2921165288485502
   },
   "Marshall @ Georgia Southe|game_total|Over": {
     "american": -108.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T20:30:00Z",
     "line": 54.5,
     "no_vig_prob": 0.5014102490282549
   },
   "Marshall @ Georgia Southe|game_total|Under": {
     "american": -106.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T20:30:00Z",
     "line": 54.5,
     "no_vig_prob": 0.4985897509717451
@@ -1009,154 +1009,154 @@
   },
   "Merrimack @ Wake Forest|game_ats|Merrimack": {
     "american": -110.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T20:30:00Z",
     "line": 46.5,
-    "no_vig_prob": 0.5071065974834804
+    "no_vig_prob": 0.5011235118283326
   },
   "Merrimack @ Wake Forest|game_ats|Wake Forest": {
-    "american": -105.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "american": -107.0,
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T20:30:00Z",
     "line": -46.5,
-    "no_vig_prob": 0.49289340251651964
+    "no_vig_prob": 0.49887648817166746
   },
   "Merrimack @ Wake Forest|game_total|Over": {
-    "american": 100.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "american": -105.0,
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T20:30:00Z",
-    "line": 55.0,
-    "no_vig_prob": 0.4829821475625063
+    "line": 55.5,
+    "no_vig_prob": 0.4926478973867017
   },
   "Merrimack @ Wake Forest|game_total|Under": {
-    "american": -113.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "american": -110.0,
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T20:30:00Z",
-    "line": 55.0,
-    "no_vig_prob": 0.5170178524374935
+    "line": 55.5,
+    "no_vig_prob": 0.5073521026132983
   },
   "Miami @ Notre Dame|game_ats|Miami": {
     "american": 100.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:30:00Z",
     "line": 7.0,
-    "no_vig_prob": 0.48855446215079185
+    "no_vig_prob": 0.4886115931473207
   },
   "Miami @ Notre Dame|game_ats|Notre Dame": {
     "american": -110.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:30:00Z",
     "line": -7.0,
-    "no_vig_prob": 0.5114455378492082
+    "no_vig_prob": 0.5113884068526794
   },
   "Miami @ Notre Dame|game_ml|Miami": {
     "american": 235.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:30:00Z",
     "line": null,
     "no_vig_prob": 0.29435578010985336
   },
   "Miami @ Notre Dame|game_ml|Notre Dame": {
     "american": -275.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:30:00Z",
     "line": null,
     "no_vig_prob": 0.7056442198901466
   },
   "Miami @ Notre Dame|game_total|Over": {
     "american": -108.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:30:00Z",
     "line": 54.5,
     "no_vig_prob": 0.5003940046388679
   },
   "Miami @ Notre Dame|game_total|Under": {
     "american": -107.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:30:00Z",
     "line": 54.5,
     "no_vig_prob": 0.49960599536113215
   },
   "Michigan State @ Michigan|game_ats|Michigan": {
     "american": -108.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:30:00Z",
     "line": -14.0,
     "no_vig_prob": 0.5037973578658486
   },
   "Michigan State @ Michigan|game_ats|Michigan State": {
     "american": -104.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:30:00Z",
     "line": 14.0,
     "no_vig_prob": 0.4962026421341515
   },
   "Michigan State @ Michigan|game_ml|Michigan": {
     "american": -585.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:30:00Z",
     "line": null,
     "no_vig_prob": 0.8286712585464068
   },
   "Michigan State @ Michigan|game_ml|Michigan State": {
     "american": 500.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:30:00Z",
     "line": null,
     "no_vig_prob": 0.17132874145359325
   },
   "Michigan State @ Michigan|game_total|Over": {
     "american": -108.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:30:00Z",
     "line": 40.0,
     "no_vig_prob": 0.5001626566383427
   },
   "Michigan State @ Michigan|game_total|Under": {
     "american": -108.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:30:00Z",
     "line": 40.0,
     "no_vig_prob": 0.49983734336165725
   },
   "Missouri State @ Florida Intern|game_ats|Florida Intern": {
     "american": -108.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T21:00:00Z",
     "line": -4.5,
     "no_vig_prob": 0.5029060931937998
   },
   "Missouri State @ Florida Intern|game_ats|Missouri State": {
     "american": -101.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T21:00:00Z",
     "line": 4.5,
     "no_vig_prob": 0.4970939068062003
   },
   "Missouri State @ Florida Intern|game_ml|Florida Intern": {
     "american": -200.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T21:00:00Z",
     "line": null,
     "no_vig_prob": 0.643244825249969
   },
   "Missouri State @ Florida Intern|game_ml|Missouri State": {
     "american": 174.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T21:00:00Z",
     "line": null,
     "no_vig_prob": 0.3567551747500311
   },
   "Missouri State @ Florida Intern|game_total|Over": {
     "american": -108.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T21:00:00Z",
     "line": 49.5,
     "no_vig_prob": 0.5053065584584704
   },
   "Missouri State @ Florida Intern|game_total|Under": {
     "american": -105.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T21:00:00Z",
     "line": 49.5,
     "no_vig_prob": 0.49469344154152967
@@ -1204,85 +1204,85 @@
     "no_vig_prob": 0.5045398907623133
   },
   "Northern Illin @ San Jose State|game_ats|Northern Illin": {
-    "american": -104.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "american": -108.0,
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T21:00:00Z",
-    "line": 12.0,
-    "no_vig_prob": 0.49826816742818986
+    "line": 11.5,
+    "no_vig_prob": 0.5050040097600536
   },
   "Northern Illin @ San Jose State|game_ats|San Jose State": {
-    "american": -108.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "american": -101.0,
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T21:00:00Z",
-    "line": -12.0,
-    "no_vig_prob": 0.5017318325718102
+    "line": -11.5,
+    "no_vig_prob": 0.4949959902399466
   },
   "Northern Illin @ San Jose State|game_ml|Northern Illin": {
-    "american": 365.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "american": 350.0,
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T21:00:00Z",
     "line": null,
-    "no_vig_prob": 0.21375752363049255
+    "no_vig_prob": 0.22101836347979875
   },
   "Northern Illin @ San Jose State|game_ml|San Jose State": {
-    "american": -440.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "american": -400.0,
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T21:00:00Z",
     "line": null,
-    "no_vig_prob": 0.7862424763695075
+    "no_vig_prob": 0.7789816365202014
   },
   "Northern Illin @ San Jose State|game_total|Over": {
     "american": -106.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T21:00:00Z",
     "line": 52.5,
-    "no_vig_prob": 0.49783788072973945
+    "no_vig_prob": 0.4973567969441873
   },
   "Northern Illin @ San Jose State|game_total|Under": {
-    "american": -108.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "american": -110.0,
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T21:00:00Z",
     "line": 52.5,
-    "no_vig_prob": 0.5021621192702606
+    "no_vig_prob": 0.5026432030558126
   },
   "Oklahoma @ Florida|game_ats|Florida": {
     "american": -103.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:45:00Z",
     "line": -4.5,
     "no_vig_prob": 0.49816812698062907
   },
   "Oklahoma @ Florida|game_ats|Oklahoma": {
     "american": -107.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:45:00Z",
     "line": 4.5,
     "no_vig_prob": 0.501831873019371
   },
   "Oklahoma @ Florida|game_ml|Florida": {
     "american": -188.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:45:00Z",
     "line": null,
     "no_vig_prob": 0.6363764078612131
   },
   "Oklahoma @ Florida|game_ml|Oklahoma": {
     "american": 168.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:45:00Z",
     "line": null,
     "no_vig_prob": 0.36362359213878703
   },
   "Oklahoma @ Florida|game_total|Over": {
     "american": -108.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:45:00Z",
     "line": 45.0,
     "no_vig_prob": 0.507100848338365
   },
   "Oklahoma @ Florida|game_total|Under": {
     "american": 100.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:45:00Z",
     "line": 45.0,
     "no_vig_prob": 0.49289915166163495
@@ -1373,294 +1373,294 @@
   },
   "Oregon @ Ohio State|game_ats|Ohio State": {
     "american": -110.0,
-    "captured_at": "2026-11-07T19:45:32Z",
-    "kickoff_utc": "2026-11-07T20:30:00Z",
+    "captured_at": "2026-11-07T20:15:28Z",
+    "kickoff_utc": "2026-11-07T20:40:00Z",
     "line": -7.5,
-    "no_vig_prob": 0.5079565072737333
+    "no_vig_prob": 0.5072977232832804
   },
   "Oregon @ Ohio State|game_ats|Oregon": {
     "american": -101.0,
-    "captured_at": "2026-11-07T19:45:32Z",
-    "kickoff_utc": "2026-11-07T20:30:00Z",
+    "captured_at": "2026-11-07T20:15:28Z",
+    "kickoff_utc": "2026-11-07T20:40:00Z",
     "line": 7.5,
-    "no_vig_prob": 0.49204349272626674
+    "no_vig_prob": 0.49270227671671957
   },
   "Oregon @ Ohio State|game_ml|Ohio State": {
     "american": -295.0,
-    "captured_at": "2026-11-07T19:45:32Z",
-    "kickoff_utc": "2026-11-07T20:30:00Z",
+    "captured_at": "2026-11-07T20:15:28Z",
+    "kickoff_utc": "2026-11-07T20:40:00Z",
     "line": null,
-    "no_vig_prob": 0.72449304011497
+    "no_vig_prob": 0.724566232777173
   },
   "Oregon @ Ohio State|game_ml|Oregon": {
     "american": 270.0,
-    "captured_at": "2026-11-07T19:45:32Z",
-    "kickoff_utc": "2026-11-07T20:30:00Z",
+    "captured_at": "2026-11-07T20:15:28Z",
+    "kickoff_utc": "2026-11-07T20:40:00Z",
     "line": null,
-    "no_vig_prob": 0.27550695988503004
+    "no_vig_prob": 0.275433767222827
   },
   "Oregon @ Ohio State|game_total|Over": {
     "american": -108.0,
-    "captured_at": "2026-11-07T19:45:32Z",
-    "kickoff_utc": "2026-11-07T20:30:00Z",
+    "captured_at": "2026-11-07T20:15:28Z",
+    "kickoff_utc": "2026-11-07T20:40:00Z",
     "line": 45.0,
     "no_vig_prob": 0.500791343587458
   },
   "Oregon @ Ohio State|game_total|Under": {
     "american": -108.0,
-    "captured_at": "2026-11-07T19:45:32Z",
-    "kickoff_utc": "2026-11-07T20:30:00Z",
+    "captured_at": "2026-11-07T20:15:28Z",
+    "kickoff_utc": "2026-11-07T20:40:00Z",
     "line": 45.0,
     "no_vig_prob": 0.499208656412542
   },
   "Penn State Nit @ Washington|game_ats|Penn State Nit": {
     "american": -110.0,
-    "captured_at": "2026-11-07T19:45:32Z",
-    "kickoff_utc": "2026-11-07T20:30:00Z",
+    "captured_at": "2026-11-07T20:15:28Z",
+    "kickoff_utc": "2026-11-07T20:35:00Z",
     "line": 2.5,
-    "no_vig_prob": 0.5037720459399155
+    "no_vig_prob": 0.503851718529923
   },
   "Penn State Nit @ Washington|game_ats|Washington": {
     "american": -105.0,
-    "captured_at": "2026-11-07T19:45:32Z",
-    "kickoff_utc": "2026-11-07T20:30:00Z",
+    "captured_at": "2026-11-07T20:15:28Z",
+    "kickoff_utc": "2026-11-07T20:35:00Z",
     "line": -2.5,
-    "no_vig_prob": 0.49622795406008446
+    "no_vig_prob": 0.49614828147007684
   },
   "Penn State Nit @ Washington|game_ml|Penn State Nit": {
     "american": 116.0,
-    "captured_at": "2026-11-07T19:45:32Z",
-    "kickoff_utc": "2026-11-07T20:30:00Z",
+    "captured_at": "2026-11-07T20:15:28Z",
+    "kickoff_utc": "2026-11-07T20:35:00Z",
     "line": null,
-    "no_vig_prob": 0.4529158293763383
+    "no_vig_prob": 0.45257172777670335
   },
   "Penn State Nit @ Washington|game_ml|Washington": {
     "american": -128.0,
-    "captured_at": "2026-11-07T19:45:32Z",
-    "kickoff_utc": "2026-11-07T20:30:00Z",
+    "captured_at": "2026-11-07T20:15:28Z",
+    "kickoff_utc": "2026-11-07T20:35:00Z",
     "line": null,
-    "no_vig_prob": 0.5470841706236618
+    "no_vig_prob": 0.5474282722232967
   },
   "Penn State Nit @ Washington|game_total|Over": {
-    "american": -106.0,
-    "captured_at": "2026-11-07T19:45:32Z",
-    "kickoff_utc": "2026-11-07T20:30:00Z",
-    "line": 45.5,
-    "no_vig_prob": 0.5001352355529556
+    "american": -108.0,
+    "captured_at": "2026-11-07T20:15:28Z",
+    "kickoff_utc": "2026-11-07T20:35:00Z",
+    "line": 46.5,
+    "no_vig_prob": 0.500847358686213
   },
   "Penn State Nit @ Washington|game_total|Under": {
     "american": -108.0,
-    "captured_at": "2026-11-07T19:45:32Z",
-    "kickoff_utc": "2026-11-07T20:30:00Z",
-    "line": 45.5,
-    "no_vig_prob": 0.4998647644470444
+    "captured_at": "2026-11-07T20:15:28Z",
+    "kickoff_utc": "2026-11-07T20:35:00Z",
+    "line": 46.5,
+    "no_vig_prob": 0.4991526413137869
   },
   "Rice @ North Texas|game_ats|North Texas": {
     "american": -103.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T21:00:00Z",
     "line": -15.0,
-    "no_vig_prob": 0.4960008173363013
+    "no_vig_prob": 0.4960693494352565
   },
   "Rice @ North Texas|game_ats|Rice": {
-    "american": -109.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "american": -108.0,
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T21:00:00Z",
     "line": 15.0,
-    "no_vig_prob": 0.5039991826636987
+    "no_vig_prob": 0.5039306505647435
   },
   "Rice @ North Texas|game_ml|North Texas": {
     "american": -650.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T21:00:00Z",
     "line": null,
-    "no_vig_prob": 0.8417910289160324
+    "no_vig_prob": 0.8422717992144858
   },
   "Rice @ North Texas|game_ml|Rice": {
     "american": 550.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T21:00:00Z",
     "line": null,
-    "no_vig_prob": 0.15820897108396761
+    "no_vig_prob": 0.15772820078551433
   },
   "Rice @ North Texas|game_total|Over": {
     "american": -105.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T21:00:00Z",
     "line": 65.5,
-    "no_vig_prob": 0.5006801105567704
+    "no_vig_prob": 0.49523440000799834
   },
   "Rice @ North Texas|game_total|Under": {
-    "american": -103.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "american": -110.0,
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T21:00:00Z",
     "line": 65.5,
-    "no_vig_prob": 0.49931988944322964
+    "no_vig_prob": 0.5047655999920017
   },
   "Rutgers @ Wisconsin|game_ats|Rutgers": {
     "american": -104.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T21:15:00Z",
     "line": 18.5,
     "no_vig_prob": 0.4988132716776806
   },
   "Rutgers @ Wisconsin|game_ats|Wisconsin": {
     "american": -108.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T21:15:00Z",
     "line": -18.5,
     "no_vig_prob": 0.5011867283223194
   },
   "Rutgers @ Wisconsin|game_ml|Rutgers": {
     "american": 800.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T21:15:00Z",
     "line": null,
     "no_vig_prob": 0.12170318932198419
   },
   "Rutgers @ Wisconsin|game_ml|Wisconsin": {
     "american": -950.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T21:15:00Z",
     "line": null,
     "no_vig_prob": 0.8782968106780159
   },
   "Rutgers @ Wisconsin|game_total|Over": {
     "american": -108.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T21:15:00Z",
     "line": 45.5,
     "no_vig_prob": 0.4995610184372256
   },
   "Rutgers @ Wisconsin|game_total|Under": {
     "american": -108.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T21:15:00Z",
     "line": 45.5,
     "no_vig_prob": 0.5004389815627743
   },
   "Sam Houston St @ Jacksonville S|game_ats|Jacksonville S": {
     "american": -110.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:00:00Z",
     "line": -16.5,
     "no_vig_prob": 0.5066733569943024
   },
   "Sam Houston St @ Jacksonville S|game_ats|Sam Houston St": {
     "american": -101.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:00:00Z",
     "line": 16.5,
     "no_vig_prob": 0.4933266430056977
   },
   "Sam Houston St @ Jacksonville S|game_ml|Jacksonville S": {
     "american": -750.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:00:00Z",
     "line": null,
     "no_vig_prob": 0.8538628241907533
   },
   "Sam Houston St @ Jacksonville S|game_ml|Sam Houston St": {
     "american": 600.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:00:00Z",
     "line": null,
     "no_vig_prob": 0.14613717580924693
   },
   "Sam Houston St @ Jacksonville S|game_total|Over": {
     "american": -108.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:00:00Z",
     "line": 45.5,
     "no_vig_prob": 0.5016772266591024
   },
   "Sam Houston St @ Jacksonville S|game_total|Under": {
     "american": -105.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T00:00:00Z",
     "line": 45.5,
     "no_vig_prob": 0.49832277334089764
   },
   "South Alabama @ Louisiana|game_ats|Louisiana": {
     "american": -110.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T22:00:00Z",
     "line": -7.0,
     "no_vig_prob": 0.5080340379092885
   },
   "South Alabama @ Louisiana|game_ats|South Alabama": {
     "american": -101.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T22:00:00Z",
     "line": 7.0,
     "no_vig_prob": 0.4919659620907117
   },
   "South Alabama @ Louisiana|game_ml|Louisiana": {
     "american": -280.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T22:00:00Z",
     "line": null,
     "no_vig_prob": 0.7121972922825159
   },
   "South Alabama @ Louisiana|game_ml|South Alabama": {
     "american": 238.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T22:00:00Z",
     "line": null,
     "no_vig_prob": 0.2878027077174841
   },
   "South Alabama @ Louisiana|game_total|Over": {
     "american": -108.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T22:00:00Z",
     "line": 57.0,
     "no_vig_prob": 0.49943769427662743
   },
   "South Alabama @ Louisiana|game_total|Under": {
     "american": -108.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T22:00:00Z",
     "line": 57.0,
     "no_vig_prob": 0.5005623057233726
   },
   "Temple @ Navy|game_ats|Navy": {
     "american": -110.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T20:30:00Z",
     "line": -7.0,
-    "no_vig_prob": 0.5115828518303305
+    "no_vig_prob": 0.5109122866636934
   },
   "Temple @ Navy|game_ats|Temple": {
     "american": 100.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T20:30:00Z",
     "line": 7.0,
-    "no_vig_prob": 0.4884171481696696
+    "no_vig_prob": 0.48908771333630674
   },
   "Temple @ Navy|game_ml|Navy": {
     "american": -270.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T20:30:00Z",
     "line": null,
-    "no_vig_prob": 0.7074615262432912
+    "no_vig_prob": 0.7076413760483032
   },
   "Temple @ Navy|game_ml|Temple": {
     "american": 245.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T20:30:00Z",
     "line": null,
-    "no_vig_prob": 0.29253847375670883
+    "no_vig_prob": 0.29235862395169687
   },
   "Temple @ Navy|game_total|Over": {
     "american": -102.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T20:30:00Z",
     "line": 55.5,
     "no_vig_prob": 0.49376221872681025
   },
   "Temple @ Navy|game_total|Under": {
     "american": -110.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T20:30:00Z",
     "line": 55.5,
     "no_vig_prob": 0.5062377812731897
@@ -1751,42 +1751,42 @@
   },
   "Texas State @ Oregon State|game_ats|Oregon State": {
     "american": -110.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T03:30:00Z",
     "line": -5.5,
     "no_vig_prob": 0.5021688066713731
   },
   "Texas State @ Oregon State|game_ats|Texas State": {
     "american": -107.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T03:30:00Z",
     "line": 5.5,
     "no_vig_prob": 0.49783119332862685
   },
   "Texas State @ Oregon State|game_ml|Oregon State": {
     "american": -200.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T03:30:00Z",
     "line": null,
     "no_vig_prob": 0.6541024201475722
   },
   "Texas State @ Oregon State|game_ml|Texas State": {
     "american": 185.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T03:30:00Z",
     "line": null,
     "no_vig_prob": 0.3458975798524278
   },
   "Texas State @ Oregon State|game_total|Over": {
     "american": -105.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T03:30:00Z",
     "line": 71.5,
     "no_vig_prob": 0.4991410968816242
   },
   "Texas State @ Oregon State|game_total|Under": {
     "american": -106.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T03:30:00Z",
     "line": 71.5,
     "no_vig_prob": 0.5008589031183758
@@ -1835,42 +1835,42 @@
   },
   "UCF @ Kansas|game_ats|Kansas": {
     "american": -105.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T20:45:00Z",
     "line": -6.0,
-    "no_vig_prob": 0.5019316017267083
+    "no_vig_prob": 0.5031769162308863
   },
   "UCF @ Kansas|game_ats|UCF": {
     "american": -103.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T20:45:00Z",
     "line": 6.0,
-    "no_vig_prob": 0.4980683982732918
+    "no_vig_prob": 0.49682308376911377
   },
   "UCF @ Kansas|game_ml|Kansas": {
     "american": -210.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T20:45:00Z",
     "line": null,
     "no_vig_prob": 0.6588876729381304
   },
   "UCF @ Kansas|game_ml|UCF": {
     "american": 195.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T20:45:00Z",
     "line": null,
     "no_vig_prob": 0.3411123270618696
   },
   "UCF @ Kansas|game_total|Over": {
     "american": -108.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T20:45:00Z",
     "line": 48.0,
     "no_vig_prob": 0.5006462319507416
   },
   "UCF @ Kansas|game_total|Under": {
     "american": -108.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T20:45:00Z",
     "line": 48.0,
     "no_vig_prob": 0.49935376804925835
@@ -1961,168 +1961,168 @@
   },
   "Vanderbilt @ Mississippi St|game_ats|Mississippi St": {
     "american": -110.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T21:15:00Z",
     "line": -2.5,
     "no_vig_prob": 0.5132936077943986
   },
   "Vanderbilt @ Mississippi St|game_ats|Vanderbilt": {
     "american": 100.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T21:15:00Z",
     "line": 2.5,
     "no_vig_prob": 0.48670639220560136
   },
   "Vanderbilt @ Mississippi St|game_ml|Mississippi St": {
     "american": -140.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T21:15:00Z",
     "line": null,
     "no_vig_prob": 0.565219341909219
   },
   "Vanderbilt @ Mississippi St|game_ml|Vanderbilt": {
     "american": 125.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T21:15:00Z",
     "line": null,
     "no_vig_prob": 0.43478065809078115
   },
   "Vanderbilt @ Mississippi St|game_total|Over": {
     "american": -105.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T21:15:00Z",
     "line": 48.5,
     "no_vig_prob": 0.4993843465282131
   },
   "Vanderbilt @ Mississippi St|game_total|Under": {
     "american": -108.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T21:15:00Z",
     "line": 48.5,
     "no_vig_prob": 0.5006156534717869
   },
   "West Virginia @ Texas Tech|game_ats|Texas Tech": {
     "american": -106.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T02:30:00Z",
     "line": -16.0,
     "no_vig_prob": 0.5008023237897731
   },
   "West Virginia @ Texas Tech|game_ats|West Virginia": {
     "american": -106.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T02:30:00Z",
     "line": 16.0,
     "no_vig_prob": 0.49919767621022687
   },
   "West Virginia @ Texas Tech|game_ml|Texas Tech": {
     "american": -700.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T02:30:00Z",
     "line": null,
     "no_vig_prob": 0.8428020789441333
   },
   "West Virginia @ Texas Tech|game_ml|West Virginia": {
     "american": 525.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T02:30:00Z",
     "line": null,
     "no_vig_prob": 0.15719792105586686
   },
   "West Virginia @ Texas Tech|game_total|Over": {
     "american": -107.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T02:30:00Z",
     "line": 66.5,
     "no_vig_prob": 0.49840812735340223
   },
   "West Virginia @ Texas Tech|game_total|Under": {
     "american": -110.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T02:30:00Z",
     "line": 66.5,
     "no_vig_prob": 0.5015918726465978
   },
   "Western Kentuc @ Middle Tenness|game_ats|Middle Tenness": {
     "american": -106.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T20:30:00Z",
     "line": 2.5,
     "no_vig_prob": 0.49834453779176874
   },
   "Western Kentuc @ Middle Tenness|game_ats|Western Kentuc": {
     "american": -106.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T20:30:00Z",
     "line": -2.5,
     "no_vig_prob": 0.5016554622082313
   },
   "Western Kentuc @ Middle Tenness|game_ml|Middle Tenness": {
     "american": 116.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T20:30:00Z",
     "line": null,
-    "no_vig_prob": 0.4470561089434474
+    "no_vig_prob": 0.44737944882606756
   },
   "Western Kentuc @ Middle Tenness|game_ml|Western Kentuc": {
     "american": -132.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T20:30:00Z",
     "line": null,
-    "no_vig_prob": 0.5529438910565527
+    "no_vig_prob": 0.5526205511739324
   },
   "Western Kentuc @ Middle Tenness|game_total|Over": {
     "american": -105.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T20:30:00Z",
     "line": 53.5,
     "no_vig_prob": 0.49797302316447123
   },
   "Western Kentuc @ Middle Tenness|game_total|Under": {
     "american": -108.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-07T20:30:00Z",
     "line": 53.5,
     "no_vig_prob": 0.5020269768355289
   },
   "Wyoming @ UNLV|game_ats|UNLV": {
     "american": -102.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T03:30:00Z",
     "line": -3.5,
     "no_vig_prob": 0.4915074569634285
   },
   "Wyoming @ UNLV|game_ats|Wyoming": {
     "american": -110.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T03:30:00Z",
     "line": 3.5,
     "no_vig_prob": 0.5084925430365714
   },
   "Wyoming @ UNLV|game_ml|UNLV": {
     "american": -162.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T03:30:00Z",
     "line": null,
     "no_vig_prob": 0.6048442810469173
   },
   "Wyoming @ UNLV|game_ml|Wyoming": {
     "american": 148.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T03:30:00Z",
     "line": null,
     "no_vig_prob": 0.3951557189530827
   },
   "Wyoming @ UNLV|game_total|Over": {
     "american": -105.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T03:30:00Z",
     "line": 49.5,
     "no_vig_prob": 0.4944296242219851
   },
   "Wyoming @ UNLV|game_total|Under": {
     "american": -110.0,
-    "captured_at": "2026-11-07T19:45:32Z",
+    "captured_at": "2026-11-07T20:15:28Z",
     "kickoff_utc": "2026-11-08T03:30:00Z",
     "line": 49.5,
     "no_vig_prob": 0.5055703757780149
