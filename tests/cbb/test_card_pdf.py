@@ -346,3 +346,11 @@ def test_injury_parse_reads_either_rotowire_field_names() -> None:
     )
     assert (a.injury, a.status) == ("Knee", "Out")
     assert (b.injury, b.status) == ("Ankle", "Game Time Decision")
+
+
+def test_halftime_block_prints_rule_and_a_worksheet_row_per_game() -> None:
+    body = pdf.halftime_block([("A @ B", "7:00 PM ET", 150.0), ("C @ D", "9:00 PM ET", None)])
+    assert "Halftime totals rule" in body and "Stop after 8 games" in body
+    assert "<td>150</td><td>70.5</td><td>71.0 + 1.12 x half</td>" in body  # 150 - 1.12 * 70.5
+    assert "no total priced" in body and "not readable yet" in body
+    assert pdf.halftime_block([]) == ""
