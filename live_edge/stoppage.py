@@ -61,6 +61,8 @@ class Rule:
 
 
 _FOOTBALL = {1: "end of Q1", 2: "half", 3: "end of Q3"}
+HEARTBEAT_POLLS = 20  # one "waiting" line per ~30 min at the default 90 s interval
+
 RULES: dict[str, Rule] = {
     # CFB share is the half share fit in the CFB fast-start study (#636, 49 games).
     "cfb": Rule(0.518, 1.0, 4.0, 17, 8, _FOOTBALL, 2),
@@ -456,7 +458,7 @@ def run(
     idle_exit: int,
 ) -> None:
     deadline = time.monotonic() + hours * 3600
-    spent = idle = 0
+    spent = idle = polls = 0
     seen_live = False
     while time.monotonic() < deadline:
         now = datetime.now(timezone.utc)
@@ -471,20 +473,24 @@ def run(
                 print(f"[{now_iso()}] {study.sport}: {out}, credits used {spent}", flush=True)
             live = any(g.status == "in" for g in games)
             seen_live = seen_live or live
-            waiting = not seen_live and any(g.status == "pre" for g in games)
-            soon = any(
-                g.status == "pre"
-                and (ko := _ts(g.kickoff))
-                and 0 < (ko - now).total_seconds() <= 3600
-                for g in games
-            )
+            board = {s: sum(g.status == s for g in games) for s in ("pre", "in", "post")}
         except Exception as exc:  # noqa: BLE001 - the loop must survive a bad tick
             log.warning("tick failed: %s", exc)
-            live = soon = waiting = False
-        # Before the first tip the loop waits; it can start hours early on a launchd schedule.
-        idle = 0 if live or soon or waiting else idle + 1
+            live = False
+            board = {}
+        # Before the first tip the loop waits, however long: a launchd job can start hours
+        # early and an empty or failed board must not look like a finished slate. After it,
+        # only polls with nothing in play and nothing still to tip count toward the exit, so
+        # an afternoon-to-evening gap does not end the run either. --hours bounds both.
+        if not seen_live:
+            polls += 1
+            if polls % HEARTBEAT_POLLS == 1:
+                print(f"[{now_iso()}] waiting for the first tip; board {board}", flush=True)
+            time.sleep(interval)
+            continue
+        idle = 0 if live or board.get("pre") else idle + 1
         if idle >= idle_exit:
-            print("no live games and none within the hour; stopping")
+            print("slate over: no live games; stopping")
             break
         time.sleep(interval)
 
@@ -500,7 +506,12 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--interval", type=int, default=90, help="seconds between polls")
     ap.add_argument("--hours", type=float, default=8.0)
     ap.add_argument("--max-credits", type=int, default=600, help="Odds API calls (1 credit each)")
-    ap.add_argument("--idle-exit", type=int, default=10)
+    ap.add_argument(
+        "--idle-exit",
+        type=int,
+        default=10,
+        help="polls with nothing live, after the first tip, before stopping",
+    )
     ap.add_argument("--email", action="store_true", help="email the report (run: this run's slate)")
     ap.add_argument("--since", help="report --email: tickets from this UTC stamp (default today)")
     args = ap.parse_args(argv)
