@@ -35,7 +35,7 @@ from cbb_engine import (
     teamgroups,
 )
 from cbb_engine.config import SPORT, SPORT_KEY, data_dir, dry_run, load_config, runtime_root
-from cbb_engine.data import capture, espn, injuries, torvik, watch
+from cbb_engine.data import capture, espn, injuries, torvik, vsin_splits, watch
 from cbb_engine.markets import EVENT_MARKETS, FEATURED
 from cbb_engine.models import distribution as dist
 from cbb_engine.models import margin as mg
@@ -105,7 +105,7 @@ def cmd_capture(args: argparse.Namespace) -> int:
     client = _client()
     if client is None:
         return 2
-    state.auto_pull(trees=("quotes",))
+    state.auto_pull(trees=("quotes", "splits"))
     now = datetime.now(timezone.utc)
     at = now.strftime("%Y-%m-%dT%H:%M:%SZ")
     events = client.events(commenceTimeFrom=now.strftime("%Y-%m-%dT%H:%M:%SZ"))
@@ -148,6 +148,12 @@ def cmd_capture(args: argparse.Namespace) -> int:
                 teams=capture.teams(evs),
                 interval_min=interval,
             )
+            sp = vsin_splits.write_capture(
+                root, day.isoformat(), p.pass_id,
+                vsin_splits.fetch(day, captured_at=p.started_at, pass_id=p.pass_id),
+            )
+            if sp is not None:
+                written.append(sp.name)
             if cfg.event_markets_on:
                 for eid in sorted(tips)[: cfg.max_events]:
                     ev = client.event(eid, EVENT_MARKETS, pass_id=p.pass_id)
@@ -206,7 +212,7 @@ def cmd_capture(args: argparse.Namespace) -> int:
         ps.run("close", close)
 
     if written:
-        state.auto_push(f"cbb capture {day} {len(written)} shard(s)", trees=("quotes",))
+        state.auto_push(f"cbb capture {day} {len(written)} shard(s)", trees=("quotes", "splits"))
     print(
         f"{day}: {len(tips)} game(s); wrote {written}; spent {client.spent}; remaining {client.credits_remaining}"
     )
@@ -327,10 +333,12 @@ def _season_ctx(
     confs = {r.get("team", ""): r.get("conf", "") for r in torvik.read_csv(res)} if res else {}
     slates = sorted({Date.fromisoformat(r.slate_date) for r in season})
     tips: dict[str, Date] = {}
+    tip_utc: dict[str, str] = {}
     for r in season:
         t = bands.tip_day(r.tip_utc)
         if t:
             tips.setdefault(r.event_id, t)
+            tip_utc.setdefault(r.event_id, r.tip_utc)
     teams: dict[str, tuple[str, str]] = {}
     opener: dict[str, dict[tuple[str, str], float]] = {}
     by_day: dict[Date, dict[str, tuple[str, str]]] = {}
@@ -351,7 +359,8 @@ def _season_ctx(
     for d, group in sorted(by_day.items()):
         res_d = torvik.as_of(data_dir(), "team_results", d).path
         table = torvik.read_csv(res_d) if res_d else []
-        ctx.update(bands.context(group, d, boards, logs, confs, opener, bands.tempo_thirds(table), bands.torvik_ranks(table)))
+        public = vsin_splits.public(vsin_splits.read_day(root, d.isoformat()), group, tip_utc)
+        ctx.update(bands.context(group, d, boards, logs, confs, opener, bands.tempo_thirds(table), bands.torvik_ranks(table), public))
     return ctx, boards
 
 
