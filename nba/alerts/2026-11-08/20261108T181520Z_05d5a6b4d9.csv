@@ -1,0 +1,4 @@
+detected_at,game_date,event_id,matchup,kind,detail,before,after
+2026-11-08T18:15:20Z,2026-11-08,182e2b5349fa0ff4ad3c0e8359c1a9a0,LAL @ DET,ml_move,home ml 0.628 -> 0.698,0.628,0.698
+2026-11-08T18:15:20Z,2026-11-08,182e2b5349fa0ff4ad3c0e8359c1a9a0,LAL @ DET,spread_move,home spread -4.5 -> -7.5,-4.5,-7.5
+2026-11-08T18:15:20Z,2026-11-08,182e2b5349fa0ff4ad3c0e8359c1a9a0,LAL @ DET,total_move,total 221.5 -> 219,221.5,219
