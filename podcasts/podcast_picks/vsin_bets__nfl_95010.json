@@ -1,0 +1,60 @@
+{
+ "episode_guid": "vsin-95010",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "322782845a9a856f104e305e8c5cc4e9e95d8082",
+ "picks": [
+  {
+   "pick_id": "9e61620a2c49",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Matt Youmans",
+   "episode_guid": "vsin-95010",
+   "episode_title": "Matt Youmans: NFL Week 9 Best Bets",
+   "published": "2026-11-07T13:22:26+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Buccaneers",
+   "opponent": "Chicago Bears",
+   "side": null,
+   "line": 6.0,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Buccaneers +6",
+   "reason": "https://vsin.com/nfl/matt-youmans-nfl-week-9-best-bets-and-predictions/",
+   "description": "Buccaneers +6",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  },
+  {
+   "pick_id": "bc035af02e79",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Matt Youmans",
+   "episode_guid": "vsin-95010",
+   "episode_title": "Matt Youmans: NFL Week 9 Best Bets",
+   "published": "2026-11-07T13:22:26+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Vikings",
+   "opponent": "Buffalo Bills",
+   "side": null,
+   "line": 3.0,
+   "price": null,
+   "units": null,
+   "seconds": 1,
+   "quote": "Vikings +3",
+   "reason": "https://vsin.com/nfl/matt-youmans-nfl-week-9-best-bets-and-predictions/",
+   "description": "Vikings +3",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "nfl"
+ ]
+}

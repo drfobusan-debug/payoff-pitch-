@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-94963",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "c5f7ad8920fea504f68c114d3a0675bbdabcf988",
+ "picks": [
+  {
+   "pick_id": "ee5eb6a2a553",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Zachary Cohen",
+   "episode_guid": "vsin-94963",
+   "episode_title": "Buccaneers vs. Bears Predictions: Week 9 Sunday Night Football odds, picks, and player props",
+   "published": "2026-11-07T06:44:31+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Buccaneers",
+   "opponent": "Bears",
+   "side": null,
+   "line": 6.5,
+   "price": -115.0,
+   "units": null,
+   "seconds": 0,
+   "quote": "Buccaneers +6.5 (-115)",
+   "reason": "https://vsin.com/nfl/buccaneers-vs-bears-predictions-week-9-sunday-night-football-odds-picks-and-player-props/",
+   "description": "Buccaneers +6.5 (-115)",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "nfl"
+ ]
+}

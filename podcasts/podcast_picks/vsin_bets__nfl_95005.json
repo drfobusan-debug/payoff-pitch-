@@ -1,0 +1,60 @@
+{
+ "episode_guid": "vsin-95005",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "30eb50a66b422c8c1d91ddd94075c8952a1b1c2b",
+ "picks": [
+  {
+   "pick_id": "5670e9cfdac6",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Wes Reynolds",
+   "episode_guid": "vsin-95005",
+   "episode_title": "Wes Reynolds: NFL Week 9 Best Bets",
+   "published": "2026-11-07T13:09:49+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Washington Commanders",
+   "opponent": "Los Angeles Rams",
+   "side": null,
+   "line": 4.5,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Washington Commanders +4.5 vs. Los Angeles Rams",
+   "reason": "https://vsin.com/nfl/wes-reynolds-nfl-week-9-best-bets-and-predictions/",
+   "description": "Washington Commanders +4.5 vs. Los Angeles Rams",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  },
+  {
+   "pick_id": "49585a77a7c2",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Wes Reynolds",
+   "episode_guid": "vsin-95005",
+   "episode_title": "Wes Reynolds: NFL Week 9 Best Bets",
+   "published": "2026-11-07T13:09:49+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Tampa Bay Buccaneers",
+   "opponent": "Chicago Bears",
+   "side": null,
+   "line": 6.5,
+   "price": null,
+   "units": null,
+   "seconds": 1,
+   "quote": "Tampa Bay Buccaneers +6.5 at Chicago Bears",
+   "reason": "https://vsin.com/nfl/wes-reynolds-nfl-week-9-best-bets-and-predictions/",
+   "description": "Tampa Bay Buccaneers +6.5 at Chicago Bears",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "nfl"
+ ]
+}
