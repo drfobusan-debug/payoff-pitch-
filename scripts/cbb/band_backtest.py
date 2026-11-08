@@ -2,7 +2,7 @@
 
 Each game's last hist close pass before tip gives one row per spread/total side: the
 median line across books, the median price at that line, the no-vig consensus there.
-Finals and AP ranks come from ESPN scoreboards; net rank and tempo from Torvik's game
+Finals and AP ranks come from ESPN scoreboards; Torvik rank, tempo third and last result from Torvik's archived table and game
 logs dated before the slate; conference membership from Torvik's team results.
 The hist pull has no moneylines and no openers, so the ML and line-move bands stay empty.
 
