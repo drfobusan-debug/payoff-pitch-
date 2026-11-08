@@ -1,0 +1,86 @@
+{
+  "Louisiana @ UL Monroe|game_ats|Louisiana": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -11.5,
+    "no_vig_prob": 0.5
+  },
+  "Louisiana @ UL Monroe|game_ats|UL Monroe": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 11.5,
+    "no_vig_prob": 0.5
+  },
+  "Louisiana @ UL Monroe|game_ml|Louisiana": {
+    "american": -450.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.7890414255421895
+  },
+  "Louisiana @ UL Monroe|game_ml|UL Monroe": {
+    "american": 375.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.2109585744578106
+  },
+  "Louisiana @ UL Monroe|game_total|Over": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 48.5,
+    "no_vig_prob": 0.5
+  },
+  "Louisiana @ UL Monroe|game_total|Under": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 48.5,
+    "no_vig_prob": 0.5
+  },
+  "Memphis @ South Florida|game_ats|Memphis": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -6.5,
+    "no_vig_prob": 0.5
+  },
+  "Memphis @ South Florida|game_ats|South Florida": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 6.5,
+    "no_vig_prob": 0.5
+  },
+  "Memphis @ South Florida|game_ml|Memphis": {
+    "american": -250.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.6922267135265724
+  },
+  "Memphis @ South Florida|game_ml|South Florida": {
+    "american": 220.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.30777328647342755
+  },
+  "Memphis @ South Florida|game_total|Over": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 48.5,
+    "no_vig_prob": 0.5
+  },
+  "Memphis @ South Florida|game_total|Under": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 48.5,
+    "no_vig_prob": 0.5
+  }
+}
