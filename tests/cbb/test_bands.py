@@ -61,15 +61,14 @@ def test_rest_days_counts_back_to_the_previous_board_with_the_team() -> None:
     assert bands.rest_days("E Team", Date(2025, 1, 10), boards) is None
 
 
-def test_profile_uses_only_games_before_the_day() -> None:
+def test_last_results_read_the_latest_game_before_the_day() -> None:
     logs = [
-        bands.LogGame(Date(2025, 1, 1), "Fast", 80, 90, 70),
-        bands.LogGame(Date(2025, 1, 1), "Mid", 70, 70, 70),
-        bands.LogGame(Date(2025, 1, 1), "Slow", 60, 50, 60),
-        bands.LogGame(Date(2025, 1, 10), "Slow", 60, 120, 40),  # same day: not yet known
+        bands.LogGame(Date(2025, 1, 1), "A", 80, 90, 70),
+        bands.LogGame(Date(2025, 1, 5), "A", 70, 60, 70),  # latest before the day: a loss
+        bands.LogGame(Date(2025, 1, 1), "B", 60, 60, 50),
+        bands.LogGame(Date(2025, 1, 10), "B", 60, 40, 120),  # same day: not yet known
     ]
-    prof = bands.profile(logs, Date(2025, 1, 10))
-    assert prof["Fast"] == (1, False) and prof["Slow"] == (3, True)
+    assert bands.last_results(logs, Date(2025, 1, 10)) == {"A": True, "B": False}
 
 
 def test_openers_take_the_earliest_pass_and_movement_reads_toward_the_side() -> None:
@@ -98,24 +97,40 @@ def test_read_bands_rest_spots_and_per_game_sums() -> None:
     assert reads["home favourite ATS"].n == 1  # event g has no context and is left out
 
 
-def test_context_reads_rank_venue_power_and_net_rank() -> None:
+def test_context_reads_rank_venue_power_torvik_rank_tempo_and_last_result() -> None:
     board = [_game("Kentucky Wildcats", "Toledo Rockets", home_rank=17, neutral=True, conference=False)]
     logs = [bands.LogGame(Date(2025, 1, 1), "Kentucky", 70, 90, 60), bands.LogGame(Date(2025, 1, 1), "Toledo", 70, 60, 90)]
     ctx = bands.context({"e": ("Kentucky Wildcats", "Toledo Rockets")}, Date(2025, 1, 10), {Date(2025, 1, 10): board},
-                        logs, {"Kentucky": "SEC", "Toledo": "MAC"})["e"]
+                        logs, {"Kentucky": "SEC", "Toledo": "MAC"}, tempo={"Toledo": "slow"},
+                        ranks={"Kentucky": 5, "Toledo": 250})["e"]
     assert ctx.neutral and not ctx.conference
-    assert (ctx.home.ap, ctx.home.power, ctx.home.net_rank) == (17, True, 1)
-    assert (ctx.away.ap, ctx.away.power, ctx.away.net_rank) == (None, False, 2)
+    assert (ctx.home.ap, ctx.home.power, ctx.home.net_rank, ctx.home.off_loss) == (17, True, 5, False)
+    assert (ctx.away.ap, ctx.away.power, ctx.away.net_rank, ctx.away.off_loss) == (None, False, 250, True)
+    assert (ctx.home.slow, ctx.away.slow) == (None, True)
 
 
-def test_context_falls_back_to_torvik_rank_until_a_team_has_a_logged_game() -> None:
+def test_a_logged_margin_never_stands_in_for_torvik_rank() -> None:
     board = [_game("Kentucky Wildcats", "Toledo Rockets")]
     logs = [bands.LogGame(Date(2025, 1, 1), "Kentucky", 70, 90, 60)]
     ctx = bands.context({"e": ("Kentucky Wildcats", "Toledo Rockets")}, Date(2025, 1, 10), {Date(2025, 1, 10): board},
-                        logs, {"Kentucky": "SEC", "Toledo": "MAC"}, ranks={"Kentucky": 5, "Toledo": 150})["e"]
-    assert ctx.home.net_rank == 1  # a logged game wins over the table
-    assert ctx.away.net_rank == 150
+                        logs, {"Kentucky": "SEC", "Toledo": "MAC"})["e"]
+    assert ctx.home.net_rank is None and ctx.away.net_rank is None
     assert bands.torvik_ranks([{"team": "A", "rank": "3"}, {"team": "B", "rank": ""}]) == {"A": 3}
+
+
+def test_bounce_back_and_weak_game_bands() -> None:
+    weak_loser = bands.Team(net_rank=250, off_loss=True)
+    weak_winner = bands.Team(net_rank=300, off_loss=False)
+    good_loser = bands.Team(net_rank=50, off_loss=True)
+    ctx = {"e": bands.GameCtx(home=weak_loser, away=weak_winner), "f": bands.GameCtx(home=good_loser, away=weak_loser)}
+    rows = [_row("e", "game_ats", "home", -3.0), _row("e", "game_ats", "away", 3.0, outcome="loss"),
+            _row("f", "game_ats", "home", -8.0), _row("f", "game_ats", "away", 8.0, outcome="loss")]
+    reads = {b.name: b for b in bands.read_bands(rows, ctx)}
+    assert reads["weak game (both Torvik rank > 200) favourite ATS"].record == "1-0"
+    assert reads["weak game (both Torvik rank > 200) underdog ATS"].record == "0-1"
+    assert reads["bounce back: side off a loss ATS"].record == "1-0"  # e home only; f has both off a loss
+    assert reads["bounce back: both off a loss, favourite ATS"].record == "1-0"
+    assert reads["bounce back: both off a loss, underdog ATS"].record == "0-1"
 
 
 def _on(day: str, tip: str, **kw: object) -> ledger.Row:
