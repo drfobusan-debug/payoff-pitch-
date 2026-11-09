@@ -660,7 +660,9 @@ def render_html(card: SlateCard, ctx: ReportContext) -> str:
         f"<h1>NHL card — {card.slate_date:%A, %B %-d, %Y}</h1>"
         f"<p class='sub'>{len(card.games)} games priced from one joint period sim each; {len(card.rows)} selections read, "
         f"{len(buys)} buy{'s' if len(buys) != 1 else ''}; {n_props} prop rows (research only).</p>"
-        f"<div class='dateline'>priced {escape(card.priced_at)} · tag {escape(card.tag)} · prior {escape(card.prior_version)}</div></div>"
+        f"<div class='dateline'>priced {escape(card.priced_at)} · tag {escape(card.tag)} · prior {escape(card.prior_version)}</div>"
+        + (f"<div class='dateline'>{escape(card.level_note)}</div>" if card.level_note else "")
+        + "</div>"
     )
     if buys:
         slate = _best_bets_block(card.rows) + (

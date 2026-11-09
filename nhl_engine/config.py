@@ -353,6 +353,9 @@ class SimParams:
     # teams and goalies the sim scored 1.031/1.038/1.022/1.047 x too few reg+OT
     # goals in 2022-2025 (LEAGUE_STUDY); pooled 1.035.
     goal_level: float = 1.035
+    # Refit ``goal_level`` each night to the no-vig market Over chance at the main
+    # total (``nhl_engine/level.py``), starting from the fixed value above.
+    level_fit: bool = field(default_factory=lambda: _env_bool("NHLE_LEVEL_FIT", True))
     # Finishing as skill + level: ``own - mean(teams on the slate)`` (sums to
     # zero) plus ``league(shrunk) - league(last season)`` on both sides, so a
     # league finishing above last year raises the total instead of taxing every
@@ -383,17 +386,20 @@ class GateParams:
     # A quote older than this is stale; the card prices only a live board.
     max_quote_age_minutes: int = 90
     # Period markets and team totals are archived and priced but not yet buys
-    # (probation, master plan §6 Phase 2); ML/PL/totals are the live markets.
-    live_markets: tuple[str, ...] = ("game_ml", "game_pl", "game_total")
+    # (probation, master plan §6 Phase 2). Totals went back to graded-only on
+    # 2026-11 while the goal level is refit to the market: a low sim at 40% weight
+    # was buying Unders (14-18 from 10-22).
+    live_markets: tuple[str, ...] = ("game_ml", "game_pl")
     # Game markets price off ``p_bet = (1 - w) x p_sim + w x consensus``; edge,
     # EV, tier and every gate read p_bet, the ledger keeps p_sim as model_prob.
     # ``market_anchor`` is the sides' weight: the preregistered close test
     # (2023-25, 2,335 games) put the ML slope at -0.10 (se 0.18), so the sim
     # earns no weight there and 0.90 stands. Totals came out at slope +0.40
-    # (se 0.22), so by the rule written before the pull their anchor is
-    # 1 - slope = 0.60, on probation: buys at it are graded as their own cut.
+    # (se 0.22), under 2 SE, so the sim holds no weight on totals (anchor 1.0)
+    # until a walk-forward rerun on 2023-25 with the nightly level shows the
+    # slope clearly above zero (``closetest compare``).
     market_anchor: float = field(default_factory=lambda: _env_float("NHLE_MARKET_ANCHOR", 0.90))
-    total_anchor: float = field(default_factory=lambda: _env_float("NHLE_TOTAL_ANCHOR", 0.60))
+    total_anchor: float = field(default_factory=lambda: _env_float("NHLE_TOTAL_ANCHOR", 1.0))
     anchored_markets: tuple[str, ...] = (
         "game_ml",
         "game_ml3",

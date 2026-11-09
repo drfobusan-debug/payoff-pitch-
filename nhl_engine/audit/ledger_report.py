@@ -26,11 +26,13 @@ from pathlib import Path
 
 from engine_runtime import altlines as alt_rt
 from engine_runtime import faststart
+from nhl_engine import level as lvl
 from nhl_engine.audit import altlines
 from nhl_engine.audit import bands as bnd
 from nhl_engine.audit import screens as scr
 from nhl_engine.audit.ledger import STALE_CLOSE_MIN, LedgerRow
 from nhl_engine.audit.scorecard import scorecard
+from nhl_engine.config import SimParams
 from nhl_engine.market.board import EXEC_BOOKS
 
 BOOTSTRAP_N = 4000
@@ -162,6 +164,7 @@ class LedgerAudit:
     exec_buys: Tally = field(default_factory=Tally)  # buys placed at an EXEC_BOOKS book
     alts: list[tuple[str, ...]] = field(default_factory=list)  # alt-lines table rows
     fast: list[faststart.Read] = field(default_factory=list)  # fast-start study, P1 / P2
+    levels: list[lvl.NightLevel] = field(default_factory=list)  # goal level vs market, per night
 
     @property
     def clv_p(self) -> float:
@@ -401,6 +404,7 @@ def build(
         exec_buys=_tally([r for r in buys if r.book in EXEC_BOOKS]),
         alts=alt_rt.table(altlines.alts(rows)),
         fast=list(fast or []),
+        levels=lvl.by_night(rows, base=SimParams().goal_level),
     )
     audit.findings = _findings(audit)
     return audit
@@ -527,6 +531,31 @@ def _band_rows(reads: list[bnd.BandRead]) -> list[tuple[str, ...]]:
     ]
 
 
+LEVEL_TITLE = "Goal level vs the market (main total, one game each)"
+LEVEL_NOTE = (
+    "The sim's goal level each night (fit to the no-vig market Over chance on earlier "
+    "nights; 1.035 = the fixed level) and the sim's Over chance at the main line vs the "
+    "market's. Totals are graded-only while the level is refit."
+)
+
+
+def _level_rows(ls: list[lvl.NightLevel]) -> list[tuple[str, ...]]:
+    return [
+        (
+            n.night,
+            f"{n.level:.3f}",
+            str(n.games),
+            f"{n.p_sim:.1%}",
+            f"{n.p_market:.1%}",
+            f"{n.gap * 100:+.1f}",
+        )
+        for n in ls
+    ]
+
+
+LEVEL_HEAD = ["night", "level", "games", "sim Over", "market Over", "sim - market pts"]
+
+
 def render_md(a: LedgerAudit, *, as_of: str) -> str:
     b = a.buys
     nights = ", ".join(a.nights) if a.nights else "none"
@@ -579,6 +608,9 @@ def render_md(a: LedgerAudit, *, as_of: str) -> str:
     over = next((s for s in a.sides if s.label == "Over"), None)
     if over:
         lines.append(f"\nFull-game totals went Over {over.outcomes.record} (one line per game).")
+    lines += ["", f"## {LEVEL_TITLE}", "", LEVEL_NOTE, ""]
+    lines += [f"| {' | '.join(LEVEL_HEAD)} |", "|" + "---|" * len(LEVEL_HEAD)]
+    lines += [f"| {' | '.join(r)} |" for r in _level_rows(a.levels)]
     lines += ["", "## Pricing time vs puck drop", ""]
     lines += [f"| {' | '.join(TIMING_HEAD)} |", "|---|---|---|---|---|---|---|---|"]
     lines += [f"| {' | '.join(r)} |" for r in _timing_rows(a.timing)]
@@ -682,6 +714,8 @@ def render_html(a: LedgerAudit, *, as_of: str) -> str:
             ],
         )
     )
+    parts.append(f"<h2>{LEVEL_TITLE}</h2><p class='sub'>{escape(LEVEL_NOTE)}</p>")
+    parts.append(_table(LEVEL_HEAD, _level_rows(a.levels)))
     parts.append("<h2>Pricing time vs puck drop</h2>")
     parts.append(_table(TIMING_HEAD, _timing_rows(a.timing)))
     parts.append("<h2>Goalie accuracy (card's named starter vs actual)</h2>")
