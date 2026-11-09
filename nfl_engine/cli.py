@@ -43,7 +43,7 @@ from engine_common.podcasts.run import read_feeds
 from engine_common.podcasts.shows import NFL
 from nfl_engine import calibration, podcast, props, props_grade, state
 from nfl_engine import replay as replay_mod
-from nfl_engine.audit import availability, outside
+from nfl_engine.audit import availability, early, outside
 from nfl_engine.audit.ledger import (
     ENGINE,
     PAPER,
@@ -281,24 +281,7 @@ def cmd_price(args: argparse.Namespace) -> int:
         print(f"  pre-kickoff pass: {len(fetched.games)} games kick off within {within} min")
     if not fetched.games:
         return 0
-    book = _books(fetched.season, fetched.week, ratings=args.ratings)
-    named = books_mod.attach_qbs(fetched.games, fetched.season, fetched.week)
-    print(f"  {named} of {2 * len(fetched.games)} starting quarterbacks named")
-    for game in fetched.games:
-        sides = ((game.away.abbrev, game.away_qb_out), (game.home.abbrev, game.home_qb_out))
-        for team, out in sides:
-            if out:
-                print(f"  {team}: {out} out on the official report; priced as a fill-in")
-    maps = calibration.load()
-    print(f"  {maps.stamp()}")
-    pricings = price_slate(
-        fetched.games,
-        fetched.board,
-        book=book.ratings,
-        starters=book.starters,
-        sim=DriveSim(n_sims=args.sims),
-        calibrator=maps,
-    )
+    pricings = _price_fetched(fetched, sims=args.sims, ratings=args.ratings)
     entries = _ledger_rows(pricings, fetched.captured_at)
     if within is not None:
         entries = [e for e in entries if e.tier != Tier.PASS.value]
@@ -327,6 +310,31 @@ def cmd_price(args: argparse.Namespace) -> int:
     return 0
 
 
+def _price_fetched(fetched: Fetched, *, sims: int, ratings: bool) -> list:
+    book = _books(fetched.season, fetched.week, ratings=ratings)
+    named = books_mod.attach_qbs(fetched.games, fetched.season, fetched.week)
+    print(f"  {named} of {2 * len(fetched.games)} starting quarterbacks named")
+    for game in fetched.games:
+        sides = ((game.away.abbrev, game.away_qb_out), (game.home.abbrev, game.home_qb_out))
+        for team, out in sides:
+            if out:
+                print(f"  {team}: {out} out on the official report; priced as a fill-in")
+    maps = calibration.load()
+    print(f"  {maps.stamp()}")
+    return price_slate(
+        fetched.games,
+        fetched.board,
+        book=book.ratings,
+        starters=book.starters,
+        sim=DriveSim(n_sims=sims),
+        calibrator=maps,
+    )
+
+
+def early_path(root: Path | None = None) -> Path:
+    return early.early_ledger_path(root or data_dir())
+
+
 def cmd_open(args: argparse.Namespace) -> int:
     """Archive the board before anything bets off it, so drift has a start.
 
@@ -339,7 +347,32 @@ def cmd_open(args: argparse.Namespace) -> int:
     board, taken = capture.opening_board(fetched.season, fetched.week)
     if board:
         print(f"week {fetched.week} opening board: {len(board)} games, first archived {taken}")
+    if getattr(args, "early", False):
+        _early_card(fetched, sims=args.sims, ratings=args.ratings)
     return 0
+
+
+def _early_card(fetched: Fetched, *, sims: int, ratings: bool) -> int:
+    """Price the board just archived into the early ledger, once per week.
+
+    Record only: the rows go to their own ledger, which no card, email, report
+    or pre-kickoff pass reads. ``close`` and ``grade`` stamp and settle them like
+    the card's, and ``early-report`` compares the two. No extra fetch: it prices
+    the same board ``open`` archived.
+    """
+    path = early_path()
+    if early.has_week(path, fetched.season, fetched.week):
+        print(f"early card for week {fetched.week} already saved ({path}); keeping it")
+        return 0
+    fetched.games = _not_started(fetched.games, datetime.now(tz=timezone.utc))
+    if not fetched.games:
+        print("early card: no unstarted game on the board")
+        return 0
+    entries = _ledger_rows(_price_fetched(fetched, sims=sims, ratings=ratings), fetched.captured_at)
+    added = merge_ledger(path, entries)
+    buys = sum(e.tier != Tier.PASS.value for e in added)
+    print(f"early card week {fetched.week}: {len(added)} rows, {buys} buys -> {path} [record only]")
+    return len(added)
 
 
 def cmd_close(args: argparse.Namespace) -> int:
@@ -366,6 +399,31 @@ def cmd_close(args: argparse.Namespace) -> int:
         print(f"no game kicks off in the next {within} min; nothing fetched")
         return 0
     fetched = _fetch(args.days, kind=capture.CLOSE_KIND)
+    stamped, restamped, frozen, missing = _restamp(entries, fetched, now)
+    early_rows = load_ledger(early_path())
+    early_stamped = sum(_restamp(early_rows, fetched, now)[:2])
+    if args.write:
+        update_ledger(path, entries)
+        if early_stamped:
+            update_ledger(early_path(), early_rows)
+    print(
+        f"closing prices stamped on {stamped} rows, {restamped} re-stamped nearer"
+        f" kickoff, {frozen} already final"
+    )
+    if missing:
+        print(f"  {missing} started rows never got a closing price: CLV unscorable")
+    if early_stamped:
+        print(f"  early card: {early_stamped} rows stamped")
+    if getattr(args, "props", False):
+        _close_props(fetched, now, within)
+    return 0
+
+
+def _restamp(
+    entries: list[LedgerEntry], fetched: Fetched, now: datetime
+) -> tuple[int, int, int, int]:
+    """Stamp each open, unstarted row with the board's number: stamped, re-stamped,
+    already final, started without a close."""
     stamped = restamped = frozen = missing = 0
     for entry in entries:
         if entry.result:
@@ -383,17 +441,7 @@ def cmd_close(args: argparse.Namespace) -> int:
         apply_close(entry, quote[0], quote[1], captured_at=fetched.captured_at)
         restamped += 1 if had else 0
         stamped += 0 if had else 1
-    if args.write:
-        update_ledger(path, entries)
-    print(
-        f"closing prices stamped on {stamped} rows, {restamped} re-stamped nearer"
-        f" kickoff, {frozen} already final"
-    )
-    if missing:
-        print(f"  {missing} started rows never got a closing price: CLV unscorable")
-    if getattr(args, "props", False):
-        _close_props(fetched, now, within)
-    return 0
+    return stamped, restamped, frozen, missing
 
 
 # A prop close older than this before kickoff is not a close.
@@ -550,20 +598,40 @@ def cmd_grade(args: argparse.Namespace) -> int:
         print("empty ledger")
         return 0
     scores = _final_scores(args.season)
+    graded = _settle(entries, scores)
+    early_rows = load_ledger(early_path())
+    early_graded = _settle(early_rows, scores)
+    if args.write:
+        update_ledger(path, entries)
+        if early_graded:
+            update_ledger(early_path(), early_rows)
+    print(f"graded {graded} rows")
+    if early_graded:
+        print(f"  early card: {early_graded} rows graded")
+    return 0
+
+
+def _settle(entries: list[LedgerEntry], scores: dict[tuple[str, str], tuple[int, int]]) -> int:
     graded = 0
     for entry in entries:
         if entry.result:
             continue
-        key = (entry.matchup, entry.date)
-        final = scores.get(key)
+        final = scores.get((entry.matchup, entry.date))
         if final is None:
             continue
-        home = entry.matchup.split(" @ ")[-1]
-        grade(entry, final[0], final[1], home=home)
+        grade(entry, final[0], final[1], home=entry.matchup.split(" @ ")[-1])
         graded += 1
-    if args.write:
-        update_ledger(path, entries)
-    print(f"graded {graded} rows")
+    return graded
+
+
+def cmd_early_report(args: argparse.Namespace) -> int:
+    """Tuesday's early card against the card, by EV at the close (read-only)."""
+    rows = load_ledger(early_path())
+    if not rows:
+        print("no early cards yet (nfl-engine open --early runs Tuesday morning)")
+        return 0
+    for line in early.report(rows, load_ledger(ledger_path())):
+        print(line)
     return 0
 
 
@@ -1188,7 +1256,19 @@ def main(argv: list[str] | None = None) -> int:
 
     open_cmd = sub.add_parser("open", help="archive the opening / night-before board")
     open_cmd.add_argument("--days", type=int, default=8)
+    open_cmd.add_argument(
+        "--early",
+        action="store_true",
+        help="also price the archived board into the early ledger (record only, once a week)",
+    )
+    open_cmd.add_argument("--sims", type=int, default=40000)
+    open_cmd.add_argument("--no-ratings", dest="ratings", action="store_false", default=True)
     open_cmd.set_defaults(func=cmd_open)
+
+    early_cmd = sub.add_parser(
+        "early-report", help="Tuesday's early card vs the card, at the close"
+    )
+    early_cmd.set_defaults(func=cmd_early_report)
 
     close = sub.add_parser("close", help="stamp the closing number for CLV")
     close.add_argument("--days", type=int, default=8)

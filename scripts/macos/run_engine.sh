@@ -273,8 +273,15 @@ elif [[ "$MODE" == "nfl-open" ]]; then
   # day): archive the game board, price nothing, email nothing. Thursday's card
   # reads the earliest snapshot back as the open and stamps each row's drift;
   # the CLV sheet then shows open -> taken -> close. ~3 Odds API credits.
+  # Tuesday's run also prices that same board into the early ledger (record
+  # only, write-once per week, no extra fetch): `nfl-engine early-report`
+  # compares it with the card at the close.
   pull_latest
-  nfl-engine open || echo "[$(date)] 'nfl-engine open' exited non-zero" >&2
+  if [[ "$(date +%w)" == "2" ]]; then
+    nfl-engine open --early || echo "[$(date)] 'nfl-engine open --early' exited non-zero" >&2
+  else
+    nfl-engine open || echo "[$(date)] 'nfl-engine open' exited non-zero" >&2
+  fi
 elif [[ "$MODE" == slate-* ]]; then
   # A slate pass: price the games starting inside the next ${SLATE_WINDOW_HOURS}
   # hours -- off posted lineups, on the board as it stands -- then write that
