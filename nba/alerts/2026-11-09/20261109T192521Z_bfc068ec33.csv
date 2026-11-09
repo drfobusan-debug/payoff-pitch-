@@ -1,0 +1,4 @@
+detected_at,game_date,event_id,matchup,kind,detail,before,after
+2026-11-09T19:25:21Z,2026-11-09,dc61de43b5db9de357f48f44c8022494,DEN @ HOU,ml_move,home ml 0.739 -> 0.635,0.739,0.635
+2026-11-09T19:25:21Z,2026-11-09,dc61de43b5db9de357f48f44c8022494,DEN @ HOU,spread_move,home spread -9 -> -4.5,-9,-4.5
+2026-11-09T19:25:21Z,2026-11-09,dc61de43b5db9de357f48f44c8022494,DEN @ HOU,total_move,total 219.5 -> 222.5,219.5,222.5
