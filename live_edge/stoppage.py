@@ -8,9 +8,9 @@ Share, b, the screen and the margin are frozen per sport and never refit once li
 prices are seen. Only the primary stoppage (the half; the end of period 2 in the
 NHL) makes tickets; the other stoppages are written to the tape only. A gap counts
 when the median book is past the screen and the next poll still has the same score
-and a gap past the screen on the same side; where the sport sets a break length (CBB 15
-minutes), a poll later than that after the first one at the stoppage can't confirm. A game whose lead at the stoppage is
-at or past the sport's margin is a pass. One ticket a game, priced at the better of
+and a gap past the screen on the same side. Where the sport sets a break length (CBB 15
+minutes), a poll later than that after the first one at the stoppage can't confirm. A
+game whose lead at the stoppage is at or past the sport's margin is a pass. One ticket a game, priced at the better of
 DraftKings/BetMGM on the confirming snapshot; a missing price stays missing. Both the
 pregame number and the live total are medians of at least three fresh two-sided books.
 
