@@ -8,6 +8,13 @@ to lose the vig); a band earns a call only at >= ``MIN_N`` games: "wins" needs
 the excess above ``CALL_SE`` standard errors with both halves of the ledger
 (date order) positive; "loses" is the mirror. Many bands are read at once, so
 about one in twenty sits past 2 SE by chance.
+
+Beating the market's expectation is not the same as beating the price: a band
+whose excess clears the bar while its realised ROI is negative, or whose
+close-implied ROI (devigged close × price taken − 1, the stake bar's metric)
+has a lower bound at or below zero, is read as "beats the fair, not the price"
+and is no rule candidate. ``close_rois`` carries that per bet, for the bets
+with a timely close.
 """
 
 from __future__ import annotations
@@ -30,6 +37,9 @@ class BandRead:
     expected_games: list[float] = field(
         default_factory=list
     )  # the same summed per game, aligned to ``games``
+    close_rois: list[float] = field(
+        default_factory=list
+    )  # close-implied ROI per bet with a timely close (promotion.close_roi)
 
     @property
     def _by_game(self) -> list[float]:
@@ -83,6 +93,39 @@ class BandRead:
         return sum(g[:h]), sum(g[h:])
 
     @property
+    def close_n(self) -> int:
+        return len(self.close_rois)
+
+    @property
+    def close_roi(self) -> float:
+        """Mean close-implied ROI of the band's bets at the price taken."""
+        return sum(self.close_rois) / self.close_n if self.close_n else 0.0
+
+    @property
+    def close_roi_lo(self) -> float:
+        """Lower 95% bound of the close-implied ROI (per bet, as the stake bar reads it)."""
+        n = self.close_n
+        if n < 2:
+            return float("-inf")
+        m = self.close_roi
+        se = math.sqrt(sum((c - m) ** 2 for c in self.close_rois) / (n - 1) / n)
+        return m - 1.96 * se
+
+    @property
+    def beats_price(self) -> bool | None:
+        """Realised ROI >= 0 and close-implied ROI lower bound > 0; None without closes."""
+        if not self.close_rois:
+            return None
+        return self.roi >= 0 and self.close_roi_lo > 0
+
+    @property
+    def price_read(self) -> str:
+        if not self.close_rois:
+            return "no close read"
+        lo = f"{self.close_roi_lo:+.1%}" if self.close_n >= 2 else "n/a"
+        return f"close-EV {self.close_roi:+.1%} (lo {lo}, n={self.close_n})"
+
+    @property
     def record(self) -> str:
         return f"{sum(p > 0 for p in self.pnls)}-{sum(p < 0 for p in self.pnls)}"
 
@@ -92,6 +135,8 @@ class BandRead:
         if games < MIN_N:
             return f"probation ({games}/{MIN_N} games)"
         if self.excess > CALL_SE * self.se and min(self.halves) > 0:
+            if self.beats_price is False:
+                return "beats the fair, not the price"
             return "wins: clears the bar"
         if -self.excess > CALL_SE * self.se and max(self.halves) < 0:
             return "loses: refusal candidate"
