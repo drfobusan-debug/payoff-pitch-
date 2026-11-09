@@ -407,6 +407,14 @@ def _mid_favourite_spread(e: LedgerEntry) -> bool:
     return atsline.mid_favourite(e.market, e.line)
 
 
+def _road_dog_spread(e: LedgerEntry) -> bool:
+    return atsline.road_dog(e.market, e.line, e.matchup, e.selection)
+
+
+def _home_dog_spread(e: LedgerEntry) -> bool:
+    return atsline.home_dog(e.market, e.line, e.matchup, e.selection)
+
+
 def _weak_game_spread(e: LedgerEntry) -> bool:
     return unitranks.weak_game(e.market, e.date, e.unit_ranks, e.opp_unit_ranks)
 
@@ -533,6 +541,16 @@ CANDIDATE_UPGRADES: tuple[CandidateUpgrade, ...] = (
         atsline.BIG_DOG_RULE,
         _big_dog_spread,
         "a dog getting 14.5 points or more, where the unbet dogs lose",
+    ),
+    CandidateUpgrade(
+        atsline.ROAD_DOG_RULE,
+        _road_dog_spread,
+        "a spread dog that is the listed road team",
+    ),
+    CandidateUpgrade(
+        atsline.HOME_DOG_RULE,
+        _home_dog_spread,
+        "a spread dog that is the listed home team",
     ),
 )
 
