@@ -23,6 +23,7 @@ from cbb_engine.data import capture, espn
 from cbb_engine.data.vsin_splits import Public
 from cbb_engine.output import teamstats
 from engine_common.bands import BandRead
+from engine_common.promotion import close_roi
 from engine_runtime import ledger, quotes
 
 MAIN = ("game_ats", "game_total", "game_ml")
@@ -210,8 +211,18 @@ def read_bands(rows: Iterable[ledger.Row], ctx: Mapping[str, GameCtx]) -> list[B
             k = (r.slate_date, r.event_id)
             game[k] = game.get(k, 0.0) + (r.pnl or 0.0)
             exp[k] = exp.get(k, 0.0) + market_expected(r)
-        out.append(BandRead(name, [r.pnl or 0.0 for r in rs], list(game.values()), [market_expected(r) for r in rs], list(exp.values())))
+        closes = [c for c in (close_implied(r) for r in rs) if c is not None]
+        out.append(BandRead(name, [r.pnl or 0.0 for r in rs], list(game.values()), [market_expected(r) for r in rs], list(exp.values()), closes))
     return out
+
+
+def close_implied(r: ledger.Row) -> float | None:
+    """Close-implied ROI of the row's price at a pre-tip close; None for pushes or no close."""
+    if r.outcome == "push" or r.close_consensus is None or r.close_status != "pre_tip":
+        return None
+    if r.american is None:
+        return None
+    return close_roi(r.close_consensus, r.american)
 
 
 def render(reads: Sequence[BandRead]) -> str:
@@ -220,7 +231,7 @@ def render(reads: Sequence[BandRead]) -> str:
         h1, h2 = b.halves
         lines.append(
             f"  {b.name:<48} n={b.n:<5} {b.record:<9} {b.units:+7.1f}u roi {100 * b.roi:+6.1f}%"
-            f"  excess {b.excess:+6.1f} ± {b.se:4.1f}  halves {h1:+5.1f}/{h2:+5.1f}  {b.verdict}"
+            f"  excess {b.excess:+6.1f} ± {b.se:4.1f}  halves {h1:+5.1f}/{h2:+5.1f}  {b.price_read}  {b.verdict}"
         )
     return "\n".join(lines)
 

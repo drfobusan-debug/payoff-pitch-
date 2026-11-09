@@ -26,7 +26,8 @@ from datetime import timedelta
 from pathlib import Path
 
 from engine_common.bands import CALL_SE, MIN_N, BandRead
-from nba_engine.audit.ledger import LedgerRow
+from engine_common.promotion import close_roi
+from nba_engine.audit.ledger import LedgerRow, timely_close
 from nba_engine.data.boxes import read_results
 
 LOOKBACK = timedelta(days=10)  # the longest window any band asks about
@@ -124,6 +125,13 @@ def read_bands(rows: Iterable[LedgerRow], sched: Schedule) -> list[BandRead]:
             if main is not None and main.pnl is not None:
                 read.pnls.append(main.pnl)
                 read.games.append(main.pnl)
+                if (
+                    main.close_fair is not None
+                    and main.american is not None
+                    and timely_close(main)
+                    and main.pnl != 0
+                ):
+                    read.close_rois.append(close_roi(main.close_fair, main.american))
         out.append(read)
     return out
 
@@ -136,7 +144,7 @@ def lines(reads: list[BandRead]) -> list[str]:
         se = f"{b.se:.1f}" if b.n > 1 else "n/a"
         out.append(
             f"  {b.name}\n    n {b.n:4d}  {b.record:>7}  units {b.units:+.1f}  ROI {100 * b.roi:+.1f}%"
-            f"  se {se}  halves {b.halves[0]:+.1f} / {b.halves[1]:+.1f}  -> {b.verdict}"
+            f"  se {se}  halves {b.halves[0]:+.1f} / {b.halves[1]:+.1f}  {b.price_read}  -> {b.verdict}"
         )
     return out
 

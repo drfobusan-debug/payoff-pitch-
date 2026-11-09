@@ -496,6 +496,7 @@ BAND_HEAD = [
     "ROI",
     "SE (u, by game)",
     "halves",
+    "close-EV (lo)",
     "verdict",
 ]
 
@@ -525,6 +526,7 @@ def _band_rows(reads: list[bnd.BandRead]) -> list[tuple[str, ...]]:
             f"{b.roi:+.1%}" if b.n else "",
             f"{b.se:.2f}" if b.n >= 2 else "",
             f"{b.halves[0]:+.2f} / {b.halves[1]:+.2f}",
+            f"{b.close_roi:+.1%} ({b.close_roi_lo:+.1%})" if b.close_n >= 2 else "",
             b.verdict,
         )
         for b in reads
@@ -625,7 +627,7 @@ def render_md(a: LedgerAudit, *, as_of: str) -> str:
     lines += ["|---|---|---|---|---|---|---|---|"]
     lines += [f"| {' | '.join(r)} |" for r in _screen_rows(a.screens)]
     lines += ["", f"## {_band_title(a)}", "", _band_note(a), ""]
-    lines += [f"| {' | '.join(BAND_HEAD)} |", "|---|---|---|---|---|---|---|---|"]
+    lines += [f"| {' | '.join(BAND_HEAD)} |", "|---|---|---|---|---|---|---|---|---|"]
     lines += [f"| {' | '.join(r)} |" for r in _band_rows(a.bands)]
     lines += ["", "## Alternate lines: points bought vs sold", "", alt_rt.NOTE, ""]
     lines += [f"| {' | '.join(alt_rt.HEAD)} |", "|" + "---|" * len(alt_rt.HEAD)]

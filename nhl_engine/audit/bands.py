@@ -24,6 +24,7 @@ from __future__ import annotations
 from collections.abc import Callable, Iterable
 
 from engine_common.bands import CALL_SE, MIN_N, BandRead
+from engine_common.promotion import close_roi
 from nhl_engine.audit.grade import PUSH
 from nhl_engine.audit.grade import pnl as payout
 from nhl_engine.audit.ledger import LedgerRow
@@ -248,9 +249,17 @@ def read_bands(rows: Iterable[LedgerRow], ctx: Context) -> list[BandRead]:
                 list(per_game.values()),
                 [market_expected(r) for r in rs],
                 list(exp_game.values()),
+                [c for c in (close_implied(r) for r in rs) if c is not None],
             )
         )
     return out
+
+
+def close_implied(r: LedgerRow) -> float | None:
+    """Close-implied ROI of the row's price, for a fresh pre-drop close; None otherwise."""
+    if r.outcome == PUSH or r.close_consensus is None or not r.close_fresh:
+        return None
+    return close_roi(r.close_consensus, r.american)
 
 
 def market_expected(r: LedgerRow) -> float:

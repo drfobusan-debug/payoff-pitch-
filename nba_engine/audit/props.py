@@ -19,7 +19,8 @@ from collections.abc import Iterable
 from dataclasses import dataclass, field
 
 from engine_common.bands import CALL_SE, MIN_N, BandRead
-from nba_engine.audit.ledger import LedgerRow
+from engine_common.promotion import close_roi
+from nba_engine.audit.ledger import LedgerRow, timely_close
 from nba_engine.data.boxes import norm_name
 
 PROPS = ("pl_pts", "pl_3pm", "pl_reb", "pl_ast", "pl_pra")
@@ -94,6 +95,8 @@ def _band(name: str, mains: list[Main], side: str) -> BandRead:
         exp = r.fair * _payout(r.american) - (1.0 - r.fair)
         read.pnls.append(r.pnl)
         read.expected.append(exp)
+        if r.close_fair is not None and timely_close(r) and r.pnl != 0:
+            read.close_rois.append(close_roi(r.close_fair, r.american))
         games[(m.key[0], m.key[1])].append(r.pnl)
         expected[(m.key[0], m.key[1])].append(exp)
     for g in games:
@@ -206,7 +209,7 @@ def _band_line(name: str, b: BandRead) -> str:
     se = f"{b.se:.1f}" if len(b.games) > 1 else "n/a"
     return (
         f"  {name:24} n {b.n:5d}  games {len(b.games):4d}  {b.record:>9}  units {b.units:+7.1f}"
-        f"  ROI {100 * b.roi:+6.1f}%  vs market {b.excess:+6.1f} ± {se}  -> {b.verdict}"
+        f"  ROI {100 * b.roi:+6.1f}%  vs market {b.excess:+6.1f} ± {se}  {b.price_read}  -> {b.verdict}"
     )
 
 
