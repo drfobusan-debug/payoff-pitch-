@@ -5,6 +5,8 @@ from __future__ import annotations
 import logging
 import re
 from dataclasses import dataclass
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 import requests
 
@@ -19,6 +21,9 @@ SUMMARY = {
 SCOREBOARD = {
     "nfl": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard",
     "cfb": "https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?groups=80&limit=300",
+    "nba": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard",
+    "cbb": "https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?groups=50&limit=400",
+    "nhl": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/scoreboard",
 }
 
 
@@ -37,6 +42,8 @@ class LiveGame:
     kickoff: str = ""
     home_aliases: tuple[str, ...] = ()
     away_aliases: tuple[str, ...] = ()
+    #: ESPN's status name, e.g. ``STATUS_HALFTIME`` or ``STATUS_END_PERIOD``.
+    detail: str = ""
 
     @property
     def matchup(self) -> str:
@@ -110,6 +117,7 @@ def parse_scoreboard(payload: dict) -> list[LiveGame]:
                 kickoff=str(ev.get("date", "")),
                 home_aliases=_aliases(home["team"]),
                 away_aliases=_aliases(away["team"]),
+                detail=str(status.get("name", "")),
             )
         )
     return games
@@ -144,9 +152,18 @@ def fetch_pregame_line(
         return None
 
 
+BOARD_TZ = ZoneInfo("America/New_York")
+
+
+def board_day(now: datetime | None = None) -> str:
+    """ESPN's slate day (Eastern), as the ``dates`` query value."""
+    return (now or datetime.now(BOARD_TZ)).astimezone(BOARD_TZ).strftime("%Y%m%d")
+
+
 def fetch_scoreboard(sport: str, timeout: float = 15.0) -> list[LiveGame]:
+    """Today's board, asked for by date so an early poll never gets a stale or empty day."""
     try:
-        resp = requests.get(SCOREBOARD[sport], timeout=timeout)
+        resp = requests.get(SCOREBOARD[sport], params={"dates": board_day()}, timeout=timeout)
         resp.raise_for_status()
         return parse_scoreboard(resp.json())
     except (requests.RequestException, ValueError) as exc:

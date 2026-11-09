@@ -36,14 +36,25 @@ import argparse
 import json
 import logging
 import sys
-from dataclasses import asdict
+from dataclasses import asdict, replace
 from datetime import date as Date
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
+from engine_runtime import faststart
 from engine_runtime.odds_client import OddsClient
-from nhl_engine import closetest, email, history, outputs, pipeline, report, state
+from nhl_engine import (
+    closetest,
+    decompose,
+    email,
+    history,
+    level,
+    outputs,
+    pipeline,
+    report,
+    state,
+)
 from nhl_engine.audit import (
     bands,
     grade,
@@ -55,7 +66,7 @@ from nhl_engine.audit import (
     vsin_picks,
 )
 from nhl_engine.calibration import Calibrator, calibration_path
-from nhl_engine.config import cache_dir, data_dir, load_config, output_dir, priors_dir
+from nhl_engine.config import Config, cache_dir, data_dir, load_config, output_dir, priors_dir
 from nhl_engine.data import availability, capture, dailyfaceoff, podcast, preseason, rotowire
 from nhl_engine.data.book_rules import BookRule, BookRules, rules_path
 from nhl_engine.data.moneypuck import MoneyPuckClient, season_of
@@ -312,6 +323,50 @@ def _local_cutoff(slate: Date, hhmm: str) -> datetime:
     return datetime(slate.year, slate.month, slate.day, hour, minute, tzinfo=SLATE_TZ)
 
 
+def _fit_level(
+    cfg: Config,
+    obs: list[level.MainTotal],
+    *,
+    slate: Date,
+    season: int,
+    mp: MoneyPuckClient,
+    prior: preseason.PreseasonPrior,
+) -> level.LevelFit:
+    base = cfg.sim.goal_level
+    win = level.window(obs, slate)
+    prev = max(win, key=lambda o: o.night).level if win else base
+    lines = sorted(o.line for o in win)
+    league = pipeline.league_for(mp, slate, season, prior, cfg.shrink.league_k_games)
+    sens = level.sensitivity(
+        league,
+        replace(cfg.sim, goal_level=prev),
+        line=lines[len(lines) // 2] if lines else 6.0,
+    )
+    return level.fit(obs, slate=slate, base=base, sens=sens)
+
+
+def _nightly_level(
+    cfg: Config,
+    root: Path,
+    *,
+    slate: Date,
+    season: int,
+    mp: MoneyPuckClient,
+    prior: preseason.PreseasonPrior,
+) -> tuple[Config, str]:
+    """Tonight's ``goal_level`` fitted to the market on earlier nights (``level.py``)."""
+    if not cfg.sim.level_fit:
+        return cfg, f"goal level {cfg.sim.goal_level:.3f} (fixed; NHLE_LEVEL_FIT=0)"
+    try:
+        obs = level.main_totals(level.prior_rows(root, slate), base=cfg.sim.goal_level)
+        fit = _fit_level(cfg, obs, slate=slate, season=season, mp=mp, prior=prior)
+    except Exception:  # noqa: BLE001 - the level is a refinement; never sink the card
+        log.warning("nightly goal level failed; fixed level used", exc_info=True)
+        return cfg, f"goal level {cfg.sim.goal_level:.3f} (fixed; the nightly fit failed)"
+    log.info(fit.describe())
+    return replace(cfg, sim=replace(cfg.sim, goal_level=fit.level)), fit.describe()
+
+
 def cmd_card(args: argparse.Namespace) -> int:
     cfg = load_config()
     slate = _parse_date(args.date)
@@ -335,6 +390,7 @@ def cmd_card(args: argparse.Namespace) -> int:
         if not only:
             print(f"no {slate} games start before {args.before} ET; no {args.tag} card")
             return 0
+    cfg, level_note = _nightly_level(cfg, root, slate=slate, season=season, mp=mp, prior=prior)
     card = pipeline.run_slate(
         quotes,
         slate=slate,
@@ -350,6 +406,7 @@ def cmd_card(args: argparse.Namespace) -> int:
         starts=starts,
         only=only,
     )
+    card.level_note = level_note
     paths = outputs.write_all(card, output_dir())
     if not args.no_pdf:
         try:
@@ -717,6 +774,7 @@ def cmd_audit(args: argparse.Namespace) -> int:
             _starters_for(all_rows),
             _screen_context(root, all_rows),
             scheduled=_scheduled_for(sorted({r.slate_date for r in all_rows})),
+            fast=_fast_start(root, all_rows, day),
         )
         if stale:
             audit.findings.append(stale_note)
@@ -741,6 +799,56 @@ def cmd_audit(args: argparse.Namespace) -> int:
             except email.EmailNotConfigured as exc:
                 print(f"email skipped: {exc}", file=sys.stderr)
     return 0
+
+
+NHL_CUTS = {"end of P1": 1, "end of P2": 2}
+
+
+def _fast_night(root: Path, night: Date) -> list[dict]:
+    """A night's fast-start observations, written once under ``faststart/`` after its finals."""
+    path = root / "faststart" / f"{night.isoformat()}.json"
+    if path.exists():
+        return json.loads(path.read_text())
+    results, starts = _results_for(night)
+    if not results or any(not r.is_final for r in results.values()):
+        return []
+    quotes = capture.read_day(root, night)
+    event = {q.matchup: q.event_id for q in quotes}
+    tips = {event[m]: t for m, t in starts.items() if m in event}
+    totals = faststart.close_totals(quotes, tips)
+    out = []
+    for m, g in results.items():
+        eid = event.get(m)
+        reg = sorted((p for p in g.periods if p.kind == "REG"), key=lambda p: p.number)
+        if eid not in totals or len(reg) < 3:
+            continue
+        final = float(g.final_away + g.final_home)
+        periods = [p.away + p.home for p in reg]
+        for cut, o in faststart.checkpoints(
+            eid, night.isoformat(), totals[eid], periods, final, NHL_CUTS
+        ).items():
+            out.append({"checkpoint": cut, **asdict(o)})
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(out))
+    return out
+
+
+def _fast_start(root: Path, rows: list[ledger.LedgerRow], through: Date) -> list[faststart.Read]:
+    """P1 / P2 goals against the timely close total; each night's NHL API finals are read once."""
+    by_cut: dict[str, list[faststart.Obs]] = {c: [] for c in NHL_CUTS}
+    for night in sorted({r.slate_date for r in rows}):
+        day = Date.fromisoformat(night)
+        if day > through:
+            continue
+        try:
+            obs = _fast_night(root, day)
+        except Exception as exc:  # noqa: BLE001 - one bad night must not sink the report
+            log.warning("fast-start obs for %s unavailable: %s", night, exc)
+            continue
+        for o in obs:
+            cut = o.pop("checkpoint")
+            by_cut.setdefault(cut, []).append(faststart.Obs(**o))
+    return [r for c, obs in by_cut.items() if (r := faststart.read(c, obs)) is not None]
 
 
 def _backfill_timing(root: Path, rows: list[ledger.LedgerRow]) -> None:
@@ -884,6 +992,12 @@ def cmd_closetest(args: argparse.Namespace) -> int:
     if args.action == "report":
         print(closetest.report(closetest.read_csv(out)))
         return 0
+    if args.action == "compare":
+        if not args.against:
+            print("compare needs --against <fixed-level CSV>", file=sys.stderr)
+            return 2
+        print(closetest.compare(closetest.read_csv(Path(args.against)), closetest.read_csv(out)))
+        return 0
     cfg = load_config()
     root = data_dir()
     start, end = _parse_date(args.start), _parse_date(args.end)
@@ -907,11 +1021,23 @@ def cmd_closetest(args: argparse.Namespace) -> int:
                 mp, season, r_yy=cfg.prior.r_yy, today=Date(season, 10, 1)
             )
         results = {g.matchup: r for g in games if (r := nhl.result(g)) is not None and r.decided}
+        day_cfg = cfg
+        if args.level_fit:
+            fit = _fit_level(
+                cfg,
+                closetest.main_totals(obs, base=cfg.sim.goal_level),
+                slate=day,
+                season=season,
+                mp=mp,
+                prior=priors[season],
+            )
+            day_cfg = replace(cfg, sim=replace(cfg.sim, goal_level=fit.level))
+            print(f"{day}: {fit.describe()}")
         card = closetest.rebuild_day(
             root=root,
             day=day,
             season=season,
-            cfg=cfg,
+            cfg=day_cfg,
             mp=mp,
             prior=priors[season],
             rules=BookRules.load(rules_path(root)),
@@ -924,6 +1050,53 @@ def cmd_closetest(args: argparse.Namespace) -> int:
         print(f"{day}: {len(card.games)} priced, {len(day_obs)} obs, unpriced {len(card.unpriced)}")
     print(f"{len(obs)} obs -> {out}")
     print(closetest.report(obs))
+    return 0
+
+
+def cmd_decompose(args: argparse.Namespace) -> int:
+    """Which sim input carries the goal-level gap (offline, no credits; analysis only)."""
+    out = Path(args.out) if args.out else output_dir() / f"decompose_{args.start}_{args.end}.csv"
+    if args.action == "report":
+        print(decompose.report(decompose.read_csv(out)))
+        return 0
+    cfg = load_config()
+    root = data_dir()
+    start, end = _parse_date(args.start), _parse_date(args.end)
+    nhl = NHLAPIClient(cache_dir=cache_dir() / "nhlapi")
+    mp = MoneyPuckClient(cache_dir=cache_dir())
+    priors: dict[int, preseason.PreseasonPrior] = {}
+    rows: list[decompose.Row] = []
+    done = (
+        {r.game_date for r in decompose.read_csv(out)}
+        if out.is_file() and not args.fresh
+        else set()
+    )
+    if done:
+        rows = decompose.read_csv(out)
+    for day, games in sorted(_history_schedule(nhl, start, end).items()):
+        if day.isoformat() in done:
+            continue
+        season = season_of(day)
+        if season not in priors:
+            priors[season] = preseason.build(
+                mp, season, r_yy=cfg.prior.r_yy, today=Date(season, 10, 1)
+            )
+        results = {g.matchup: r for g in games if (r := nhl.result(g)) is not None and r.decided}
+        day_rows = decompose.rebuild_day(
+            root=root,
+            day=day,
+            season=season,
+            cfg=cfg,
+            mp=mp,
+            prior=priors[season],
+            games=games,
+            results=results,
+        )
+        rows.extend(day_rows)
+        decompose.write_csv(rows, out)
+        print(f"{day}: {len(day_rows)} games")
+    print(f"{len(rows)} games -> {out}")
+    print(decompose.report(rows))
     return 0
 
 
@@ -1053,12 +1226,25 @@ def build_parser() -> argparse.ArgumentParser:
     hi.set_defaults(func=cmd_history)
 
     ct = sub.add_parser("closetest", help="preregistered close test on the hist closes (offline)")
-    ct.add_argument("action", choices=["run", "report"])
+    ct.add_argument("action", choices=["run", "report", "compare"])
     ct.add_argument("--start", required=True)
     ct.add_argument("--end", required=True)
     ct.add_argument("--out", help="observations CSV (resumes per day unless --fresh)")
     ct.add_argument("--fresh", action="store_true")
+    ct.add_argument(
+        "--level-fit",
+        action="store_true",
+        help="walk-forward: refit goal_level each night on earlier nights' closes",
+    )
+    ct.add_argument("--against", help="compare: the fixed-level CSV (--out is the walk-forward)")
     ct.set_defaults(func=cmd_closetest)
+    dc = sub.add_parser("decompose", help="which sim input carries the goal-level gap (offline)")
+    dc.add_argument("action", choices=["run", "report"])
+    dc.add_argument("--start", required=True)
+    dc.add_argument("--end", required=True)
+    dc.add_argument("--out", help="per-game CSV (resumes per day unless --fresh)")
+    dc.add_argument("--fresh", action="store_true")
+    dc.set_defaults(func=cmd_decompose)
     return parser
 
 

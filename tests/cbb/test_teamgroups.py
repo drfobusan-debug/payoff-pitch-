@@ -6,7 +6,7 @@ import pytest
 
 from cbb_engine import audit_report, bands, teamgroups
 from cbb_engine.data import espn
-from engine_runtime import ledger, quotes
+from engine_runtime import faststart, ledger, quotes
 
 DAY = "2026-11-10"
 TIP = f"{DAY}T23:00:00Z"
@@ -34,7 +34,7 @@ def test_called_reads_the_timely_close_median_and_the_espn_final_either_way_roun
                   conference_game=False, away_halves=(40, 40), home_halves=(35, 35))
     out = teamgroups.called(shards, {"e1": ("Duke", "Kansas"), "e2": ("Army", "Navy")}, [g])
     assert set(out) == {"e1"}
-    assert out["e1"] == teamgroups.Called("e1", -6.0, 150.5, 10, 150)
+    assert out["e1"] == teamgroups.Called("e1", -6.0, 150.5, 10, 150, 75)
 
 
 def _row(eid: str, market: str, side: str, line: float, *, clv: float, close: float) -> ledger.Row:
@@ -88,3 +88,11 @@ def test_audit_report_prints_the_team_groups_table() -> None:
     text = audit_report.render_text(rep)
     assert "Team groups" in text and "both fast" in text and "underpowered (3/150 games)" in text
     assert "returning-minutes" in text
+
+
+def test_audit_report_prints_the_fast_start_table() -> None:
+    obs = [faststart.Obs(f"g{i}", f"2026-11-0{1 + i // 40}", 140.0, 66.0 + (i % 9 - 4) * 3, 140.0 + (i % 9 - 4) * 3) for i in range(80)]
+    fast = faststart.read("half", obs)
+    assert fast is not None
+    text = audit_report.render_text(audit_report.build({DAY: []}, Date.fromisoformat(DAY), fast=[fast]))
+    assert "Fast starts" in text and "half" in text and "in-play totals" in text

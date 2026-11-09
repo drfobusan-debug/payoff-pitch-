@@ -16,14 +16,16 @@ from dataclasses import dataclass, field
 from datetime import date as Date
 from datetime import timedelta
 from html import escape
+from typing import cast
 
 from cbb_engine import teamgroups
-from cbb_engine.bands import main_rows
+from cbb_engine.bands import main_rows, one_slate_per_game
+from engine_common import closecheck
 from engine_common.bands import MIN_N as BAND_MIN_N
 from engine_common.bands import BandRead
 from engine_common.promotion import MIN_BUYS
 from engine_runtime import altlines as alt_rt
-from engine_runtime import ledger, views
+from engine_runtime import faststart, ledger, views
 
 Z = 1.96
 EDGE_BANDS = (("edge 2-3%", 0.02, 0.03), ("edge 3-5%", 0.03, 0.05), ("edge 5%+", 0.05, 1.0))
@@ -175,16 +177,33 @@ def _seg_table(title: str, segs: Iterable[Seg], note: str = "") -> Table:
 
 
 def _graded(rows: Iterable[ledger.Row]) -> list[ledger.Row]:
-    return [r for r in rows if r.bet_of_record and r.outcome in ("win", "loss", "push")]
+    """Graded rows of record, each game from one slate (a game on several daily slates counts once)."""
+    return one_slate_per_game(
+        r for r in rows if r.bet_of_record and r.outcome in ("win", "loss", "push")
+    )
 
 
 def live_buys(rows: Iterable[ledger.Row]) -> list[ledger.Row]:
-    return [r for r in _graded(rows) if r.status == "live" and r.is_buy]
+    return one_slate_per_game(
+        r
+        for r in rows
+        if r.bet_of_record
+        and r.outcome in ("win", "loss", "push")
+        and r.status == "live"
+        and r.is_buy
+    )
 
 
 def paper_buys(rows: Iterable[ledger.Row]) -> list[ledger.Row]:
     """Research/shadow rows that cleared every gate: what the engine would have bought."""
-    return [r for r in _graded(rows) if r.status != "live" and r.is_buy]
+    return one_slate_per_game(
+        r
+        for r in rows
+        if r.bet_of_record
+        and r.outcome in ("win", "loss", "push")
+        and r.status != "live"
+        and r.is_buy
+    )
 
 
 def briers(rows: Iterable[ledger.Row]) -> list[tuple[str, ...]]:
@@ -344,6 +363,7 @@ def build(
     *,
     bands: Sequence[BandRead] | None = None,
     groups: Sequence[teamgroups.GroupRead] | None = None,
+    fast: Sequence[faststart.Read] | None = None,
     checklist_lines: Sequence[str] = (),
     recent: int = 7,
     alts: Sequence[alt_rt.Alt] = (),
@@ -356,14 +376,19 @@ def build(
     promo = views.v_promotion(season)
     s_sec.tables.append(
         Table(
-            f"Promotion bar (paper -> Lean at {MIN_BUYS}+ graded buys, CLV and Brier)",
-            ("market", "buys", "ROI", "CLV low", "status", "why not"),
+            f"Promotion bar (paper -> Lean at {MIN_BUYS}+ graded buys, close-implied ROI and Brier)",
+            ("market", "buys", "ROI", "close ROI (low, n)", "status", "why not"),
             [
                 (
                     str(p["market"]),
                     str(p["n"]),
                     f"{float(str(p['roi'] or 0)):+.1%}",
-                    str(p["clv_lo"]),
+                    (
+                        f"{float(str(p['close_roi'])):+.1%} ({float(str(p['close_roi_lo'])):+.1%},"
+                        f" n={p['close_n']})"
+                        if p["close_roi_lo"] is not None
+                        else "-"
+                    ),
                     str(p["status"]),
                     str(p["why_not"]),
                 )
@@ -371,6 +396,10 @@ def build(
             ],
         )
     )
+    checks = views.v_closecheck(season)
+    if checks:
+        cells = [cast("tuple[str, ...]", c["cells"]) for c in checks]
+        s_sec.tables.append(Table(closecheck.TITLE, closecheck.HEAD, cells))
     reads = list(bands or [])
     s_sec.tables.append(
         Table(
@@ -401,6 +430,16 @@ def build(
             ("" if groups is not None else "team groups unavailable (see log). ")
             + "Close miss = mean |result - closing line|; vs rest = this group's miss less every other game's; "
             "bias > 0 = favourites / Overs beat the close. " + teamgroups.CONTINUITY_NOTE,
+        )
+    )
+    s_sec.tables.append(
+        Table(
+            "Fast starts: does the first half stay in the final? (one row per game with a timely close)",
+            faststart.HEAD,
+            faststart.table(fast or []),
+            ("" if fast is not None else "fast-start study unavailable (see log). ")
+            + ("" if fast else f"needs {faststart.MIN_PRIOR}+ earlier games first. ")
+            + faststart.NOTE,
         )
     )
     gates = [g for g in views.v_gate(season) if int(g["n"]) > 0]  # type: ignore[call-overload]

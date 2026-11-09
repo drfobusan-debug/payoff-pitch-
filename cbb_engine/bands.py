@@ -3,9 +3,10 @@
 Same bar as NHL and NBA (``engine_common.bands``): a band is called only at 150
 games, 2 SE past what the market expects at the card's price, with both halves
 agreeing. Nothing here touches pricing, gates or tiers. A row's context is what
-was known before tip: the AP rank on the day's ESPN scoreboard, season-to-date
-net rating and tempo from Torvik's game logs dated before the slate, days since
-each team's previous game, and the first line captured that day.
+was known before tip: the AP rank on the day's ESPN scoreboard, Torvik's rank and
+adjusted-tempo third from the ``team_results`` table archived on or before the
+slate, whether each team's last logged game (dated before the slate) was a loss,
+days since its previous game, and the first line captured that day.
 """
 
 from __future__ import annotations
@@ -18,7 +19,8 @@ from datetime import timedelta
 
 from cbb_engine import history
 from cbb_engine.audit import pnl
-from cbb_engine.data import espn
+from cbb_engine.data import capture, espn
+from cbb_engine.data.vsin_splits import Public
 from cbb_engine.output import teamstats
 from engine_common.bands import BandRead
 from engine_runtime import ledger, quotes
@@ -37,8 +39,9 @@ REST_LOOKBACK = 10
 @dataclass(frozen=True)
 class Team:
     ap: int | None = None
-    net_rank: int | None = None
-    slow: bool | None = None
+    net_rank: int | None = None  # Torvik's rank as archived on or before the day
+    slow: bool | None = None  # slowest third by Torvik adjusted tempo as of the day
+    off_loss: bool | None = None  # last logged game before the day was a loss
     power: bool | None = None
     rest: int | None = None  # days since the previous game
     pace: str | None = None  # "slow" / "mid" / "fast": season-to-date tempo third
@@ -51,6 +54,7 @@ class GameCtx:
     neutral: bool = False
     conference: bool = False
     opener: Mapping[tuple[str, str], float] = field(default_factory=dict)  # (market, side) -> first line
+    public: Mapping[tuple[str, str], Public] = field(default_factory=dict)  # (market, side) -> VSiN shares before tip
 
 
 Pred = Callable[[ledger.Row, GameCtx], bool]
@@ -82,12 +86,25 @@ def _moved(r: ledger.Row, c: GameCtx) -> bool:
     return toward >= MOVE_PTS
 
 
+def _rlm(r: ledger.Row, c: GameCtx) -> bool:
+    """The number moved a point or more toward this side while the tickets leaned the other way.
+
+    Both halves are required: a move with no split on record is steam, not a reverse move,
+    and a ticket minority with no move is just the quiet side."""
+    pub = c.public.get((r.market, r.side))
+    return pub is not None and pub.majority is False and _moved(r, c)
+
+
 def _b2b(t: Team) -> bool:
     return t.rest == 1
 
 
 def _weak(c: GameCtx) -> bool:
     return all(t.net_rank is not None and t.net_rank > WEAK_RANK for t in (c.home, c.away))
+
+
+def _both_off_loss(c: GameCtx) -> bool:
+    return bool(c.home.off_loss and c.away.off_loss)
 
 
 def _side(market: str, side: str, fav: bool | None = None) -> Pred:
@@ -111,11 +128,18 @@ BANDS: tuple[tuple[str, Pred], ...] = (
     ("neutral site underdog ATS", lambda r, c: _ats(r) and c.neutral and not _fav(r)),
     ("line moved >= 1 toward the side ATS", lambda r, c: _ats(r) and _moved(r, c)),
     ("line moved >= 1 toward the side total", lambda r, c: r.market == "game_total" and _moved(r, c)),
+    ("reverse line move (>= 1 against the ticket majority) ATS", lambda r, c: _ats(r) and _rlm(r, c)),
+    ("reverse line move (>= 1 against the ticket majority) favourite ATS", lambda r, c: _ats(r) and _rlm(r, c) and _fav(r)),
+    ("reverse line move (>= 1 against the ticket majority) underdog ATS", lambda r, c: _ats(r) and _rlm(r, c) and not _fav(r)),
+    ("reverse line move (>= 1 against the ticket majority) total", lambda r, c: r.market == "game_total" and _rlm(r, c)),
     ("team on a back-to-back ATS", lambda r, c: _ats(r) and _b2b(_me(r, c)) and not _b2b(_them(r, c))),
     ("rested (2+ days) vs a back-to-back ATS", lambda r, c: _ats(r) and (_me(r, c).rest or 0) >= 2 and _b2b(_them(r, c))),
     ("a team on a back-to-back: Under", lambda r, c: r.market == "game_total" and r.side == "under" and (_b2b(c.home) or _b2b(c.away))),
-    ("weak game (both net rank > 200) favourite ATS", lambda r, c: _ats(r) and _weak(c) and _fav(r)),
-    ("weak game (both net rank > 200) underdog ATS", lambda r, c: _ats(r) and _weak(c) and not _fav(r)),
+    ("weak game (both Torvik rank > 200) favourite ATS", lambda r, c: _ats(r) and _weak(c) and _fav(r)),
+    ("weak game (both Torvik rank > 200) underdog ATS", lambda r, c: _ats(r) and _weak(c) and not _fav(r)),
+    ("bounce back: side off a loss ATS", lambda r, c: _ats(r) and bool(_me(r, c).off_loss) and not _them(r, c).off_loss),
+    ("bounce back: both off a loss, favourite ATS", lambda r, c: _ats(r) and _both_off_loss(c) and _fav(r)),
+    ("bounce back: both off a loss, underdog ATS", lambda r, c: _ats(r) and _both_off_loss(c) and not _fav(r)),
     ("mid-major vs power conference: mid-major ATS", lambda r, c: _ats(r) and _me(r, c).power is False and _them(r, c).power is True),
     ("conference game underdog ATS", lambda r, c: _ats(r) and c.conference and not _fav(r)),
     ("non-conference underdog ATS", lambda r, c: _ats(r) and not c.conference and not _fav(r)),
@@ -129,12 +153,34 @@ BANDS: tuple[tuple[str, Pred], ...] = (
 )
 
 
-def main_rows(rows: Iterable[ledger.Row]) -> list[ledger.Row]:
-    """One graded row per (game, market, side): the most-quoted line, median price; date order."""
-    groups: dict[tuple[str, str, str, str], list[ledger.Row]] = defaultdict(list)
+def one_slate_per_game(rows: Iterable[ledger.Row]) -> list[ledger.Row]:
+    """Keep each (game, market, side) from one slate only, so a game captured on several daily slates counts once.
+
+    The slate of its own US tip day wins; failing that the latest slate before it, else the earliest.
+    """
+    by_bet: dict[tuple[str, str, str], list[ledger.Row]] = defaultdict(list)
     for r in rows:
-        if r.bet_of_record and r.market in MAIN and r.outcome in ("win", "loss", "push") and r.pnl is not None and r.p_fair:
-            groups[(r.slate_date, r.event_id, r.market, r.side)].append(r)
+        by_bet[(r.event_id, r.market, r.side)].append(r)
+    out: list[ledger.Row] = []
+    for rs in by_bet.values():
+        slates = sorted({r.slate_date for r in rs})
+        tip = tip_day(max(rs, key=lambda r: r.slate_date).tip_utc)
+        day = tip.isoformat() if tip else ""
+        before = [d for d in slates if d <= day]
+        keep = before[-1] if before else slates[0]
+        out += [r for r in rs if r.slate_date == keep]
+    return out
+
+
+def main_rows(rows: Iterable[ledger.Row]) -> list[ledger.Row]:
+    """One graded row per (game, market, side) from the game's own slate: the most-quoted line, median price."""
+    groups: dict[tuple[str, str, str, str], list[ledger.Row]] = defaultdict(list)
+    graded = [
+        r for r in rows
+        if r.bet_of_record and r.market in MAIN and r.outcome in ("win", "loss", "push") and r.pnl is not None and r.p_fair
+    ]
+    for r in one_slate_per_game(graded):
+        groups[(r.slate_date, r.event_id, r.market, r.side)].append(r)
     out: list[ledger.Row] = []
     for rs in groups.values():
         by_line: dict[float | None, list[ledger.Row]] = defaultdict(list)
@@ -203,23 +249,13 @@ def parse_logs(logs: Iterable[list[str]]) -> list[LogGame]:
     return out
 
 
-def profile(logs: Sequence[LogGame], before: Date) -> dict[str, tuple[int | None, bool | None]]:
-    """Season-to-date (net-rating rank, slowest-third tempo) per Torvik team, games before ``before``."""
-    acc: dict[str, list[float]] = defaultdict(lambda: [0.0, 0.0, 0.0, 0.0])
+def last_results(logs: Sequence[LogGame], before: Date) -> dict[str, bool]:
+    """Per Torvik team, whether its last logged game dated before ``before`` was a loss."""
+    last: dict[str, LogGame] = {}
     for g in logs:
-        if g.day < before:
-            a = acc[g.team]
-            a[0] += 1
-            a[1] += g.poss
-            a[2] += g.pts
-            a[3] += g.opp_pts
-    net = teamstats._ranks({t: 100 * (a[2] - a[3]) / a[1] for t, a in acc.items() if a[1]}, high_is_good=True)
-    pace = teamstats._ranks({t: a[1] / a[0] for t, a in acc.items() if a[0]}, high_is_good=False)
-    slow_cut = len(pace) * SLOW_SHARE
-    return {
-        t: (net[t].rank if t in net else None, (pace[t].rank or 0) <= slow_cut if t in pace and pace[t].rank else None)
-        for t in acc
-    }
+        if g.day < before and (g.team not in last or g.day > last[g.team].day):
+            last[g.team] = g
+    return {t: g.pts < g.opp_pts for t, g in last.items()}
 
 
 def tempo_thirds(results: Iterable[Mapping[str, str]]) -> dict[str, str]:
@@ -236,6 +272,17 @@ def tempo_thirds(results: Iterable[Mapping[str, str]]) -> dict[str, str]:
         t: "slow" if i < n * SLOW_SHARE else "fast" if i >= n * (1 - SLOW_SHARE) else "mid"
         for i, t in enumerate(ranked)
     }
+
+
+def torvik_ranks(results: Iterable[Mapping[str, str]]) -> dict[str, int]:
+    """Torvik's own rank per team from an archived ``team_results`` table (pre-season until games land)."""
+    out: dict[str, int] = {}
+    for r in results:
+        try:
+            out[r.get("team", "")] = int(r.get("rank", ""))
+        except ValueError:
+            continue
+    return out
 
 
 def rest_days(team: str, day: Date, boards: Mapping[Date, Sequence[espn.Game]]) -> int | None:
@@ -269,6 +316,12 @@ def main_lines(qs: Sequence[quotes.Quote]) -> dict[tuple[str, str], float]:
     return {k: sorted(v)[len(v) // 2] for k, v in lines.items()}
 
 
+def tip_day(tip_utc: str) -> Date | None:
+    """The US calendar day a game tips on, so pre-tip stats can stop the day before it."""
+    day = capture.slate_date_of(tip_utc)
+    return Date.fromisoformat(day) if day else None
+
+
 def context(
     teams: Mapping[str, tuple[str, str]],
     day: Date,
@@ -277,22 +330,29 @@ def context(
     confs: Mapping[str, str],
     opener: Mapping[str, Mapping[tuple[str, str], float]] | None = None,
     tempo: Mapping[str, str] | None = None,
+    ranks: Mapping[str, int] | None = None,
+    public: Mapping[str, Mapping[tuple[str, str], Public]] | None = None,
 ) -> dict[str, GameCtx]:
-    """Pre-tip context per event from the day's ESPN board (rank, venue, conference flag),
-    earlier boards (rest), Torvik logs before ``day`` (net rank, tempo), conference membership and
-    ``tempo`` (each Torvik team's adjusted-tempo third as of ``day``)."""
-    prof = profile(logs, day)
+    """Pre-tip context per event from the day's ESPN board (AP rank, venue, conference flag),
+    earlier boards (rest), Torvik logs before ``day`` (last game a loss), conference membership,
+    ``tempo`` (each Torvik team's adjusted-tempo third as of ``day``) and ``ranks`` (Torvik's rank
+    archived on or before ``day``) and ``public`` (each event's VSiN ticket/handle shares from the
+    last capture before its tip). A season-to-date rank from one or two logged games is not a
+    rank, so nothing here is computed from the logs' margins."""
+    last = last_results(logs, day)
     thirds = tempo or {}
-    tv = sorted(set(prof) | set(confs) | set(thirds))
+    tv_rank = ranks or {}
+    tv = sorted(set(last) | set(confs) | set(thirds) | set(tv_rank))
     games = boards.get(day, ())
     out: dict[str, GameCtx] = {}
 
     def team(name: str, espn_name: str | None, ap: int | None) -> Team:
         t = teamstats.match_team(name, tv)
-        net, slow = prof.get(t, (None, None)) if t else (None, None)
+        pace = thirds.get(t) if t else None
         conf = confs.get(t) if t else None
         rest = rest_days(espn_name, day, boards) if espn_name else None
-        return Team(ap, net, slow, (conf in POWER) if conf else None, rest, thirds.get(t) if t else None)
+        return Team(ap=ap, net_rank=tv_rank.get(t) if t else None, slow=(pace == "slow") if pace else None,
+                    off_loss=last.get(t) if t else None, power=(conf in POWER) if conf else None, rest=rest, pace=pace)
 
     for eid, (home, away) in teams.items():
         hit = history.match_oriented(home, away, games)
@@ -305,11 +365,12 @@ def context(
             neutral=bool(g and g.neutral),
             conference=bool(g and g.conference_game),
             opener=dict((opener or {}).get(eid, {})),
+            public=dict((public or {}).get(eid, {})),
         )
     return out
 
 
 __all__ = [
-    "BANDS", "GameCtx", "LogGame", "Team", "context", "main_lines", "main_rows", "market_expected",
-    "openers", "parse_logs", "profile", "read_bands", "render", "rest_days", "tempo_thirds",
+    "BANDS", "GameCtx", "LogGame", "Team", "context", "main_lines", "main_rows", "market_expected", "one_slate_per_game",
+    "last_results", "openers", "parse_logs", "read_bands", "render", "rest_days", "tempo_thirds", "tip_day", "torvik_ranks",
 ]

@@ -35,6 +35,7 @@ from mlb_engine.data import http
 log = logging.getLogger(__name__)
 
 BASE = "https://api.the-odds-api.com/v4/sports/americanfootball_ncaaf"
+HIST_BASE = "https://api.the-odds-api.com/v4/historical/sports/americanfootball_ncaaf"
 _GAME_MARKETS = ["h2h", "spreads", "totals"]
 # College kickoffs are quoted in US Eastern; a "Saturday slate" is the set of
 # games that kick between Eastern midnight and the next Eastern midnight.
@@ -162,6 +163,65 @@ class OddsAPIClient:
             slate.games.sort(key=lambda g: g.commence_time_utc or "")
         return out
 
+    def fetch_historical_board(self, slate_date: Date, at: str) -> tuple[str, Slate, Board]:
+        """The slate's board as the last snapshot at or before ``at`` (ISO UTC) saw it.
+
+        Returns (snapshot timestamp, slate, board); the timestamp, not ``at``, is when
+        the quotes were live. Costs 10 credits per market per region.
+        """
+        empty: tuple[str, Slate, Board] = "", Slate(slate_date=slate_date), {}
+        if not self.available():
+            return empty
+        cost = 10 * len(_GAME_MARKETS) * max(1, len(self.regions.split(",")))
+        data = self._get_json(
+            f"{HIST_BASE}/odds", credit_cost=cost, markets=",".join(_GAME_MARKETS), date=at
+        )
+        if not isinstance(data, dict) or not isinstance(data.get("data"), list):
+            return empty
+        slate, board = self._slate_of(data["data"], slate_date)
+        return str(data.get("timestamp", "")), slate, board
+
+    def historical_kickoffs(self, slate_date: Date) -> dict[str, str]:
+        """Matchup -> kickoff (ISO UTC) for the slate's games, from the 08:00 ET event list (1 credit)."""
+        if not self.available():
+            return {}
+        at = datetime.combine(slate_date, Time(8, 0), tzinfo=_SLATE_TZ).astimezone(timezone.utc)
+        data = self._get_json(f"{HIST_BASE}/events", credit_cost=1, date=_iso(at))
+        if not isinstance(data, dict) or not isinstance(data.get("data"), list):
+            return {}
+        slate, _ = self._slate_of(data["data"], slate_date, odds=False)
+        return {g.matchup(): g.commence_time_utc or "" for g in slate.games}
+
+    def _slate_of(self, data: list, slate_date: Date, *, odds: bool = True) -> tuple[Slate, Board]:
+        """Games kicking off on ``slate_date`` (US/Eastern) from an Odds API event list."""
+        games: list[Game] = []
+        board: Board = {}
+        for raw in data:
+            ev = self._to_event(raw)
+            kick = raw.get("commence_time")
+            if ev is None or not kick:
+                continue
+            day = (
+                datetime.fromisoformat(str(kick).replace("Z", "+00:00"))
+                .astimezone(_SLATE_TZ)
+                .date()
+            )
+            if day != slate_date:
+                continue
+            games.append(
+                Game(
+                    game_id=ev.event_id,
+                    game_date=slate_date,
+                    commence_time_utc=kick,
+                    home=TeamGameInfo(name=raw["home_team"], abbrev=ev.home_ab, is_home=True),
+                    away=TeamGameInfo(name=raw["away_team"], abbrev=ev.away_ab, is_home=False),
+                )
+            )
+            if odds:
+                board[ev.matchup] = self._parse_game(raw, ev)
+        games.sort(key=lambda g: g.commence_time_utc or "")
+        return Slate(slate_date=slate_date, games=games), board
+
     # -- parsing ----------------------------------------------------------
     def fetch_alt_lines(self, slate_date: Date, matchups: set[str]) -> list[dict]:
         """Alternate spreads/totals for the named games (~2 credits a game).
@@ -255,7 +315,7 @@ class OddsAPIClient:
         stamp = json.dumps({"url": url, **params}, sort_keys=True)
         return self.cache_dir / f"{hashlib.sha256(stamp.encode()).hexdigest()[:20]}.json"
 
-    def _get_json(self, url: str, **params: str) -> object:
+    def _get_json(self, url: str, credit_cost: int | None = None, **params: str) -> object:
         q = {"regions": self.regions, "oddsFormat": "american", **params}
         cache = self._cache_path(url, q)
         if cache is not None and cache.exists():
@@ -264,13 +324,23 @@ class OddsAPIClient:
                     return json.loads(cache.read_text())
                 except ValueError:
                     pass
-        if not credits.debit_for("cfb", url, q, remaining=self.credits_remaining):
+        allowed = (
+            credits.debit(
+                "cfb",
+                credit_cost,
+                endpoint="hist_" + url.rstrip("/").rsplit("/", 1)[-1],
+                markets=q.get("markets", ""),
+                regions=self.regions,
+                remaining_header=self.credits_remaining,
+            )
+            if credit_cost is not None
+            else credits.debit_for("cfb", url, q, remaining=self.credits_remaining)
+        )
+        if not allowed:
             log.info("Odds API %s skipped: shared credit budget", url.rsplit("/", 1)[-1])
             return None
         try:
-            resp = http.get(
-                url, params={"apiKey": self.api_key or "", **q}, timeout=self.timeout
-            )
+            resp = http.get(url, params={"apiKey": self.api_key or "", **q}, timeout=self.timeout)
             remaining = resp.headers.get("x-requests-remaining")
             if remaining is not None:
                 self.credits_remaining = int(float(remaining))

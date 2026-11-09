@@ -107,6 +107,21 @@ def test_coverage_counts_held_and_not_posted(tmp_path):
     assert held["close"] == 1 and not_posted["t3h"] == 1
 
 
+def test_a_part_pulls_events_already_held_and_is_read_and_counted(tmp_path):
+    client = FakeClient()
+    _pull(client, tmp_path, markets=("h2h", "totals"))
+    base = history_rows_count(tmp_path)
+    again = _pull(client, tmp_path, markets=("player_points",))
+    assert (again.fetched, again.skipped) == (0, 1)
+    props = _pull(client, tmp_path, markets=("player_points",), part="props")
+    assert (props.fetched, props.credits) == (1, 10)
+    eid = _event()["id"]
+    assert history.raw_path(tmp_path, DAY, eid, "close", "props").exists()
+    assert history_rows_count(tmp_path) == 2 * base
+    held = history.coverage(tmp_path, [DAY])["held"]
+    assert isinstance(held, dict) and held["close"] == 1 and held["close.props"] == 1
+
+
 def test_season_days_runs_october_to_june():
     days = history.season_days("2024-25")
     assert days[0] == date(2024, 10, 1) and days[-1] == date(2025, 6, 30)

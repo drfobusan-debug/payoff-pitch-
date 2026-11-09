@@ -368,3 +368,28 @@ def test_grade_flag_all_markets():
     assert grade_flag(_flag("total", "under", 43.5), 24, 20)[0] == "loss"
     assert grade_flag(_flag("total", "over", 44.0), 24, 20) == ("push", 0.0)
     assert grade_flag(_flag("spread", "home", -3.0), 24, 20)[1] == round(100 / 110, 4)
+
+
+def test_scoreboard_is_asked_for_the_eastern_day(monkeypatch):
+    from datetime import datetime, timezone
+
+    from live_edge import espn
+
+    # 02:30 UTC on the 8th is still the 7th's slate in New York.
+    assert espn.board_day(datetime(2026, 11, 8, 2, 30, tzinfo=timezone.utc)) == "20261107"
+    seen = {}
+
+    class _Resp:
+        def raise_for_status(self):
+            pass
+
+        def json(self):
+            return {"events": []}
+
+    def get(url, params=None, timeout=None):
+        seen.update(params or {})
+        return _Resp()
+
+    monkeypatch.setattr(espn.requests, "get", get)
+    assert espn.fetch_scoreboard("cbb") == []
+    assert seen["dates"] == espn.board_day()

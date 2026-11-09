@@ -149,6 +149,7 @@ class SlateCard:
     games: list[GameCard] = field(default_factory=list)
     unpriced: list[str] = field(default_factory=list)
     props: PropContext | None = None
+    level_note: str = ""  # how tonight's goal level was set (``level.LevelFit``)
 
     @property
     def rows(self) -> list[LedgerRow]:
@@ -673,6 +674,8 @@ def run_slate(
             out.unpriced.append(f"{matchup}: {exc}")
             continue
         card.event_id = event_id
+        for r in card.rows:
+            r.goal_level = cfg.sim.goal_level
         one_buy_per_side(card.rows)
         out.games.append(card)
     return out

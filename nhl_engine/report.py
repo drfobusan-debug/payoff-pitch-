@@ -21,7 +21,7 @@ import pandas as pd
 from engine_common.bands import BandRead
 from engine_common.podcasts.extract import Pick as ArticlePick
 from engine_common.podcasts.render import bet_line
-from engine_common.promotion import MIN_BUYS, Promotion
+from engine_common.promotion import BAR_TEXT, MIN_BUYS, Promotion
 from nhl_engine.audit.ledger import LedgerRow
 from nhl_engine.audit.podcast_picks import HOSTS, UNATTRIBUTED, Pick, StatedRecord, Tally, tally
 from nhl_engine.data.availability import current_out, read_log
@@ -569,8 +569,8 @@ def _stake_block(ctx: ReportContext) -> str:
         return f"<p class='muted'>Stake bar: {items}. Every other market stays paper.</p>"
     waits = "; ".join(f"{escape(p.market)} ({escape(p.why_not)})" for p in ctx.promotions)
     return (
-        f"<p class='muted'>Stake bar: every market is still paper ({MIN_BUYS} graded buys, ROI ≥ 0 in"
-        f" both halves, CLV lower bound > 0, Brier ≤ market). Waiting on: {waits}.</p>"
+        f"<p class='muted'>Stake bar: every market is still paper ({MIN_BUYS} graded buys,"
+        f" {BAR_TEXT}). Waiting on: {waits}.</p>"
     )
 
 
@@ -660,7 +660,9 @@ def render_html(card: SlateCard, ctx: ReportContext) -> str:
         f"<h1>NHL card — {card.slate_date:%A, %B %-d, %Y}</h1>"
         f"<p class='sub'>{len(card.games)} games priced from one joint period sim each; {len(card.rows)} selections read, "
         f"{len(buys)} buy{'s' if len(buys) != 1 else ''}; {n_props} prop rows (research only).</p>"
-        f"<div class='dateline'>priced {escape(card.priced_at)} · tag {escape(card.tag)} · prior {escape(card.prior_version)}</div></div>"
+        f"<div class='dateline'>priced {escape(card.priced_at)} · tag {escape(card.tag)} · prior {escape(card.prior_version)}</div>"
+        + (f"<div class='dateline'>{escape(card.level_note)}</div>" if card.level_note else "")
+        + "</div>"
     )
     if buys:
         slate = _best_bets_block(card.rows) + (

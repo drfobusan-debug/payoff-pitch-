@@ -97,7 +97,7 @@ def v_prior(rows: Iterable[Row]) -> list[dict[str, object]]:
     ]
 
 
-__all__ = ["v_clv", "v_gate", "v_prior", "v_rung", "v_shape"]
+__all__ = ["v_clv", "v_closecheck", "v_gate", "v_prior", "v_promotion", "v_rung", "v_shape"]
 
 
 def v_promotion(rows: Iterable[Row]) -> list[dict[str, object]]:
@@ -124,7 +124,13 @@ def v_promotion(rows: Iterable[Row]) -> list[dict[str, object]]:
         p = promotion.read(
             market,
             [r.pnl or 0.0 for r in rs],
-            [r.clv_consensus / 100 for r in rs if r.clv_consensus is not None],
+            [
+                promotion.close_roi(r.close_consensus, r.american)
+                for r in rs
+                if r.close_status == "pre_tip"
+                and r.close_consensus is not None
+                and r.american is not None
+            ],
             bm,
             bk,
         )
@@ -133,10 +139,49 @@ def v_promotion(rows: Iterable[Row]) -> list[dict[str, object]]:
                 "market": market,
                 "n": p.n,
                 "roi": round(p.roi, 4),
-                "clv_lo": round(p.clv_lo, 4) if p.clv_n > 1 else None,
+                "close_n": p.close_n,
+                "close_roi": round(p.close_roi, 4) if p.close_n else None,
+                "close_roi_lo": round(p.close_roi_lo, 4) if p.close_n > 1 else None,
                 "status": p.status,
                 "stake": p.stake,
                 "why_not": p.why_not,
             }
         )
     return out
+
+
+def v_closecheck(rows: Iterable[Row]) -> list[dict[str, object]]:
+    """The devigged close against results by price range, over live graded buys."""
+    from engine_common import closecheck
+
+    graded = [
+        closecheck.Graded(
+            float(r.close_consensus or 0.0),
+            float(r.american or 0.0),
+            r.outcome == "win",
+            r.pnl or 0.0,
+        )
+        for r in rows
+        if r.status == "live"
+        and r.bet_of_record
+        and r.is_buy
+        and r.outcome in ("win", "loss")
+        and r.close_status == "pre_tip"
+        and r.close_consensus is not None
+        and r.american is not None
+    ]
+    return [
+        {
+            "label": b.label,
+            "n": b.n,
+            "close_prob": b.close_prob,
+            "hit": b.hit,
+            "gap": b.gap,
+            "gap_se": b.gap_se,
+            "close_roi": b.close_roi,
+            "roi": b.roi,
+            "verdict": b.verdict,
+            "cells": closecheck.row(b),
+        }
+        for b in closecheck.read(graded)
+    ]

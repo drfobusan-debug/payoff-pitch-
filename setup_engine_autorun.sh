@@ -157,6 +157,8 @@ NFL_WEEKDAYS="4 0"   # launchd: Thursday, Sunday
 # Monday night); Wed/Sat/Sun evenings are the night before Thu/Sun/Mon games.
 # The Thursday card then stamps every row with the open and how far the market
 # moved before the bet, and the Excel CLV sheet reads open -> taken -> close.
+# Tuesday's run is `nfl-engine open --early`: the same board is also priced into
+# the early ledger, record only, for `nfl-engine early-report`.
 NFL_OPEN_WAKE_HHMM="08:00"; NFL_OPEN_RUN_HOUR=8; NFL_OPEN_RUN_MIN=5
 NFL_OPEN_WEEKDAYS="2"                  # launchd: Tuesday
 NFL_EVE_WAKE_HHMM="20:00"; NFL_EVE_RUN_HOUR=20; NFL_EVE_RUN_MIN=5

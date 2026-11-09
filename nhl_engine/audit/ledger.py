@@ -86,6 +86,8 @@ class LedgerRow:
     # The starters' GSAx/60 as priced, for the graded-only goalie lean in the bands.
     home_goalie_gsax60: float | None = None
     away_goalie_gsax60: float | None = None
+    # ``SimParams.goal_level`` the sim ran at (None = before the nightly fit: 1.035).
+    goal_level: float | None = None
 
     @property
     def is_buy(self) -> bool:

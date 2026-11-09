@@ -24,9 +24,10 @@ import os
 import sys
 from datetime import date as Date
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 from zoneinfo import ZoneInfo
 
-from cfb_engine.audit import altlines, early, shop, snapshot, watchlist
+from cfb_engine.audit import altlines, closefill, early, shop, snapshot, watchlist
 from cfb_engine.audit.availability import read_log, summarize
 from cfb_engine.audit.clv import (
     ClosingQuote,
@@ -38,6 +39,7 @@ from cfb_engine.audit.clv import (
     load_closing,
     merge_closing,
     save_closing,
+    timely_close,
     timely_clv,
     timely_only,
 )
@@ -87,6 +89,7 @@ from cfb_engine.state import auto_pull, auto_push
 from engine_common.podcasts import state as podcast_state
 from engine_common.podcasts.episodes import store_dir
 from engine_common.podcasts.shows import CFB
+from engine_runtime import faststart
 
 _EASTERN = ZoneInfo("America/New_York")
 _AUDIT_CATCH_UP_DAYS = 14
@@ -398,21 +401,47 @@ def cmd_early(cfg: Config, args: argparse.Namespace) -> int:
     return 0
 
 
+def _cards(paths: dict[str, Path]) -> dict[str, list[Recommendation]]:
+    return {day: load_json(path) for day, path in paths.items() if path.exists()}
+
+
+def _early_bars(cfg: Config) -> list[early.CloseBar]:
+    """Tuesday's pre-registered spread bar beside the same rule on Saturday's card."""
+    rows = load_ledger(cfg.early_ledger_file)
+    days = sorted({e.date for e in rows})
+    if not days:
+        return []
+    tuesday = _cards({d: cfg.early_file(Date.fromisoformat(d)) for d in days})
+    saturday = _cards({d: cfg.predictions_file(Date.fromisoformat(d)) for d in tuesday})
+    return early.bars(tuesday, rows, saturday, load_ledger(cfg.ledger_file))
+
+
+def _cents(v: float | None) -> str:
+    return f"{v:+.1%}" if v is not None else ""
+
+
 def cmd_early_report(cfg: Config, args: argparse.Namespace) -> int:
+    _state_pull(cfg)
     rows = early.compare(load_ledger(cfg.early_ledger_file), load_ledger(cfg.ledger_file))
     if not rows[0].n:
         print("No graded early cards yet.")
         return 0
     print(
-        f"{'group':40s} {'n':>4s} {'W-L-P':>9s} {'units':>8s} {'ROI':>7s} {'CLV pts':>8s} {'pts vs Sat':>10s}"
+        f"{'group':40s} {'n':>4s} {'W-L-P':>9s} {'units':>8s} {'ROI':>7s} {'CLV pts':>8s} "
+        f"{'EV at close':>11s} {'pts vs Sat':>10s}"
     )
     for r in rows:
         clv = f"{r.clv_pts:+.2f}" if r.clv_pts is not None else ""
         gained = f"{r.pts_gained:+.2f}" if r.pts_gained is not None else ""
         wlp = f"{r.wins}-{r.losses}-{r.pushes}"
         print(
-            f"{r.label:40s} {r.n:4d} {wlp:>9s} {r.units:+8.2f} {r.roi:+7.1%} {clv:>8s} {gained:>10s}"
+            f"{r.label:40s} {r.n:4d} {wlp:>9s} {r.units:+8.2f} {r.roi:+7.1%} {clv:>8s} "
+            f"{_cents(r.close_ev):>11s} {gained:>10s}"
         )
+    print(f"\nPre-registered bar: positive EV at the close over {early.BAR_GAMES} games")
+    for b in _early_bars(cfg):
+        se = f"± {b.se:.1%}" if b.se is not None else ""
+        print(f"{b.label:55s} {b.n:4d} {_cents(b.close_ev):>7s} {se:>8s}  {b.verdict}")
     return 0
 
 
@@ -772,12 +801,37 @@ def cmd_weekly(cfg: Config, args: argparse.Namespace) -> int:
     if not entries:
         print("Ledger is empty; run `cfb-engine audit` first.")
         return 1
-    report = weekly_audit(_timely_clv(cfg, entries), _audit_day(args))
-    out = generate_weekly_report(report, cfg, email=not args.no_email, to=args.to)
+    end = _audit_day(args)
+    report = weekly_audit(_timely_clv(cfg, entries), end)
+    out = generate_weekly_report(
+        report,
+        cfg,
+        email=not args.no_email,
+        to=args.to,
+        fast=_fast_start(cfg, entries, end),
+        early_bars=_early_bars(cfg),
+    )
     for line in report.week.findings + report.ledger.findings:
         print(f"- {line}")
     print(f"Wrote weekly audit -> {out['pdf'] or out['html']}")
     return 0
+
+
+def _fast_start(cfg: Config, entries: list[LedgerEntry], end: Date) -> list[faststart.Read]:
+    """The fast-start study over every slate through ``end`` (empty without a CFBD key)."""
+    from cfb_engine.audit import faststart as cfb_fast
+    from cfb_engine.data.cfbd import CFBDClient
+
+    days = sorted({e.date for e in entries if Date.fromisoformat(e.date) <= end})
+    closings = {d: load_closing(cfg.closing_file(Date.fromisoformat(d))) for d in days}
+    cfbd = CFBDClient(cfg.creds.cfbd_api_key)
+    seasons = sorted({_season(cfg, Date.fromisoformat(d)) for d in days})
+    try:
+        games = [g for s in seasons for g in cfbd.fetch_line_scores(s)]
+    except Exception as exc:  # noqa: BLE001 - a study table must not stop the audit
+        logging.getLogger(__name__).warning("fast-start study skipped: %s", exc)
+        return []
+    return cfb_fast.reads(closings, games)
 
 
 def cmd_calibrate(cfg: Config, args: argparse.Namespace) -> int:
@@ -1002,6 +1056,103 @@ def cmd_repair_closes(cfg: Config, args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_close_backfill(cfg: Config, args: argparse.Namespace) -> int:
+    """Buy the per-game close for graded buys that have none, from Odds API history.
+
+    One historical snapshot ``--lead`` minutes before each kickoff window; only sides
+    without a timely close are written, then the ledger's CLV is re-stamped. Without
+    ``--buy`` it prints the plan and its credit cost and spends nothing.
+    """
+    _state_pull(cfg)
+    entries = load_ledger(cfg.ledger_file)
+    need = closefill.missing(
+        entries, lambda iso: load_closing(cfg.closing_file(Date.fromisoformat(iso)))
+    )
+    if args.date:
+        need = {d: m for d, m in need.items() if d == args.date}
+    if not need:
+        print("Every graded buy already has a timely close; nothing to buy")
+        return 0
+    odds = OddsAPIClient(
+        cfg.creds.odds_api_key,
+        regions=cfg.odds_regions,
+        cache_dir=cfg.odds_cache_dir,
+        cache_ttl=10**9,
+    )
+    if args.buy and not odds.available():
+        print("No Odds API key (ODDS_API_KEY); nothing bought")
+        return 1
+    plan: dict[str, dict[str, list[str]]] = {}
+    unknown: dict[str, set[str]] = {}
+    for iso, matchups in sorted(need.items()):
+        day = Date.fromisoformat(iso)
+        path = cfg.predictions_file(day)
+        recs = load_json(path) if path.exists() else []
+        kicks = {r.matchup: r.kickoff_utc for r in recs if r.matchup in matchups and r.kickoff_utc}
+        lost = matchups - set(kicks)
+        if lost and args.buy:
+            found = odds.historical_kickoffs(day)
+            kicks |= {m: found[m] for m in lost if found.get(m)}
+            lost = matchups - set(kicks)
+        if lost:
+            unknown[iso] = lost
+        plan[iso] = closefill.windows(kicks, args.lead)
+    snaps = sum(len(w) for w in plan.values())
+    guess = 0 if args.buy else sum(len(m) for m in unknown.values())
+    lookups = 0 if args.buy else len(unknown)
+    games = sum(len(m) for m in need.values())
+    print(
+        f"{games} game(s) on {len(need)} slate(s) lack a timely close: {snaps} snapshot(s)"
+        + (f" + up to {guess} for {guess} game(s) with no stored kickoff" if guess else "")
+        + f", about {closefill.cost(snaps + guess, cfg.odds_regions, lookups)} credits"
+    )
+    if not args.buy:
+        for iso, lost in sorted(unknown.items()):
+            print(f"  {iso}: kickoff looked up at buy time for {', '.join(sorted(lost))}")
+        print("Plan only; rerun with --buy to spend the credits")
+        return 0
+    filled_total = 0
+    for iso, wins in plan.items():
+        day = Date.fromisoformat(iso)
+        closing = load_closing(cfg.closing_file(day))
+        before = sum(1 for q in closing.values() if timely_close(q))
+        for at, group in wins.items():
+            stamp, slate, board = odds.fetch_historical_board(day, at)
+            seen = _parse_utc(stamp)
+            if seen is None:
+                print(f"{iso} {at}: no snapshot returned")
+                continue
+            fresh = closing_quotes(slate, board, now=seen)
+            want = set(group)
+            closing = closefill.fill(
+                closing, {k: q for k, q in fresh.items() if k.split("|", 1)[0] in want}
+            )
+        added = sum(1 for q in closing.values() if timely_close(q)) - before
+        filled_total += added
+        save_closing(closing, cfg.closing_file(day))
+        day_rows = [e for e in entries if e.date == iso]
+        _restamp_clv(cfg, day_rows, timely_only(closing)[0])
+        update_ledger(cfg.ledger_file, day_rows, day)
+        missed = need[iso] - {k.split("|", 1)[0] for k, q in closing.items() if timely_close(q)}
+        tail = f"; still no close for {', '.join(sorted(missed))}" if missed else ""
+        print(f"{iso}: {added} timely close side(s) added{tail}")
+    stamped = sum(1 for e in load_ledger(cfg.ledger_file) if e.clv is not None)
+    print(f"Added {filled_total} close side(s); {stamped} ledger rows now carry a timely close")
+    if odds.credits_remaining is not None:
+        print(f"Odds API credits remaining: {odds.credits_remaining:,}")
+    if filled_total:
+        _state_push(cfg, f"cfb close-backfill: {filled_total} historical closes")
+    return 0
+
+
+def _parse_utc(stamp: str) -> datetime | None:
+    try:
+        t = datetime.fromisoformat(stamp.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return t if t.tzinfo else t.replace(tzinfo=timezone.utc)
+
+
 def cmd_shop(cfg: Config, args: argparse.Namespace) -> int:
     """Totals graded at the card's number vs the best allowed number vs Kalshi."""
     _state_pull(cfg)
@@ -1178,8 +1329,24 @@ def _build_parser() -> argparse.ArgumentParser:
     sub.add_parser("early-report", help="Tuesday cards vs Saturday cards on the same slates")
     add_common(sub.add_parser("audit", help="grade a slate and update the ledger"), email=True)
     sub.add_parser("alt-report", help="record of the tracked alternate spreads and totals")
-    sub.add_parser("alt-regrade", help="regrade saved alternate lines with engine prices (no credits)")
+    sub.add_parser(
+        "alt-regrade", help="regrade saved alternate lines with engine prices (no credits)"
+    )
     sub.add_parser("repair-closes", help="purge in-play quotes from saved closes and re-stamp CLV")
+    bf = sub.add_parser(
+        "close-backfill", help="buy the historical close for graded buys that have none"
+    )
+    bf.add_argument("--date", help="only this slate date YYYY-MM-DD (default: every slate)")
+    bf.add_argument(
+        "--buy", action="store_true", help="spend the credits (default: print the plan)"
+    )
+    bf.add_argument(
+        "--lead",
+        type=float,
+        default=closefill.LEAD_MIN,
+        metavar="MIN",
+        help="minutes before kickoff to read the snapshot (default: 10; must be under 45)",
+    )
     sub.add_parser(
         "stamp-units",
         help="stamp pre-slate unit ranks (ATS/ML), YPP tags (totals), conference tier and AP "
@@ -1225,6 +1392,7 @@ _DISPATCH = {
     "early-report": cmd_early_report,
     "audit": cmd_audit,
     "repair-closes": cmd_repair_closes,
+    "close-backfill": cmd_close_backfill,
     "stamp-units": cmd_stamp_units,
     "shop": cmd_shop,
     "report": cmd_report,

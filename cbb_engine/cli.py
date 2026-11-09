@@ -13,6 +13,7 @@ import csv
 import json
 import logging
 import sys
+from collections.abc import Mapping, Sequence
 from datetime import date as Date
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -34,7 +35,7 @@ from cbb_engine import (
     teamgroups,
 )
 from cbb_engine.config import SPORT, SPORT_KEY, data_dir, dry_run, load_config, runtime_root
-from cbb_engine.data import capture, espn, injuries, torvik, watch
+from cbb_engine.data import capture, espn, injuries, torvik, vsin_splits, watch
 from cbb_engine.markets import EVENT_MARKETS, FEATURED
 from cbb_engine.models import distribution as dist
 from cbb_engine.models import margin as mg
@@ -44,7 +45,7 @@ from engine_common.podcasts import state as podcast_state
 from engine_common.podcasts.episodes import store_dir
 from engine_common.podcasts.run import read_feeds
 from engine_common.podcasts.shows import CBB, SHOWS
-from engine_runtime import ledger, quotes, runner, views
+from engine_runtime import faststart, ledger, quotes, runner, views
 from engine_runtime.odds_client import OddsClient
 
 log = logging.getLogger(__name__)
@@ -104,7 +105,7 @@ def cmd_capture(args: argparse.Namespace) -> int:
     client = _client()
     if client is None:
         return 2
-    state.auto_pull(trees=("quotes",))
+    state.auto_pull(trees=("quotes", "splits"))
     now = datetime.now(timezone.utc)
     at = now.strftime("%Y-%m-%dT%H:%M:%SZ")
     events = client.events(commenceTimeFrom=now.strftime("%Y-%m-%dT%H:%M:%SZ"))
@@ -147,6 +148,12 @@ def cmd_capture(args: argparse.Namespace) -> int:
                 teams=capture.teams(evs),
                 interval_min=interval,
             )
+            sp = vsin_splits.write_capture(
+                root, day.isoformat(), p.pass_id,
+                vsin_splits.fetch(day, captured_at=p.started_at, pass_id=p.pass_id),
+            )
+            if sp is not None:
+                written.append(sp.name)
             if cfg.event_markets_on:
                 for eid in sorted(tips)[: cfg.max_events]:
                     ev = client.event(eid, EVENT_MARKETS, pass_id=p.pass_id)
@@ -205,7 +212,7 @@ def cmd_capture(args: argparse.Namespace) -> int:
         ps.run("close", close)
 
     if written:
-        state.auto_push(f"cbb capture {day} {len(written)} shard(s)", trees=("quotes",))
+        state.auto_push(f"cbb capture {day} {len(written)} shard(s)", trees=("quotes", "splits"))
     print(
         f"{day}: {len(tips)} game(s); wrote {written}; spent {client.spent}; remaining {client.credits_remaining}"
     )
@@ -317,23 +324,43 @@ def _manifest_teams(root: Path, day: Date) -> dict[str, tuple[str, str]]:
 def _season_ctx(
     root: Path, season: list[ledger.Row], day: Date
 ) -> tuple[dict[str, bands.GameCtx], dict[Date, list[espn.Game]]]:
-    """Pre-tip context per event over the season's slates, and the archived ESPN boards it read."""
+    """Pre-tip context per event over the season's slates, and the archived ESPN boards it read.
+
+    An event sits on every slate that captured it, so each one is read as of its own tip day:
+    Torvik logs stop the day before it tips, never on a later slate that already holds its result."""
     logs = bands.parse_logs(teamstats.read_logs(torvik.as_of(data_dir(), "game_logs", day).path))
     res = torvik.as_of(data_dir(), "team_results", day).path
     confs = {r.get("team", ""): r.get("conf", "") for r in torvik.read_csv(res)} if res else {}
-    days = sorted({Date.fromisoformat(r.slate_date) for r in season})
+    slates = sorted({Date.fromisoformat(r.slate_date) for r in season})
+    tips: dict[str, Date] = {}
+    tip_utc: dict[str, str] = {}
+    for r in season:
+        t = bands.tip_day(r.tip_utc)
+        if t:
+            tips.setdefault(r.event_id, t)
+            tip_utc.setdefault(r.event_id, r.tip_utc)
+    teams: dict[str, tuple[str, str]] = {}
+    opener: dict[str, dict[tuple[str, str], float]] = {}
+    by_day: dict[Date, dict[str, tuple[str, str]]] = {}
+    for d in slates:
+        for eid, o in bands.openers(quotes.read_day(root, SPORT, d.isoformat())).items():
+            opener.setdefault(eid, o)
+        for eid, tm in _manifest_teams(root, d).items():
+            if eid not in teams:
+                teams[eid] = tm
+                by_day.setdefault(tips.get(eid, d), {})[eid] = tm
     boards: dict[Date, list[espn.Game]] = {}
-    if days:
-        d = days[0] - timedelta(days=bands.REST_LOOKBACK)
-        while d <= max(days[-1], day):
+    if by_day:
+        d = min(by_day) - timedelta(days=bands.REST_LOOKBACK)
+        while d <= max(*by_day, day):
             boards[d] = history.latest_scoreboard(data_dir(), d.isoformat())
             d += timedelta(days=1)
     ctx: dict[str, bands.GameCtx] = {}
-    for d in days:
-        opener = bands.openers(quotes.read_day(root, SPORT, d.isoformat()))
+    for d, group in sorted(by_day.items()):
         res_d = torvik.as_of(data_dir(), "team_results", d).path
-        tempo = bands.tempo_thirds(torvik.read_csv(res_d)) if res_d else {}
-        ctx.update(bands.context(_manifest_teams(root, d), d, boards, logs, confs, opener, tempo))
+        table = torvik.read_csv(res_d) if res_d else []
+        public = vsin_splits.public(vsin_splits.read_day(root, d.isoformat()), group, tip_utc)
+        ctx.update(bands.context(group, d, boards, logs, confs, opener, bands.tempo_thirds(table), bands.torvik_ranks(table), public))
     return ctx, boards
 
 
@@ -347,20 +374,44 @@ def _season_bands(root: Path, season: list[ledger.Row], day: Date) -> list[BandR
         return None
 
 
-def _team_groups(root: Path, season: list[ledger.Row], day: Date) -> list[teamgroups.GroupRead] | None:
-    """Closing-line accuracy by tempo and conference pairing, one row per finished game with a timely close."""
+def _called_by_day(
+    root: Path, season: list[ledger.Row], boards: Mapping[Date, Sequence[espn.Game]]
+) -> dict[Date, dict[str, teamgroups.Called]]:
+    """Per slate day, every event with a timely close and a matched ESPN final."""
+    out: dict[Date, dict[str, teamgroups.Called]] = {}
+    for d in sorted(b for b in boards if season and b.isoformat() >= min(r.slate_date for r in season)):
+        teams: dict[str, tuple[str, str]] = {}
+        for back in range(audit.LOOKBACK_DAYS, -1, -1):
+            teams.update(_manifest_teams(root, d - timedelta(days=back)))
+        out[d] = teamgroups.called(quotes.read_day(root, SPORT, d.isoformat()), teams, boards[d])
+    return out
+
+
+def _team_groups(
+    root: Path, season: list[ledger.Row], day: Date
+) -> tuple[list[teamgroups.GroupRead] | None, list[faststart.Read] | None]:
+    """Closing-line accuracy by tempo and conference pairing, and the first-half fast-start study,
+    one row per finished game with a timely close."""
     try:
         ctx, boards = _season_ctx(root, season, day)
-        games: dict[str, teamgroups.Called] = {}
-        for d in sorted(b for b in boards if season and b.isoformat() >= min(r.slate_date for r in season)):
-            teams: dict[str, tuple[str, str]] = {}
-            for back in range(audit.LOOKBACK_DAYS, -1, -1):
-                teams.update(_manifest_teams(root, d - timedelta(days=back)))
-            games.update(teamgroups.called(quotes.read_day(root, SPORT, d.isoformat()), teams, boards[d]))
-        return teamgroups.read(season, ctx, games)
+        by_day = _called_by_day(root, season, boards)
     except Exception:
         log.warning("CBB team groups failed; the audit goes out without them", exc_info=True)
-        return None
+        return None, None
+    groups: list[teamgroups.GroupRead] | None
+    try:
+        groups = teamgroups.read(season, ctx, {e: c for cs in by_day.values() for e, c in cs.items()})
+    except Exception:
+        log.warning("CBB team groups failed; the audit goes out without them", exc_info=True)
+        groups = None
+    obs = [
+        faststart.Obs(c.event_id, d.isoformat(), c.total, c.h1_points, c.points)
+        for d, cs in by_day.items()
+        for c in cs.values()
+        if c.total is not None and c.h1_points is not None
+    ]
+    half = faststart.read("half", obs)
+    return groups, [half] if half else []
 
 
 def _slate(root: Path, day: Date) -> tuple[list[ledger.Row], dict[str, tuple[str, str]]]:
@@ -492,7 +543,7 @@ def cmd_audit(args: argparse.Namespace) -> int:
     }
     season = [r for rs in by_day.values() for r in rs]
     reads = _season_bands(root, season, day)
-    groups = _team_groups(root, season, day)
+    groups, fast = _team_groups(root, season, day)
     rep["v_promotion"] = views.v_promotion(season)
     rep["v_bands"] = bands.render(reads).splitlines() if reads is not None else ["bands unavailable (see log)"]
     if args.time_travel:
@@ -504,6 +555,7 @@ def cmd_audit(args: argparse.Namespace) -> int:
         day,
         bands=reads,
         groups=groups,
+        fast=fast,
         checklist_lines=checks.splitlines(),
         alts=altlines.alts(alt_path, day.isoformat()),
     )

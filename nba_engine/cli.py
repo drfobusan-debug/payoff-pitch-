@@ -53,8 +53,10 @@ from engine_common.podcasts.episodes import store_dir
 from engine_common.podcasts.run import read_feeds
 from engine_common.podcasts.shows import NBA
 from engine_runtime import altlines as alt_rt
+from engine_runtime import faststart
 from nba_engine import alarm, podcast, state
 from nba_engine.audit import altlines, ledger, schedule_bands, scorecard
+from nba_engine.audit import props as prop_reads
 from nba_engine.config import cache_dir, data_dir, load_config, output_dir
 from nba_engine.data import boxes, capture, espn_injuries, history, injuries, pbp
 from nba_engine.data.capture import ALL_MARKETS, CORE_MARKETS, EVENT_MARKETS, GAME_MARKETS
@@ -395,8 +397,53 @@ def _audit_lines(
     out.append("")
     sched = schedule_bands.schedule_from(root, rows)
     out += ["", *schedule_bands.lines(schedule_bands.read_bands(rows, sched))]
-    out += ["", "[alternate lines: points bought vs sold]", alt_rt.NOTE, *alt_rt.text(altlines.alts(rows))]
+    out += ["", *prop_reads.lines(rows)]
+    out += ["", *_fast_start_lines(root, rows, days)]
+    out += [
+        "",
+        "[alternate lines: points bought vs sold]",
+        alt_rt.NOTE,
+        *alt_rt.text(altlines.alts(rows)),
+    ]
     return out
+
+
+NBA_CUTS = {"end of Q1": 1, "half": 2, "end of Q3": 3}
+
+
+def _fast_start(root: Path, rows: list[ledger.LedgerRow], days: list[Date]) -> list[faststart.Read]:
+    """Q1 / half / Q3 against the timely close total, from the archived ESPN quarters."""
+    by_cut: dict[str, list[faststart.Obs]] = {c: [] for c in NBA_CUTS}
+    for day in days:
+        results = boxes.by_matchup(boxes.read_results(root, day) or [])
+        tips = {r.event_id: r.tip_utc for r in rows if r.slate_date == day.isoformat()}
+        matchup = {r.event_id: r.matchup for r in rows if r.slate_date == day.isoformat()}
+        for eid, total in faststart.close_totals(capture.read_day(root, day), tips).items():
+            g = results.get((day.isoformat(), matchup.get(eid, "")))
+            if g is None or len(g.away_q) < 4 or len(g.home_q) != len(g.away_q):
+                continue
+            periods = [a + h for a, h in zip(g.away_q, g.home_q, strict=True)]
+            final = float(g.final_away + g.final_home)
+            for cut, o in faststart.checkpoints(
+                eid, day.isoformat(), total, periods, final, NBA_CUTS
+            ).items():
+                by_cut[cut].append(o)
+    return [r for c, obs in by_cut.items() if (r := faststart.read(c, obs)) is not None]
+
+
+def _fast_start_lines(root: Path, rows: list[ledger.LedgerRow], days: list[Date]) -> list[str]:
+    out = ["[fast starts: does the early score stay in the final? one row per game, timely close]"]
+    try:
+        reads = _fast_start(root, rows, days)
+    except Exception:  # noqa: BLE001 - a study table must not stop the audit
+        log.warning("NBA fast-start study failed", exc_info=True)
+        return [*out, "fast-start study unavailable (see log)"]
+    out += [" | ".join(faststart.HEAD), *(" | ".join(r) for r in faststart.table(reads))]
+    if not reads:
+        out.append(
+            f"needs {faststart.MIN_PRIOR}+ earlier games with a timely close and a final first"
+        )
+    return [*out, faststart.NOTE]
 
 
 def _buys_record(rows: list[ledger.LedgerRow]) -> str:
@@ -829,6 +876,9 @@ def cmd_history(args: argparse.Namespace) -> int:
         print(f"unknown anchor(s) {unknown}; choose from {list(history.ANCHORS)}", file=sys.stderr)
         return 2
     markets = tuple(m.strip() for m in args.markets.split(",")) if args.markets else CORE_MARKETS
+    if args.part and not args.part.isalnum():
+        print(f"--part must be letters/digits, got {args.part!r}", file=sys.stderr)
+        return 2
     report = history.pull(
         client,
         data_dir(),
@@ -837,6 +887,7 @@ def cmd_history(args: argparse.Namespace) -> int:
         markets=markets,
         budget=args.budget,
         min_credits=args.min_credits if args.min_credits is not None else cfg.history.min_credits,
+        part=args.part,
     )
     print(json.dumps(asdict(report), indent=2))
     if args.push:
@@ -845,6 +896,8 @@ def cmd_history(args: argparse.Namespace) -> int:
 
 
 def cmd_coverage(args: argparse.Namespace) -> int:
+    if load_config().state_sync:
+        state.auto_pull(data_dir(), trees=("history",))
     for season in args.season:
         print(season, json.dumps(history.coverage(data_dir(), history.season_days(season))))
     return 0
@@ -1210,6 +1263,12 @@ def build_parser() -> argparse.ArgumentParser:
     hi.add_argument("--budget", type=int, required=True, help="max credits this run may spend")
     hi.add_argument(
         "--min-credits", type=int, help="balance floor (default NBAE_HISTORY_MIN_CREDITS)"
+    )
+    hi.add_argument(
+        "--part",
+        default="",
+        help="store as <event>_<anchor>.<part> (e.g. props) so events already held "
+        "for another market set are pulled again",
     )
     hi.add_argument("--since", help="first slate date to pull")
     hi.add_argument("--until", help="last slate date to pull")
