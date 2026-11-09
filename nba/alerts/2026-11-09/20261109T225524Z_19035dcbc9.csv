@@ -1,0 +1,5 @@
+detected_at,game_date,event_id,matchup,kind,detail,before,after
+2026-11-09T22:55:24Z,2026-11-09,56efae2815b3a18850f07a3781d652a2,MEM @ TOR,ml_move,home ml 0.566 -> 0.468,0.566,0.468
+2026-11-09T22:55:24Z,2026-11-09,56efae2815b3a18850f07a3781d652a2,MEM @ TOR,spread_move,home spread -2.5 -> 1.5,-2.5,1.5
+2026-11-09T22:55:24Z,2026-11-09,56efae2815b3a18850f07a3781d652a2,MEM @ TOR,total_move,total 228.5 -> 226.5,228.5,226.5
+2026-11-09T22:55:24Z,2026-11-09,56efae2815b3a18850f07a3781d652a2,MEM @ TOR,injury,TOR Scottie Barnes: Day-To-Day -> Out,Day-To-Day,Out
