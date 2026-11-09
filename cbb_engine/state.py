@@ -1,7 +1,8 @@
 """Carry the CBB record between machines on the shared ``engine-state`` branch.
 
 Under ``cbb/``: ``quotes/<day>/`` (Parquet shards and the day's manifest),
-``ledger/<day>/`` (write-once passes) and ``cards/``. Shards, passes and cards
+``ledger/<day>/`` (write-once passes), ``cards/`` and ``splits/<day>/`` (VSiN public
+shares, one JSONL per board pass). Shards, passes and cards
 are immutable, so they merge as a set union of paths; a manifest is
 append-only, so its lines are unioned. The git plumbing is the MLB module's.
 """
@@ -34,15 +35,21 @@ TREES: dict[str, tuple[str, ...]] = {
     "quotes": ("*/*.parquet",),
     "ledger": ("*/*.jsonl",),
     "cards": ("*.txt", "*.pdf"),
+    "splits": ("*/*.jsonl",),
 }
-LIVE: tuple[str, ...] = ("quotes", "ledger", "cards")
+LIVE: tuple[str, ...] = ("quotes", "ledger", "cards", "splits")
 _PUSH_ATTEMPTS = 3
 log = logging.getLogger(__name__)
 
 
 def local_trees(runtime: Path | None = None, data: Path | None = None) -> dict[str, Path]:
     runtime, data = runtime or runtime_root(), data or data_dir()
-    return {"quotes": runtime / "quotes" / SPORT, "ledger": runtime / "ledger" / SPORT, "cards": data / "cards"}
+    return {
+        "quotes": runtime / "quotes" / SPORT,
+        "ledger": runtime / "ledger" / SPORT,
+        "cards": data / "cards",
+        "splits": runtime / "splits" / SPORT,
+    }
 
 
 def _union_manifests(src: Path, dest: Path) -> list[str]:

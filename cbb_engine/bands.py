@@ -20,6 +20,7 @@ from datetime import timedelta
 from cbb_engine import history
 from cbb_engine.audit import pnl
 from cbb_engine.data import capture, espn
+from cbb_engine.data.vsin_splits import Public
 from cbb_engine.output import teamstats
 from engine_common.bands import BandRead
 from engine_runtime import ledger, quotes
@@ -53,6 +54,7 @@ class GameCtx:
     neutral: bool = False
     conference: bool = False
     opener: Mapping[tuple[str, str], float] = field(default_factory=dict)  # (market, side) -> first line
+    public: Mapping[tuple[str, str], Public] = field(default_factory=dict)  # (market, side) -> VSiN shares before tip
 
 
 Pred = Callable[[ledger.Row, GameCtx], bool]
@@ -82,6 +84,15 @@ def _moved(r: ledger.Row, c: GameCtx) -> bool:
         return False
     toward = r.line - first if r.side == "over" else first - r.line
     return toward >= MOVE_PTS
+
+
+def _rlm(r: ledger.Row, c: GameCtx) -> bool:
+    """The number moved a point or more toward this side while the tickets leaned the other way.
+
+    Both halves are required: a move with no split on record is steam, not a reverse move,
+    and a ticket minority with no move is just the quiet side."""
+    pub = c.public.get((r.market, r.side))
+    return pub is not None and pub.majority is False and _moved(r, c)
 
 
 def _b2b(t: Team) -> bool:
@@ -117,6 +128,10 @@ BANDS: tuple[tuple[str, Pred], ...] = (
     ("neutral site underdog ATS", lambda r, c: _ats(r) and c.neutral and not _fav(r)),
     ("line moved >= 1 toward the side ATS", lambda r, c: _ats(r) and _moved(r, c)),
     ("line moved >= 1 toward the side total", lambda r, c: r.market == "game_total" and _moved(r, c)),
+    ("reverse line move (>= 1 against the ticket majority) ATS", lambda r, c: _ats(r) and _rlm(r, c)),
+    ("reverse line move (>= 1 against the ticket majority) favourite ATS", lambda r, c: _ats(r) and _rlm(r, c) and _fav(r)),
+    ("reverse line move (>= 1 against the ticket majority) underdog ATS", lambda r, c: _ats(r) and _rlm(r, c) and not _fav(r)),
+    ("reverse line move (>= 1 against the ticket majority) total", lambda r, c: r.market == "game_total" and _rlm(r, c)),
     ("team on a back-to-back ATS", lambda r, c: _ats(r) and _b2b(_me(r, c)) and not _b2b(_them(r, c))),
     ("rested (2+ days) vs a back-to-back ATS", lambda r, c: _ats(r) and (_me(r, c).rest or 0) >= 2 and _b2b(_them(r, c))),
     ("a team on a back-to-back: Under", lambda r, c: r.market == "game_total" and r.side == "under" and (_b2b(c.home) or _b2b(c.away))),
@@ -316,11 +331,13 @@ def context(
     opener: Mapping[str, Mapping[tuple[str, str], float]] | None = None,
     tempo: Mapping[str, str] | None = None,
     ranks: Mapping[str, int] | None = None,
+    public: Mapping[str, Mapping[tuple[str, str], Public]] | None = None,
 ) -> dict[str, GameCtx]:
     """Pre-tip context per event from the day's ESPN board (AP rank, venue, conference flag),
     earlier boards (rest), Torvik logs before ``day`` (last game a loss), conference membership,
     ``tempo`` (each Torvik team's adjusted-tempo third as of ``day``) and ``ranks`` (Torvik's rank
-    archived on or before ``day``). A season-to-date rank from one or two logged games is not a
+    archived on or before ``day``) and ``public`` (each event's VSiN ticket/handle shares from the
+    last capture before its tip). A season-to-date rank from one or two logged games is not a
     rank, so nothing here is computed from the logs' margins."""
     last = last_results(logs, day)
     thirds = tempo or {}
@@ -348,6 +365,7 @@ def context(
             neutral=bool(g and g.neutral),
             conference=bool(g and g.conference_game),
             opener=dict((opener or {}).get(eid, {})),
+            public=dict((public or {}).get(eid, {})),
         )
     return out
 
