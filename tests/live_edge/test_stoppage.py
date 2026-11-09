@@ -176,8 +176,8 @@ def test_cbb_lead_side_is_blank_when_the_adjustment_lands_inside_the_screen(tmp_
     t0 = START - timedelta(minutes=30)
     pre = {"draftkings": 140, "betmgm": 140, "fanduel": 140}
     s.tick([game("pre", 0, 0, 1, 1200, "STATUS_SCHEDULED")], board(pre, t0), t0)
-    # Lead 2: fair 146.944 + 0.4; a live 151 is 4.056 past the frozen fair, 3.656 past the lead one.
-    lines = {"draftkings": 151, "betmgm": 151, "fanduel": 151}
+    # Lead 2: fair 146.944 + 0.4; a live 150 is 3.056 past the frozen fair, 2.656 past the lead one.
+    lines = {"draftkings": 150, "betmgm": 150, "fanduel": 150}
     for m in (60, 62):
         t = START + timedelta(minutes=m)
         s.tick([game("in", 37, 35, 1)], board(lines, t), t)

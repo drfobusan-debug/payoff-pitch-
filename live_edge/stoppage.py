@@ -68,7 +68,8 @@ RULES: dict[str, Rule] = {
     "cfb": Rule(0.518, 1.0, 4.0, 17, 8, _FOOTBALL, 2),
     "nfl": Rule(0.51, 1.0, 3.0, 17, 6, _FOOTBALL, 2),
     "nba": Rule(0.50, 1.0, 5.0, 20, 8, _FOOTBALL, 2),
-    "cbb": Rule(0.47, 1.12, 4.0, 15, 8, {1: "half"}, 1),
+    # CBB screen 3 from 2026-11-09 (4 through 11-07: 1 of 40 halftime gaps reached it).
+    "cbb": Rule(0.47, 1.12, 3.0, 15, 8, {1: "half"}, 1),
     "nhl": Rule(0.64, 1.0, 1.0, 3, 8, {1: "end of P1", 2: "end of P2"}, 2),
 }
 
