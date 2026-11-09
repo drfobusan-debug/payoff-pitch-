@@ -8,8 +8,9 @@ Share, b, the screen and the margin are frozen per sport and never refit once li
 prices are seen. Only the primary stoppage (the half; the end of period 2 in the
 NHL) makes tickets; the other stoppages are written to the tape only. A gap counts
 when the median book is past the screen and the next poll still has the same score
-and a gap past the screen on the same side. A game whose lead at the stoppage is
-at or past the sport's margin is a pass. One ticket a game, priced at the better of
+and a gap past the screen on the same side. Where the sport sets a break length (CBB 15
+minutes), a poll later than that after the first one at the stoppage can't confirm. A
+game whose lead at the stoppage is at or past the sport's margin is a pass. One ticket a game, priced at the better of
 DraftKings/BetMGM on the confirming snapshot; a missing price stays missing. Both the
 pregame number and the live total are medians of at least three fresh two-sided books.
 
@@ -58,6 +59,9 @@ class Rule:
     target: int  # settled gaps one slate must show before buying history
     labels: dict[int, str]
     primary: int  # period whose end is the primary stoppage
+    # minutes after the first poll at the primary stoppage past which a poll can't confirm:
+    # ESPN can keep showing the break (and its score) after play resumes
+    max_break_min: float | None = None
 
 
 _FOOTBALL = {1: "end of Q1", 2: "half", 3: "end of Q3"}
@@ -69,7 +73,9 @@ RULES: dict[str, Rule] = {
     "nfl": Rule(0.51, 1.0, 3.0, 17, 6, _FOOTBALL, 2),
     "nba": Rule(0.50, 1.0, 5.0, 20, 8, _FOOTBALL, 2),
     # CBB screen 3 from 2026-11-09 (4 through 11-07: 1 of 40 halftime gaps reached it).
-    "cbb": Rule(0.47, 1.12, 3.0, 15, 8, {1: "half"}, 1),
+    # The half is 15 minutes; on 11-07 ESPN showed WCU @ UNCA at the half 9 minutes into
+    # the second half while the live total ran 8 points ahead of the stale score.
+    "cbb": Rule(0.47, 1.12, 3.0, 15, 8, {1: "half"}, 1, 15.0),
     "nhl": Rule(0.64, 1.0, 1.0, 3, 8, {1: "end of P1", 2: "end of P2"}, 2),
 }
 
@@ -180,7 +186,7 @@ class Study:
             raw = json.loads(self.state_path.read_text())
         except (OSError, ValueError):
             raw = {}
-        return {k: raw.get(k, {}) for k in ("pregame", "last", "pre_polled")}
+        return {k: raw.get(k, {}) for k in ("pregame", "last", "pre_polled", "break_start")}
 
     def _save(self) -> None:
         tmp = self.state_path.with_suffix(".tmp")
@@ -279,6 +285,8 @@ class Study:
             "away": away,
             "margin": abs(home - away),
             "pass_margin": abs(home - away) >= self.rule.margin,
+            "break_min": None,
+            "late": False,
             "pregame": pre["line"] if pre else None,
             "pregame_at": pre["at"] if pre else None,
             "live": live,
@@ -290,6 +298,12 @@ class Study:
             "gap_lead": None,
             "books": rows,
         }
+        if stop[1]:
+            first = self.state["break_start"].setdefault(g.event_id, stamp)
+            started = _ts(first)
+            mins = (now - started).total_seconds() / 60 if started else 0.0
+            cap = self.rule.max_break_min
+            snap.update(break_min=round(mins, 1), late=cap is not None and mins > cap)
         if stop[1] and pre and live is not None:
             surprise, fair_total = fair(self.rule, float(pre["line"]), home + away)
             snap.update(
@@ -307,6 +321,8 @@ class Study:
 
     def _confirms(self, prev: dict | None, cur: dict) -> bool:
         if not prev or cur["pass_margin"] or cur["gap"] is None or prev.get("gap") is None:
+            return False
+        if cur.get("late") or prev.get("late"):
             return False
         if (prev["home"], prev["away"]) != (cur["home"], cur["away"]):
             return False

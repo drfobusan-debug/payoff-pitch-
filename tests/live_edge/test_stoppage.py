@@ -186,3 +186,40 @@ def test_cbb_lead_side_is_blank_when_the_adjustment_lands_inside_the_screen(tmp_
     s.tick([game("post", 75, 70, 2, 0, "STATUS_FINAL")], None, START + timedelta(hours=3))
     (g,) = s.read("grades.jsonl")
     assert g["lead_result"] is None and g["result"] == "win"
+
+
+def test_a_cbb_half_poll_past_15_minutes_cannot_confirm(tmp_path: Path):
+    # 11-07 WCU @ UNCA: ESPN showed the half 9 minutes into the second half, score frozen,
+    # while the live total ran up. A gap seen only after the 15-minute half makes no ticket.
+    s = Study("cbb", tmp_path)
+    t0 = START - timedelta(minutes=30)
+    pre = {"draftkings": 140, "betmgm": 140, "fanduel": 140}
+    s.tick([game("pre", 0, 0, 1, 1200, "STATUS_SCHEDULED")], board(pre, t0), t0)
+    half = START + timedelta(minutes=60)
+    s.tick(
+        [game("in", 37, 35, 1)],
+        board({"draftkings": 147, "betmgm": 147, "fanduel": 147}, half),
+        half,
+    )
+    wide = {"draftkings": 152, "betmgm": 152, "fanduel": 152}
+    for m in (14, 16, 17.5):
+        t = half + timedelta(minutes=m)
+        s.tick([game("in", 37, 35, 1)], board(wide, t), t)
+    assert s.read("tickets.jsonl") == []
+    tape = [r for r in s.read("tape.jsonl") if r["kind"] == "stoppage"]
+    assert [r["late"] for r in tape] == [False, False, True, True]
+    assert tape[-1]["break_min"] == 17.5
+
+
+def test_a_cbb_gap_confirmed_inside_the_half_still_tickets(tmp_path: Path):
+    s = Study("cbb", tmp_path)
+    t0 = START - timedelta(minutes=30)
+    pre = {"draftkings": 140, "betmgm": 140, "fanduel": 140}
+    s.tick([game("pre", 0, 0, 1, 1200, "STATUS_SCHEDULED")], board(pre, t0), t0)
+    half = START + timedelta(minutes=60)
+    wide = {"draftkings": 152, "betmgm": 152, "fanduel": 152}
+    for m in (0, 13.5, 15):
+        t = half + timedelta(minutes=m)
+        s.tick([game("in", 37, 35, 1)], board(wide, t), t)
+    (t,) = s.read("tickets.jsonl")
+    assert t["side"] == "under"
