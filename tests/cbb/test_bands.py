@@ -152,3 +152,36 @@ def test_without_its_tip_day_slate_the_latest_earlier_slate_wins() -> None:
         "2026-11-01"
     ]
     assert [r.slate_date for r in bands.one_slate_per_game([_on("2026-11-04", tip)])] == ["2026-11-04"]
+
+
+def _shot_game(day: Date, team: str, two: tuple[float, float], three: tuple[float, float]) -> bands.LogGame:
+    return bands.LogGame(day, team, 70, 70, 70, two, three, (10.0, 20.0), (5.0, 15.0))
+
+
+def test_shooting_gaps_need_ten_prior_games_and_pool_over_shots() -> None:
+    logs = [_shot_game(Date(2025, 1, d), "A", (12.0, 20.0), (4.0, 20.0)) for d in range(1, 10)]
+    assert bands.shooting(logs, Date(2025, 1, 20)) == {}  # nine games
+    logs.append(_shot_game(Date(2025, 1, 10), "A", (12.0, 20.0), (4.0, 20.0)))
+    assert bands.shooting(logs, Date(2025, 1, 10)) == {}  # the tenth is on the day itself
+    two, three = bands.shooting(logs, Date(2025, 1, 11))["A"]
+    assert two == pytest.approx(0.6 - 0.5) and three == pytest.approx(0.2 - 1 / 3)
+
+
+def test_exploratory_inside_shooting_band_takes_only_the_underdog() -> None:
+    inside = bands.Team(two=0.05, three=-0.03)
+    outside = bands.Team(two=-0.02, three=0.04)
+    ctx = {"e": bands.GameCtx(home=outside, away=inside), "f": bands.GameCtx(home=inside, away=outside),
+           "g": bands.GameCtx(home=outside, away=bands.Team(two=0.05))}
+    rows = [_row("e", "game_ats", "home", -4.0, outcome="loss"), _row("e", "game_ats", "away", 4.0),
+            _row("f", "game_ats", "home", -4.0), _row("f", "game_ats", "away", 4.0, outcome="loss"),
+            _row("g", "game_ats", "away", 4.0)]
+    band = {b.name: b for b in bands.read_bands(rows, ctx)}["exploratory: underdog better 2P%, worse 3P% (10+ games) ATS"]
+    assert (band.n, band.record) == (1, "1-0")  # e's away dog; f's inside team is the favourite; g has no 3P gap
+
+
+def test_context_carries_shooting_gaps() -> None:
+    board = [_game("Kentucky Wildcats", "Toledo Rockets")]
+    logs = [_shot_game(Date(2025, 1, d), "Kentucky", (12.0, 20.0), (4.0, 20.0)) for d in range(1, 11)]
+    ctx = bands.context({"e": ("Kentucky Wildcats", "Toledo Rockets")}, Date(2025, 1, 12), {Date(2025, 1, 12): board},
+                        logs, {"Kentucky": "SEC", "Toledo": "MAC"})["e"]
+    assert ctx.home.two == pytest.approx(0.1) and ctx.away.two is None
