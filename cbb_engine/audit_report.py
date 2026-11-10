@@ -20,6 +20,7 @@ from typing import cast
 
 from cbb_engine import teamgroups
 from cbb_engine.bands import main_rows, one_slate_per_game
+from cbb_engine.data.capture import slate_date_of
 from engine_common import closecheck
 from engine_common.bands import MIN_N as BAND_MIN_N
 from engine_common.bands import BandRead
@@ -237,7 +238,8 @@ def briers(rows: Iterable[ledger.Row]) -> list[tuple[str, ...]]:
 
 
 def coverage(rows: Iterable[ledger.Row]) -> list[tuple[str, ...]]:
-    """Per slate: rows of record, graded, with a pre-tip close, and with no close (pulled)."""
+    """Per slate: rows of record, graded, ungraded games that tip on a later slate (graded on their own
+    day), with a pre-tip close, and with no close (pulled)."""
     by_day: dict[str, list[ledger.Row]] = defaultdict(list)
     for r in rows:
         if r.bet_of_record:
@@ -250,6 +252,7 @@ def coverage(rows: Iterable[ledger.Row]) -> list[tuple[str, ...]]:
                 d,
                 str(len(rs)),
                 str(sum(bool(r.outcome) for r in rs)),
+                str(sum(not r.outcome and slate_date_of(r.tip_utc) > d for r in rs)),
                 str(sum(r.close_status == "pre_tip" for r in rs)),
                 str(sum(r.close_status == "pulled" for r in rs)),
                 f"{sum(bool(r.outcome) for r in buys)}/{len(buys)}",
@@ -309,7 +312,7 @@ def _scope(title: str, rows: list[ledger.Row], end: Date, *, weekly: bool) -> tu
         ),
         Table(
             "Grading coverage",
-            ("slate", "rows of record", "graded", "close pre-tip", "no close", "buys graded"),
+            ("slate", "rows of record", "graded", "tips later", "close pre-tip", "no close", "buys graded"),
             coverage(rows),
         ),
     ]
@@ -461,7 +464,7 @@ def build(
     )
     s_sec.tables.append(
         Table(
-            "Push mass on live totals (predicted vs realised, by number)",
+            "Push mass on live totals (predicted vs realised, whole numbers)",
             ("line", "rows", "predicted push", "realised push"),
             [
                 (
@@ -471,6 +474,7 @@ def build(
                     f"{v['real_push']:.1%}",
                 )
                 for v in views.v_shape(season)
+                if float(cast(float, v["line"])).is_integer()
             ],
         )
     )

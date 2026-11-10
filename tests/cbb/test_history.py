@@ -147,6 +147,22 @@ def test_match_final_folds_odds_api_abbreviations() -> None:
     assert history.match_final("Duke Blue Devils", "Kansas Jayhawks", games) is None
 
 
+def test_match_final_maps_odds_api_iupui_and_tenn_martin_to_espn() -> None:
+    from cbb_engine.data import espn
+
+    games = [
+        espn.Game(
+            espn_id="1", start_utc="", away="UT Martin Skyhawks", home="IU Indianapolis Jaguars",
+            state="STATUS_FINAL", neutral=False, conference_game=False, away_halves=(74,), home_halves=(75,),
+        ),
+        espn.Game(
+            espn_id="2", start_utc="", away="Tennessee Tech Golden Eagles", home="Indiana Hoosiers",
+            state="STATUS_FINAL", neutral=False, conference_game=False, away_halves=(60,), home_halves=(80,),
+        ),
+    ]
+    assert history.match_final("IUPUI Jaguars", "Tenn-Martin Skyhawks", games) == (74, 75)
+
+
 def test_scores_follow_the_callers_home_away_when_espn_lists_them_reversed() -> None:
     from cbb_engine.data import espn
 

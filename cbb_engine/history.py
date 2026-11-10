@@ -166,7 +166,7 @@ _FOLD = {
 
 
 # Odds API names ESPN spells differently, as whole tokens.
-_ALIAS = {"umkc": "kansas city", "kangaroos": "roos"}
+_ALIAS = {"umkc": "kansas city", "kangaroos": "roos", "iupui": "iu indianapolis", "tenn": "ut"}
 
 
 def _norm(name: str) -> str:

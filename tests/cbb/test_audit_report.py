@@ -125,3 +125,10 @@ def test_a_buy_repeated_on_the_next_slate_counts_once() -> None:
     assert r.slate_date == "2026-11-05"
     assert int(audit_report.briers([first, again])[0][1]) == 1
     assert [c[1] for c in audit_report.coverage([first, again])] == ["1", "1"]  # per-slate coverage is untouched
+
+
+def test_coverage_counts_ungraded_games_that_tip_on_a_later_slate() -> None:
+    today, later, missed = _row("2026-11-05", "a"), _row("2026-11-05", "b", outcome=""), _row("2026-11-05", "c", outcome="")
+    later.tip_utc = "2026-11-07T00:00:00Z"  # Nov 6, 7 pm ET: priced in advance, graded on its own day
+    ((_, n, graded, tips_later, *_),) = audit_report.coverage([today, later, missed])
+    assert (n, graded, tips_later) == ("3", "1", "1")  # the third row is a real miss
