@@ -1,0 +1,60 @@
+{
+ "episode_guid": "vsin-95134",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "388586464e607544489192a6e020c0f24d8f92e7",
+ "picks": [
+  {
+   "pick_id": "5980ddccb977",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-95134",
+   "episode_title": "College Football Week 11 Picks: Ohio vs. Miami (OH)",
+   "published": "2026-11-09T16:34:39+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Ohio",
+   "opponent": "Miami",
+   "side": null,
+   "line": -2.0,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Ohio -2",
+   "reason": "https://vsin.com/college-football/college-football-week-11-picks-ohio-vs-miami-oh/",
+   "description": "Ohio -2",
+   "league": "cfb",
+   "edge": "",
+   "fair_line": null
+  },
+  {
+   "pick_id": "ba058c9e720c",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-95134",
+   "episode_title": "College Football Week 11 Picks: Ohio vs. Miami (OH)",
+   "published": "2026-11-09T16:34:39+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Kent State",
+   "opponent": null,
+   "side": null,
+   "line": 6.0,
+   "price": null,
+   "units": null,
+   "seconds": 1,
+   "quote": "Kent State +6",
+   "reason": "https://vsin.com/college-football/college-football-week-11-picks-ohio-vs-miami-oh/",
+   "description": "Kent State +6",
+   "league": "cfb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cfb"
+ ]
+}

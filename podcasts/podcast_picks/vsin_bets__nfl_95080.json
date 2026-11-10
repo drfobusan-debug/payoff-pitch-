@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-95080",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "3526e9bbc5eada393b350d85cccf9e607bb7ec60",
+ "picks": [
+  {
+   "pick_id": "829f005dea8b",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Zachary Cohen",
+   "episode_guid": "vsin-95080",
+   "episode_title": "Bills vs. Vikings Predictions: Week 9 Monday Night Football odds, picks, and player props",
+   "published": "2026-11-09T04:18:11+00:00",
+   "kind": "official",
+   "market": "game_total",
+   "team": "Bills",
+   "opponent": "Vikings",
+   "side": "over",
+   "line": 43.5,
+   "price": -118.0,
+   "units": null,
+   "seconds": 0,
+   "quote": "Over 43.5 (-118)",
+   "reason": "https://vsin.com/nfl/bills-vs-vikings-predictions-week-9-monday-night-football-odds-picks-and-player-props/",
+   "description": "Over 43.5 (-118)",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "nfl"
+ ]
+}
