@@ -788,7 +788,7 @@ def _closecheck_table(card: SlateCard) -> str:
 
 
 def _bands_table(card: SlateCard) -> str:
-    """The schedule bands, graded only: flat 1u on the main line at the card's price."""
+    """The schedule and shooting bands, graded only: flat 1u on the main line at the card's price."""
     if not card.bands:
         return ""
     rows = "".join(
@@ -798,7 +798,7 @@ def _bands_table(card: SlateCard) -> str:
         for b in card.bands
     )
     return (
-        "<h2>Schedule bands</h2>"
+        "<h2>Schedule and shooting bands</h2>"
         "<p class='muted'>Graded only, never a bet: flat 1u on the main line at the card's"
         f" price; a call needs {MIN_N}+ games and {CALL_SE:g} SE with both halves agreeing.</p>"
         "<table class='record'><thead><tr><th>Band</th><th>Games</th><th>W-L</th><th>Units</th>"
