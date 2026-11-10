@@ -6,7 +6,8 @@ agreeing. Nothing here touches pricing, gates or tiers. A row's context is what
 was known before tip: the AP rank on the day's ESPN scoreboard, Torvik's rank and
 adjusted-tempo third from the ``team_results`` table archived on or before the
 slate, whether each team's last logged game (dated before the slate) was a loss,
-days since its previous game, and the first line captured that day.
+days since its previous game, the first line captured that day, and each team's
+season-to-date 2P% and 3P% gaps (made less allowed) once it has ``SHOOT_MIN_GAMES`` logged.
 """
 
 from __future__ import annotations
@@ -35,6 +36,7 @@ LONG_SHOT = 0.25
 HEAVY_FAV = 0.85
 MOVE_PTS = 1.0
 REST_LOOKBACK = 10
+SHOOT_MIN_GAMES = 10
 
 
 @dataclass(frozen=True)
@@ -46,6 +48,8 @@ class Team:
     power: bool | None = None
     rest: int | None = None  # days since the previous game
     pace: str | None = None  # "slow" / "mid" / "fast": season-to-date tempo third
+    two: float | None = None  # 2P% made less 2P% allowed, season to date (None under SHOOT_MIN_GAMES)
+    three: float | None = None  # 3P% made less 3P% allowed, same window
 
 
 @dataclass(frozen=True)
@@ -108,6 +112,14 @@ def _both_off_loss(c: GameCtx) -> bool:
     return bool(c.home.off_loss and c.away.off_loss)
 
 
+def _inside_not_outside(r: ledger.Row, c: GameCtx) -> bool:
+    """This side's 2P% gap beats the opponent's while its 3P% gap trails: a better inside team that has shot worse from three."""
+    me, them = _me(r, c), _them(r, c)
+    if None in (me.two, me.three, them.two, them.three):
+        return False
+    return me.two > them.two and me.three < them.three  # type: ignore[operator]
+
+
 def _side(market: str, side: str, fav: bool | None = None) -> Pred:
     return lambda r, c: r.market == market and r.side == side and (fav is None or _fav(r) == fav)
 
@@ -151,6 +163,7 @@ BANDS: tuple[tuple[str, Pred], ...] = (
     ("both teams slow tempo: Under", lambda r, c: r.market == "game_total" and r.side == "under" and bool(c.home.slow and c.away.slow)),
     ("big spread (>= 15) favourite ATS", lambda r, c: _ats(r) and r.line is not None and r.line <= -BIG_SPREAD),
     ("big spread (>= 15) underdog ATS", lambda r, c: _ats(r) and r.line is not None and r.line >= BIG_SPREAD),
+    ("exploratory: underdog better 2P%, worse 3P% (10+ games) ATS", lambda r, c: _ats(r) and not _fav(r) and _inside_not_outside(r, c)),
 )
 
 
@@ -243,6 +256,10 @@ class LogGame:
     poss: float
     pts: float
     opp_pts: float
+    two: tuple[float, float] = (0.0, 0.0)  # 2PM, 2PA
+    three: tuple[float, float] = (0.0, 0.0)  # 3PM, 3PA
+    opp_two: tuple[float, float] = (0.0, 0.0)
+    opp_three: tuple[float, float] = (0.0, 0.0)
 
 
 def parse_logs(logs: Iterable[list[str]]) -> list[LogGame]:
@@ -256,7 +273,28 @@ def parse_logs(logs: Iterable[list[str]]) -> list[LogGame]:
         if day is None or parsed is None:
             continue
         own, opp, poss = parsed
-        out.append(LogGame(day, row[2], poss, own["pts"], opp["pts"]))
+        out.append(LogGame(day, row[2], poss, own["pts"], opp["pts"], *(_shots(own) + _shots(opp))))
+    return out
+
+
+def _shots(box: Mapping[str, float]) -> tuple[tuple[float, float], tuple[float, float]]:
+    return (box["fgm"] - box["tpm"], box["fga"] - box["tpa"]), (box["tpm"], box["tpa"])
+
+
+def shooting(logs: Sequence[LogGame], before: Date) -> dict[str, tuple[float, float]]:
+    """Per Torvik team with ``SHOOT_MIN_GAMES`` logged before ``before``: (2P% gap, 3P% gap), each made less allowed,
+    pooled over shots."""
+    acc: dict[str, list[float]] = defaultdict(lambda: [0.0] * 9)
+    for g in logs:
+        if g.day < before:
+            a = acc[g.team]
+            a[0] += 1
+            for i, v in enumerate((*g.two, *g.three, *g.opp_two, *g.opp_three), 1):
+                a[i] += v
+    out: dict[str, tuple[float, float]] = {}
+    for t, (n, m2, a2, m3, a3, om2, oa2, om3, oa3) in acc.items():
+        if n >= SHOOT_MIN_GAMES and a2 and a3 and oa2 and oa3:
+            out[t] = (m2 / a2 - om2 / oa2, m3 / a3 - om3 / oa3)
     return out
 
 
@@ -351,6 +389,7 @@ def context(
     last capture before its tip). A season-to-date rank from one or two logged games is not a
     rank, so nothing here is computed from the logs' margins."""
     last = last_results(logs, day)
+    shoot = shooting(logs, day)
     thirds = tempo or {}
     tv_rank = ranks or {}
     tv = sorted(set(last) | set(confs) | set(thirds) | set(tv_rank))
@@ -362,8 +401,10 @@ def context(
         pace = thirds.get(t) if t else None
         conf = confs.get(t) if t else None
         rest = rest_days(espn_name, day, boards) if espn_name else None
+        two, three = shoot.get(t, (None, None)) if t else (None, None)
         return Team(ap=ap, net_rank=tv_rank.get(t) if t else None, slow=(pace == "slow") if pace else None,
-                    off_loss=last.get(t) if t else None, power=(conf in POWER) if conf else None, rest=rest, pace=pace)
+                    off_loss=last.get(t) if t else None, power=(conf in POWER) if conf else None, rest=rest, pace=pace,
+                    two=two, three=three)
 
     for eid, (home, away) in teams.items():
         hit = history.match_oriented(home, away, games)
@@ -383,5 +424,6 @@ def context(
 
 __all__ = [
     "BANDS", "GameCtx", "LogGame", "Team", "context", "main_lines", "main_rows", "market_expected", "one_slate_per_game",
-    "last_results", "openers", "parse_logs", "read_bands", "render", "rest_days", "tempo_thirds", "tip_day", "torvik_ranks",
+    "last_results", "openers", "parse_logs", "read_bands", "render", "rest_days", "shooting", "tempo_thirds", "tip_day",
+    "torvik_ranks",
 ]
