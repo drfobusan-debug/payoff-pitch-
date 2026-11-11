@@ -518,7 +518,7 @@ def _rated(x: Rated, fmt: str) -> str:
     if x.value is None:
         return "—"
     rank = f" <span class='rk'>#{x.rank}</span>" if x.rank is not None else ""
-    z = f" <span class='rk'>z{x.z:+.1f}</span>" if x.z is not None else ""
+    z = f"<br><span class='rk'>z {x.z:+.1f}</span>" if x.z is not None else ""
     return fmt.format(x.value) + rank + z
 
 

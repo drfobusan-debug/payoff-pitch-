@@ -475,7 +475,7 @@ def test_four_factors_rank_defense_on_what_opponents_did():
     assert nyk.offense.efg.rank == 1 and nyk.offense.tov.rank == 1
     assert nyk.defense.efg.value == bos.offense.efg.value and nyk.defense.efg.rank == 1
     assert nyk.offense.efg.z == pytest.approx(1.0) and bos.defense.efg.z == pytest.approx(-1.0)
-    assert "<span class='rk'>z+1.0</span>" in card_mod._rated(nyk.offense.efg, "{:.1%}")
+    assert "<br><span class='rk'>z +1.0</span>" in card_mod._rated(nyk.offense.efg, "{:.1%}")
     assert nyk.offense.orb.value == pytest.approx(14 / (14 + 34))
 
 
