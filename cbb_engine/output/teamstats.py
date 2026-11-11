@@ -268,6 +268,21 @@ ALIASES: dict[str, str] = {
     "South Carolina Upstate Spartans": "USC Upstate",
     "Texas A&M-Corpus Christi Islanders": "Texas A&M Corpus Chris",
     "Texas A&M-CC Islanders": "Texas A&M Corpus Chris",
+    "CSU Bakersfield Roadrunners": "Cal St. Bakersfield",
+    "CSU Fullerton Titans": "Cal St. Fullerton",
+    "CSU Northridge Matadors": "Cal St. Northridge",
+    "Fort Wayne Mastodons": "Purdue Fort Wayne",
+    "GW Revolutionaries": "George Washington",
+    "IUPUI Jaguars": "IU Indy",
+    "Loyola (Chi) Ramblers": "Loyola Chicago",
+    "Miss Valley St Delta Devils": "Mississippi Valley St.",
+    "Prairie View Panthers": "Prairie View A&M",
+    "St. Francis (PA) Red Flash": "Saint Francis",
+    "Tenn-Martin Skyhawks": "Tennessee Martin",
+    "Florida Int'l Golden Panthers": "FIU",
+    "Mt. St. Mary's Mountaineers": "Mount St. Mary's",
+    "SE Missouri St Redhawks": "Southeast Missouri St.",
+    "Texas A&M-Commerce Lions": "East Texas A&M",
 }
 
 
