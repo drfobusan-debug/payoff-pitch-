@@ -1,0 +1,60 @@
+{
+ "episode_guid": "vsin-95352",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "ad6648a0a4fab7c215b813b810c643d5e38ae32d",
+ "picks": [
+  {
+   "pick_id": "6f19e5142f85",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-95352",
+   "episode_title": "College Basketball Picks for Wednesday, November 11 from Adam Burke",
+   "published": "2026-11-11T15:01:03+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Old Dominion",
+   "opponent": "Norfolk State",
+   "side": null,
+   "line": -5.5,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Old Dominion -5.5",
+   "reason": "https://vsin.com/college-basketball/college-basketball-picks-for-wednesday-november-11-from-adam-burke/",
+   "description": "Old Dominion -5.5",
+   "league": "cbb",
+   "edge": "",
+   "fair_line": null
+  },
+  {
+   "pick_id": "5a0b0f159c5b",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-95352",
+   "episode_title": "College Basketball Picks for Wednesday, November 11 from Adam Burke",
+   "published": "2026-11-11T15:01:03+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Pacific",
+   "opponent": "Long Beach State",
+   "side": null,
+   "line": -6.0,
+   "price": null,
+   "units": null,
+   "seconds": 1,
+   "quote": "Pacific -6",
+   "reason": "https://vsin.com/college-basketball/college-basketball-picks-for-wednesday-november-11-from-adam-burke/",
+   "description": "Pacific -6",
+   "league": "cbb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cbb"
+ ]
+}
