@@ -518,7 +518,8 @@ def _rated(x: Rated, fmt: str) -> str:
     if x.value is None:
         return "—"
     rank = f" <span class='rk'>#{x.rank}</span>" if x.rank is not None else ""
-    return fmt.format(x.value) + rank
+    z = f" <span class='rk'>z{x.z:+.1f}</span>" if x.z is not None else ""
+    return fmt.format(x.value) + rank + z
 
 
 def _team_stats(game: GameCard) -> dict[str, TeamStats]:
@@ -607,7 +608,9 @@ def _team_panel(game: GameCard) -> str:
         "<table class='panel'><tr>"
         f"<td>{_efficiency(game, stats)}</td><td>{_factors(game, stats)}</td>"
         "</tr></table><p class='tapenote'>Season to date, grey # = rank among teams with"
-        " games; tonight's venue shaded. Early splits rest on few games, so ranks are noisy.</p>"
+        " games, z = standard deviations from the league average (+ is better, so a low"
+        " Def rtg or TOV% reads +); tonight's venue shaded. Early splits rest on few games,"
+        " so ranks and z are noisy.</p>"
     )
 
 
