@@ -1,0 +1,128 @@
+{
+  "Buffalo @ Ball State|game_ats|Ball State": {
+    "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 1.0,
+    "no_vig_prob": 0.5002778373792013
+  },
+  "Buffalo @ Ball State|game_ats|Buffalo": {
+    "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -1.0,
+    "no_vig_prob": 0.49972216262079866
+  },
+  "Buffalo @ Ball State|game_ml|Ball State": {
+    "american": 106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.4785215334719395
+  },
+  "Buffalo @ Ball State|game_ml|Buffalo": {
+    "american": -118.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.5214784665280605
+  },
+  "Buffalo @ Ball State|game_total|Over": {
+    "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 51.5,
+    "no_vig_prob": 0.5004680168237302
+  },
+  "Buffalo @ Ball State|game_total|Under": {
+    "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 51.5,
+    "no_vig_prob": 0.49953198317626973
+  },
+  "Sacramento Sta @ Central Michig|game_ats|Central Michig": {
+    "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -17.0,
+    "no_vig_prob": 0.5001016240993543
+  },
+  "Sacramento Sta @ Central Michig|game_ats|Sacramento Sta": {
+    "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 17.0,
+    "no_vig_prob": 0.4998983759006458
+  },
+  "Sacramento Sta @ Central Michig|game_ml|Central Michig": {
+    "american": -950.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.8783291509577127
+  },
+  "Sacramento Sta @ Central Michig|game_ml|Sacramento Sta": {
+    "american": 754.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.12167084904228732
+  },
+  "Sacramento Sta @ Central Michig|game_total|Over": {
+    "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 43.0,
+    "no_vig_prob": 0.49983734336165725
+  },
+  "Sacramento Sta @ Central Michig|game_total|Under": {
+    "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 43.0,
+    "no_vig_prob": 0.5001626566383427
+  },
+  "UMass @ Toledo|game_ats|Toledo": {
+    "american": 100.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -14.5,
+    "no_vig_prob": 0.4924362768303186
+  },
+  "UMass @ Toledo|game_ats|UMass": {
+    "american": -109.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 14.5,
+    "no_vig_prob": 0.5075637231696813
+  },
+  "UMass @ Toledo|game_ml|Toledo": {
+    "american": -580.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.824807258784448
+  },
+  "UMass @ Toledo|game_ml|UMass": {
+    "american": 460.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.17519274121555206
+  },
+  "UMass @ Toledo|game_total|Over": {
+    "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 52.0,
+    "no_vig_prob": 0.49929616187703046
+  },
+  "UMass @ Toledo|game_total|Under": {
+    "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 52.0,
+    "no_vig_prob": 0.5007038381229695
+  }
+}
