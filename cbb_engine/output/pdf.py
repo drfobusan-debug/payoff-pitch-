@@ -13,6 +13,7 @@ from dataclasses import dataclass
 from datetime import date as Date
 from datetime import datetime
 from statistics import fmean, pstdev
+from typing import Protocol
 from zoneinfo import ZoneInfo
 
 from cbb_engine.data.capture import slate_date_of
@@ -42,10 +43,25 @@ tr.buy td { background: #e6f4e6; font-weight: bold; }
 table.panel { width: 100%; } table.panel > tbody > tr > td { vertical-align: top; padding: 0 6px 0 0; width: 50%; }
 table.inner th { font-size: 7.5pt; } table.inner td { white-space: nowrap; }
 table.inner { width: 100%; } .rk { color: #999; font-size: 6.5pt; } .on { background: #eef2fa; }
+.half { font-size: 6.5pt; margin: 4px 0 8px; } .half .hh { font-weight: bold; font-size: 8pt; }
+.half table.inner th { font-size: 6.5pt; } .half td { font-size: 6.5pt; } .half .note { font-size: 6.5pt; }
 .ctx { margin: 2px 0; } .cap { font-weight: bold; text-align: left; vertical-align: bottom; } .note { color: #777; font-size: 7pt; margin: 2px 0 0; }
 """
 
 _MARKETS = {"game_total": "Total", "game_ats": "Spread", "game_ml": "Moneyline"}
+
+
+class FastFit(Protocol):
+    @property
+    def share(self) -> float: ...
+    @property
+    def b(self) -> float: ...
+    @property
+    def se(self) -> float: ...
+    @property
+    def n(self) -> int: ...
+    @property
+    def verdict(self) -> str: ...
 
 
 def _utc(tip_utc: str) -> datetime:
@@ -369,13 +385,16 @@ def build_html(
     moves: Mapping[str, Sequence[Move]] | None = None,
     podcast: PodcastView | None = None,
     tips: Mapping[str, str] | None = None,
+    fast: FastFit | None = None,
 ) -> str:
     """``teams`` maps event_id -> (home, away) as named by the Odds API; ``tips`` maps
     event_id -> tip (UTC) for games the card did not price. Only games tipping on ``day``
     (US Eastern) print, in tip order; a game with no known tip is left off.
 
-    ``podcast`` adds the shows' bets under each game and their records at the back.
+    ``podcast`` adds the shows' bets under each game and their records at the back. ``fast`` is
+    the season's first-half read, shown beside the halftime worksheet's fixed constants.
     """
+    half_games: list[tuple[str, str, float | None]] = []
     names = list(stats)
     lg = league(stats)
     listed = [(match_team(i.team, names), i) for i in injuries]
@@ -396,6 +415,7 @@ def build_html(
         an, hn = (t.team if t else n.split()[0] for t, n in ((away, away_name), (home, home_name)))
         tip = _tip(tip_of[eid])
         order.append(f"{away_name} @ {home_name}")
+        half_games.append((f"{away_name} @ {home_name}", tip, _pregame_total(by_event[eid])))
         blocks.append(
             f"<div class='game'><div class='gh'>{html.escape(away_name)} at {html.escape(home_name)} "
             f"<span>{tip} · {an} {_rest(away, day)}, {hn} {_rest(home, day)}</span></div>"
@@ -413,8 +433,66 @@ def build_html(
     return (
         f"<html><head><meta charset='utf-8'><style>{_STYLE}{PODCAST_CSS if podcast else ''}</style></head><body>"
         f"<h1>CBB card — {day.isoformat()}</h1><p class='sub'>{html.escape(title)} {buys} live buy(s) · "
-        f"{len(blocks)} games · paper only</p><p class='note'>{KEY}{_unmatched(unmatched)}</p>{''.join(blocks)}"
+        f"{len(blocks)} games · paper only</p><p class='note'>{KEY}{_unmatched(unmatched)}</p>"
+        f"{halftime_block(half_games, fast)}{''.join(blocks)}"
         f"{podcast_records_block(podcast, order)}</body></html>"
+    )
+
+
+HALF_SHARE = 0.47  # a normal first half clears this share of the pregame total
+HALF_CARRY = 1.12  # how much of the first-half gap stays in the final
+HALF_TRIGGER = 4.0  # live halftime total must sit this far from the fair final
+HALF_BLOWOUT = 15  # halftime margin that makes the game a pass
+HALF_CAP = 8  # bets per day
+
+HALF_RULES = (
+    "Bet only at halftime; never look at live numbers while the clock runs. "
+    f"Pass any game with a halftime margin of {HALF_BLOWOUT}+ (no Over, no Under). "
+    f"Fair final = pregame total + {HALF_CARRY} x (halftime points - {HALF_SHARE:.0%} x pregame total). "
+    f"Take the middle live total across 3+ books: Under if it is {HALF_TRIGGER:.0f}+ above the fair final, "
+    f"Over if {HALF_TRIGGER:.0f}+ below. Stop after {HALF_CAP} games in a day. "
+    "Live halftime totals are not captured, so this worksheet is filled by hand and nothing here is graded."
+)
+
+
+def _pregame_total(rows: Sequence[ledger.Row]) -> float | None:
+    lines = sorted(r.line for r in rows if r.market == "game_total" and r.line is not None)
+    return lines[len(lines) // 2] if lines else None
+
+
+def halftime_block(
+    games: Sequence[tuple[str, str, float | None]], fit: FastFit | None = None
+) -> str:
+    """The halftime rule and one worksheet row per game: pregame total, the first-half baseline and
+    the constant ``c`` so that fair final = c + carry x halftime points.
+
+    ``games`` are (matchup, tip, pregame total). ``fit`` is this season's own first-half read
+    (share and slope from engine_runtime.faststart) printed next to the rule's constants so the
+    two can be compared; it never changes the rule's numbers."""
+    if not games:
+        return ""
+    body = []
+    for name, tip, total in games:
+        if total is None:
+            body.append(f"<tr><td>{html.escape(name)}</td><td>{tip}</td><td colspan='4'>no total priced</td></tr>")
+            continue
+        base = HALF_SHARE * total
+        c = total - HALF_CARRY * base
+        body.append(
+            f"<tr><td>{html.escape(name)}</td><td>{tip}</td><td>{total:g}</td><td>{base:.1f}</td>"
+            f"<td>{c:.1f} + {HALF_CARRY} x half</td><td>&ge; FF+{HALF_TRIGGER:g} Under · &le; FF-{HALF_TRIGGER:g} Over</td></tr>"
+        )
+    ours = (
+        f" Our own first-half fit so far: share {fit.share:.1%}, carry {fit.b:.2f} ± {fit.se:.2f} (n={fit.n}) — {fit.verdict}."
+        if fit
+        else " Our own first-half fit is not readable yet (too few finished games with a timely close)."
+    )
+    return (
+        f"<div class='half'><div class='hh'>Halftime totals rule (by hand, not a card bet)</div>"
+        f"<p class='note'>{html.escape(HALF_RULES)}{html.escape(ours)}</p>"
+        "<table class='inner'><tr><th class='cap'>game</th><th class='cap'>tip</th><th class='cap'>pregame total</th>"
+        f"<th class='cap'>{HALF_SHARE:.0%} baseline</th><th class='cap'>fair final (FF)</th><th class='cap'>trigger</th></tr>"
+        f"{''.join(body)}</table></div>"
     )
 
 
@@ -432,4 +510,4 @@ def render_pdf(html_body: str) -> bytes:
     return bytes(HTML(string=html_body).write_pdf())
 
 
-__all__ = ["build_html", "render_pdf", "team_panel"]
+__all__ = ["build_html", "halftime_block", "render_pdf", "team_panel"]
