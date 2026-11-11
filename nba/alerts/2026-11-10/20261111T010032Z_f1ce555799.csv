@@ -1,0 +1,4 @@
+detected_at,game_date,event_id,matchup,kind,detail,before,after
+2026-11-11T01:00:32Z,2026-11-10,9ac02cb22adf276b325b1e9c9c6c588e,MIA @ UTA,ml_move,home ml 0.315 -> 0.253,0.315,0.253
+2026-11-11T01:00:32Z,2026-11-10,9ac02cb22adf276b325b1e9c9c6c588e,MIA @ UTA,spread_move,home spread 6.5 -> 9,6.5,9
+2026-11-11T01:00:32Z,2026-11-10,9ac02cb22adf276b325b1e9c9c6c588e,MIA @ UTA,total_move,total 226 -> 227.5,226,227.5
