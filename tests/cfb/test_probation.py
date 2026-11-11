@@ -12,6 +12,7 @@ from cfb_engine.audit.probation import (
     WATCHING,
     CandidateScreen,
     candidate_probation,
+    market_expected,
     market_probation,
     probation_findings,
     screen_probation,
@@ -107,12 +108,39 @@ def test_a_market_whose_halves_disagree_is_left_alone() -> None:
     assert "the halves disagree" in verdict.finding
 
 
-def test_a_market_inside_one_standard_error_is_left_alone() -> None:
+def test_a_market_inside_two_standard_errors_is_left_alone() -> None:
     """Barely negative in both halves is not evidence of anything."""
     rows = _run(("wl" * 24 + "ll") * 2)
     (verdict,) = market_probation(rows, min_n=50)
     assert verdict.status == CLEAR
-    assert "inside one standard error of zero" in verdict.finding
+    assert "inside 2 standard errors of the market" in verdict.finding
+
+
+def test_a_heavy_favourite_band_losing_only_the_vig_is_not_shut() -> None:
+    """Flat 1u on -300 chalk at a fair 74% loses ~1.3% a bet by construction.
+
+    Going 74 of 100 is exactly what the market expected, so the raw ROI is
+    negative and the excess over the market is zero: no verdict."""
+    rows = _run(("w" * 37 + "l" * 13) * 2, odds=-300.0)
+    for e in rows:
+        e.fair_prob = 0.74
+        e.pnl = 1 / 3 if e.result == "win" else -1.0
+    (verdict,) = market_probation(rows, min_n=50)
+    assert verdict.roi < 0
+    assert abs(verdict.excess) < 0.01
+    assert verdict.status == CLEAR
+    assert market_expected(rows[0]) < 0
+
+
+def test_a_market_beaten_by_the_market_itself_is_shut_on_excess() -> None:
+    """Same chalk going 60 of 100: 14 points under the fair rate, both halves."""
+    rows = _run(("w" * 30 + "l" * 20) * 2, odds=-300.0)
+    for e in rows:
+        e.fair_prob = 0.74
+        e.pnl = 1 / 3 if e.result == "win" else -1.0
+    (verdict,) = market_probation(rows, min_n=50)
+    assert verdict.status == SHUT
+    assert verdict.excess < -0.1
 
 
 def test_a_screen_refusing_winners_is_lifted() -> None:
