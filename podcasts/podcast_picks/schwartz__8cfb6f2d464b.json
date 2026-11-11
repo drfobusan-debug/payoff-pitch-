@@ -1,0 +1,70 @@
+{
+ "episode_guid": "bPsdr8SQHMSe5t24lmFwRM3rMBV6si8f",
+ "model": "gpt-4o-mini",
+ "prompt_version": "picks-v2",
+ "transcript_sha": "5a60c337dd53c8d264e728ce8b7f4733044bc022",
+ "picks": [],
+ "rejected": [
+  {
+   "league": "nfl",
+   "kind": "lean",
+   "host": "Geoff Schwartz",
+   "team": "Vikings",
+   "opponent": "Bills",
+   "market": "game_ml",
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "stamp": "[01:14]",
+   "quote": "the Vikings lose 23 to six, the Bills win again",
+   "edge": "",
+   "fair_line": null,
+   "reason": "The Vikings are struggling offensively and lost to the Bills.",
+   "description": "Vikings ML against the Bills.",
+   "why": "bad stamp"
+  },
+  {
+   "league": "nfl",
+   "kind": "lean",
+   "host": "Mitchell Schwartz",
+   "team": "Vikings",
+   "opponent": null,
+   "market": "other",
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "stamp": "[12:50]",
+   "quote": "they need to get somebody in",
+   "edge": "",
+   "fair_line": null,
+   "reason": "The Vikings need a competent quarterback to improve their chances.",
+   "description": "Vikings need to upgrade quarterback position.",
+   "why": "bad stamp"
+  },
+  {
+   "league": "nfl",
+   "kind": "lean",
+   "host": "Mitchell Schwartz",
+   "team": "Vikings",
+   "opponent": null,
+   "market": "other",
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "stamp": "[15:30]",
+   "quote": "the Vikings have a chance to win the NFC if they upgrade the quarterback position just slightly",
+   "edge": "",
+   "fair_line": null,
+   "reason": "With a competent quarterback, the Vikings could be a playoff team.",
+   "description": "Vikings could win the NFC with a quarterback upgrade.",
+   "why": "bad stamp"
+  }
+ ],
+ "leagues": [
+  "nfl",
+  "cfb"
+ ]
+}
