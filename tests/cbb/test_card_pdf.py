@@ -72,6 +72,29 @@ def test_match_team_prefers_the_longest_school_and_aliases() -> None:
     assert teamstats.match_team("Gonzaga Bulldogs", torvik) is None
 
 
+def test_match_team_odds_api_spellings_find_their_own_school() -> None:
+    torvik = [
+        "Florida",
+        "FIU",
+        "Saint Mary's",
+        "Mount St. Mary's",
+        "Missouri St.",
+        "Southeast Missouri St.",
+        "Texas A&M",
+        "East Texas A&M",
+        "IU Indy",
+        "Loyola Chicago",
+        "Mississippi Valley St.",
+    ]
+    assert teamstats.match_team("Florida Int'l Golden Panthers", torvik) == "FIU"
+    assert teamstats.match_team("Mt. St. Mary's Mountaineers", torvik) == "Mount St. Mary's"
+    assert teamstats.match_team("SE Missouri St Redhawks", torvik) == "Southeast Missouri St."
+    assert teamstats.match_team("Texas A&M-Commerce Lions", torvik) == "East Texas A&M"
+    assert teamstats.match_team("IUPUI Jaguars", torvik) == "IU Indy"
+    assert teamstats.match_team("Loyola (Chi) Ramblers", torvik) == "Loyola Chicago"
+    assert teamstats.match_team("Miss Valley St Delta Devils", torvik) == "Mississippi Valley St."
+
+
 def test_card_html_has_board_and_panel_for_each_game() -> None:
     logs = _rows(
         "11/4/25",
