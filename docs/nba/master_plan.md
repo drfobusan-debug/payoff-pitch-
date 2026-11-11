@@ -483,6 +483,22 @@ players with projected minutes; injuries with report timestamp; rest/travel line
 1H); the game's rows table with gates; storylines. Front page: slate summary, buys, top props.
 Plus MP3 sportscaster audio (NHL/MLB pattern) and the regression report.
 
+- **Order:** games run in tip-off order, early tips first. The buys list and top props at the
+  back follow the same order, and each line opens with its ET tip time.
+- **Rows table:** each row shows market, side and line, model p, the fair price (de-vigged,
+  Over bias applied), edge, EV, tier, and the gate that refused it if any.
+- **Book:** each row names the book (DraftKings or BetMGM) and its price. It also says if
+  only one of the two posted it.
+- **Injury changes:** a box per game lists every status change since the last email, with
+  the official report time. Games the news alarm has PENDING are shown that way, with no
+  buys.
+- **Cup:** NBA Cup games carry their stage. Neutral-site games are labelled, and their home
+  court and travel line are based on the actual arena.
+- **No weather section.** The rest/travel line replaces it.
+
+The PDF, MP3 and Excel go out by email from the Mac launchd schedule in §10, every day there's
+a slate, with no manual step. Days with no games send nothing.
+
 ---
 
 ## 10. Automation — when the email goes out
@@ -500,6 +516,7 @@ until that study lands:
 | **17:15** | after the 5 PM report; main card for 7:00–8:30 tips | **Card**: PDF + Excel + MP3 |
 | 20:15 | after the 8 PM report; card for 9:00+ tips | Late card (only if late games) |
 | T-5 and **T-1** per game | close capture, 1-min `close` job; the T-1 quote is the graded close. Kept only if ESPN still shows the game pre-tip **and** the quote is stamped before the scheduled tip (clock lock; ESPN's status can lag the jump ball). T-5 is the fallback (~110 credits per game per capture). Recommendations for a game stop at its last scheduled pass, well before tip | — |
+| 03:00 | grade, audit, push `nba/` to engine-state | **Audit** PDF + MP3 + ledger |
 
 A prop the book pulls before the T-1 capture keeps its row. It is graded on the outcome (ROI,
 PPV/NPV and calibration include it) with `close = pulled`. Its CLV goes in a separate **pre-pull
@@ -542,7 +559,6 @@ The spread moved in 16% of games (1% by ≥1 pt) and the total in 24% (2% by ≥
 prop quotes, 3.4% changed line or were pulled, and the rest moved 0.2 pts no-vig. The Over gap
 was identical at both times. Live capture uses T-1, since it costs the same as T-5. The 2023–26
 archive stays at its 9.4-min close for grading and is not re-pulled.
-| 03:00 | grade, audit, push `nba/` to engine-state | **Audit** PDF + MP3 + ledger |
 
 Mac: `scripts/nba/macos/` launchd plists + `.command` shortcuts (run_predictions, run_audit,
 nba_capture, open_ledger, install_schedule), `~/.nba_engine`, `NBAE_` env prefix,
@@ -563,63 +579,103 @@ Small samples are labelled exploratory/underpowered; date- and game-clustered bo
 ## 12. Algorithm / worksheet flow
 
 ```
-┌──────────────────────────────── DATA (§1) ────────────────────────────────┐
-│ D1/D2/D3 Odds API (open→close, game/1H/props)   D4 SBR 07-23   D5 Covers    │
-│ D6 Kaggle box   D7 PBP/stints   D8 nba_api (Mac)   D10 ESPN   D11/D12 injury │
-│ D13 arenas/travel                                                           │
-└───────────────┬─────────────────────────────────────────────┬───────────────┘
-                │ as-of slicing (no look-ahead)               │ timestamped archive
-                ▼                                             ▼
-┌──────── STABILIZED METRICS (§3) ────────┐      ┌──── MARKET LAYER ─────────────┐
-│ split-half r → k per metric             │      │ pair both sides, power de-vig │
-│                                         │      │ prop Over bias (fitted, §4.7) │
-│ EB posterior rate = (k·prior+n·obs)/(k+n)│      │ consensus fair, open/now/close│
-└───────────────┬─────────────────────────┘      └──────────────┬────────────────┘
-                ▼                                               │
-┌──────── PLAYER & TEAM (§4.1-4.3) ───────┐                     │
-│ minutes model ← availability (D11/D12)  │
-│ questionable = P(plays)·with + (1−P)·w/o│                     │
-│ on/off backup profiles (4.2a)           │                     │
-│ lineup rebuild = Σ min × impact + resid │                     │
-│ schedule terms (fitted or 0)            │                     │
-└───────────────┬─────────────────────────┘                     │
-                ▼                                               │
-┌──────── DISTRIBUTION (§4.4-4.5) ────────┐                     │
-│ poss × eff → (home, away) pts, OT, 1H   │                     │
-│ props: split team totals: next man up → │                     │
-│   ceilings → measured TOV/eff rest (5a) │                     │
-│ blowout dimmer on simulated minutes (4a)│                     │
-│ isotonic calibration                    │                     │
-└───────────────┬─────────────────────────┘                     │
-                ▼                                               ▼
-┌──────────────── PRICE: p_final = w·p_model + (1−w)·p_fair  ; edge, EV ──────┐
-│ markets: ML · ATS · Total · 1H ML · 1H ATS · 1H Total · PTS · 3PM · REB ·   │
-│          AST · PRA                                                          │
-└───────────────┬─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────── DATA (§1) ───────────────────────────────────────┐
+│ Odds API open→close (game / 1H / PTS·3PM·REB·AST·PRA), every book archived          D1-3 │
+│ SBR 07-23 · Covers · Kaggle box (read-only NBAE_KAGGLE_DB) · PBP stints · nba_api (Mac) │
+│ ESPN scores/boxes/neutral-site · official injury PDF + ESPN feed + RotoWire · arenas   │
+│ stable IDs: event_id + game_id + player_id (fallback: teams + tip ±15 min, logged)      │
+│ cup_stage: none/group/quarterfinal/semifinal/final · home court from the actual venue   │
+│ §3a RULE REGISTER: heave rule 25-26 · push-off emphasis 26-27 · Cup semis at home 26-27 │
+└───────────────┬──────────────────────────────────────────────────────┬──────────────────┘
+                │ as-of only (no look-ahead)                           │ timestamped quotes
+                ▼                                                      ▼
+┌──── STABILIZED METRICS (§3) ─────────────┐   ┌──── MARKET LAYER ──────────────────────────┐
+│ split-half r → k per metric (own window) │   │ pair sides · power de-vig · consensus fair  │
+│ rate = (k·prior + n·obs)/(k + n)         │   │ open / now / close (T-1, T-5 fallback,      │
+│ 3PA/3P% rebuilt from PBP without heaves; │   │   stamped before tip, never in-play)        │
+│   heaves their own term (~4% make)       │   │ prop Over bias: market × book, shrunk to    │
+│ rule breaks: pre/post term or refit      │   │   all-book (DK −1.56, MGM −1.27 pts)        │
+└───────────────┬──────────────────────────┘   └──────────────────────┬─────────────────────┘
+                ▼                                                     │
+┌──── NIGHTLY RATINGS (§4.8) ───────────────────────────────────┐     │
+│ off/def/pace + player rates every morning; fatigue games      │     │
+│ (B2B, 3-in-4, altitude, road trip) count less (fitted)        │     │
+│ 26-27: prior seasons' foul/TOV/FTA rates down-weighted        │     │
+└───────────────┬───────────────────────────────────────────────┘     │
+                ▼                                                     │
+┌──── PLAYERS & TEAMS (§4.1-4.3, §5b) ──────────────────────────┐     │
+│ Questionable = P(plays)·with + (1−P)·without                  │     │
+│   P(plays) fitted: status path, report hour, reason category, │     │
+│   role, B2B (avg 74%; upgrade→Available avg 87%: priors)      │     │
+│   unmapped injury string → alert, status-only model, no buy   │     │
+│ STINT TAGS: rotation · foul trouble · injury exit · ejection ·│     │
+│   blowout · whole-game absence                                │     │
+│ ON/OFF PROFILES: star out → backup's star-off rates, from     │     │
+│   whole-game absences + rotation stints only, shrunk to his   │     │
+│   own rate, re-scaled to the opponent lineup he will face     │     │
+│ PLAYSTYLE FAMILIES (refit each season): usage, passing, shot  │     │
+│   zones, rebounding, on-ball time, offensive fouls per touch  │     │
+└───────────────┬───────────────────────────────────────────────┘     │
+                ▼                                                     │
+┌──── DISTRIBUTION (§4.4-4.5a), simulated game by game ─────────┐     │
+│ possessions × efficiency → home/away pts, OT                  │     │
+│ 1H: own rotation minutes + PACE shift + EFFICIENCY shift      │     │
+│   (1H 57.1 vs 2H 56.4 per team); foul-trouble term or 0       │     │
+│ BLOWOUT: P(starters pulled | margin, time, coach, schedule),  │     │
+│   both benches' quality, fitted garbage-time pace/eff/assists │     │
+│ TEAMMATE MATH: team totals first, then split:                 │     │
+│   1 NEXT MAN UP: pair history → single-absence tables →       │     │
+│     playstyle family → normal shares (foul-trouble minutes    │     │
+│     go down the same chain)                                   │     │
+│   2 CEILINGS: per-minute (usage %, FGA/36, 3PA/36, AST/36),   │     │
+│     widened per family from role-expanded games               │     │
+│   3 allocate(): leftover only → measured TOV / lower eff      │     │
+│ isotonic calibration                                          │     │
+└───────────────┬───────────────────────────────────────────────┘     │
+                ▼                                                     ▼
+┌──── PRICE ─────────────────────────────────────────────────────────────────────────────┐
+│ p = w·p_model + (1−w)·p_fair   (w fitted per market; Over bias sits in p_fair)          │
+│ priced at EXEC_BOOKS = DraftKings, BetMGM: better of the two, edge floor fitted         │
+│   separately for one-book and two-book rows; neither book posts → research row, no buy  │
+│ ML · ATS · Total · 1H ML · 1H ATS · 1H Total · PTS · 3PM · REB · AST · PRA (straight)   │
+└───────────────┬─────────────────────────────────────────────────────────────────────────┘
                 ▼
-┌──────── FILTERS (§5) — flag every row, refuse via veto_gate ────────────────┐
-│ 5a Regression │ 5b Injury & schedule │ 5c Line movement │ 5d News alarm      │
-└───────────────┬─────────────────────────────────────────────────────────────┘
+┌──── FILTERS (§5): flag every row; refused rows graded like buys ───────────────────────┐
+│ 5a Regression │ 5b Injury & schedule (B2B, 3-in-4, trip, miles, zones, altitude) │      │
+│ 5c Line movement (drift vs our side, steam) │ 5d NEWS ALARM ★                           │
+└───────────────┬─────────────────────────────────────────────────────────────────────────┘
                 ▼
-┌──────── GATES (§6): edge floor · price band · pairing · quote age ·         │
-│          exposure dedupe · probation  →  Strong / Moderate / Lean / Pass    │
-└───────┬──────────────────────────────┬──────────────────────────────────────┘
-        ▼                              ▼
-┌── OUTPUTS (§8-9) ───────┐   ┌── LEDGER (write-once per pass) ─────────────┐
-│ Excel workbook          │   │ every row incl. refused, flags, gates,      │
-│ Slate PDF + MP3         │   │ price taken, prior version, pass id         │
-│ Email 11:15/17:15/20:15 │   └──────────────┬──────────────────────────────┘
-└─────────────────────────┘                  ▼ T-1 close  ·  03:00 grade
-                               ┌── AUDIT (§7) ───────────────────────────────┐
-                               │ model vs close vs open · selection vs       │
-                               │ baselines · CLV · ROI · calibration ·       │
-                               │ PPV/NPV · filter false-negative tables ·    │
-                               │ integrity · probation → email PDF/MP3/xlsx  │
-                               └──────────────┬──────────────────────────────┘
-                                              ▼
-                               nightly: team ratings + player posteriors
-                               monthly: refit k / w / floors / thresholds
-                               (walk-forward only) ─── back to top
+┌──── GATES (§6) ────────────────────────────────────────────────────────────────────────┐
+│ edge floor · price band · paired sides · fresh quote · NOT PENDING · one bet per        │
+│ correlated cluster · Questionable games held until the re-price beats the market's move │
+│ · probation  →  Strong / Moderate / Lean / Pass                                         │
+└───────┬───────────────────────────────────────┬─────────────────────────────────────────┘
+        ▼                                       ▼
+┌── OUTPUTS (§8-9) ──────────────┐   ┌── LEDGER (write-once per pass) ─────────────────────┐
+│ Excel workbook                 │   │ every row incl. refused · flags · gates · book ·    │
+│ slate PDF + MP3                │   │ one/two-book · price taken · params version · pass  │
+│ email 11:15 / 17:15 / 20:15    │   └───────────────┬─────────────────────────────────────┘
+│ (send time picked by replay)   │                   ▼ close at T-1 · grade at 03:00
+└────────────────────────────────┘   ┌── AUDIT (§7) ───────────────────────────────────────┐
+                                     │ model vs close vs open · CLV at the book bet ·      │
+                                     │ pulled props: kept in ROI, pre-pull CLV column ·    │
+                                     │ ROI · calibration · PPV/NPV · false negatives per   │
+                                     │ filter · alarm caught/missed · buys by book and     │
+                                     │ one/two-book · weekly fouls/TOV/FTA vs 2023-26 ·    │
+                                     │ integrity · probation → email PDF/MP3/xlsx          │
+                                     └───────────────┬─────────────────────────────────────┘
+                                                     ▼
+                                     nightly: ratings · monthly: refit k / w / floors /
+                                     thresholds / Over bias / P(plays) → new params version
+                                     (walk-forward only) ─── back to top
+
+★ NEWS ALARM (§5d, every 5 min 11:00–23:55)                                     [built, #441]
+  board + ESPN feed + new official report vs the board at the game's last alert
+  → ML ≥ 3 pts no-vig · spread ≥ 1 · total ≥ 1.5 · status change · slow drift that adds up
+  → re-capture that game's 1H + props → game PENDING
+  → settle gate: re-check every 60 s; released after 2 checks in a row move < 0.5 pt
+    (ML < 1 pt prob) with all markets still posted
+  → re-price that game only; no buy until a pricing run newer than the settle
 ```
 
 ---
