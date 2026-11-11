@@ -356,13 +356,6 @@ class SimParams:
     # Refit ``goal_level`` each night to the no-vig market Over chance at the main
     # total (``nhl_engine/level.py``), starting from the fixed value above.
     level_fit: bool = field(default_factory=lambda: _env_bool("NHLE_LEVEL_FIT", True))
-    # Finishing as skill + level: ``own - mean(teams on the slate)`` (sums to
-    # zero) plus ``league(shrunk) - league(last season)`` on both sides, so a
-    # league finishing above last year raises the total instead of taxing every
-    # team (team finishing half-trusts in ~183 games, the league rate in 400
-    # team-games, so in October ``own - league`` is negative league-wide).
-    # Off until the October close test (2023, 2024) is run with it on.
-    finishing_split: bool = field(default_factory=lambda: _env_bool("NHLE_FIN_SPLIT", False))
     ot_home_intercept: float = 0.181
     ot_strength_slope: float = 3.37
     so_home: float = 0.5
