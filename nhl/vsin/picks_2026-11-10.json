@@ -10,12 +10,12 @@
   "host": "Jonathan Davis",
   "stamp": "2026-11-10T19:28:26+00:00",
   "text": "Over 6 (-120) - 1 unit",
-  "outcome": null,
-  "pnl_flat": null,
-  "pnl_stake": null,
-  "close_consensus": null,
-  "clv": null,
-  "graded_at": ""
+  "outcome": "loss",
+  "pnl_flat": -1.0,
+  "pnl_stake": -1.0,
+  "close_consensus": 0.5295070973510674,
+  "clv": -0.015947448103478035,
+  "graded_at": "2026-11-11T14:36:04Z"
  },
  {
   "slate_date": "2026-11-10",
@@ -28,12 +28,12 @@
   "host": "Jonathan Davis",
   "stamp": "2026-11-10T19:28:26+00:00",
   "text": "Over 6 (-120) - \u00bd unit",
-  "outcome": null,
-  "pnl_flat": null,
-  "pnl_stake": null,
-  "close_consensus": null,
-  "clv": null,
-  "graded_at": ""
+  "outcome": "loss",
+  "pnl_flat": -1.0,
+  "pnl_stake": -0.5,
+  "close_consensus": 0.5226721403246875,
+  "clv": -0.022782405129857963,
+  "graded_at": "2026-11-11T14:36:04Z"
  },
  {
   "slate_date": "2026-11-10",
@@ -46,11 +46,11 @@
   "host": "Jonathan Davis",
   "stamp": "2026-11-10T19:28:26+00:00",
   "text": "Over 6 (-118) - \u00bd unit",
-  "outcome": null,
-  "pnl_flat": null,
-  "pnl_stake": null,
-  "close_consensus": null,
-  "clv": null,
-  "graded_at": ""
+  "outcome": "push",
+  "pnl_flat": 0.0,
+  "pnl_stake": 0.0,
+  "close_consensus": 0.5292770588646261,
+  "clv": -0.012007344805098685,
+  "graded_at": "2026-11-11T14:36:04Z"
  }
 ]
