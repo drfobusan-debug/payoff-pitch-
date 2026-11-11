@@ -411,7 +411,7 @@ def test_integrity_line_and_schedule_bands_render_only_with_a_graded_ledger():
 
     rows = priced()
     bare = render_html(build_card(rows, day=DAY))
-    assert "Ledger integrity" not in bare and "Schedule bands" not in bare
+    assert "Ledger integrity" not in bare and "shooting bands" not in bare
     graded = [
         replace(r, outcome="win", pnl=0.9, close_status="close", close_captured_at=r.priced_at)
         for r in rows
@@ -420,7 +420,9 @@ def test_integrity_line_and_schedule_bands_render_only_with_a_graded_ledger():
     page = render_html(build_card(rows, day=DAY, graded=graded, draws=10, bands=[band]))
     assert "Ledger integrity:" in page and "no duplicates" in page
     assert (
-        "Schedule bands" in page and "rest_host_ats" in page and "probation (3/150 games)" in page
+        "Schedule and shooting bands" in page
+        and "rest_host_ats" in page
+        and "probation (3/150 games)" in page
     )
 
 

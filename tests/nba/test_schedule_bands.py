@@ -8,7 +8,7 @@ from pathlib import Path
 from nba_engine.audit import ledger, schedule_bands
 from nba_engine.audit.settle import pnl
 from nba_engine.data.boxes import write_results
-from nba_engine.schemas import GameResult
+from nba_engine.schemas import GameResult, TeamBox
 
 
 def _row(
@@ -99,9 +99,90 @@ def test_bands_take_the_main_line_once_per_game_and_only_when_the_spot_holds(
         ),  # no rest context
     ]
     sched = schedule_bands.schedule_from(tmp_path, rows)
-    ats, under = schedule_bands.read_bands(rows, sched)
+    ats, under, shoot = schedule_bands.read_bands(rows, sched)
+    assert shoot.n == 0  # nobody has 10 finals
     assert (ats.n, ats.record, round(ats.units, 2)) == (1, "1-0", round(pnl("win", -110.0) or 0, 2))
     assert (under.n, under.record) == (1, "0-1")
     assert ats.verdict.startswith("probation (1/150")
     text = "\n".join(schedule_bands.lines([ats, under]))
     assert "graded only" in text and "rest_host_ats" in text and "-> probation" in text
+
+
+def _box(team: str, two: tuple[int, int], three: tuple[int, int]) -> TeamBox:
+    return TeamBox(
+        team, two[0] + three[0], two[1] + three[1], three[0], three[1], 15, 20, 10, 30, 12, 18
+    )
+
+
+def _shot_final(
+    day: Date,
+    away: str,
+    home: str,
+    a: tuple[tuple[int, int], tuple[int, int]],
+    h: tuple[tuple[int, int], tuple[int, int]],
+) -> GameResult:
+    return GameResult(
+        "x",
+        day,
+        away,
+        home,
+        "STATUS_FINAL",
+        (25,) * 4,
+        (26,) * 4,
+        away_box=_box(away, *a),
+        home_box=_box(home, *h),
+        season_type=2,
+    )
+
+
+INSIDE = ((30, 50), (10, 30))  # 60% from two, 33% from three
+OUTSIDE = ((25, 50), (13, 30))  # 50% from two, 43% from three
+
+
+def _season(tmp_path: Path, first: Date, n: int) -> None:
+    """``n`` daily finals: BOS (inside) beats MIA, LAL (outside) beats NYK."""
+    td = schedule_bands.timedelta
+    for i in range(n):
+        d = first + td(i)
+        write_results(
+            tmp_path,
+            d,
+            [
+                _shot_final(d, "BOS", "MIA", INSIDE, ((25, 50), (10, 30))),
+                _shot_final(d, "LAL", "NYK", OUTSIDE, ((25, 50), (10, 30))),
+            ],
+        )
+
+
+def test_shooting_needs_ten_finals_this_season_before_the_day(tmp_path: Path) -> None:
+    first = Date(2026, 10, 21)
+    _season(tmp_path, first, 10)
+    sched = schedule_bands.Schedule()
+    for i in range(12):
+        for g in schedule_bands.read_results(tmp_path, first + schedule_bands.timedelta(i)) or []:
+            sched.add_box(g)
+    tenth = first + schedule_bands.timedelta(9)
+    assert sched.shooting("BOS", tenth) is None  # 9 finals before the 10th day
+    two, three = sched.shooting("BOS", tenth + schedule_bands.timedelta(1)) or (0, 0)
+    assert round(two, 3) == 0.1 and round(three, 3) == 0.0  # pooled: 60-50 inside, 33-33 outside
+    assert sched.shooting("BOS", Date(2027, 10, 30)) is None  # a new season starts empty
+
+
+def test_shooting_band_takes_only_the_qualifying_underdog(tmp_path: Path) -> None:
+    _season(tmp_path, Date(2026, 10, 21), 10)
+    day = "2026-11-10"
+    rows = [
+        # BOS (better 2P, worse 3P than LAL) is the dog: counted.
+        _row(day, "BOS @ LAL", "game_ats", "BOS", 4.5, 0.50, "win"),
+        _row(day, "BOS @ LAL", "game_ats", "LAL", -4.5, 0.50, "loss"),
+        # LAL is the dog here, but trails on 2P: not counted.
+        _row(day, "LAL @ MIA", "game_ats", "LAL", 2.5, 0.50, "win"),
+        _row(day, "LAL @ MIA", "game_ats", "MIA", -2.5, 0.50, "loss"),
+        # BOS favoured: no underdog side qualifies.
+        _row(day, "NYK @ BOS", "game_ats", "BOS", -6.5, 0.50, "win"),
+        _row(day, "NYK @ BOS", "game_ats", "NYK", 6.5, 0.50, "loss"),
+    ]
+    sched = schedule_bands.schedule_from(tmp_path, rows)
+    shoot = schedule_bands.read_bands(rows, sched)[2]
+    assert shoot.name.startswith("exploratory: underdog better 2P%, worse 3P% (10+ games)")
+    assert (shoot.n, shoot.record) == (1, "1-0")
