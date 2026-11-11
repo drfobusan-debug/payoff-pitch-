@@ -1,0 +1,75 @@
+{
+ "episode_guid": "41ad3630-5f0d-48b1-8a02-929f263fa18f",
+ "model": "gpt-4o-mini",
+ "prompt_version": "picks-v2",
+ "transcript_sha": "f48156f4e1c5de997213e5c8e713b88d3d5ff57d",
+ "picks": [
+  {
+   "pick_id": "6926133ab5c8",
+   "show": "duncd_on",
+   "show_name": "Dunc'd On Basketball",
+   "host": "Nate Duncan",
+   "episode_guid": "41ad3630-5f0d-48b1-8a02-929f263fa18f",
+   "episode_title": "10 in 81 (Western Conference 11.11.26)",
+   "published": "2026-11-11T02:04:54-05:00",
+   "kind": "official",
+   "market": "game_ml",
+   "team": "Celtics",
+   "opponent": "Sixers",
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "seconds": 430,
+   "quote": "Paul George was the best player on the floor in this game",
+   "reason": "Paul George's performance was outstanding, contributing significantly to the Celtics' success.",
+   "description": "Celtics to win against the Sixers.",
+   "league": "nba",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [
+  {
+   "league": "nba",
+   "kind": "lean",
+   "host": "Nate Duncan",
+   "team": "Bulls",
+   "opponent": "other",
+   "market": "other",
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "stamp": "[1:07:19]",
+   "quote": "I'm uh I'll take the under on that one",
+   "edge": "Darko projects them to finish with 27 wins, which would be second to last in the east.",
+   "fair_line": null,
+   "reason": "The Bulls have been very unlucky and are struggling significantly this season.",
+   "description": "Under 27 wins for the Bulls.",
+   "why": "bad stamp"
+  },
+  {
+   "league": "nba",
+   "kind": "official",
+   "host": "Nate Duncan",
+   "team": "Pistons",
+   "opponent": "other",
+   "market": "other",
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "stamp": "[1:14:08]",
+   "quote": "I firmly agree with that I think would it would take a long cake cutting imagery for that to happen",
+   "edge": "Darko projects them to finish with 53 wins, which would be the two seed in the east.",
+   "fair_line": null,
+   "reason": "The Pistons are performing well and have a strong chance of making the playoffs.",
+   "description": "Pistons to finish with 53 wins.",
+   "why": "bad stamp"
+  }
+ ],
+ "leagues": [
+  "nba"
+ ]
+}
