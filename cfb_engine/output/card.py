@@ -21,7 +21,7 @@ from zoneinfo import ZoneInfo
 
 from cfb_engine.audit.probation import Probation
 from cfb_engine.audit.watchlist import Watchlist
-from cfb_engine.market import lineagree, lowtotal
+from cfb_engine.market import lineagree, lowtotal, unitranks
 from cfb_engine.market.keys import side_of
 from cfb_engine.market.ordering import order_buys, order_recs
 from cfb_engine.market.tiers import Tier
@@ -162,16 +162,49 @@ def _best_bets(recs: list[Recommendation]) -> list[Recommendation]:
     return order_buys(recs)
 
 
-def _game_best_block(recs: list[Recommendation]) -> str:
+ELITE_DEF_NOTE = (
+    "<i>Italic</i> = a moneyline on a team with a top-25 defense, run defense or pass "
+    "defense the opponent lacks, priced +110 or longer or −300 or shorter. Those sides lost "
+    "on the 2026 ledger; the bet stands, and a skip screen is graded on it."
+)
+
+
+def _elite_defense(r: Recommendation, units: unitranks.UnitRanks | None) -> bool:
+    """A buy the ``ml_refuse_top25_defense_price_ends`` candidate screen would skip."""
+    if not units or r.tier == Tier.PASS:
+        return False
+    stamped = unitranks.stamp(r.market, r.selection, r.matchup, units)
+    if stamped is None:
+        return False
+    return unitranks.elite_defense_price_end(r.market, r.market_american, *stamped)
+
+
+def _bet_label(b: Recommendation, units: unitranks.UnitRanks | None) -> str:
+    label = f"{b.selection} ({_odds(b.market_american)})"
+    return f"<b><i>{label}</i></b>" if _elite_defense(b, units) else f"<b>{label}</b>"
+
+
+def _elite_note(buys: list[Recommendation], units: unitranks.UnitRanks | None) -> str:
+    return (
+        f"<p class='elitenote'>{ELITE_DEF_NOTE}</p>"
+        if any(_elite_defense(b, units) for b in buys)
+        else ""
+    )
+
+
+def _game_best_block(recs: list[Recommendation], units: unitranks.UnitRanks | None = None) -> str:
     buys = _best_bets(recs)
     if not buys:
         return "<p class='bets'><b>Best bets:</b> none clear the buy threshold — model passes.</p>"
     items = "".join(
-        f"<li><b>{b.selection} ({_odds(b.market_american)})</b> — {b.display_category}, "
+        f"<li>{_bet_label(b, units)} — {b.display_category}, "
         f"model {b.model_prob * 100:.0f}%, edge {(b.edge or 0.0) * 100:+.1f}% · <i>{b.tier.value}</i></li>"
         for b in buys
     )
-    return f"<p class='bets'><b>Best bets</b></p><ul class='bets'>{items}</ul>"
+    return (
+        f"<p class='bets'><b>Best bets</b></p><ul class='bets'>{items}</ul>"
+        f"{_elite_note(buys, units)}"
+    )
 
 
 def _home_side(recs: list[Recommendation], market: str) -> Recommendation | None:
@@ -509,7 +542,11 @@ def _ordinal(n: int) -> str:
     return f"{n}{suffix}"
 
 
-def _game_section(recs: list[Recommendation], podcast: PodcastView | None = None) -> str:
+def _game_section(
+    recs: list[Recommendation],
+    podcast: PodcastView | None = None,
+    units: unitranks.UnitRanks | None = None,
+) -> str:
     matchup, headline, desc = _game_shape(recs)
     when = _kick_label(recs)
     kick = f" <span class='kick'>{when}</span>" if when else ""
@@ -527,7 +564,7 @@ def _game_section(recs: list[Recommendation], podcast: PodcastView | None = None
         f"{context}"
         f"{game_block(podcast, matchup)}"
         f"{_ml_line(recs)}"
-        f"{_game_best_block(recs)}</div>"
+        f"{_game_best_block(recs, units)}</div>"
     )
 
 
@@ -541,7 +578,7 @@ def _by_kickoff(buys: list[Recommendation]) -> list[Recommendation]:
     return [b for _, b in sorted(enumerate(buys), key=order)]
 
 
-def _slate_best_block(recs: list[Recommendation]) -> str:
+def _slate_best_block(recs: list[Recommendation], units: unitranks.UnitRanks | None = None) -> str:
     buys = _by_kickoff(_best_bets(recs))
     if not buys:
         return (
@@ -549,7 +586,7 @@ def _slate_best_block(recs: list[Recommendation]) -> str:
             "<p>The model passes the entire board today.</p></div>"
         )
     items = "".join(
-        f"<li>{_kick_prefix(b)}<b>{b.selection} ({_odds(b.market_american)})</b> — {b.display_category} "
+        f"<li>{_kick_prefix(b)}{_bet_label(b, units)} — {b.display_category} "
         f"({b.matchup}), model {b.model_prob * 100:.0f}%, edge {(b.edge or 0.0) * 100:+.1f}% "
         f"· <i>{b.tier.value}</i></li>"
         for b in buys
@@ -557,7 +594,7 @@ def _slate_best_block(recs: list[Recommendation]) -> str:
     return (
         "<div class='slatebets'><h2>Slate best bets</h2>"
         f"<p class='sbnote'>{len(buys)} plays clear the buy threshold, by kickoff:</p>"
-        f"<ul class='bets big'>{items}</ul></div>"
+        f"<ul class='bets big'>{items}</ul>{_elite_note(buys, units)}</div>"
     )
 
 
@@ -713,6 +750,7 @@ ul.bets b{color:#111;}
 .slatebets{page-break-inside:avoid;background:#0f2438;color:#f4f6f8;border-radius:6px;padding:12px 16px;margin:22px 0 8px;}
 .slatebets h2{color:#ffd76a;border:none;margin:0 0 4px;}
 .slatebets .sbnote{color:#c6ccd4;font-style:italic;font-size:9.4pt;margin:0 0 6px;}
+.elitenote{color:#4b5563;font-size:8.4pt;margin:0 0 4px;}.slatebets .elitenote{color:#c6ccd4;}
 ul.bets.big{font-size:10.5pt;}ul.bets.big b{color:#fff;}.slatebets i{color:#ffd76a;}
 .lineagree{page-break-inside:avoid;border:1px solid #9fb3c8;border-left:4px solid #1f4e79;background:#f3f7fb;border-radius:6px;padding:10px 14px;margin:14px 0 8px;}
 .lineagree h2{border:none;margin:0 0 4px;color:#1f4e79;font-size:13pt;}
@@ -735,6 +773,7 @@ def build_article(
     podcast: PodcastView | None = None,
     low_total_record: Probation | None = None,
     watching: Watchlist | None = None,
+    units: unitranks.UnitRanks | None = None,
 ) -> tuple[str, str]:
     """Return ``(html, narration_text)`` for the slate."""
     groups = _by_game(recs)
@@ -756,8 +795,8 @@ def build_article(
         "bets — in bold under each game and gathered at the bottom. Model preview, not betting advice."
     )
     body = _watching_block(watching)
-    body += "".join(_game_section(g, podcast) for g in ordered_games)
-    body += _slate_best_block(recs)
+    body += "".join(_game_section(g, podcast, units) for g in ordered_games)
+    body += _slate_best_block(recs, units)
     body += _line_agrees_block(recs, line_agrees_record)
     body += _low_total_block(recs, low_total_record)
     body += records_block(podcast, ordered_games)
@@ -904,6 +943,7 @@ def generate_daily_card(
     podcast: PodcastView | None = None,
     low_total_record: Probation | None = None,
     watching: Watchlist | None = None,
+    units: unitranks.UnitRanks | None = None,
 ) -> dict[str, Path | None]:
     """Build the article PDF + MP3 and optionally email them with any extras."""
     out: dict[str, Path | None] = {"pdf": None, "mp3": None, "html": None}
@@ -912,7 +952,7 @@ def generate_daily_card(
         return out
 
     html, narr = build_article(
-        slate_date, recs, line_agrees_record, podcast, low_total_record, watching
+        slate_date, recs, line_agrees_record, podcast, low_total_record, watching, units
     )
     iso = slate_date.isoformat()
     cfg.output_dir.mkdir(parents=True, exist_ok=True)

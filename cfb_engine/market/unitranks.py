@@ -181,3 +181,36 @@ def weak_game(market: str, day: str, mine: str | None, opp: str | None) -> bool:
     if len(ranks) != 2 * len(UNITS):
         return False
     return sum(ranks) / len(ranks) >= WEAK_GAME_AVG
+
+
+# Moneylines on a team with a top-25 defense, run defense or pass defense whose
+# opponent is outside it. On the 2026 ledger through 11-11 every side in that group
+# lost 13.7% (n=315, both halves negative) while its spreads sat near break-even,
+# so the market prices these favourites too short. The loss was largest at the two
+# price ends -- +110 or longer, and -300 or shorter (n=214, -16.7%) -- and the
+# engine's own buys there went 9-9 (-12.6% +/- 24.0, n=18). Both cuts were chosen
+# after seeing those rows, so each screen is graded only on slates after them.
+ELITE_DEF_UNITS: tuple[str, ...] = ("def", "rush_def", "pass_def")
+ELITE_DEF_RULE = "ml_refuse_top25_defense"
+ELITE_DEF_PRICE_RULE = "ml_refuse_top25_defense_price_ends"
+ELITE_DEF_FROM = "2026-11-12"
+ELITE_DEF_DOG = 110.0  # this price or longer
+ELITE_DEF_CHALK = -300.0  # this price or shorter
+
+
+def elite_defense(market: str, mine: str | None, opp: str | None) -> bool:
+    """A moneyline on a side top-25 in any defensive unit its opponent is outside."""
+    return market == "game_ml" and any(
+        picks(unit, "game_ml", market, mine, opp) for unit in ELITE_DEF_UNITS
+    )
+
+
+def price_end(odds: float | None) -> bool:
+    """An American price at +110 or longer, or at -300 or shorter."""
+    return odds is not None and (odds >= ELITE_DEF_DOG or odds <= ELITE_DEF_CHALK)
+
+
+def elite_defense_price_end(
+    market: str, odds: float | None, mine: str | None, opp: str | None
+) -> bool:
+    return elite_defense(market, mine, opp) and price_end(odds)

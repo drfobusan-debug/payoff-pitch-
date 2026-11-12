@@ -170,3 +170,37 @@ def test_weak_game_screen_grades_only_slates_after_the_rows_it_was_cut_on() -> N
     (verdict,) = candidate_probation(rows, (screen,), min_n=50)
     assert verdict.n == 1 and verdict.status == WATCHING
     assert unitranks.WEAK_GAME_RULE in {p.name for p in probation_rows(rows)}
+
+
+ELITE = "def:30 rush_def:12 pass_def:40"
+LAX = "def:60 rush_def:70 pass_def:30"
+
+
+def test_elite_defense_needs_a_defensive_unit_the_opponent_lacks() -> None:
+    assert unitranks.elite_defense("game_ml", ELITE, LAX)
+    assert not unitranks.elite_defense("game_ml", LAX, ELITE)
+    assert not unitranks.elite_defense("game_ml", ELITE, ELITE)
+    assert not unitranks.elite_defense("game_ats", ELITE, LAX)
+    assert unitranks.elite_defense("game_ml", ELITE, "")
+
+
+def test_price_end_is_plus_110_or_longer_or_minus_300_or_shorter() -> None:
+    assert unitranks.price_end(110) and unitranks.price_end(250)
+    assert unitranks.price_end(-300) and unitranks.price_end(-700)
+    assert not unitranks.price_end(105) and not unitranks.price_end(-299)
+    assert not unitranks.price_end(None)
+
+
+def test_elite_defense_screens_grade_only_slates_after_the_cut() -> None:
+    by = {c.name: c for c in CANDIDATE_SCREENS}
+    screens = (by[unitranks.ELITE_DEF_RULE], by[unitranks.ELITE_DEF_PRICE_RULE])
+    after = "2026-11-14"
+
+    def ml(odds: float, mine: str = ELITE, day: str = after) -> LedgerEntry:
+        e = _buy("loss", mine, LAX, day=day, market="game_ml")
+        e.selection, e.line, e.odds = "Navy ML", None, odds
+        return e
+
+    rows = [ml(150), ml(-350), ml(-150), ml(150, mine=LAX), ml(150, day="2026-11-07")]
+    got = {p.name: p.n for p in candidate_probation(rows, screens, min_n=50)}
+    assert got == {unitranks.ELITE_DEF_RULE: 3, unitranks.ELITE_DEF_PRICE_RULE: 2}

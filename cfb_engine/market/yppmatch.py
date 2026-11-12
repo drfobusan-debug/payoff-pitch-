@@ -30,6 +30,12 @@ RATIONALES: dict[str, str] = {
     MATCHUP_TOP: "the offenses' YPP against the YPP their opponents allow is top-quartile",
 }
 LABEL = "YPP Under (graded only, not a bet)"
+# The fade of the matchup-top Under, which lost 17.0% live through 2026-11-11
+# (n=125) while its Over went 71-53 (+10.5% +/- 8.5). Chosen after seeing those
+# rows, so it is graded only on slates after them.
+OVER_RULE = "ypp_matchup_top_q_over"
+OVER_RATIONALE = "the Over where the YPP matchup index is top-quartile (fade of the Under)"
+OVER_FROM = "2026-11-12"
 # Stamped on a judged game that earned no tag, so a blank cell still means "not stamped yet".
 NONE = "-"
 
@@ -116,8 +122,6 @@ def stamp(market: str, matchup: str, book: TeamYPP) -> str | None:
     return tags(matchup, book)
 
 
-def picks(tag: str, market: str, selection: str, stamped: str | None) -> bool:
-    """An Under row whose game carries ``tag``."""
-    return (
-        market == "game_total" and selection.startswith("Under") and tag in (stamped or "").split()
-    )
+def picks(tag: str, market: str, selection: str, stamped: str | None, side: str = "Under") -> bool:
+    """A ``side`` (Under by default) totals row whose game carries ``tag``."""
+    return market == "game_total" and selection.startswith(side) and tag in (stamped or "").split()
