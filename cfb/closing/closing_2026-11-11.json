@@ -1,0 +1,128 @@
+{
+  "Buffalo @ Ball State|game_ats|Ball State": {
+    "american": -110.0,
+    "captured_at": "2026-11-12T00:15:35Z",
+    "kickoff_utc": "2026-11-12T00:30:00Z",
+    "line": 1.0,
+    "no_vig_prob": 0.50495897809215
+  },
+  "Buffalo @ Ball State|game_ats|Buffalo": {
+    "american": -102.0,
+    "captured_at": "2026-11-12T00:15:35Z",
+    "kickoff_utc": "2026-11-12T00:30:00Z",
+    "line": -1.0,
+    "no_vig_prob": 0.49504102190784993
+  },
+  "Buffalo @ Ball State|game_ml|Ball State": {
+    "american": 100.0,
+    "captured_at": "2026-11-12T00:15:35Z",
+    "kickoff_utc": "2026-11-12T00:30:00Z",
+    "line": null,
+    "no_vig_prob": 0.4930514383933285
+  },
+  "Buffalo @ Ball State|game_ml|Buffalo": {
+    "american": -105.0,
+    "captured_at": "2026-11-12T00:15:35Z",
+    "kickoff_utc": "2026-11-12T00:30:00Z",
+    "line": null,
+    "no_vig_prob": 0.5069485616066716
+  },
+  "Buffalo @ Ball State|game_total|Over": {
+    "american": -108.0,
+    "captured_at": "2026-11-12T00:15:35Z",
+    "kickoff_utc": "2026-11-12T00:30:00Z",
+    "line": 53.5,
+    "no_vig_prob": 0.4974136734663892
+  },
+  "Buffalo @ Ball State|game_total|Under": {
+    "american": -110.0,
+    "captured_at": "2026-11-12T00:15:35Z",
+    "kickoff_utc": "2026-11-12T00:30:00Z",
+    "line": 53.5,
+    "no_vig_prob": 0.5025863265336108
+  },
+  "Sacramento Sta @ Central Michig|game_ats|Central Michig": {
+    "american": -107.0,
+    "captured_at": "2026-11-12T00:15:35Z",
+    "kickoff_utc": "2026-11-12T00:30:00Z",
+    "line": -17.0,
+    "no_vig_prob": 0.5036087276869798
+  },
+  "Sacramento Sta @ Central Michig|game_ats|Sacramento Sta": {
+    "american": -105.0,
+    "captured_at": "2026-11-12T00:15:35Z",
+    "kickoff_utc": "2026-11-12T00:30:00Z",
+    "line": 17.0,
+    "no_vig_prob": 0.49639127231302016
+  },
+  "Sacramento Sta @ Central Michig|game_ml|Central Michig": {
+    "american": -950.0,
+    "captured_at": "2026-11-12T00:15:35Z",
+    "kickoff_utc": "2026-11-12T00:30:00Z",
+    "line": null,
+    "no_vig_prob": 0.8825637720897864
+  },
+  "Sacramento Sta @ Central Michig|game_ml|Sacramento Sta": {
+    "american": 775.0,
+    "captured_at": "2026-11-12T00:15:35Z",
+    "kickoff_utc": "2026-11-12T00:30:00Z",
+    "line": null,
+    "no_vig_prob": 0.11743622791021373
+  },
+  "Sacramento Sta @ Central Michig|game_total|Over": {
+    "american": -108.0,
+    "captured_at": "2026-11-12T00:15:35Z",
+    "kickoff_utc": "2026-11-12T00:30:00Z",
+    "line": 42.5,
+    "no_vig_prob": 0.5002522882544681
+  },
+  "Sacramento Sta @ Central Michig|game_total|Under": {
+    "american": -108.0,
+    "captured_at": "2026-11-12T00:15:35Z",
+    "kickoff_utc": "2026-11-12T00:30:00Z",
+    "line": 42.5,
+    "no_vig_prob": 0.499747711745532
+  },
+  "UMass @ Toledo|game_ats|Toledo": {
+    "american": -110.0,
+    "captured_at": "2026-11-12T00:15:35Z",
+    "kickoff_utc": "2026-11-12T00:30:00Z",
+    "line": -14.0,
+    "no_vig_prob": 0.504844114649778
+  },
+  "UMass @ Toledo|game_ats|UMass": {
+    "american": -102.0,
+    "captured_at": "2026-11-12T00:15:35Z",
+    "kickoff_utc": "2026-11-12T00:30:00Z",
+    "line": 14.0,
+    "no_vig_prob": 0.49515588535022215
+  },
+  "UMass @ Toledo|game_ml|Toledo": {
+    "american": -590.0,
+    "captured_at": "2026-11-12T00:15:35Z",
+    "kickoff_utc": "2026-11-12T00:30:00Z",
+    "line": null,
+    "no_vig_prob": 0.8260304773602142
+  },
+  "UMass @ Toledo|game_ml|UMass": {
+    "american": 475.0,
+    "captured_at": "2026-11-12T00:15:35Z",
+    "kickoff_utc": "2026-11-12T00:30:00Z",
+    "line": null,
+    "no_vig_prob": 0.17396952263978585
+  },
+  "UMass @ Toledo|game_total|Over": {
+    "american": -108.0,
+    "captured_at": "2026-11-12T00:15:35Z",
+    "kickoff_utc": "2026-11-12T00:30:00Z",
+    "line": 52.0,
+    "no_vig_prob": 0.5004207733237757
+  },
+  "UMass @ Toledo|game_total|Under": {
+    "american": -108.0,
+    "captured_at": "2026-11-12T00:15:35Z",
+    "kickoff_utc": "2026-11-12T00:30:00Z",
+    "line": 52.0,
+    "no_vig_prob": 0.4995792266762243
+  }
+}
