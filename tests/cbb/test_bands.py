@@ -185,3 +185,16 @@ def test_context_carries_shooting_gaps() -> None:
     ctx = bands.context({"e": ("Kentucky Wildcats", "Toledo Rockets")}, Date(2025, 1, 12), {Date(2025, 1, 12): board},
                         logs, {"Kentucky": "SEC", "Toledo": "MAC"})["e"]
     assert ctx.home.two == pytest.approx(0.1) and ctx.away.two is None
+
+
+def test_books_disagreeing_on_the_favourite_give_the_game_one_underdog() -> None:
+    # DraftKings had Albany -1.5 and BetMGM Dartmouth -1.5, so each side's best line was +1.5.
+    weak = bands.Team(net_rank=300)
+    ctx = {"e": bands.GameCtx(home=weak, away=weak), "f": bands.GameCtx(home=weak, away=weak)}
+    rows = [_row("e", "game_ats", "home", 1.5, american=-120, p=0.55, outcome="loss"),
+            _row("e", "game_ats", "away", 1.5, american=-125, p=0.47),
+            _row("f", "game_ats", "home", 0.0, p=0.5), _row("f", "game_ats", "away", 0.0, p=0.5, outcome="loss")]
+    assert bands.ats_favourites(rows) == {"e": "home"}
+    reads = {b.name: b for b in bands.read_bands(rows, ctx)}
+    assert reads["weak game (both Torvik rank > 200) favourite ATS"].record == "0-1"
+    assert reads["weak game (both Torvik rank > 200) underdog ATS"].record == "2-1"  # e away; f is a dead tie
