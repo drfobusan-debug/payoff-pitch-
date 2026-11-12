@@ -143,3 +143,26 @@ def test_slate_best_bets_list_by_kickoff_strongest_first_within_a_game():
     assert [i.split("<b>")[1].split(" (")[0] for i in items[3:6]] == [b.selection for b in by_game]
     assert items[0].startswith("12:00 PM ET · ") and items[6].startswith("<b>")
     assert "by kickoff" in block
+
+
+def test_elite_defense_buys_print_italic_with_the_note():
+    units = {
+        "HOME1": {"def": 5, "rush_def": 40, "pass_def": 40},
+        "AWAY1": {"def": 60, "rush_def": 60, "pass_def": 60},
+        "HOME2": {"def": 5},
+        "AWAY2": {"def": 60},
+    }
+    chalk = [
+        dataclasses.replace(r, tier=Tier.STRONG, market_american=-320.0)
+        for r in _game("1", "2026-09-19T16:00:00Z")
+    ]
+    mid = [dataclasses.replace(r, tier=Tier.STRONG) for r in _game("2", "2026-09-19T18:00:00Z")]
+    block = _slate_best_block(chalk + mid, units)
+    assert "<b><i>HOME1 ML (-320)</i></b>" in block
+    assert "<b><i>HOME1 -3.5" not in block and "<b>HOME2 ML (-160)</b>" in block
+    assert "<i>Italic</i> = a moneyline" in block
+    assert "<b><i>" not in _slate_best_block(mid, units) and "Italic</i> =" not in (
+        _slate_best_block(chalk + mid)
+    )
+    html, _ = build_article(DAY, chalk + mid, units=units)
+    assert html.count("<b><i>HOME1 ML (-320)</i></b>") == 2

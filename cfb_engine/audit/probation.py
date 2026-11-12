@@ -419,6 +419,18 @@ def _weak_game_spread(e: LedgerEntry) -> bool:
     return unitranks.weak_game(e.market, e.date, e.unit_ranks, e.opp_unit_ranks)
 
 
+def _elite_defense_ml(e: LedgerEntry) -> bool:
+    return e.date >= unitranks.ELITE_DEF_FROM and unitranks.elite_defense(
+        e.market, e.unit_ranks, e.opp_unit_ranks
+    )
+
+
+def _elite_defense_price_end_ml(e: LedgerEntry) -> bool:
+    return e.date >= unitranks.ELITE_DEF_FROM and unitranks.elite_defense_price_end(
+        e.market, e.odds, e.unit_ranks, e.opp_unit_ranks
+    )
+
+
 def _big_dog_spread(e: LedgerEntry) -> bool:
     return atsline.big_dog(e.market, e.line)
 
@@ -488,6 +500,16 @@ CANDIDATE_SCREENS: tuple[CandidateScreen, ...] = (
         unitranks.WEAK_GAME_RULE,
         _weak_game_spread,
         "both teams' unit ranks average 72 or worse",
+    ),
+    CandidateScreen(
+        unitranks.ELITE_DEF_RULE,
+        _elite_defense_ml,
+        "a moneyline on a top-25 defense, run defense or pass defense the opponent lacks",
+    ),
+    CandidateScreen(
+        unitranks.ELITE_DEF_PRICE_RULE,
+        _elite_defense_price_end_ml,
+        "the same moneyline at +110 or longer, or -300 or shorter (italic on the slate)",
     ),
 )
 
@@ -603,6 +625,12 @@ def _ypp_tag(tag: str) -> Callable[[LedgerEntry], bool]:
     return picks
 
 
+def _ypp_over(e: LedgerEntry) -> bool:
+    return e.date >= yppmatch.OVER_FROM and yppmatch.picks(
+        yppmatch.MATCHUP_TOP, e.market, e.selection, e.ypp_tags, side="Over"
+    )
+
+
 def _unit_top25(unit: str, market: str) -> Callable[[LedgerEntry], bool]:
     def picks(e: LedgerEntry) -> bool:
         return unitranks.picks(unit, market, e.market, e.unit_ranks, e.opp_unit_ranks)
@@ -632,9 +660,12 @@ UNIT_RULES: tuple[CandidateRule, ...] = tuple(
 
 # Totals Unders in high-YPP games, tagged on stats before the slate
 # (``cfb_engine.market.yppmatch``).
-YPP_RULES: tuple[CandidateRule, ...] = tuple(
-    CandidateRule(yppmatch.RULE_NAMES[tag], _ypp_tag(tag), yppmatch.RATIONALES[tag])
-    for tag in yppmatch.TAGS
+YPP_RULES: tuple[CandidateRule, ...] = (
+    *(
+        CandidateRule(yppmatch.RULE_NAMES[tag], _ypp_tag(tag), yppmatch.RATIONALES[tag])
+        for tag in yppmatch.TAGS
+    ),
+    CandidateRule(yppmatch.OVER_RULE, _ypp_over, yppmatch.OVER_RATIONALE),
 )
 
 

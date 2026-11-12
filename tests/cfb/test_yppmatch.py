@@ -100,7 +100,7 @@ def _entry(day: int, selection: str, result: str, tags: str | None) -> LedgerEnt
 
 def test_rules_accrue_on_every_graded_under_and_stay_off_the_live_rules() -> None:
     names = {r.name for r in YPP_RULES}
-    assert names == set(yppmatch.RULE_NAMES.values())
+    assert names == {*yppmatch.RULE_NAMES.values(), yppmatch.OVER_RULE}
     assert not names & {r.name for r in CANDIDATE_RULES}
     assert names <= {p.name for p in probation_rows([])}
     rows = [_entry(d, "Under 60.5", "win", "both_top") for d in range(1, 21)]
@@ -124,3 +124,18 @@ def test_ledger_round_trips_tags_and_keeps_blank_as_unstamped(tmp_path: Path) ->
         "2026-09-02": yppmatch.NONE,
         "2026-09-03": None,
     }
+
+
+def test_over_fade_takes_matchup_top_overs_only_after_the_cut() -> None:
+    (rule,) = (r for r in YPP_RULES if r.name == yppmatch.OVER_RULE)
+    late, early = (
+        _entry(14, "Over 60.5", "win", "matchup_top"),
+        _entry(1, "Over 60.5", "win", "matchup_top"),
+    )
+    late.date = "2026-11-14"
+    under = _entry(14, "Under 60.5", "loss", "matchup_top")
+    under.date = "2026-11-14"
+    other = _entry(14, "Over 60.5", "win", "both_top")
+    other.date = "2026-11-14"
+    (verdict,) = rule_probation([late, early, under, other], (rule,), min_n=10)
+    assert verdict.n == 1 and verdict.status == WATCHING

@@ -293,6 +293,7 @@ def cmd_run(cfg: Config, args: argparse.Namespace) -> int:
         low_total_record=_low_total_record(cfg),
         watching=_watchlist(cfg),
         podcast=_podcast_view(cfg, recs, day),
+        units=_card_units(cfg, day),
     )
     return 0
 
@@ -319,6 +320,7 @@ def cmd_card(cfg: Config, args: argparse.Namespace) -> int:
         low_total_record=_low_total_record(cfg),
         watching=_watchlist(cfg),
         podcast=_podcast_view(cfg, recs, day),
+        units=_card_units(cfg, day),
     )
     return 0
 
@@ -518,6 +520,15 @@ def _unit_ranks(cfg: Config, day: Date) -> unitranks.UnitRanks:
     season = _season(cfg, day)
     end = unitranks.prior_week(cfbd.fetch_schedule(season), day)
     return unitranks.rank_teams(cfbd.fetch_unit_stats(season, end))
+
+
+def _card_units(cfg: Config, day: Date) -> unitranks.UnitRanks:
+    """The ledger's unit ranks for ``day``, for the slate's italics; empty if CFBD fails."""
+    try:
+        return _unit_ranks(cfg, day)
+    except Exception as exc:  # noqa: BLE001
+        logging.getLogger(__name__).warning("unit ranks left off the card: %s", exc)
+        return {}
 
 
 def _ypp_book(cfg: Config, day: Date) -> yppmatch.TeamYPP:
@@ -778,6 +789,7 @@ def cmd_podcast(cfg: Config, args: argparse.Namespace) -> int:
                 low_total_record=_low_total_record(cfg),
                 watching=_watchlist(cfg),
                 podcast=_podcast_view(cfg, recs, day),
+                units=_card_units(cfg, day),
             )
     _state_push(cfg, f"cfb podcast {now.date().isoformat()}: {n_picks} picks")
     return 0
