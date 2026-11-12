@@ -1,0 +1,16 @@
+{
+ "episode_guid": "2eb8e15e-34a5-4f2a-a330-64f6524263a0",
+ "model": "gpt-4o-mini",
+ "prompt_version": "picks-v2",
+ "transcript_sha": "f44e2287b877aedf712f8e53165062b7e36a69c7",
+ "picks": [],
+ "rejected": [],
+ "leagues": [
+  "cfb",
+  "nfl",
+  "mlb",
+  "nba",
+  "cbb",
+  "nhl"
+ ]
+}
