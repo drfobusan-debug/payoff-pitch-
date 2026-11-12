@@ -14,7 +14,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from collections.abc import Callable, Iterable, Mapping, Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import date as Date
 from datetime import timedelta
 
@@ -60,6 +60,7 @@ class GameCtx:
     conference: bool = False
     opener: Mapping[tuple[str, str], float] = field(default_factory=dict)  # (market, side) -> first line
     public: Mapping[tuple[str, str], Public] = field(default_factory=dict)  # (market, side) -> VSiN shares before tip
+    ats_fav: str | None = None  # the game's spread favourite across both sides' main rows (set by read_bands)
 
 
 Pred = Callable[[ledger.Row, GameCtx], bool]
@@ -73,8 +74,10 @@ def _them(r: ledger.Row, c: GameCtx) -> Team:
     return c.away if r.side == "home" else c.home
 
 
-def _fav(r: ledger.Row) -> bool:
+def _fav(r: ledger.Row, c: GameCtx) -> bool:
     if r.market == "game_ats":
+        if c.ats_fav is not None:
+            return r.side == c.ats_fav
         return r.line is not None and r.line < 0
     return (r.p_fair or 0.0) > 0.5
 
@@ -121,7 +124,7 @@ def _inside_not_outside(r: ledger.Row, c: GameCtx) -> bool:
 
 
 def _side(market: str, side: str, fav: bool | None = None) -> Pred:
-    return lambda r, c: r.market == market and r.side == side and (fav is None or _fav(r) == fav)
+    return lambda r, c: r.market == market and r.side == side and (fav is None or _fav(r, c) == fav)
 
 
 BANDS: tuple[tuple[str, Pred], ...] = (
@@ -135,27 +138,27 @@ BANDS: tuple[tuple[str, Pred], ...] = (
     ("away underdog ML", _side("game_ml", "away", False)),
     ("ML long shot (no-vig < 25%)", lambda r, c: r.market == "game_ml" and (r.p_fair or 1.0) < LONG_SHOT),
     ("ML heavy favourite (no-vig >= 85%)", lambda r, c: r.market == "game_ml" and (r.p_fair or 0.0) >= HEAVY_FAV),
-    ("AP-ranked road favourite ATS", lambda r, c: _ats(r) and r.side == "away" and not c.neutral and _me(r, c).ap is not None and _fav(r)),
-    ("AP-ranked road underdog ATS", lambda r, c: _ats(r) and r.side == "away" and not c.neutral and _me(r, c).ap is not None and not _fav(r)),
-    ("neutral site favourite ATS", lambda r, c: _ats(r) and c.neutral and _fav(r)),
-    ("neutral site underdog ATS", lambda r, c: _ats(r) and c.neutral and not _fav(r)),
+    ("AP-ranked road favourite ATS", lambda r, c: _ats(r) and r.side == "away" and not c.neutral and _me(r, c).ap is not None and _fav(r, c)),
+    ("AP-ranked road underdog ATS", lambda r, c: _ats(r) and r.side == "away" and not c.neutral and _me(r, c).ap is not None and not _fav(r, c)),
+    ("neutral site favourite ATS", lambda r, c: _ats(r) and c.neutral and _fav(r, c)),
+    ("neutral site underdog ATS", lambda r, c: _ats(r) and c.neutral and not _fav(r, c)),
     ("line moved >= 1 toward the side ATS", lambda r, c: _ats(r) and _moved(r, c)),
     ("line moved >= 1 toward the side total", lambda r, c: r.market == "game_total" and _moved(r, c)),
     ("reverse line move (>= 1 against the ticket majority) ATS", lambda r, c: _ats(r) and _rlm(r, c)),
-    ("reverse line move (>= 1 against the ticket majority) favourite ATS", lambda r, c: _ats(r) and _rlm(r, c) and _fav(r)),
-    ("reverse line move (>= 1 against the ticket majority) underdog ATS", lambda r, c: _ats(r) and _rlm(r, c) and not _fav(r)),
+    ("reverse line move (>= 1 against the ticket majority) favourite ATS", lambda r, c: _ats(r) and _rlm(r, c) and _fav(r, c)),
+    ("reverse line move (>= 1 against the ticket majority) underdog ATS", lambda r, c: _ats(r) and _rlm(r, c) and not _fav(r, c)),
     ("reverse line move (>= 1 against the ticket majority) total", lambda r, c: r.market == "game_total" and _rlm(r, c)),
     ("team on a back-to-back ATS", lambda r, c: _ats(r) and _b2b(_me(r, c)) and not _b2b(_them(r, c))),
     ("rested (2+ days) vs a back-to-back ATS", lambda r, c: _ats(r) and (_me(r, c).rest or 0) >= 2 and _b2b(_them(r, c))),
     ("a team on a back-to-back: Under", lambda r, c: r.market == "game_total" and r.side == "under" and (_b2b(c.home) or _b2b(c.away))),
-    ("weak game (both Torvik rank > 200) favourite ATS", lambda r, c: _ats(r) and _weak(c) and _fav(r)),
-    ("weak game (both Torvik rank > 200) underdog ATS", lambda r, c: _ats(r) and _weak(c) and not _fav(r)),
+    ("weak game (both Torvik rank > 200) favourite ATS", lambda r, c: _ats(r) and _weak(c) and _fav(r, c)),
+    ("weak game (both Torvik rank > 200) underdog ATS", lambda r, c: _ats(r) and _weak(c) and not _fav(r, c)),
     ("bounce back: side off a loss ATS", lambda r, c: _ats(r) and bool(_me(r, c).off_loss) and not _them(r, c).off_loss),
-    ("bounce back: both off a loss, favourite ATS", lambda r, c: _ats(r) and _both_off_loss(c) and _fav(r)),
-    ("bounce back: both off a loss, underdog ATS", lambda r, c: _ats(r) and _both_off_loss(c) and not _fav(r)),
+    ("bounce back: both off a loss, favourite ATS", lambda r, c: _ats(r) and _both_off_loss(c) and _fav(r, c)),
+    ("bounce back: both off a loss, underdog ATS", lambda r, c: _ats(r) and _both_off_loss(c) and not _fav(r, c)),
     ("mid-major vs power conference: mid-major ATS", lambda r, c: _ats(r) and _me(r, c).power is False and _them(r, c).power is True),
-    ("conference game underdog ATS", lambda r, c: _ats(r) and c.conference and not _fav(r)),
-    ("non-conference underdog ATS", lambda r, c: _ats(r) and not c.conference and not _fav(r)),
+    ("conference game underdog ATS", lambda r, c: _ats(r) and c.conference and not _fav(r, c)),
+    ("non-conference underdog ATS", lambda r, c: _ats(r) and not c.conference and not _fav(r, c)),
     ("conference game Under", lambda r, c: r.market == "game_total" and r.side == "under" and c.conference),
     ("non-conference Under", lambda r, c: r.market == "game_total" and r.side == "under" and not c.conference),
     ("every Over", _side("game_total", "over")),
@@ -163,7 +166,7 @@ BANDS: tuple[tuple[str, Pred], ...] = (
     ("both teams slow tempo: Under", lambda r, c: r.market == "game_total" and r.side == "under" and bool(c.home.slow and c.away.slow)),
     ("big spread (>= 15) favourite ATS", lambda r, c: _ats(r) and r.line is not None and r.line <= -BIG_SPREAD),
     ("big spread (>= 15) underdog ATS", lambda r, c: _ats(r) and r.line is not None and r.line >= BIG_SPREAD),
-    ("exploratory: underdog better 2P%, worse 3P% (10+ games) ATS", lambda r, c: _ats(r) and not _fav(r) and _inside_not_outside(r, c)),
+    ("exploratory: underdog better 2P%, worse 3P% (10+ games) ATS", lambda r, c: _ats(r) and not _fav(r, c) and _inside_not_outside(r, c)),
 )
 
 
@@ -213,8 +216,31 @@ def market_expected(r: ledger.Row) -> float:
     return r.p_fair * (pnl(r, "win") or 0.0) - (1.0 - r.p_fair)
 
 
+def ats_favourites(main: Iterable[ledger.Row]) -> dict[str, str]:
+    """Each game's spread favourite from its two main rows, so a game has one favourite and one underdog.
+
+    Two execution books can disagree on who is favoured (DraftKings Albany -1.5, BetMGM Dartmouth -1.5),
+    and each side's best line is then +1.5. The lower line is the favourite; at equal lines the side
+    with the higher no-vig cover chance is. A game with one side recorded, or a dead tie, is left out."""
+    by_game: dict[str, dict[str, ledger.Row]] = defaultdict(dict)
+    for r in main:
+        if r.market == "game_ats" and r.line is not None and r.side in ("home", "away"):
+            by_game[r.event_id][r.side] = r
+    out: dict[str, str] = {}
+    for eid, sides in by_game.items():
+        if len(sides) < 2:
+            continue
+        h, a = sides["home"], sides["away"]
+        key_h, key_a = (h.line, -(h.p_fair or 0.0)), (a.line, -(a.p_fair or 0.0))
+        if key_h != key_a:
+            out[eid] = "home" if key_h < key_a else "away"
+    return out
+
+
 def read_bands(rows: Iterable[ledger.Row], ctx: Mapping[str, GameCtx]) -> list[BandRead]:
     main = [r for r in main_rows(rows) if r.event_id in ctx]
+    favs = ats_favourites(main)
+    ctx = {eid: replace(c, ats_fav=favs.get(eid)) for eid, c in ctx.items()}
     out: list[BandRead] = []
     for name, hit in BANDS:
         rs = [r for r in main if hit(r, ctx[r.event_id])]
@@ -424,6 +450,6 @@ def context(
 
 __all__ = [
     "BANDS", "GameCtx", "LogGame", "Team", "context", "main_lines", "main_rows", "market_expected", "one_slate_per_game",
-    "last_results", "openers", "parse_logs", "read_bands", "render", "rest_days", "shooting", "tempo_thirds", "tip_day",
+    "ats_favourites", "last_results", "openers", "parse_logs", "read_bands", "render", "rest_days", "shooting", "tempo_thirds", "tip_day",
     "torvik_ranks",
 ]
