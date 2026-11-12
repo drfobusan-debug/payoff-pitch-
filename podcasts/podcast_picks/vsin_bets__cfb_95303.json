@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-95303",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "57ab86cbfc9909bef6e91bc8c52fb8b1ce611faf",
+ "picks": [
+  {
+   "pick_id": "84d053460701",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-95303",
+   "episode_title": "College Football Week 11 Picks: Memphis vs. South Florida",
+   "published": "2026-11-11T03:15:44+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Memphis",
+   "opponent": "South Florida",
+   "side": null,
+   "line": -3.5,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Memphis -3.5",
+   "reason": "https://vsin.com/college-football/college-football-week-11-picks-memphis-vs-south-florida/",
+   "description": "Memphis -3.5",
+   "league": "cfb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cfb"
+ ]
+}

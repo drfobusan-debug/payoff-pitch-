@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-95318",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "d3ef25f2d7e82b9d792c2a8d0bca65f37cd95493",
+ "picks": [
+  {
+   "pick_id": "87fb90a5e56e",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Zachary Cohen",
+   "episode_guid": "vsin-95318",
+   "episode_title": "Commanders vs. Giants Predictions: Week 10 Thursday Night Football odds, picks, and player props",
+   "published": "2026-11-11T06:11:09+00:00",
+   "kind": "official",
+   "market": "game_ml",
+   "team": "Commanders",
+   "opponent": "Giants",
+   "side": null,
+   "line": null,
+   "price": 118.0,
+   "units": null,
+   "seconds": 0,
+   "quote": "Commanders ML (+118)",
+   "reason": "https://vsin.com/nfl/commanders-vs-giants-predictions-week-10-thursday-night-football-odds-picks-and-player-props/",
+   "description": "Commanders ML (+118)",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "nfl"
+ ]
+}
