@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-95577",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "5bf6a0389f3daf5e0275c62d89caf60ec8bde8c5",
+ "picks": [
+  {
+   "pick_id": "bea6fc0a6b08",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-95577",
+   "episode_title": "NFL Survivor Pool Week 10 Picks",
+   "published": "2026-11-12T16:38:10+00:00",
+   "kind": "official",
+   "market": "other",
+   "team": null,
+   "opponent": null,
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Ravens",
+   "reason": "https://vsin.com/nfl/nfl-survivor-pool-week-10-picks/",
+   "description": "Ravens",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "nfl"
+ ]
+}

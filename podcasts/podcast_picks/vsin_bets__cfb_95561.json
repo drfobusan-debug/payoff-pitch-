@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-95561",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "00a1202ffaac799ea5c8f558e6ebff1f841db9ff",
+ "picks": [
+  {
+   "pick_id": "8d61beb43188",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-95561",
+   "episode_title": "College Football Week 11 Picks: Florida State vs. Pitt",
+   "published": "2026-11-12T14:37:49+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Florida State",
+   "opponent": "Pitt",
+   "side": null,
+   "line": 3.5,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Florida State +3.5",
+   "reason": "https://vsin.com/college-football/college-football-week-11-picks-florida-state-vs-pitt/",
+   "description": "Florida State +3.5",
+   "league": "cfb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cfb"
+ ]
+}
