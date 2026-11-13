@@ -156,23 +156,85 @@ def _checkout(at: Path) -> Path:
     return repo
 
 
+# sport -> (start days, hour)
+SCHEDULE = {"cbb": (2, 10), "nba": (7, 11), "nhl": (7, 11), "cfb": (5, 11), "nfl": (3, 12)}
+
+
 @pytest.mark.parametrize("protected", [False, True])
-def test_the_installer_writes_the_saturday_agent_or_refuses_a_protected_checkout(
+def test_the_installer_writes_one_agent_per_sport_or_refuses_a_protected_checkout(
     tmp_path: Path, protected: bool
 ):
     repo = _checkout(tmp_path / "Documents" if protected else tmp_path)
     proc = _install(repo, tmp_path)
-    plist = tmp_path / "Library" / "LaunchAgents" / "com.payoffpitch.live.cbb.plist"
+    agents = tmp_path / "Library" / "LaunchAgents"
     if protected:
-        assert proc.returncode == 1 and not plist.exists()
+        assert proc.returncode == 1 and not list(agents.glob("*.plist"))
         return
     assert proc.returncode == 0, proc.stderr
-    text = plist.read_text()
-    assert f"{repo}/scripts/live_edge/macos/live_cbb.command" in text
-    assert text.count("<key>Weekday</key>") == 2 and "<integer>10</integer>" in text
+    for sport, (days, hour) in SCHEDULE.items():
+        text = (agents / f"com.payoffpitch.live.{sport}.plist").read_text()
+        assert f"{repo}/scripts/live_edge/macos/live_total.command</string><string>{sport}<" in text
+        assert text.count("<key>Weekday</key>") == days and f"<integer>{hour}</integer>" in text
+        assert f"schedule_{sport}.log" in text
 
 
-def test_the_saturday_command_runs_the_cbb_test_with_email():
-    cmd = (ROOT / "scripts" / "live_edge" / "macos" / "live_cbb.command").read_text()
-    assert "live_edge.stoppage run --sport cbb" in cmd and "--email" in cmd
-    assert os.access(ROOT / "scripts" / "live_edge" / "macos" / "live_cbb.command", os.X_OK)
+def test_live_sports_limits_the_agents_installed(tmp_path: Path):
+    repo = _checkout(tmp_path)
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir()
+    (bin_dir / "launchctl").write_text("#!/bin/bash\nexit 0\n")
+    (bin_dir / "launchctl").chmod(0o755)
+    env = dict(os.environ, HOME=str(tmp_path), PATH=f"{bin_dir}:/usr/bin:/bin", LIVE_SPORTS="nhl")
+    script = repo / "scripts" / "live_edge" / "macos" / "install_schedule.command"
+    proc = subprocess.run(
+        ["bash", str(script)], capture_output=True, text=True, env=env, timeout=60
+    )
+    assert proc.returncode == 0, proc.stderr
+    names = sorted(p.name for p in (tmp_path / "Library" / "LaunchAgents").glob("*.plist"))
+    assert names == ["com.payoffpitch.live.nhl.plist"]
+
+
+def _fake_checkout(at: Path) -> tuple[Path, Path]:
+    """A checkout whose python just echoes its arguments, for live_total.command."""
+    repo = _checkout(at)
+    (repo / "cbb_engine").mkdir()
+    venv_bin = repo / ".venv" / "bin"
+    venv_bin.mkdir(parents=True)
+    (venv_bin / "activate").write_text(f'export PATH="{venv_bin}:$PATH"\n')
+    (venv_bin / "python").write_text('#!/bin/bash\necho "python $*"\n')
+    (venv_bin / "python").chmod(0o755)
+    shutil.copytree(ROOT / "scripts" / "cbb", repo / "scripts" / "cbb")
+    return repo, repo / "scripts" / "live_edge" / "macos" / "live_total.command"
+
+
+@pytest.mark.parametrize(
+    "sport,hours", [("cbb", 15), ("nba", 14), ("nhl", 14), ("cfb", 16), ("nfl", 13)]
+)
+def test_the_command_runs_one_sports_test_with_its_own_email(
+    tmp_path: Path, sport: str, hours: int
+):
+    _, cmd = _fake_checkout(tmp_path)
+    assert os.access(cmd, os.X_OK)
+    env = dict(os.environ, HOME=str(tmp_path))
+    env.pop(f"LIVE_{sport.upper()}_HOURS", None)
+    proc = subprocess.run(
+        ["bash", str(cmd), sport], capture_output=True, text=True, env=env, timeout=60
+    )
+    assert proc.returncode == 0, proc.stderr
+    assert (
+        f"python -m live_edge.stoppage run --sport {sport} --hours {hours} --max-credits 600 --email"
+        in proc.stdout
+    )
+
+
+def test_the_command_takes_per_sport_overrides_and_refuses_an_unknown_sport(tmp_path: Path):
+    _, cmd = _fake_checkout(tmp_path)
+    env = dict(os.environ, HOME=str(tmp_path), LIVE_NHL_HOURS="9", LIVE_NHL_MAX_CREDITS="200")
+    proc = subprocess.run(
+        ["bash", str(cmd), "nhl"], capture_output=True, text=True, env=env, timeout=60
+    )
+    assert "--sport nhl --hours 9 --max-credits 200 --email" in proc.stdout
+    bad = subprocess.run(
+        ["bash", str(cmd), "mlb"], capture_output=True, text=True, env=env, timeout=60
+    )
+    assert bad.returncode == 2
