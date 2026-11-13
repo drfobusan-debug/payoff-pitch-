@@ -474,6 +474,8 @@ def test_four_factors_rank_defense_on_what_opponents_did():
     assert nyk.offense.efg.value == pytest.approx((45 + 7.5) / 88)
     assert nyk.offense.efg.rank == 1 and nyk.offense.tov.rank == 1
     assert nyk.defense.efg.value == bos.offense.efg.value and nyk.defense.efg.rank == 1
+    assert nyk.offense.efg.z == pytest.approx(1.0) and bos.defense.efg.z == pytest.approx(-1.0)
+    assert "<br><span class='rk'>z +1.0</span>" in card_mod._rated(nyk.offense.efg, "{:.1%}")
     assert nyk.offense.orb.value == pytest.approx(14 / (14 + 34))
 
 
@@ -485,6 +487,7 @@ def test_card_prints_ratings_and_four_factors_or_says_none_are_archived(scratch)
     page = render_html(build_card(rows, day=DAY, context=context.gather(root, DAY, rows)))
     assert "Per 100 poss" in page and "Four factors" in page
     assert "BOS O vs NYK D" in page and "NYK O vs BOS D" in page and "class='tn'" in page
+    assert "z = standard deviations" in page
     bare = render_html(build_card(rows, day=DAY))
     assert "no regular-season box scores archived yet" in bare and "Four factors" not in bare
 
@@ -492,6 +495,17 @@ def test_card_prints_ratings_and_four_factors_or_says_none_are_archived(scratch)
 def test_tied_values_share_a_rank():
     r = teamstats._ranks({"A": 1.0, "B": 2.0, "C": 2.0, "D": None}, high_is_good=True)
     assert (r["B"].rank, r["C"].rank, r["A"].rank, r["D"].rank) == (1, 1, 3, None)
+
+
+def test_z_scores_are_signed_so_plus_is_better():
+    hi = teamstats._ranks({"A": 1.0, "B": 2.0, "C": 3.0, "D": None}, high_is_good=True)
+    lo = teamstats._ranks({"A": 1.0, "B": 2.0, "C": 3.0}, high_is_good=False)
+    sd = (2 / 3) ** 0.5
+    assert hi["C"].z == pytest.approx(1 / sd) and hi["B"].z == pytest.approx(0.0)
+    assert lo["A"].z == pytest.approx(1 / sd) and lo["C"].z == pytest.approx(-1 / sd)
+    assert hi["D"].z is None
+    assert teamstats._ranks({"A": 1.0}, high_is_good=True)["A"].z is None
+    assert teamstats._ranks({"A": 1.0, "B": 1.0}, high_is_good=True)["A"].z is None
 
 
 def test_espn_fetch_archives_a_day_without_games(monkeypatch, tmp_path):

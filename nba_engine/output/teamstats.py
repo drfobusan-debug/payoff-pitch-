@@ -14,6 +14,7 @@ from dataclasses import dataclass, field
 from datetime import date as Date
 from datetime import timedelta
 from pathlib import Path
+from statistics import fmean, pstdev
 
 from nba_engine.data import boxes
 from nba_engine.models.schedule import season_of
@@ -29,6 +30,7 @@ Fetch = Callable[[Date], list[GameResult] | None]
 class Rated:
     value: float | None = None
     rank: int | None = None
+    z: float | None = None  # SDs from the league mean among teams with games; + is better
 
 
 @dataclass(frozen=True)
@@ -123,11 +125,14 @@ class _Box:
 def _ranks(values: dict[str, float | None], *, high_is_good: bool) -> dict[str, Rated]:
     have = sorted(((v, t) for t, v in values.items() if v is not None), reverse=high_is_good)
     out = {t: Rated(v) for t, v in values.items()}
+    sd = pstdev(v for v, _ in have) if len(have) > 1 else 0.0
+    mu = fmean(v for v, _ in have) if have else 0.0
+    sign = 1.0 if high_is_good else -1.0
     rank, prev = 0, None
     for i, (v, t) in enumerate(have, start=1):
         if v != prev:
             rank, prev = i, v
-        out[t] = Rated(v, rank)
+        out[t] = Rated(v, rank, sign * (v - mu) / sd if sd else None)
     return out
 
 
