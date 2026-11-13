@@ -7,7 +7,12 @@ was known before tip: the AP rank on the day's ESPN scoreboard, Torvik's rank an
 adjusted-tempo third from the ``team_results`` table archived on or before the
 slate, whether each team's last logged game (dated before the slate) was a loss,
 days since its previous game, the first line captured that day, and each team's
-season-to-date 2P% and 3P% gaps (made less allowed) once it has ``SHOOT_MIN_GAMES`` logged.
+season-to-date 2P% and 3P% gaps (made less allowed) once it has ``SHOOT_MIN_GAMES`` logged,
+and its Torvik z-score (adjusted efficiency margin, AdjOE less AdjDE, in standard deviations
+from the mean of that same archived table).
+
+The z-score bands were cut after looking at the 11-13 ledger, so they count games from
+``Z_SINCE`` only: the games that suggested them cannot also confirm them.
 """
 
 from __future__ import annotations
@@ -37,6 +42,12 @@ HEAVY_FAV = 0.85
 MOVE_PTS = 1.0
 REST_LOOKBACK = 10
 SHOOT_MIN_GAMES = 10
+Z_SINCE = "2026-11-14"
+Z_AVG = 0.5
+Z_AVG_WIDE = 0.75
+Z_AVG_WIDEST = 1.0
+Z_HIGH = 1.0
+Z_ELITE = 2.0
 
 
 @dataclass(frozen=True)
@@ -50,6 +61,7 @@ class Team:
     pace: str | None = None  # "slow" / "mid" / "fast": season-to-date tempo third
     two: float | None = None  # 2P% made less 2P% allowed, season to date (None under SHOOT_MIN_GAMES)
     three: float | None = None  # 3P% made less 3P% allowed, same window
+    z: float | None = None  # Torvik AdjEM z-score in the table archived on or before the day
 
 
 @dataclass(frozen=True)
@@ -123,6 +135,40 @@ def _inside_not_outside(r: ledger.Row, c: GameCtx) -> bool:
     return me.two > them.two and me.three < them.three  # type: ignore[operator]
 
 
+def _avg(t: Team, width: float = Z_AVG) -> bool:
+    return t.z is not None and abs(t.z) <= width
+
+
+def _avg_game(c: GameCtx, width: float) -> bool:
+    return _avg(c.home, width) and _avg(c.away, width)
+
+
+def _high(t: Team, lo: float, hi: float = float("inf")) -> bool:
+    return t.z is not None and lo <= t.z < hi
+
+
+def _high_vs_avg(c: GameCtx, lo: float, hi: float = float("inf"), width: float = Z_AVG) -> str | None:
+    """The side ("home"/"away") of a team with ``lo <= z < hi`` facing a team within ``width`` of average."""
+    if _high(c.home, lo, hi) and _avg(c.away, width):
+        return "home"
+    if _high(c.away, lo, hi) and _avg(c.home, width):
+        return "away"
+    return None
+
+
+def _z(pred: Pred) -> Pred:
+    """A z-score band reads only games from ``Z_SINCE``."""
+    return lambda r, c: r.slate_date >= Z_SINCE and pred(r, c)
+
+
+def _under(r: ledger.Row) -> bool:
+    return r.market == "game_total" and r.side == "under"
+
+
+def _over(r: ledger.Row) -> bool:
+    return r.market == "game_total" and r.side == "over"
+
+
 def _side(market: str, side: str, fav: bool | None = None) -> Pred:
     return lambda r, c: r.market == market and r.side == side and (fav is None or _fav(r, c) == fav)
 
@@ -167,6 +213,23 @@ BANDS: tuple[tuple[str, Pred], ...] = (
     ("big spread (>= 15) favourite ATS", lambda r, c: _ats(r) and r.line is not None and r.line <= -BIG_SPREAD),
     ("big spread (>= 15) underdog ATS", lambda r, c: _ats(r) and r.line is not None and r.line >= BIG_SPREAD),
     ("exploratory: underdog better 2P%, worse 3P% (10+ games) ATS", lambda r, c: _ats(r) and not _fav(r, c) and _inside_not_outside(r, c)),
+    ("z: average game (both |z| <= 0.5) underdog ATS", _z(lambda r, c: _ats(r) and _avg_game(c, Z_AVG) and not _fav(r, c))),
+    ("z: average game (both |z| <= 0.5) home underdog ATS",
+     _z(lambda r, c: _ats(r) and r.side == "home" and _avg_game(c, Z_AVG) and not _fav(r, c))),
+    ("z: average game (both |z| <= 0.75) underdog ATS", _z(lambda r, c: _ats(r) and _avg_game(c, Z_AVG_WIDE) and not _fav(r, c))),
+    ("z: average game (both |z| <= 1) underdog ATS", _z(lambda r, c: _ats(r) and _avg_game(c, Z_AVG_WIDEST) and not _fav(r, c))),
+    ("z: average game (both |z| <= 0.5) Under", _z(lambda r, c: _under(r) and _avg_game(c, Z_AVG))),
+    ("z: high (1 <= z < 2) vs average (|z| <= 0.5): average team ATS",
+     _z(lambda r, c: _ats(r) and _high_vs_avg(c, Z_HIGH, Z_ELITE) not in (None, r.side))),
+    ("z: high (1 <= z < 2) vs average (|z| <= 0.5): high team ML",
+     _z(lambda r, c: r.market == "game_ml" and _high_vs_avg(c, Z_HIGH, Z_ELITE) == r.side)),
+    ("z: high (1 <= z < 2) vs average (|z| <= 0.5): average team ML",
+     _z(lambda r, c: r.market == "game_ml" and _high_vs_avg(c, Z_HIGH, Z_ELITE) not in (None, r.side))),
+    ("z: high (1 <= z < 2) vs average (|z| <= 0.5): Under", _z(lambda r, c: _under(r) and _high_vs_avg(c, Z_HIGH, Z_ELITE) is not None)),
+    ("z: high (z >= 1) vs average (|z| <= 0.75): Under",
+     _z(lambda r, c: _under(r) and _high_vs_avg(c, Z_HIGH, width=Z_AVG_WIDE) is not None)),
+    ("z: elite (z >= 2) vs average (|z| <= 0.5): elite team ATS", _z(lambda r, c: _ats(r) and _high_vs_avg(c, Z_ELITE) == r.side)),
+    ("z: elite (z >= 2) vs average (|z| <= 0.5): Over", _z(lambda r, c: _over(r) and _high_vs_avg(c, Z_ELITE) is not None)),
 )
 
 
@@ -360,6 +423,21 @@ def torvik_ranks(results: Iterable[Mapping[str, str]]) -> dict[str, int]:
     return out
 
 
+def torvik_z(results: Iterable[Mapping[str, str]]) -> dict[str, float]:
+    """Each team's adjusted efficiency margin (``adjoe`` less ``adjde``) in standard deviations from the table's mean."""
+    em: dict[str, float] = {}
+    for r in results:
+        try:
+            em[r.get("team", "")] = float(r.get("adjoe", "")) - float(r.get("adjde", ""))
+        except ValueError:
+            continue
+    if len(em) < 2:
+        return {}
+    mean = sum(em.values()) / len(em)
+    sd = (sum((v - mean) ** 2 for v in em.values()) / len(em)) ** 0.5
+    return {t: (v - mean) / sd for t, v in em.items()} if sd else {}
+
+
 def rest_days(team: str, day: Date, boards: Mapping[Date, Sequence[espn.Game]]) -> int | None:
     """Days since ``team``'s (ESPN name) previous game; None when no board in the lookback has one."""
     for back in range(1, REST_LOOKBACK + 1):
@@ -407,18 +485,21 @@ def context(
     tempo: Mapping[str, str] | None = None,
     ranks: Mapping[str, int] | None = None,
     public: Mapping[str, Mapping[tuple[str, str], Public]] | None = None,
+    zs: Mapping[str, float] | None = None,
 ) -> dict[str, GameCtx]:
     """Pre-tip context per event from the day's ESPN board (AP rank, venue, conference flag),
     earlier boards (rest), Torvik logs before ``day`` (last game a loss), conference membership,
     ``tempo`` (each Torvik team's adjusted-tempo third as of ``day``) and ``ranks`` (Torvik's rank
     archived on or before ``day``) and ``public`` (each event's VSiN ticket/handle shares from the
-    last capture before its tip). A season-to-date rank from one or two logged games is not a
+    last capture before its tip) and ``zs`` (each Torvik team's AdjEM z-score, ``torvik_z``, from the same
+    archived table as ``ranks``). A season-to-date rank from one or two logged games is not a
     rank, so nothing here is computed from the logs' margins."""
     last = last_results(logs, day)
     shoot = shooting(logs, day)
     thirds = tempo or {}
     tv_rank = ranks or {}
-    tv = sorted(set(last) | set(confs) | set(thirds) | set(tv_rank))
+    tv_z = zs or {}
+    tv = sorted(set(last) | set(confs) | set(thirds) | set(tv_rank) | set(tv_z))
     games = boards.get(day, ())
     out: dict[str, GameCtx] = {}
 
@@ -430,7 +511,7 @@ def context(
         two, three = shoot.get(t, (None, None)) if t else (None, None)
         return Team(ap=ap, net_rank=tv_rank.get(t) if t else None, slow=(pace == "slow") if pace else None,
                     off_loss=last.get(t) if t else None, power=(conf in POWER) if conf else None, rest=rest, pace=pace,
-                    two=two, three=three)
+                    two=two, three=three, z=tv_z.get(t) if t else None)
 
     for eid, (home, away) in teams.items():
         hit = history.match_oriented(home, away, games)
@@ -451,5 +532,5 @@ def context(
 __all__ = [
     "BANDS", "GameCtx", "LogGame", "Team", "context", "main_lines", "main_rows", "market_expected", "one_slate_per_game",
     "ats_favourites", "last_results", "openers", "parse_logs", "read_bands", "render", "rest_days", "shooting", "tempo_thirds", "tip_day",
-    "torvik_ranks",
+    "torvik_ranks", "torvik_z",
 ]

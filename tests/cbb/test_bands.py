@@ -198,3 +198,52 @@ def test_books_disagreeing_on_the_favourite_give_the_game_one_underdog() -> None
     reads = {b.name: b for b in bands.read_bands(rows, ctx)}
     assert reads["weak game (both Torvik rank > 200) favourite ATS"].record == "0-1"
     assert reads["weak game (both Torvik rank > 200) underdog ATS"].record == "2-1"  # e away; f is a dead tie
+
+
+def test_torvik_z_is_the_efficiency_margin_in_sds_from_the_tables_mean() -> None:
+    rows = [{"team": "A", "adjoe": "120", "adjde": "90"}, {"team": "B", "adjoe": "100", "adjde": "100"},
+            {"team": "C", "adjoe": "90", "adjde": "120"}, {"team": "D", "adjoe": "", "adjde": "100"}]
+    z = bands.torvik_z(rows)
+    assert set(z) == {"A", "B", "C"}
+    assert z["B"] == pytest.approx(0.0) and z["A"] == pytest.approx(-z["C"]) and z["A"] == pytest.approx(1.2247, abs=1e-4)
+    assert bands.torvik_z(rows[:1]) == {}
+
+
+def test_context_carries_the_days_z_score() -> None:
+    board = [_game("Kentucky Wildcats", "Toledo Rockets")]
+    ctx = bands.context({"e": ("Kentucky Wildcats", "Toledo Rockets")}, Date(2025, 1, 10), {Date(2025, 1, 10): board},
+                        [], {}, zs={"Kentucky": 1.4})["e"]
+    assert (ctx.home.z, ctx.away.z) == (1.4, None)
+
+
+def _zpair(eid: str, day: str, home_z: float, away_z: float, home_line: float, home_wins: bool) -> tuple[
+        dict[str, bands.GameCtx], list[ledger.Row]]:
+    ctx = {eid: bands.GameCtx(home=bands.Team(z=home_z), away=bands.Team(z=away_z))}
+    h, a = ("win", "loss") if home_wins else ("loss", "win")
+    rows = [_row(eid, "game_ats", "home", home_line, outcome=h, day=day),
+            _row(eid, "game_ats", "away", -home_line, outcome=a, day=day),
+            _row(eid, "game_total", "under", 140.5, outcome="win", day=day),
+            _row(eid, "game_total", "over", 140.5, outcome="loss", day=day)]
+    return ctx, rows
+
+
+def test_z_bands_count_only_games_from_z_since() -> None:
+    ctx, rows = _zpair("old", "2026-11-13", 0.2, -0.3, -2.0, False)
+    for eid, day, hz, az, line, hw in (("avg", "2026-11-14", 0.2, -0.3, -2.0, False),
+                                       ("hi", "2026-11-14", 1.5, 0.4, -9.0, False),
+                                       ("el", "2026-11-15", 2.3, -0.1, -15.0, True),
+                                       ("off", "2026-11-15", 0.2, 0.9, 3.0, True)):
+        c, r = _zpair(eid, day, hz, az, line, hw)
+        ctx |= c
+        rows += r
+    reads = {b.name: b for b in bands.read_bands(rows, ctx)}
+    assert reads["z: average game (both |z| <= 0.5) underdog ATS"].record == "1-0"  # avg only; old predates Z_SINCE
+    assert reads["z: average game (both |z| <= 0.5) Under"].n == 1
+    assert reads["z: average game (both |z| <= 1) underdog ATS"].record == "2-0"  # avg and off
+    assert reads["z: average game (both |z| <= 0.5) home underdog ATS"].n == 0
+    assert reads["z: high (1 <= z < 2) vs average (|z| <= 0.5): average team ATS"].record == "1-0"  # hi's away side
+    assert reads["z: high (1 <= z < 2) vs average (|z| <= 0.5): Under"].n == 1
+    assert reads["z: high (z >= 1) vs average (|z| <= 0.75): Under"].n == 2  # hi and el
+    assert reads["z: elite (z >= 2) vs average (|z| <= 0.5): elite team ATS"].record == "1-0"
+    assert reads["z: elite (z >= 2) vs average (|z| <= 0.5): Over"].record == "0-1"
+    assert reads["weak game (both Torvik rank > 200) underdog ATS"].n == 0
