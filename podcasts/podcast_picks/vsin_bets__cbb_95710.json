@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-95710",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "20bfce274b1bea5e4024d12165ebc4042262af8a",
+ "picks": [
+  {
+   "pick_id": "54c3522c93c9",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-95710",
+   "episode_title": "Arizona vs. Auburn Basketball Prediction: Friday, November 13, 2026",
+   "published": "2026-11-13T03:46:29+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Auburn",
+   "opponent": "Arizona",
+   "side": null,
+   "line": 3.0,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Auburn +3",
+   "reason": "https://vsin.com/college-basketball/arizona-vs-auburn-basketball-prediction-friday-november-13-2026/",
+   "description": "Auburn +3",
+   "league": "cbb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cbb"
+ ]
+}

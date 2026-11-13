@@ -1,0 +1,61 @@
+{
+ "episode_guid": "b1b67baa-46b7-4660-af64-a18bc1672463",
+ "model": "gpt-4o-mini",
+ "prompt_version": "picks-v2",
+ "transcript_sha": "96affb3dfaa8de5dc249dc99778812e37e57b320",
+ "picks": [
+  {
+   "pick_id": "d327e40c31c6",
+   "show": "ftm",
+   "show_name": "Follow the Money",
+   "host": "Mitch Moss",
+   "episode_guid": "b1b67baa-46b7-4660-af64-a18bc1672463",
+   "episode_title": "Follow the Money | November 12, 2026 | Hour 4",
+   "published": "2026-11-12T20:28:10-05:00",
+   "kind": "lean",
+   "market": "game_ats",
+   "team": "Giants",
+   "opponent": "Commanders",
+   "side": null,
+   "line": 1.0,
+   "price": null,
+   "units": null,
+   "seconds": 2236,
+   "quote": "I just take the Giants because it feels I like Harbaugh number one and it just feels like they want to win",
+   "reason": "The Giants are at home and have a stronger desire to win.",
+   "description": "Giants -1",
+   "league": "nfl",
+   "edge": "The Giants have a clearer motivation to win compared to the Commanders, who are just trying to save their coach's job.",
+   "fair_line": null
+  }
+ ],
+ "rejected": [
+  {
+   "league": "nfl",
+   "kind": "official",
+   "host": "Ed",
+   "team": "Commanders",
+   "opponent": "Giants",
+   "market": "game_ml",
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "stamp": "[12:51]",
+   "quote": "I took a shot on the commanders plus two and a half. I made the commanders a small favorite.",
+   "edge": "I think in my previous visits here, I'm no fan of this Giants team and you know the commanders... I just don't see how the Giants are favorite in this game.",
+   "fair_line": null,
+   "reason": "Ed believes the Commanders have a better chance to win than the odds suggest.",
+   "description": "Commanders +2.5",
+   "why": "bad stamp"
+  }
+ ],
+ "leagues": [
+  "cfb",
+  "nfl",
+  "mlb",
+  "nba",
+  "cbb",
+  "nhl"
+ ]
+}
