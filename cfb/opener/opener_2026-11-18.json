@@ -1,0 +1,86 @@
+{
+  "Akron @ UMass|game_ats|Akron": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 2.5,
+    "no_vig_prob": 0.5
+  },
+  "Akron @ UMass|game_ats|UMass": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -2.5,
+    "no_vig_prob": 0.5
+  },
+  "Akron @ UMass|game_ml|Akron": {
+    "american": 112.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.45326664582682086
+  },
+  "Akron @ UMass|game_ml|UMass": {
+    "american": -132.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.5467333541731791
+  },
+  "Akron @ UMass|game_total|Over": {
+    "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 45.5,
+    "no_vig_prob": 0.4891657638136511
+  },
+  "Akron @ UMass|game_total|Under": {
+    "american": -115.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 45.5,
+    "no_vig_prob": 0.5108342361863488
+  },
+  "Central Michig @ Buffalo|game_ats|Buffalo": {
+    "american": -120.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -2.5,
+    "no_vig_prob": 0.5217391304347826
+  },
+  "Central Michig @ Buffalo|game_ats|Central Michig": {
+    "american": 100.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 2.5,
+    "no_vig_prob": 0.4782608695652174
+  },
+  "Central Michig @ Buffalo|game_ml|Buffalo": {
+    "american": -138.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.55603641247575
+  },
+  "Central Michig @ Buffalo|game_ml|Central Michig": {
+    "american": 116.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.44396358752425014
+  },
+  "Central Michig @ Buffalo|game_total|Over": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 43.5,
+    "no_vig_prob": 0.5
+  },
+  "Central Michig @ Buffalo|game_total|Under": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 43.5,
+    "no_vig_prob": 0.5
+  }
+}
