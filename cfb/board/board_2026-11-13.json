@@ -1,0 +1,128 @@
+{
+  "Florida State @ Pittsburgh|game_ats|Florida State": {
+    "american": -112.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 3.5,
+    "no_vig_prob": 0.5129045415105741
+  },
+  "Florida State @ Pittsburgh|game_ats|Pittsburgh": {
+    "american": 102.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -3.5,
+    "no_vig_prob": 0.4870954584894259
+  },
+  "Florida State @ Pittsburgh|game_ml|Florida State": {
+    "american": 146.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.3987284282589472
+  },
+  "Florida State @ Pittsburgh|game_ml|Pittsburgh": {
+    "american": -162.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.6012715717410528
+  },
+  "Florida State @ Pittsburgh|game_total|Over": {
+    "american": -103.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 52.5,
+    "no_vig_prob": 0.4909700548886528
+  },
+  "Florida State @ Pittsburgh|game_total|Under": {
+    "american": -112.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 52.5,
+    "no_vig_prob": 0.5090299451113471
+  },
+  "Houston @ Colorado|game_ats|Colorado": {
+    "american": -104.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 7.5,
+    "no_vig_prob": 0.49214928723023804
+  },
+  "Houston @ Colorado|game_ats|Houston": {
+    "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -7.5,
+    "no_vig_prob": 0.5078507127697619
+  },
+  "Houston @ Colorado|game_ml|Colorado": {
+    "american": 280.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.26033063712386784
+  },
+  "Houston @ Colorado|game_ml|Houston": {
+    "american": -320.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.7396693628761322
+  },
+  "Houston @ Colorado|game_total|Over": {
+    "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 51.5,
+    "no_vig_prob": 0.5006425874474383
+  },
+  "Houston @ Colorado|game_total|Under": {
+    "american": -107.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 51.5,
+    "no_vig_prob": 0.4993574125525617
+  },
+  "Illinois @ UCLA|game_ats|Illinois": {
+    "american": 100.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 10.0,
+    "no_vig_prob": 0.49481466000788765
+  },
+  "Illinois @ UCLA|game_ats|UCLA": {
+    "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -10.0,
+    "no_vig_prob": 0.5051853399921125
+  },
+  "Illinois @ UCLA|game_ml|Illinois": {
+    "american": 330.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.23276620997274727
+  },
+  "Illinois @ UCLA|game_ml|UCLA": {
+    "american": -385.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.7672337900272527
+  },
+  "Illinois @ UCLA|game_total|Over": {
+    "american": -109.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 48.0,
+    "no_vig_prob": 0.5006479909186144
+  },
+  "Illinois @ UCLA|game_total|Under": {
+    "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 48.0,
+    "no_vig_prob": 0.49935200908138544
+  }
+}
