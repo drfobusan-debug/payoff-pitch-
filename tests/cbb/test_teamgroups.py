@@ -63,9 +63,29 @@ def test_read_groups_games_by_pairing_and_reads_the_favourite_rows() -> None:
     assert both_fast.close_ev == pytest.approx(0.53 * (1 + 100 / 110) - 1)
     mixed = reads[("fast vs slow", "spread")]
     assert mixed.games == 2 and mixed.miss == pytest.approx(2.0) and mixed.vs_rest == pytest.approx(2.0 - 4.0)
-    assert reads[("Power vs mid-major", "total")].games == 2
+    assert reads[("Power vs mid-major", "spread")].games == 2
+    assert ("Power vs mid-major", "total") not in reads
+    assert reads[("Power vs mid-major, Power fav 10-29.5", "total")].games == 0
     assert reads[("mid-major vs mid-major", "total")].bias == -2.0
     assert mixed.verdict == "underpowered (2/150 games)"
+
+
+def test_power_vs_mid_total_keeps_only_power_favoured_by_10_to_29_5() -> None:
+    power, mid = bands.Team(power=True), bands.Team(power=False)
+    ctx = {e: bands.GameCtx(home=power, away=mid) for e in ("a", "b", "c", "d", "e")}
+    ctx["f"] = bands.GameCtx(home=mid, away=power)
+    games = {
+        "a": teamgroups.Called("a", -9.5, 150.0, 20, 140),
+        "b": teamgroups.Called("b", -10.0, 150.0, 20, 140),
+        "c": teamgroups.Called("c", -29.75, 150.0, 20, 140),
+        "d": teamgroups.Called("d", -30.0, 150.0, 20, 140),
+        "e": teamgroups.Called("e", None, 150.0, 20, 140),
+        "f": teamgroups.Called("f", 15.0, 150.0, -20, 160),  # Power team on the road, favoured by 15
+    }
+    reads = {(g.group, g.market): g for g in teamgroups.read([], ctx, games)}
+    trimmed = reads[("Power vs mid-major, Power fav 10-29.5", "total")]
+    assert trimmed.games == 3 and trimmed.bias == pytest.approx((-10 - 10 + 10) / 3)
+    assert reads[("Power vs mid-major", "spread")].games == 5
 
 
 def test_verdict_calls_only_at_150_games_and_two_se() -> None:
