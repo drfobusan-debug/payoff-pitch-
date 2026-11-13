@@ -360,12 +360,7 @@ def _season_ctx(
         res_d = torvik.as_of(data_dir(), "team_results", d).path
         table = torvik.read_csv(res_d) if res_d else []
         public = vsin_splits.public(vsin_splits.read_day(root, d.isoformat()), group, tip_utc)
-        ctx.update(
-            bands.context(
-                group, d, boards, logs, confs, opener, bands.tempo_thirds(table), bands.torvik_ranks(table), public,
-                bands.torvik_z(table),
-            )
-        )
+        ctx.update(bands.context(group, d, boards, logs, confs, opener, bands.tempo_thirds(table), bands.torvik_ranks(table), public))
     return ctx, boards
 
 
