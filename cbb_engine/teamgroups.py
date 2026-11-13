@@ -12,6 +12,9 @@ Per group and market (spread, total):
 * bias: mean (result - close); positive means favourites / Overs beat the close.
 * CLV and close EV on the favourite / Over rows (the underdog / Under rows mirror them).
 
+The Power vs mid-major total row keeps only games whose closing spread has the Power team
+favoured by 10 to 29.5 points; its spread row keeps every Power vs mid-major game.
+
 A group is read only at ``MIN_N`` games, and a difference is called only past ``CALL_SE``.
 Roster continuity is not grouped: it needs a returning-minutes source.
 """
@@ -58,13 +61,30 @@ def _pairs(c: GameCtx, attr: str, a: object, b: object) -> bool:
     return {x, y} == {a, b} if a != b else x == y == a
 
 
-GROUPS: tuple[tuple[str, str, Callable[[GameCtx], bool]], ...] = (
-    ("tempo", "both fast", lambda c: _pairs(c, "pace", "fast", "fast")),
-    ("tempo", "both slow", lambda c: _pairs(c, "pace", "slow", "slow")),
-    ("tempo", "fast vs slow", lambda c: _pairs(c, "pace", "fast", "slow")),
-    ("conference", "Power vs Power", lambda c: _pairs(c, "power", True, True)),
-    ("conference", "Power vs mid-major", lambda c: _pairs(c, "power", True, False)),
-    ("conference", "mid-major vs mid-major", lambda c: _pairs(c, "power", False, False)),
+PVM_SPREAD = (10.0, 29.5)
+
+
+def _power_fav_by(c: GameCtx, g: Called) -> float | None:
+    """Points the Power team is favoured by at the close (negative when it is the underdog)."""
+    if g.home_spread is None:
+        return None
+    return -g.home_spread if c.home.power else g.home_spread
+
+
+def _pvm_total(c: GameCtx, g: Called) -> bool:
+    fav = _power_fav_by(c, g)
+    return _pairs(c, "power", True, False) and fav is not None and PVM_SPREAD[0] <= fav < PVM_SPREAD[1] + 0.5
+
+
+BOTH = ("spread", "total")
+GROUPS: tuple[tuple[str, str, tuple[str, ...], Callable[[GameCtx, Called], bool]], ...] = (
+    ("tempo", "both fast", BOTH, lambda c, g: _pairs(c, "pace", "fast", "fast")),
+    ("tempo", "both slow", BOTH, lambda c, g: _pairs(c, "pace", "slow", "slow")),
+    ("tempo", "fast vs slow", BOTH, lambda c, g: _pairs(c, "pace", "fast", "slow")),
+    ("conference", "Power vs Power", BOTH, lambda c, g: _pairs(c, "power", True, True)),
+    ("conference", "Power vs mid-major", ("spread",), lambda c, g: _pairs(c, "power", True, False)),
+    ("conference", "Power vs mid-major, Power fav 10-29.5", ("total",), _pvm_total),
+    ("conference", "mid-major vs mid-major", BOTH, lambda c, g: _pairs(c, "power", False, False)),
 )
 
 
@@ -162,8 +182,10 @@ def read(
     for market, _ in MARKETS:
         res = {e: x for e, g in games.items() if e in ctx and (x := g.result(market)) is not None}
         lean = _lean_rows(rows, market)
-        for dim, name, hit in (("all", "all games", lambda c: True), *GROUPS):
-            ins = [e for e in res if hit(ctx[e])]
+        for dim, name, markets, hit in (("all", "all games", BOTH, lambda c, g: True), *GROUPS):
+            if market not in markets:
+                continue
+            ins = [e for e in res if hit(ctx[e], games[e])]
             rest = [abs(res[e]) for e in res if e not in set(ins)]
             miss, miss_se = _mean_se([abs(res[e]) for e in ins])
             r_m, r_se = _mean_se(rest)
