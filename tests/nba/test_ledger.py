@@ -472,7 +472,10 @@ def test_close_fires_on_the_ledger_tip_when_the_board_moves_it_later(root):
     at = utc("2025-12-11T02:51:00Z")
     assert cli._capture_closes(odds, root, day, clock=clock(at, at)) != []
     assert odds.calls == [("ev1", "2025-12-11T02:51:00Z")]
-    assert cli._capture_closes(odds, root, day, clock=clock(at, at)) == []  # once per game
+    assert cli._capture_closes(odds, root, day, clock=clock(at, at)) == []  # once per tip
+    later = utc("2025-12-11T03:11:00Z")  # the board's 03:20 tip gets its own close
+    assert cli._capture_closes(odds, root, day, clock=clock(later, later)) != []
+    assert [c[1] for c in odds.calls] == ["2025-12-11T02:51:00Z", "2025-12-11T03:11:00Z"]
 
 
 def test_close_that_comes_back_after_tip_is_not_written(root):
@@ -509,3 +512,30 @@ def test_afternoon_pass_waits_until_inside_the_window(root):
         == []
     )
     assert odds.calls == []
+
+
+class EmptyOdds(FakeOdds):
+    def fetch_event_markets(self, games, *, markets, captured_at, max_events):
+        self.calls.append((games[0].event_id, captured_at))
+        return []
+
+
+def test_afternoon_game_with_no_event_markets_waits_then_prices_from_the_board(root):
+    day = date(2025, 12, 10)
+    capture.write_snapshot(
+        board(at="2025-12-10T18:00:00Z"),
+        root,
+        day,
+        label="board",
+        captured_at="2025-12-10T18:00:00Z",
+    )
+    afternoon = Game(day, "LAL", "SAS", "2025-12-10T20:00:00Z", "ev1")
+    odds = EmptyOdds([afternoon])
+    assert (
+        cli._early_pass(odds, root, day, [afternoon], clock=clock(utc("2025-12-10T18:45:00Z")))
+        == []
+    )
+    assert ledger.passes(root, day) == []
+    cli._early_pass(odds, root, day, [afternoon], clock=clock(utc("2025-12-10T19:52:00Z")))
+    assert {r.event_id for r in ledger.passes(root, day)} == {"ev1"}
+    assert len(odds.calls) == 2
