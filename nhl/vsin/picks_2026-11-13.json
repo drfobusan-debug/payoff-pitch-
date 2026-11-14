@@ -10,11 +10,11 @@
   "host": "Jonathan Davis",
   "stamp": "2026-11-13T23:14:35+00:00",
   "text": "Under 6 (-106) - 1 unit",
-  "outcome": null,
-  "pnl_flat": null,
-  "pnl_stake": null,
-  "close_consensus": null,
-  "clv": null,
-  "graded_at": ""
+  "outcome": "win",
+  "pnl_flat": 0.9433962264150944,
+  "pnl_stake": 0.9433962264150944,
+  "close_consensus": 0.49331997327989313,
+  "clv": -0.021243133516223367,
+  "graded_at": "2026-11-14T14:30:33Z"
  }
 ]
