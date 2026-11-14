@@ -1,0 +1,44 @@
+{
+  "Ole Miss @ Oklahoma|game_ats|Oklahoma": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -2.5,
+    "no_vig_prob": 0.5047932921320891
+  },
+  "Ole Miss @ Oklahoma|game_ats|Ole Miss": {
+    "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 2.5,
+    "no_vig_prob": 0.49520670786791077
+  },
+  "Ole Miss @ Oklahoma|game_ml|Oklahoma": {
+    "american": -130.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.5561119471340751
+  },
+  "Ole Miss @ Oklahoma|game_ml|Ole Miss": {
+    "american": 125.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.4438880528659248
+  },
+  "Ole Miss @ Oklahoma|game_total|Over": {
+    "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 49.5,
+    "no_vig_prob": 0.4980866063478148
+  },
+  "Ole Miss @ Oklahoma|game_total|Under": {
+    "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 49.5,
+    "no_vig_prob": 0.5019133936521851
+  }
+}
