@@ -43,86 +43,86 @@
   },
   "Houston @ Colorado|game_ats|Colorado": {
     "american": -109.0,
-    "captured_at": "2026-11-13T23:45:37Z",
+    "captured_at": "2026-11-14T01:45:44Z",
     "kickoff_utc": "2026-11-14T03:15:00Z",
     "line": 7.5,
-    "no_vig_prob": 0.5049413262047324
+    "no_vig_prob": 0.5037621571069758
   },
   "Houston @ Colorado|game_ats|Houston": {
     "american": -103.0,
-    "captured_at": "2026-11-13T23:45:37Z",
+    "captured_at": "2026-11-14T01:45:44Z",
     "kickoff_utc": "2026-11-14T03:15:00Z",
     "line": -7.5,
-    "no_vig_prob": 0.49505867379526763
+    "no_vig_prob": 0.4962378428930243
   },
   "Houston @ Colorado|game_ml|Colorado": {
     "american": 260.0,
-    "captured_at": "2026-11-13T23:45:37Z",
+    "captured_at": "2026-11-14T01:45:44Z",
     "kickoff_utc": "2026-11-14T03:15:00Z",
     "line": null,
-    "no_vig_prob": 0.2738462432783404
+    "no_vig_prob": 0.274210151629847
   },
   "Houston @ Colorado|game_ml|Houston": {
     "american": -300.0,
-    "captured_at": "2026-11-13T23:45:37Z",
+    "captured_at": "2026-11-14T01:45:44Z",
     "kickoff_utc": "2026-11-14T03:15:00Z",
     "line": null,
-    "no_vig_prob": 0.7261537567216596
+    "no_vig_prob": 0.725789848370153
   },
   "Houston @ Colorado|game_total|Over": {
-    "american": -109.0,
-    "captured_at": "2026-11-13T23:45:37Z",
+    "american": -108.0,
+    "captured_at": "2026-11-14T01:45:44Z",
     "kickoff_utc": "2026-11-14T03:15:00Z",
-    "line": 52.0,
-    "no_vig_prob": 0.504350684885195
+    "line": 52.5,
+    "no_vig_prob": 0.4996735034854494
   },
   "Houston @ Colorado|game_total|Under": {
-    "american": -105.0,
-    "captured_at": "2026-11-13T23:45:37Z",
+    "american": -108.0,
+    "captured_at": "2026-11-14T01:45:44Z",
     "kickoff_utc": "2026-11-14T03:15:00Z",
-    "line": 52.0,
-    "no_vig_prob": 0.49564931511480503
+    "line": 52.5,
+    "no_vig_prob": 0.5003264965145506
   },
   "Illinois @ UCLA|game_ats|Illinois": {
     "american": -109.0,
-    "captured_at": "2026-11-13T23:45:37Z",
+    "captured_at": "2026-11-14T01:45:44Z",
     "kickoff_utc": "2026-11-14T02:00:00Z",
     "line": 10.5,
-    "no_vig_prob": 0.5078973725378813
+    "no_vig_prob": 0.5072894671916311
   },
   "Illinois @ UCLA|game_ats|UCLA": {
     "american": -103.0,
-    "captured_at": "2026-11-13T23:45:37Z",
+    "captured_at": "2026-11-14T01:45:44Z",
     "kickoff_utc": "2026-11-14T02:00:00Z",
     "line": -10.5,
-    "no_vig_prob": 0.49210262746211886
+    "no_vig_prob": 0.4927105328083688
   },
   "Illinois @ UCLA|game_ml|Illinois": {
-    "american": 330.0,
-    "captured_at": "2026-11-13T23:45:37Z",
+    "american": 365.0,
+    "captured_at": "2026-11-14T01:45:44Z",
     "kickoff_utc": "2026-11-14T02:00:00Z",
     "line": null,
-    "no_vig_prob": 0.23243167234875767
+    "no_vig_prob": 0.21867463548199606
   },
   "Illinois @ UCLA|game_ml|UCLA": {
-    "american": -375.0,
-    "captured_at": "2026-11-13T23:45:37Z",
+    "american": -400.0,
+    "captured_at": "2026-11-14T01:45:44Z",
     "kickoff_utc": "2026-11-14T02:00:00Z",
     "line": null,
-    "no_vig_prob": 0.7675683276512424
+    "no_vig_prob": 0.7813253645180039
   },
   "Illinois @ UCLA|game_total|Over": {
-    "american": -108.0,
-    "captured_at": "2026-11-13T23:45:37Z",
+    "american": -110.0,
+    "captured_at": "2026-11-14T01:45:44Z",
     "kickoff_utc": "2026-11-14T02:00:00Z",
     "line": 48.5,
-    "no_vig_prob": 0.4992257458207422
+    "no_vig_prob": 0.5026058288000441
   },
   "Illinois @ UCLA|game_total|Under": {
-    "american": -108.0,
-    "captured_at": "2026-11-13T23:45:37Z",
+    "american": -105.0,
+    "captured_at": "2026-11-14T01:45:44Z",
     "kickoff_utc": "2026-11-14T02:00:00Z",
     "line": 48.5,
-    "no_vig_prob": 0.5007742541792579
+    "no_vig_prob": 0.4973941711999559
   }
 }
