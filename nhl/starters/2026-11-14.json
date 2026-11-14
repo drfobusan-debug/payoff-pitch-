@@ -21,13 +21,13 @@
     "name": "Pyotr Kochetkov",
     "player_id": 8481611,
     "source": "rotowire",
-    "status": "probable"
+    "status": "confirmed"
   },
   "CBJ": {
     "name": "Jet Greaves",
     "player_id": 8482982,
     "source": "rotowire",
-    "status": "probable"
+    "status": "confirmed"
   },
   "CGY": {
     "name": "Dustin Wolf",
@@ -102,10 +102,10 @@
     "status": "probable"
   },
   "OTT": {
-    "name": "Samuel Ersson",
-    "player_id": 8481035,
+    "name": "Linus Ullmark",
+    "player_id": 8476999,
     "source": "rotowire",
-    "status": "probable"
+    "status": "confirmed"
   },
   "PHI": {
     "name": "Dan Vladar",
@@ -147,7 +147,7 @@
     "name": "Anthony Stolarz",
     "player_id": 8476932,
     "source": "rotowire",
-    "status": "probable"
+    "status": "confirmed"
   },
   "UTA": {
     "name": "Karel Vejmelka",
@@ -162,9 +162,9 @@
     "status": "probable"
   },
   "WSH": {
-    "name": "Logan Thompson",
-    "player_id": 8480313,
+    "name": "Charlie Lindgren",
+    "player_id": 8479292,
     "source": "rotowire",
-    "status": "probable"
+    "status": "confirmed"
   }
 }
