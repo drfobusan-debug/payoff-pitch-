@@ -1,0 +1,4 @@
+detected_at,game_date,event_id,matchup,kind,detail,before,after
+2026-11-14T18:25:13Z,2026-11-14,2cc2c254049b0bd0a6219f70cbb0b69a,DAL @ CLE,ml_move,home ml 0.444 -> 0.402,0.444,0.402
+2026-11-14T18:25:13Z,2026-11-14,2cc2c254049b0bd0a6219f70cbb0b69a,DAL @ CLE,spread_move,home spread 2 -> 3.5,2,3.5
+2026-11-14T18:25:13Z,2026-11-14,2cc2c254049b0bd0a6219f70cbb0b69a,DAL @ CLE,total_move,total 231.5 -> 229.5,231.5,229.5
