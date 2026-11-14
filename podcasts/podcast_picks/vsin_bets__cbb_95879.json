@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-95879",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "b65b94610ea96a146178ebe4e8b2701382f3e587",
+ "picks": [
+  {
+   "pick_id": "20f07afae536",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-95879",
+   "episode_title": "LSU vs. Gonzaga Basketball Prediction: Saturday, November 14, 2026",
+   "published": "2026-11-14T00:56:18+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Gonzaga",
+   "opponent": "LSU",
+   "side": null,
+   "line": -6.5,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Gonzaga -6.5",
+   "reason": "https://vsin.com/college-basketball/lsu-vs-gonzaga-basketball-prediction-saturday-november-14-2026/",
+   "description": "Gonzaga -6.5",
+   "league": "cbb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cbb"
+ ]
+}
