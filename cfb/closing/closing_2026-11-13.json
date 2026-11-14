@@ -42,46 +42,46 @@
     "no_vig_prob": 0.5047828726863527
   },
   "Houston @ Colorado|game_ats|Colorado": {
-    "american": -109.0,
-    "captured_at": "2026-11-14T01:45:44Z",
+    "american": -108.0,
+    "captured_at": "2026-11-14T03:01:02Z",
     "kickoff_utc": "2026-11-14T03:15:00Z",
     "line": 7.5,
-    "no_vig_prob": 0.5037621571069758
+    "no_vig_prob": 0.5010707210825438
   },
   "Houston @ Colorado|game_ats|Houston": {
-    "american": -103.0,
-    "captured_at": "2026-11-14T01:45:44Z",
+    "american": -108.0,
+    "captured_at": "2026-11-14T03:01:02Z",
     "kickoff_utc": "2026-11-14T03:15:00Z",
     "line": -7.5,
-    "no_vig_prob": 0.4962378428930243
+    "no_vig_prob": 0.49892927891745614
   },
   "Houston @ Colorado|game_ml|Colorado": {
-    "american": 260.0,
-    "captured_at": "2026-11-14T01:45:44Z",
+    "american": 272.0,
+    "captured_at": "2026-11-14T03:01:02Z",
     "kickoff_utc": "2026-11-14T03:15:00Z",
     "line": null,
-    "no_vig_prob": 0.274210151629847
+    "no_vig_prob": 0.26773592511468786
   },
   "Houston @ Colorado|game_ml|Houston": {
     "american": -300.0,
-    "captured_at": "2026-11-14T01:45:44Z",
+    "captured_at": "2026-11-14T03:01:02Z",
     "kickoff_utc": "2026-11-14T03:15:00Z",
     "line": null,
-    "no_vig_prob": 0.725789848370153
+    "no_vig_prob": 0.7322640748853123
   },
   "Houston @ Colorado|game_total|Over": {
     "american": -108.0,
-    "captured_at": "2026-11-14T01:45:44Z",
+    "captured_at": "2026-11-14T03:01:02Z",
     "kickoff_utc": "2026-11-14T03:15:00Z",
-    "line": 52.5,
-    "no_vig_prob": 0.4996735034854494
+    "line": 53.0,
+    "no_vig_prob": 0.5006462319507416
   },
   "Houston @ Colorado|game_total|Under": {
     "american": -108.0,
-    "captured_at": "2026-11-14T01:45:44Z",
+    "captured_at": "2026-11-14T03:01:02Z",
     "kickoff_utc": "2026-11-14T03:15:00Z",
-    "line": 52.5,
-    "no_vig_prob": 0.5003264965145506
+    "line": 53.0,
+    "no_vig_prob": 0.49935376804925835
   },
   "Illinois @ UCLA|game_ats|Illinois": {
     "american": -109.0,
