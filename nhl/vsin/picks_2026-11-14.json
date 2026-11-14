@@ -1,0 +1,38 @@
+[
+ {
+  "slate_date": "2026-11-14",
+  "matchup": "MIN @ BOS",
+  "market": "game_total",
+  "side": "over",
+  "line": 5.5,
+  "american": -135,
+  "stake": 0.5,
+  "host": "Jonathan Davis",
+  "stamp": "2026-11-14T19:17:30+00:00",
+  "text": "Over 5.5 (-135) - \u00bd unit",
+  "outcome": null,
+  "pnl_flat": null,
+  "pnl_stake": null,
+  "close_consensus": null,
+  "clv": null,
+  "graded_at": ""
+ },
+ {
+  "slate_date": "2026-11-14",
+  "matchup": "SJS @ UTA",
+  "market": "game_total",
+  "side": "under",
+  "line": 6.5,
+  "american": -120,
+  "stake": 1.0,
+  "host": "Jonathan Davis",
+  "stamp": "2026-11-14T19:17:30+00:00",
+  "text": "Under 6.5 (-120) - 1 unit",
+  "outcome": null,
+  "pnl_flat": null,
+  "pnl_stake": null,
+  "close_consensus": null,
+  "clv": null,
+  "graded_at": ""
+ }
+]
