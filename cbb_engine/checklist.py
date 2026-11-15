@@ -57,7 +57,13 @@ def write_once_check() -> tuple[bool, str]:
 
 
 def run(cfg: Config, root: Path, day: str, *, saturday_games: int = 80, daily_credits: int | None = None) -> list[Item]:
-    budget = cadence.daily_budget(saturday_games, cfg.cadence, event_cost=0, regions=len(cfg.regions.split(",")))
+    budget = cadence.daily_budget(
+        saturday_games,
+        cfg.cadence,
+        event_cost=0,
+        regions=len(cfg.regions.split(",")),
+        novig_cost=cadence.novig_cost(),
+    )
     cost = int(budget.get("credits", budget.get("total", 0)))
     limit, source = (daily_credits, "--daily-credits") if daily_credits is not None else (_daily_limit(root, "cbb"), "credit_budget.yaml sports.cbb")
     prereg = PREREG.read_text()

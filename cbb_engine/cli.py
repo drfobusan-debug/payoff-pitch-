@@ -651,6 +651,7 @@ def cmd_budget(args: argparse.Namespace) -> int:
         cfg.cadence,
         event_cost=len(EVENT_MARKETS) if cfg.event_markets_on else 0,
         regions=len(cfg.regions.split(",")),
+        novig_cost=cadence.novig_cost(),
     )
     if cfg.alt_lines_on:
         out["alt_lines"] = altlines.daily_cost(args.games, cfg.max_events, len(cfg.regions.split(",")))

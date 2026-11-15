@@ -73,6 +73,9 @@ def test_daily_budget_from_cadence_table() -> None:
     # 24 + 6 + 12 board passes x 3 credits; 18 featured x 3; at most one 3-credit close per game
     assert out["board"] == 126 and out["featured"] == 54 and out["close"] == 180
     assert out["event_markets"] == 0 and out["total"] == 360
+    # the Novig twin of each board pass: one bookmaker, so one region whatever `regions` is
+    with_novig = cadence.daily_budget(60, Cadence(), regions=2, novig_cost=3)
+    assert with_novig["novig"] == 126 and with_novig["board"] == 252
 
 
 def _event() -> dict[str, object]:

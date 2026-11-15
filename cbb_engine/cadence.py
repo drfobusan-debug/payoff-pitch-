@@ -6,6 +6,7 @@ against; both read the same ``Cadence``.
 
 from __future__ import annotations
 
+import os
 from collections.abc import Iterable, Mapping
 from datetime import datetime, timedelta, timezone
 
@@ -52,7 +53,13 @@ def due(last: datetime | None, interval_min: int, now: datetime) -> bool:
 
 
 def daily_budget(
-    n_games: int, cad: Cadence, *, featured_cost: int = 3, event_cost: int = 0, regions: int = 1
+    n_games: int,
+    cad: Cadence,
+    *,
+    featured_cost: int = 3,
+    event_cost: int = 0,
+    regions: int = 1,
+    novig_cost: int = 0,
 ) -> dict[str, int]:
     """Credits one slate day costs under the cadence table, by pass_kind.
 
@@ -73,13 +80,21 @@ def daily_budget(
         "featured": int(round(featured_passes * featured_cost * regions)),
         "close": featured_cost * regions * n_games,
         "event_markets": int(event_cost * regions * n_games * board_passes) if event_cost else 0,
+        # One named bookmaker costs one region, whatever ``regions`` is.
+        "novig": int(round(board_passes * novig_cost)),
     }
     out["total"] = sum(out.values())
     return out
 
 
+def novig_cost() -> int:
+    """Credits the Novig twin of a board pass costs (h2h/spreads/totals); 0 with CBBE_NOVIG=0."""
+    return 0 if os.getenv("CBBE_NOVIG", "1") == "0" else 3
+
+
 __all__ = [
     "UTC",
+    "novig_cost",
     "board_interval",
     "close_due",
     "daily_budget",
