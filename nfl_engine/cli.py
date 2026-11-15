@@ -208,6 +208,8 @@ def cmd_novig(args: argparse.Namespace) -> int:
     index = novig.load(data_dir() / "novig.jsonl")
     pairs = []
     for e in load_ledger(ledger_path()):
+        if e.result not in ("win", "loss", "push"):
+            continue
         if e.source != ENGINE or e.clv_ev is None or e.odds is None or not has_true_close(e):
             continue
         k = novig.key(e.date, e.matchup, e.market, e.side)
