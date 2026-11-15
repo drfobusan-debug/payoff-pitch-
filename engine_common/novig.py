@@ -100,42 +100,46 @@ def append(path: Path, records: Iterable[Mapping[str, object]]) -> int:
     return len(kept)
 
 
-def load(path: Path) -> dict[tuple[str, float | None], list[dict[str, object]]]:
-    """Every pregame quote per (key, line), oldest first."""
-    out: dict[tuple[str, float | None], list[dict[str, object]]] = defaultdict(list)
-    if not path.exists():
-        return out
-    for raw in path.read_text().splitlines():
-        try:
-            r = json.loads(raw)
-        except ValueError:
-            continue
-        line = r.get("line")
-        out[(str(r.get("key", "")), None if line is None else float(line))].append(r)
-    for quotes in out.values():
-        quotes.sort(key=lambda r: str(r.get("captured_at", "")))
-    return out
+@dataclass
+class Index:
+    """Novig's pulls: each pull's quotes by (key, line), and every pull's stamp."""
+
+    quotes: dict[tuple[str, float | None], dict[str, dict[str, object]]]
+    pulls: list[str]
 
 
-def as_of(
-    index: Mapping[tuple[str, float | None], list[dict[str, object]]],
-    k: str,
-    line: float | None,
-    when: str,
-) -> dict[str, object] | None:
-    """The latest quote on (``k``, ``line``) seen at or before ``when`` (the bet's price time).
+def load(path: Path) -> Index:
+    quotes: dict[tuple[str, float | None], dict[str, dict[str, object]]] = defaultdict(dict)
+    pulls: set[str] = set()
+    if path.exists():
+        for raw in path.read_text().splitlines():
+            try:
+                r = json.loads(raw)
+            except ValueError:
+                continue
+            line, seen = r.get("line"), str(r.get("captured_at", ""))
+            quotes[(str(r.get("key", "")), None if line is None else float(line))][seen] = r
+            pulls.add(seen)
+    return Index(
+        dict(quotes),
+        sorted(pulls, key=lambda t: _utc(t) or datetime.min.replace(tzinfo=timezone.utc)),
+    )
 
-    With no ``when`` the latest pregame quote stands in, which flatters Novig (a
-    later quote has less movement left), so engines pass the bet's own stamp.
+
+def as_of(index: Index, k: str, line: float | None, when: str) -> dict[str, object] | None:
+    """Novig's quote on (``k``, ``line``) in its latest pull at or before ``when`` (the bet).
+
+    Only that pull counts: if Novig had moved off the line, or pulled the market,
+    by the time of the bet, an older quote on it was not available. With no
+    ``when`` the latest pull stands in.
     """
-    quotes = index.get((k, line), [])
     at = _utc(when) if when else None
-    best = None
-    for r in quotes:
-        seen = _utc(str(r.get("captured_at", "")))
+    pull = None
+    for t in index.pulls:
+        seen = _utc(t)
         if at is None or (seen is not None and seen <= at):
-            best = r
-    return best
+            pull = t
+    return None if pull is None else index.quotes.get((k, line), {}).get(pull)
 
 
 def close_ev_at_novig(book_american: float, book_close_ev: float, novig_american: float) -> float:
@@ -236,6 +240,7 @@ def render(rows: list[Compare]) -> str:
 __all__ = [
     "BOOK",
     "Compare",
+    "Index",
     "Pair",
     "append",
     "as_of",

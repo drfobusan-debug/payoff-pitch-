@@ -73,6 +73,25 @@ def test_only_pregame_quotes_are_kept_and_the_bet_time_quote_is_paired(tmp_path:
     assert novig.as_of(index, k, 146.5, "2026-11-19T16:00:00Z") is None  # other line: unpaired
 
 
+def test_a_line_novig_has_moved_off_is_not_paired_after_the_move(tmp_path: Path) -> None:
+    path = tmp_path / "novig.jsonl"
+    k, other = novig.key("ev1", "game_total", "under"), novig.key("ev2", "game_ml", "home")
+    tip = "2026-11-20T00:00:00Z"
+    novig.append(path, [novig.record(k, 145.5, -104, -104, "2026-11-19T15:00:00Z", tip)])
+    novig.append(
+        path,
+        [
+            novig.record(k, 146.5, -105, -103, "2026-11-19T17:00:00Z", tip),
+            novig.record(other, None, 120, -125, "2026-11-19T19:00:00Z", tip),
+        ],
+    )
+    index = novig.load(path)
+    assert novig.as_of(index, k, 145.5, "2026-11-19T16:00:00Z")["american"] == -104  # type: ignore[index]
+    assert novig.as_of(index, k, 145.5, "2026-11-19T18:00:00Z") is None  # moved to 146.5
+    assert novig.as_of(index, k, 146.5, "2026-11-19T18:00:00Z")["american"] == -105  # type: ignore[index]
+    assert novig.as_of(index, k, 146.5, "2026-11-19T20:00:00Z") is None  # not in the later pull
+
+
 def test_novig_close_ev_reprices_the_book_row_at_the_same_line() -> None:
     # Book -110 worth -3% at the close; at even money the same close is worth more.
     at = novig.close_ev_at_novig(-110, -0.03, 100)
@@ -123,7 +142,7 @@ def test_nba_capture_appends_only_novig_quotes_and_never_raises(
     cli._capture_novig(client, tmp_path, date(2026, 11, 20), 30, "2026-11-20T18:00:00Z")  # type: ignore[arg-type]
     assert seen["bookmakers"] == "novig"
     index = novig.load(tmp_path / "novig.jsonl")
-    assert list(index) == [(novig.key("e1", "game_ml", "home", ""), None)]
+    assert list(index.quotes) == [(novig.key("e1", "game_ml", "home", ""), None)]
 
     def boom(**kw: object) -> None:
         raise RuntimeError("down")
