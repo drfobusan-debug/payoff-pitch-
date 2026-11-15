@@ -92,19 +92,34 @@ def stamp(
         if result is not None:
             entry.novig_result = result
             entry.novig_pnl = book_pnl(result, q.american)
+    revalue(entry, closing, rec.side, margin_sd=margin_sd, total_sd=total_sd)
+    return True
+
+
+def revalue(
+    entry: LedgerEntry,
+    closing: dict[str, ClosingQuote],
+    side: str | None,
+    *,
+    margin_sd: float,
+    total_sd: float,
+) -> None:
+    """Value the row's Novig price against ``closing`` (blank without a Novig quote)."""
+    if entry.novig_odds is None:
+        entry.novig_clv_ev = None
+        return
     entry.novig_clv_ev = compute_clv(
         entry.matchup,
         entry.market,
         entry.selection,
-        q.american,
+        entry.novig_odds,
         None,
         closing,
-        bet_line=q.line,
-        side=rec.side,
+        bet_line=entry.novig_line,
+        side=side,
         margin_sd=margin_sd,
         total_sd=total_sd,
     ).clv_ev
-    return True
 
 
 @dataclass(frozen=True)
