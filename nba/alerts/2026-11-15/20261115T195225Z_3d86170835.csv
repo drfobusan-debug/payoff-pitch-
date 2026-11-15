@@ -1,0 +1,4 @@
+detected_at,game_date,event_id,matchup,kind,detail,before,after
+2026-11-15T19:52:25Z,2026-11-15,29b8bbf05645162d89780189eed390c2,LAL @ PHX,settled,line steady over the last 2 poll(s),"{""ml"": 0.4088050314465409, ""spread"": 3.25, ""total"": 226.0}","{""ml"": 0.4088050314465409, ""spread"": 3.25, ""total"": 226.0}"
+2026-11-15T19:52:25Z,2026-11-15,488c2bc1e099361f06015cf126f95fd6,HOU @ WAS,settled,line steady over the last 2 poll(s),"{""ml"": 0.26599307269839445, ""spread"": 8.0, ""total"": 224.0}","{""ml"": 0.26599307269839445, ""spread"": 8.0, ""total"": 224.0}"
+2026-11-15T19:52:25Z,2026-11-15,f8334b355cf9346d423fa9eb93b425f0,OKC @ SAC,settled,line steady over the last 2 poll(s),"{""ml"": 0.20547945205479454, ""spread"": 10.5, ""total"": 223.0}","{""ml"": 0.20547945205479454, ""spread"": 10.5, ""total"": 223.0}"
