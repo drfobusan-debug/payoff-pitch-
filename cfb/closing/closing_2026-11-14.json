@@ -1303,45 +1303,45 @@
   },
   "North Dakota S @ Hawaii|game_ats|Hawaii": {
     "american": -110.0,
-    "captured_at": "2026-11-15T03:15:29Z",
+    "captured_at": "2026-11-15T03:45:29Z",
     "kickoff_utc": "2026-11-15T04:00:00Z",
     "line": 7.5,
-    "no_vig_prob": 0.5104420347175807
+    "no_vig_prob": 0.5096257985263405
   },
   "North Dakota S @ Hawaii|game_ats|North Dakota S": {
     "american": 100.0,
-    "captured_at": "2026-11-15T03:15:29Z",
+    "captured_at": "2026-11-15T03:45:29Z",
     "kickoff_utc": "2026-11-15T04:00:00Z",
     "line": -7.5,
-    "no_vig_prob": 0.4895579652824193
+    "no_vig_prob": 0.4903742014736595
   },
   "North Dakota S @ Hawaii|game_ml|Hawaii": {
-    "american": 265.0,
-    "captured_at": "2026-11-15T03:15:29Z",
+    "american": 260.0,
+    "captured_at": "2026-11-15T03:45:29Z",
     "kickoff_utc": "2026-11-15T04:00:00Z",
     "line": null,
-    "no_vig_prob": 0.27314998237544413
+    "no_vig_prob": 0.27365502937635405
   },
   "North Dakota S @ Hawaii|game_ml|North Dakota S": {
     "american": -295.0,
-    "captured_at": "2026-11-15T03:15:29Z",
+    "captured_at": "2026-11-15T03:45:29Z",
     "kickoff_utc": "2026-11-15T04:00:00Z",
     "line": null,
-    "no_vig_prob": 0.726850017624556
+    "no_vig_prob": 0.726344970623646
   },
   "North Dakota S @ Hawaii|game_total|Over": {
     "american": -106.0,
-    "captured_at": "2026-11-15T03:15:29Z",
+    "captured_at": "2026-11-15T03:45:29Z",
     "kickoff_utc": "2026-11-15T04:00:00Z",
     "line": 39.5,
-    "no_vig_prob": 0.5003636305732126
+    "no_vig_prob": 0.5031614104665011
   },
   "North Dakota S @ Hawaii|game_total|Under": {
     "american": -105.0,
-    "captured_at": "2026-11-15T03:15:29Z",
+    "captured_at": "2026-11-15T03:45:29Z",
     "kickoff_utc": "2026-11-15T04:00:00Z",
     "line": 39.5,
-    "no_vig_prob": 0.4996363694267873
+    "no_vig_prob": 0.49683858953349896
   },
   "North Texas @ UTSA|game_ats|North Texas": {
     "american": -110.0,
