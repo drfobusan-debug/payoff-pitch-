@@ -102,40 +102,42 @@ def append(path: Path, records: Iterable[Mapping[str, object]]) -> int:
 
 @dataclass
 class Index:
-    """Novig's pulls: each pull's quotes by (key, line), and every pull's stamp."""
+    """Novig's quotes by (key, line) and pull stamp, and the pulls that quoted each key."""
 
     quotes: dict[tuple[str, float | None], dict[str, dict[str, object]]]
-    pulls: list[str]
+    pulls: dict[str, list[str]]
 
 
 def load(path: Path) -> Index:
     quotes: dict[tuple[str, float | None], dict[str, dict[str, object]]] = defaultdict(dict)
-    pulls: set[str] = set()
+    pulls: dict[str, set[str]] = defaultdict(set)
     if path.exists():
         for raw in path.read_text().splitlines():
             try:
                 r = json.loads(raw)
             except ValueError:
                 continue
-            line, seen = r.get("line"), str(r.get("captured_at", ""))
-            quotes[(str(r.get("key", "")), None if line is None else float(line))][seen] = r
-            pulls.add(seen)
+            k, line, seen = str(r.get("key", "")), r.get("line"), str(r.get("captured_at", ""))
+            quotes[(k, None if line is None else float(line))][seen] = r
+            pulls[k].add(seen)
+    floor = datetime.min.replace(tzinfo=timezone.utc)
     return Index(
         dict(quotes),
-        sorted(pulls, key=lambda t: _utc(t) or datetime.min.replace(tzinfo=timezone.utc)),
+        {k: sorted(ts, key=lambda t: _utc(t) or floor) for k, ts in pulls.items()},
     )
 
 
 def as_of(index: Index, k: str, line: float | None, when: str) -> dict[str, object] | None:
-    """Novig's quote on (``k``, ``line``) in its latest pull at or before ``when`` (the bet).
+    """Novig's quote on (``k``, ``line``) from the latest pull at or before ``when`` (the bet)
+    that quoted ``k`` at any line.
 
-    Only that pull counts: if Novig had moved off the line, or pulled the market,
-    by the time of the bet, an older quote on it was not available. With no
-    ``when`` the latest pull stands in.
+    If Novig had moved ``k`` off ``line`` by the time of the bet, the older quote on
+    ``line`` was not available. Pulls of other slates do not retire it. With no
+    ``when`` the latest such pull stands in.
     """
     at = _utc(when) if when else None
     pull = None
-    for t in index.pulls:
+    for t in index.pulls.get(k, []):
         seen = _utc(t)
         if at is None or (seen is not None and seen <= at):
             pull = t

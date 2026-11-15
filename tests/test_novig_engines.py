@@ -89,7 +89,8 @@ def test_a_line_novig_has_moved_off_is_not_paired_after_the_move(tmp_path: Path)
     assert novig.as_of(index, k, 145.5, "2026-11-19T16:00:00Z")["american"] == -104  # type: ignore[index]
     assert novig.as_of(index, k, 145.5, "2026-11-19T18:00:00Z") is None  # moved to 146.5
     assert novig.as_of(index, k, 146.5, "2026-11-19T18:00:00Z")["american"] == -105  # type: ignore[index]
-    assert novig.as_of(index, k, 146.5, "2026-11-19T20:00:00Z") is None  # not in the later pull
+    # a later pull of another game (another slate) does not retire it
+    assert novig.as_of(index, k, 146.5, "2026-11-19T20:00:00Z")["american"] == -105  # type: ignore[index]
 
 
 def test_novig_close_ev_reprices_the_book_row_at_the_same_line() -> None:
