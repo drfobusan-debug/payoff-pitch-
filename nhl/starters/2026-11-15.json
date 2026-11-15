@@ -1,0 +1,56 @@
+{
+  "ANA": {
+    "name": "Ville Husso",
+    "player_id": 8478024,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "CGY": {
+    "name": "Devin Cooley",
+    "player_id": 8482445,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "DAL": {
+    "name": "Casey DeSmith",
+    "player_id": 8479193,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "EDM": {
+    "name": "Tristan Jarry",
+    "player_id": 8477465,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "FLA": {
+    "name": "Akira Schmid",
+    "player_id": 8481033,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "NSH": {
+    "name": "Juuse Saros",
+    "player_id": 8477424,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "PHI": {
+    "name": "Dan Vladar",
+    "player_id": 8478435,
+    "source": "rotowire",
+    "status": "confirmed"
+  },
+  "SJS": {
+    "name": "Alex Nedeljkovic",
+    "player_id": 8477968,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "VGK": {
+    "name": "Carter Hart",
+    "player_id": 8479394,
+    "source": "rotowire",
+    "status": "probable"
+  }
+}
