@@ -12,7 +12,7 @@ import logging
 from html import escape
 from pathlib import Path
 
-from cfb_engine.audit import altlines, early
+from cfb_engine.audit import altlines, early, novig
 from cfb_engine.audit.weekly import GameBrier, ScopeAudit, Segment, WeeklyAudit
 from cfb_engine.config import Config
 from cfb_engine.output.audit_report import _CSS
@@ -209,12 +209,36 @@ def _early_html(bars: list[early.CloseBar]) -> str:
     )
 
 
+def _novig_html(rows: list[novig.Compare]) -> str:
+    if not rows:
+        return ""
+
+    def pct(v: float | None) -> str:
+        return "" if v is None else f"{v:+.1%}"
+
+    body = "".join(
+        f"<tr><td>{escape(r.label)}</td><td>{r.n} of {r.of}</td><td>{pct(r.book_ev)}</td>"
+        f"<td>{pct(r.novig_ev)}</td><td>{pct(r.gain)}</td>"
+        f"<td>{'' if r.gain_se is None else f'± {r.gain_se:.1%}'}</td>"
+        f"<td>{pct(r.book_roi)}</td><td>{pct(r.novig_roi)}</td><td>{escape(r.verdict)}</td></tr>"
+        for r in rows
+    )
+    return (
+        "<h2>Novig: would the exchange's price have been worth more at the close? (ledger to date)</h2>"
+        "<table><tr><th>Rows</th><th>With a Novig quote</th><th>EV at close, book</th>"
+        "<th>EV at close, Novig</th><th>Gain</th><th>± 1 SE</th><th>ROI, book</th>"
+        f"<th>ROI, Novig</th><th>Verdict</th></tr>{body}</table>"
+        f"<p class='fine'>{escape(novig.NOTE)}</p>"
+    )
+
+
 def build_weekly_article(
     report: WeeklyAudit,
     alts: list[alt_rt.Alt] | None = None,
     flagged: list[alt_rt.Alt] | None = None,
     fast: list[faststart.Read] | None = None,
     early_bars: list[early.CloseBar] | None = None,
+    novig_rows: list[novig.Compare] | None = None,
 ) -> str:
     title = f"Weekly Audit: {report.start:%b} {report.start.day} - {report.end:%b} {report.end.day}, {report.end.year}"
     return (
@@ -228,6 +252,7 @@ def build_weekly_article(
         f"{_alt_html(alts or [], flagged)}"
         f"{_fast_html(fast or [])}"
         f"{_early_html(early_bars or [])}"
+        f"{_novig_html(novig_rows or [])}"
         "<p class='fine'>Break-even = the win rate the prices taken demanded. 95% range = "
         "ROI plus or minus 1.96 standard errors (never narrower than a coin flip at those "
         "prices), and nothing under 30 bets is called beyond noise; 'needs ~N' is how many bets this ROI would "
@@ -248,6 +273,7 @@ def generate_weekly_report(
     to: str | None,
     fast: list[faststart.Read] | None = None,
     early_bars: list[early.CloseBar] | None = None,
+    novig_rows: list[novig.Compare] | None = None,
 ) -> dict[str, Path | None]:
     """Write the weekly article HTML + PDF and optionally email the PDF."""
     out: dict[str, Path | None] = {"html": None, "pdf": None}
@@ -257,6 +283,7 @@ def generate_weekly_report(
         altlines.alts(cfg.alt_ledger_file, flagged_only=True),
         fast,
         early_bars,
+        novig_rows,
     )
     iso = report.end.isoformat()
     cfg.output_dir.mkdir(parents=True, exist_ok=True)

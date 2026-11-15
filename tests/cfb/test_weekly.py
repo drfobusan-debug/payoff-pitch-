@@ -254,10 +254,12 @@ def test_weekly_command_needs_a_ledger(tmp_path, monkeypatch):
 
 
 def _fake_report(tmp_path):
-    def fake(report, cfg, *, email, to, fast=None, early_bars=None):
+    def fake(report, cfg, *, email, to, fast=None, early_bars=None, novig_rows=None):
         assert email is False
         path = tmp_path / "weekly.html"
-        path.write_text(build_weekly_article(report, fast=fast, early_bars=early_bars))
+        path.write_text(
+            build_weekly_article(report, fast=fast, early_bars=early_bars, novig_rows=novig_rows)
+        )
         return {"html": path, "pdf": None}
 
     return fake

@@ -440,6 +440,9 @@ class Config:
     shop_books: tuple[str, ...] | None = field(default_factory=lambda: _env_csv("CFBE_SHOP_BOOKS"))
     # Record Kalshi's total ladder with each card pull (public API, no credits).
     kalshi: bool = field(default_factory=lambda: _env_bool("CFBE_KALSHI", True))
+    # Record Novig's board with each card run (``cfb_engine.audit.novig``): one
+    # extra bookmakers=novig request, 3 credits. Graded only; never priced.
+    novig: bool = field(default_factory=lambda: _env_bool("CFBE_NOVIG", True))
     odds_cache_ttl: int = field(default_factory=lambda: _env_int("CFBE_ODDS_CACHE_TTL", 1800))
 
     # Default recipient for the daily card / nightly audit email.
@@ -560,6 +563,10 @@ class Config:
         """Every book's total (and Kalshi's ladder) per pregame pull, one line per
         game per pull; append-only, so a slate's number shopping can be measured."""
         return self.audit_dir / f"totals_books_{day.isoformat()}.jsonl"
+
+    def novig_file(self, day: Date) -> Path:
+        """Novig's latest pregame quote per side from the card's pulls (graded only)."""
+        return self.audit_dir / f"novig_{day.isoformat()}.json"
 
     def early_file(self, day: Date) -> Path:
         """The card ``cfb-engine early`` priced for a Saturday on the Tuesday before.

@@ -175,6 +175,9 @@ def pull_state(
     for src in sorted((root / "closing").glob("closing_*.json")):
         if merge_closing_files(src, audit / src.name):
             pulled.append(src.name)
+    for src in sorted((root / "novig").glob("novig_*.json")):
+        if merge_closing_files(src, audit / src.name):
+            pulled.append(src.name)
     for name, key in _MERGED_CSVS:
         if merge_dated_csv(root / name, audit / name, key):
             pulled.append(name)
@@ -234,6 +237,7 @@ def push_state(
             ("board_*.json", "board", merge_board_files),
             ("opener_*.json", "opener", merge_board_files),
             ("closing_*.json", "closing", merge_closing_files),
+            ("novig_*.json", "novig", merge_closing_files),
         ):
             for src in sorted(audit.glob(pattern)):
                 dest = root / sub / src.name
