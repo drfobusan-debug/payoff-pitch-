@@ -12,6 +12,8 @@ import argparse
 import csv
 import json
 import logging
+import os
+import re
 import sys
 from collections.abc import Mapping, Sequence
 from datetime import date as Date
@@ -40,6 +42,7 @@ from cbb_engine.markets import EVENT_MARKETS, FEATURED
 from cbb_engine.models import distribution as dist
 from cbb_engine.models import margin as mg
 from cbb_engine.output import movement, pdf, teamstats
+from engine_common import novig
 from engine_common.bands import BandRead
 from engine_common.podcasts import state as podcast_state
 from engine_common.podcasts.episodes import store_dir
@@ -148,6 +151,8 @@ def cmd_capture(args: argparse.Namespace) -> int:
                 teams=capture.teams(evs),
                 interval_min=interval,
             )
+            _capture_novig(client, p.pass_id, p.started_at)
+            p.spend(client.spent - p.credits)
             sp = vsin_splits.write_capture(
                 root, day.isoformat(), p.pass_id,
                 vsin_splits.fetch(day, captured_at=p.started_at, pass_id=p.pass_id),
@@ -216,6 +221,63 @@ def cmd_capture(args: argparse.Namespace) -> int:
     print(
         f"{day}: {len(tips)} game(s); wrote {written}; spent {client.spent}; remaining {client.credits_remaining}"
     )
+    return 0
+
+
+def _capture_novig(client: OddsClient, pass_id: str, taken: str) -> None:
+    """Novig's board beside the card (graded only; never priced). CBBE_NOVIG=0 turns it off."""
+    if os.getenv("CBBE_NOVIG", "1") == "0":
+        return
+    try:
+        evs = client.board(FEATURED, pass_id=f"{pass_id}_novig", bookmakers=novig.BOOK)
+        rows = capture.rows_from_events(evs, captured_at=taken, pass_id=pass_id, pass_kind="novig")
+        novig.append(
+            data_dir() / "novig.jsonl",
+            (
+                novig.record(
+                    novig.key(q.event_id, q.market, q.side),
+                    q.line,
+                    q.american,
+                    q.opposite_american,
+                    taken,
+                    q.tip_utc,
+                )
+                for q in rows
+                if q.book == novig.BOOK
+            ),
+        )
+    except Exception as exc:  # noqa: BLE001 - bookkeeping must not cost the capture
+        log.warning("Novig capture skipped (%s)", exc)
+
+
+def _pass_time(pass_id: str) -> str:
+    """The UTC stamp a pass id carries ("featured_20261101T163017Z" -> ISO); "" if none."""
+    m = re.search(r"(\d{8})T(\d{6})Z", pass_id)
+    if m is None:
+        return ""
+    d, t = m.groups()
+    return f"{d[:4]}-{d[4:6]}-{d[6:]}T{t[:2]}:{t[2:4]}:{t[4:]}Z"
+
+
+def cmd_novig(args: argparse.Namespace) -> int:
+    """The ledger's rows valued at the close at the book vs at Novig, same side and line."""
+    root = runtime_root()
+    index = novig.load(data_dir() / "novig.jsonl")
+    days = sorted(p.name for p in (root / "ledger" / SPORT).glob("*") if p.is_dir())
+    rows = [r for d in days for r in ledger.record(root, SPORT, d).values()]
+    pairs = []
+    for r in bands.main_rows(rows):
+        book_ev = bands.close_implied(r)
+        if book_ev is None or r.american is None or r.pnl is None:
+            continue
+        q = novig.as_of(index, novig.key(r.event_id, r.market, r.side), r.line, _pass_time(r.pass_id))
+        at = (
+            None
+            if q is None
+            else novig.close_ev_at_novig(r.american, book_ev, float(str(q["american"])))
+        )
+        pairs.append(novig.Pair(r.market, f"{r.slate_date}|{r.event_id}", r.is_buy, book_ev, at))
+    print(novig.render(novig.compare(pairs)))
     return 0
 
 
@@ -754,6 +816,8 @@ def build_parser() -> argparse.ArgumentParser:
     po.add_argument("--no-transcribe", action="store_true")
     po.add_argument("--no-sync", action="store_true")
     po.set_defaults(func=cmd_podcast)
+    nv = sub.add_parser("novig", help="the ledger valued at the close at the book vs at Novig")
+    nv.set_defaults(func=cmd_novig)
     au = sub.add_parser(
         "audit", help="grade bet-of-record rows (close shards + ESPN finals), print the views"
     )

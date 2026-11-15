@@ -94,7 +94,12 @@ class OddsAPIClient:
         return slate
 
     def fetch_board(
-        self, *, slate_date: Date, horizon_hours: int = 30, captured_at: str | None = None
+        self,
+        *,
+        slate_date: Date,
+        horizon_hours: int = 30,
+        captured_at: str | None = None,
+        bookmakers: str | None = None,
     ) -> tuple[Slate, list[QuoteRow]]:
         """Featured markets for every game in the window, as archive rows."""
         slate = Slate(slate_date=slate_date)
@@ -106,6 +111,7 @@ class OddsAPIClient:
             markets=",".join(GAME_MARKETS),
             commenceTimeFrom=_iso(start),
             commenceTimeTo=_iso(end),
+            bookmakers=bookmakers or "",
         )
         if not isinstance(data, list):
             return slate, []
@@ -178,7 +184,11 @@ class OddsAPIClient:
         return self.cache_dir / f"{hashlib.sha256(stamp.encode()).hexdigest()[:20]}.json"
 
     def _get_json(self, url: str, *, use_cache: bool = True, **params: str) -> object:
-        query = {"regions": self.regions, "oddsFormat": "american", **params}
+        query = {
+            "regions": self.regions,
+            "oddsFormat": "american",
+            **{k: v for k, v in params.items() if v},
+        }
         cache = self._cache_path(url, query) if use_cache else None
         if cache is not None and cache.exists():
             if time.time() - cache.stat().st_mtime < self.cache_ttl:

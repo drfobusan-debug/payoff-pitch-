@@ -29,6 +29,7 @@ from cfb_engine.data.cfbd import GameResult
 from cfb_engine.market.board import GameOdds
 from cfb_engine.recommendations import Recommendation
 from cfb_engine.schemas import Slate
+from engine_common import novig as common
 
 BOOK = "novig"
 BAR_BUYS = 150
@@ -58,8 +59,12 @@ def only_book(odds: GameOdds, book: str = BOOK) -> GameOdds:
 def capture(
     slate: Slate, board: dict[str, GameOdds], now: datetime | None = None
 ) -> dict[str, ClosingQuote]:
-    """Novig's quote per side of every game not yet kicked off, stamped."""
-    return closing_quotes(slate, {m: only_book(o) for m, o in board.items()}, now)
+    """Novig's quote per side of every game not yet kicked off, stamped.
+
+    Empty-book placeholders (-9900, -99900, -100000 on Novig's board) are dropped.
+    """
+    quotes = closing_quotes(slate, {m: only_book(o) for m, o in board.items()}, now)
+    return {k: q for k, q in quotes.items() if common.tradable(q.american, None)}
 
 
 def save_capture(

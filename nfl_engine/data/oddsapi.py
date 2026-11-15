@@ -105,6 +105,7 @@ class OddsAPIClient:
         week: int,
         first_day: Date,
         days: int = 5,
+        bookmakers: str | None = None,
     ) -> tuple[Slate, Board]:
         """The week's slate and its multi-book prices.
 
@@ -125,6 +126,7 @@ class OddsAPIClient:
             markets=",".join(GAME_MARKETS),
             commenceTimeFrom=_iso(start),
             commenceTimeTo=_iso(end),
+            bookmakers=bookmakers or "",
         )
         if not isinstance(data, list):
             return empty
@@ -254,7 +256,11 @@ class OddsAPIClient:
         return self.cache_dir / f"{hashlib.sha256(stamp.encode()).hexdigest()[:20]}.json"
 
     def _get_json(self, url: str, **params: str) -> object:
-        query = {"regions": self.regions, "oddsFormat": "american", **params}
+        query = {
+            "regions": self.regions,
+            "oddsFormat": "american",
+            **{k: v for k, v in params.items() if v},
+        }
         cache = self._cache_path(url, query)
         if cache is not None and cache.exists():
             if time.time() - cache.stat().st_mtime < self.cache_ttl:
