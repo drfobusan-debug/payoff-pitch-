@@ -86,6 +86,17 @@ def test_unclosed_or_in_play_rows_never_pair() -> None:
     assert early.pairs([row()], [late], "spread") == []
 
 
+def test_a_close_seen_long_before_kickoff_never_pairs() -> None:
+    card = [row(captured_at=THURSDAY)]
+    stale = row(close_captured_at=THURSDAY)  # the close run before kickoff never came
+    assert early.pairs([stale], card, "spread") == []
+    assert (
+        early.pairs([row()], [row(captured_at=THURSDAY, close_captured_at=THURSDAY)], "spread")
+        == []
+    )
+    assert len(early.pairs([row()], card, "spread")) == 1
+
+
 def test_the_bar_waits_for_its_games_then_reads_one_se() -> None:
     few = early.bar("x", [early.Pair(row(clv_ev=0.05), row(clv_ev=0.0))], preregistered=True)
     assert few.verdict == f"needs {early.BAR_GAMES - 1} more"

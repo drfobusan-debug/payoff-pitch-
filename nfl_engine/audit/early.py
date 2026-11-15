@@ -9,7 +9,9 @@ card's, so both are judged against the same finals and the same close.
 The comparison is paired on the model's lean, one per game-market (the side it
 rates above the no-vig price, as in ``scripts.nfl.ledger_audit``): the same side
 on the same game, once at Tuesday's price and once at the card's, each scored by
-its EV under the closing no-vig probability. Pre-registered bar: after
+its EV under the closing no-vig probability. A close counts only when it was seen
+within ``CLOSE_WINDOW`` before kickoff, as in the card's CLV audit: a missed close
+run leaves a days-old price on the row, and that is not a close. Pre-registered bar: after
 ``BAR_GAMES`` paired spread leans with a paired close, Tuesday is "better" only
 if the mean paired gain is above zero by more than one SE, "worse" if below by
 more than one SE, otherwise not answerable at that n.
@@ -26,7 +28,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
-from nfl_engine.audit.ledger import ENGINE, PUSH, LedgerEntry, load_ledger
+from nfl_engine.audit.graduation import CLOSE_WINDOW
+from nfl_engine.audit.ledger import ENGINE, PUSH, LedgerEntry, kickoff_moment, load_ledger
 from nfl_engine.market.ev import MONEYLINE, SPREAD, TOTAL
 from nfl_engine.market.screens import Tier
 
@@ -104,7 +107,11 @@ def same_side(entries: list[LedgerEntry], lean: LedgerEntry) -> LedgerEntry | No
 
 
 def _closed(entry: LedgerEntry) -> bool:
-    return entry.clv_ev is not None and bool(entry.close_captured_at)
+    """Stamped from a price seen within ``CLOSE_WINDOW`` before kickoff."""
+    seen, kickoff = _utc(entry.close_captured_at), kickoff_moment(entry)
+    if entry.clv_ev is None or seen is None or kickoff is None:
+        return False
+    return kickoff - CLOSE_WINDOW <= seen < kickoff
 
 
 @dataclass(frozen=True)
