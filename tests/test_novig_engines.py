@@ -177,3 +177,11 @@ def test_an_empty_book_placeholder_is_not_logged_as_a_price(tmp_path: Path) -> N
         ],
     )
     assert kept == 1
+    # a later pull showing only a placeholder retires the older quote
+    novig.append(
+        tmp_path / "n.jsonl", [novig.record(k, -1.5, -9900, -9900, "2026-11-19T17:00:00Z", tip)]
+    )
+    index = novig.load(tmp_path / "n.jsonl")
+    assert novig.as_of(index, k, -1.5, "2026-11-19T16:00:00Z")["american"] == -111  # type: ignore[index]
+    assert novig.as_of(index, k, -1.5, "2026-11-19T18:00:00Z") is None
+    assert novig.as_of(index, k, -32.5, "2026-11-19T16:00:00Z") is None

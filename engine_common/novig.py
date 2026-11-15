@@ -85,19 +85,27 @@ def tradable(american: object, opposite: object) -> bool:
 
 
 def append(path: Path, records: Iterable[Mapping[str, object]]) -> int:
-    """Append tradable pregame quotes (seen before ``tip``); returns how many were kept."""
-    kept = []
+    """Append tradable pregame quotes (seen before ``tip``); returns how many were kept.
+
+    A pregame side Novig showed only a placeholder for is written as ``withdrawn``
+    (no price), so it retires that side's older quotes.
+    """
+    kept, lines = 0, []
     for r in records:
         seen, tip = _utc(str(r.get("captured_at", ""))), _utc(str(r.get("tip", "")))
-        if not tradable(r.get("american"), r.get("opposite")):
+        if seen is None or (tip is not None and seen >= tip):
             continue
-        if seen is not None and (tip is None or seen < tip):
-            kept.append(json.dumps(dict(r), sort_keys=True))
-    if kept:
+        if tradable(r.get("american"), r.get("opposite")):
+            kept += 1
+            lines.append(json.dumps(dict(r), sort_keys=True))
+        else:
+            stub = {"key": r.get("key"), "captured_at": r.get("captured_at"), "withdrawn": True}
+            lines.append(json.dumps(stub, sort_keys=True))
+    if lines:
         path.parent.mkdir(parents=True, exist_ok=True)
         with path.open("a") as f:
-            f.writelines(f"{line}\n" for line in kept)
-    return len(kept)
+            f.writelines(f"{line}\n" for line in lines)
+    return kept
 
 
 @dataclass
@@ -118,8 +126,9 @@ def load(path: Path) -> Index:
             except ValueError:
                 continue
             k, line, seen = str(r.get("key", "")), r.get("line"), str(r.get("captured_at", ""))
-            quotes[(k, None if line is None else float(line))][seen] = r
             pulls[k].add(seen)
+            if not r.get("withdrawn"):
+                quotes[(k, None if line is None else float(line))][seen] = r
     floor = datetime.min.replace(tzinfo=timezone.utc)
     return Index(
         dict(quotes),
@@ -131,8 +140,8 @@ def as_of(index: Index, k: str, line: float | None, when: str) -> dict[str, obje
     """Novig's quote on (``k``, ``line``) from the latest pull at or before ``when`` (the bet)
     that quoted ``k`` at any line.
 
-    If Novig had moved ``k`` off ``line`` by the time of the bet, the older quote on
-    ``line`` was not available. Pulls of other slates do not retire it. With no
+    If Novig had moved ``k`` off ``line``, or showed only a placeholder on it, by the
+    time of the bet, the older quote on ``line`` was not available. Pulls of other slates do not retire it. With no
     ``when`` the latest such pull stands in.
     """
     at = _utc(when) if when else None
