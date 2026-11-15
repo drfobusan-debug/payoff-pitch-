@@ -126,3 +126,22 @@ def test_pull_does_not_overwrite_a_card_priced_here(tmp_path: Path):
     pull_state(box, repo=repo, branch="engine-state")
 
     assert (box / "audit" / "predictions_2026-09-05.json").read_text() == '[{"who": "box"}]'
+
+
+def test_an_empty_card_never_replaces_the_branch_copy_and_is_filled_in(tmp_path: Path):
+    repo = _repo_pair(tmp_path)
+    mac, box = tmp_path / "mac", tmp_path / "box"
+    (mac / "audit").mkdir(parents=True)
+    card = mac / "audit" / "early_2026-11-07.json"
+    card.write_text('[{"who": "tuesday"}]')
+    push_state(mac, "tuesday card", repo=repo, branch="engine-state")
+
+    (box / "audit").mkdir(parents=True)
+    (box / "audit" / "early_2026-11-07.json").write_text("")
+    push_state(box, "empty local copy", repo=repo, branch="engine-state")
+    state = repo.parent / f".{repo.name}-engine-state"
+    with gzip.open(state / PREFIX / "early" / "early_2026-11-07.json.gz") as fz:
+        assert json.load(fz) == [{"who": "tuesday"}]
+
+    pull_state(box, repo=repo, branch="engine-state")
+    assert (box / "audit" / "early_2026-11-07.json").read_text() == '[{"who": "tuesday"}]'

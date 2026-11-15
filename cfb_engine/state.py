@@ -127,6 +127,7 @@ def _pull_predictions(
 
     Fill-in only: a card already here was priced here, at the prices the email
     went out with, and the branch must not replace it with another machine's.
+    An empty file is not a card, so the branch's copy fills it in.
     """
     src_dir = state / PREFIX / kind
     wanted = (
@@ -138,7 +139,7 @@ def _pull_predictions(
     for name in wanted:
         src = src_dir / name
         dest = audit / name[: -len(".gz")]
-        if not src.exists() or dest.exists():
+        if not src.exists() or (dest.exists() and dest.stat().st_size):
             continue
         dest.parent.mkdir(parents=True, exist_ok=True)
         with gzip.open(src, "rb") as fin, dest.open("wb") as fout:
@@ -196,6 +197,8 @@ def _stage_predictions(
     out.mkdir(parents=True, exist_ok=True)
     staged: list[str] = []
     for src in sorted(audit.glob(f"{kind}_*.json")):
+        if not src.stat().st_size:
+            continue  # an empty file is not a card; publishing it would wipe the branch's
         with src.open("rb") as fin, gzip.open(out / f"{src.name}.gz", "wb", 6) as fout:
             shutil.copyfileobj(fin, fout)
         staged.append(src.name)
