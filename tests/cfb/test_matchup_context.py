@@ -24,6 +24,7 @@ from cfb_engine.data.watch import (
 from cfb_engine.output.brief import GameBrief, TeamBrief, _apply_out, _apply_watch
 from cfb_engine.output.card import (
     _spoken_context,
+    _team_table,
     _unit_edge,
     _unit_sentences,
     _units_line,
@@ -190,6 +191,24 @@ def test_unit_edge_can_favour_the_defense() -> None:
     b.home.units = {"pass_def": 45, "rush_off": 100, "run_def": 50}
     b.away.units["run_def"] = 5
     assert _unit_edge(b) == "Texas' #5 run defense against Kansas' #100 running game"
+
+
+def test_team_table_shows_each_side_s_rush_and_pass_ranks_on_both_sides_of_the_ball() -> None:
+    html = _team_table(_brief())
+    heads = html.index(
+        "".join(f"<th class='u'>{h}</th>" for h in ("Rush O", "Pass O", "Rush D", "Pass D"))
+    )
+    assert html.index("<th>Defense</th>") < heads < html.index("<th>Other ranks</th>")
+    assert "<td>#60</td><td>#12</td><td>#20</td><td>#30</td>" in html  # Texas (away) first
+    assert "<td>#65</td><td>#70</td><td>#9</td><td>#98</td>" in html
+    b = _brief()
+    b.home.units = {"pass_off": 70}
+    assert "<td>—</td><td>#70</td><td>—</td><td>—</td>" in _team_table(b)
+
+
+def test_team_table_drops_the_unit_columns_when_neither_side_has_ranks() -> None:
+    html = _team_table(GameBrief(home=TeamBrief("A"), away=TeamBrief("B", units={"pass_rush": 4})))
+    assert "Rush O" not in html and "Pass D" not in html
 
 
 # --- player watch ------------------------------------------------------------------
