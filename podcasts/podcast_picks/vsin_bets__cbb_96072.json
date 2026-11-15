@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-96072",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "4e1b6272cf37cea77917e76499dc1f3a14b270ae",
+ "picks": [
+  {
+   "pick_id": "c971afb52d63",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-96072",
+   "episode_title": "Syracuse vs. St. John's Basketball Prediction: Sunday, November 15, 2026",
+   "published": "2026-11-15T00:38:47+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Syracuse",
+   "opponent": "St John",
+   "side": null,
+   "line": 12.5,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Syracuse +12.5",
+   "reason": "https://vsin.com/college-basketball/syracuse-vs-st-johns-basketball-prediction-sunday-november-15-2026/",
+   "description": "Syracuse +12.5",
+   "league": "cbb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cbb"
+ ]
+}

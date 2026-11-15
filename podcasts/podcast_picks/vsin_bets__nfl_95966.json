@@ -1,0 +1,60 @@
+{
+ "episode_guid": "vsin-95966",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "196f0cfc7b8e4b489274ec4458fd1f5b8de52413",
+ "picks": [
+  {
+   "pick_id": "71821a6a5106",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Matt Youmans",
+   "episode_guid": "vsin-95966",
+   "episode_title": "Matt Youmans: NFL Week 10 Best Bets",
+   "published": "2026-11-15T00:36:57+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Steelers",
+   "opponent": "Cincinnati Bengals",
+   "side": null,
+   "line": 3.5,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Steelers +3.5",
+   "reason": "https://vsin.com/nfl/matt-youmans-nfl-week-10-best-bets-and-predictions/",
+   "description": "Steelers +3.5",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  },
+  {
+   "pick_id": "d3855a03e500",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Matt Youmans",
+   "episode_guid": "vsin-95966",
+   "episode_title": "Matt Youmans: NFL Week 10 Best Bets",
+   "published": "2026-11-15T00:36:57+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Jets",
+   "opponent": "Buffalo Bills",
+   "side": null,
+   "line": 8.0,
+   "price": null,
+   "units": null,
+   "seconds": 1,
+   "quote": "Jets +8",
+   "reason": "https://vsin.com/nfl/matt-youmans-nfl-week-10-best-bets-and-predictions/",
+   "description": "Jets +8",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "nfl"
+ ]
+}
