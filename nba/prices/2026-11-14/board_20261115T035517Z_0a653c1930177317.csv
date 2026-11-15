@@ -1,0 +1,21 @@
+captured_at,game_date,matchup,event_id,market,side,entity,line,book,american,opposite_american,source
+2026-11-15T03:55:17Z,2026-11-14,DET @ MIA,cb06267ae037a883ae6f71078d6e2aaa,game_ats,DET,,19.5,fanduel,-112,-118,oddsapi
+2026-11-15T03:55:17Z,2026-11-14,DET @ MIA,cb06267ae037a883ae6f71078d6e2aaa,game_ats,MIA,,-19.5,fanduel,-118,-112,oddsapi
+2026-11-15T03:55:17Z,2026-11-14,DET @ MIA,cb06267ae037a883ae6f71078d6e2aaa,game_total,over,,254.5,fanduel,-114,-114,oddsapi
+2026-11-15T03:55:17Z,2026-11-14,DET @ MIA,cb06267ae037a883ae6f71078d6e2aaa,game_total,under,,254.5,fanduel,-114,-114,oddsapi
+2026-11-15T03:55:17Z,2026-11-14,DET @ MIA,cb06267ae037a883ae6f71078d6e2aaa,game_ats,DET,,14.5,fanatics,105,-140,oddsapi
+2026-11-15T03:55:17Z,2026-11-14,DET @ MIA,cb06267ae037a883ae6f71078d6e2aaa,game_ats,MIA,,-14.5,fanatics,-140,105,oddsapi
+2026-11-15T03:55:17Z,2026-11-14,DET @ MIA,cb06267ae037a883ae6f71078d6e2aaa,game_total,over,,252.5,fanatics,-140,105,oddsapi
+2026-11-15T03:55:17Z,2026-11-14,DET @ MIA,cb06267ae037a883ae6f71078d6e2aaa,game_total,under,,252.5,fanatics,105,-140,oddsapi
+2026-11-15T03:55:17Z,2026-11-14,DET @ MIA,cb06267ae037a883ae6f71078d6e2aaa,game_ats,DET,,16.5,betrivers,104,-139,oddsapi
+2026-11-15T03:55:17Z,2026-11-14,DET @ MIA,cb06267ae037a883ae6f71078d6e2aaa,game_ats,MIA,,-16.5,betrivers,-139,104,oddsapi
+2026-11-15T03:55:17Z,2026-11-14,DET @ MIA,cb06267ae037a883ae6f71078d6e2aaa,game_ats,DET,,20.5,draftkings,-215,160,oddsapi
+2026-11-15T03:55:17Z,2026-11-14,DET @ MIA,cb06267ae037a883ae6f71078d6e2aaa,game_ats,MIA,,-20.5,draftkings,160,-215,oddsapi
+2026-11-15T03:55:17Z,2026-11-14,DET @ MIA,cb06267ae037a883ae6f71078d6e2aaa,game_ats,DET,,20.5,betmgm,-475,325,oddsapi
+2026-11-15T03:55:17Z,2026-11-14,DET @ MIA,cb06267ae037a883ae6f71078d6e2aaa,game_ats,MIA,,-20.5,betmgm,325,-475,oddsapi
+2026-11-15T03:55:17Z,2026-11-14,DET @ MIA,cb06267ae037a883ae6f71078d6e2aaa,game_total,over,,254.5,betmgm,270,-375,oddsapi
+2026-11-15T03:55:17Z,2026-11-14,DET @ MIA,cb06267ae037a883ae6f71078d6e2aaa,game_total,under,,254.5,betmgm,-375,270,oddsapi
+2026-11-15T03:55:17Z,2026-11-14,DET @ MIA,cb06267ae037a883ae6f71078d6e2aaa,game_ats,DET,,20.5,williamhill_us,-15000,2500,oddsapi
+2026-11-15T03:55:17Z,2026-11-14,DET @ MIA,cb06267ae037a883ae6f71078d6e2aaa,game_ats,MIA,,-20.5,williamhill_us,2500,-15000,oddsapi
+2026-11-15T03:55:17Z,2026-11-14,DET @ MIA,cb06267ae037a883ae6f71078d6e2aaa,game_total,over,,254.5,williamhill_us,2200,-10000,oddsapi
+2026-11-15T03:55:17Z,2026-11-14,DET @ MIA,cb06267ae037a883ae6f71078d6e2aaa,game_total,under,,254.5,williamhill_us,-10000,2200,oddsapi
