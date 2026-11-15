@@ -140,7 +140,15 @@ def timely_clv(
             out.append(e)
         else:
             out.append(
-                replace(e, close_odds=None, close_prob=None, clv=None, clv_ev=None, clv_pts=None)
+                replace(
+                    e,
+                    close_odds=None,
+                    close_prob=None,
+                    clv=None,
+                    clv_ev=None,
+                    clv_pts=None,
+                    novig_clv_ev=None,
+                )
             )
     return out
 

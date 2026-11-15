@@ -93,6 +93,14 @@ class LedgerEntry:
     kalshi_oi: float | None = None
     kalshi_result: str | None = None
     kalshi_pnl: float | None = None
+    # Every market (``cfb_engine.audit.novig``): the same side at Novig's number
+    # and price on the card's last pull, graded and valued at the close. Graded
+    # only; nothing is bought at Novig.
+    novig_line: float | None = None
+    novig_odds: float | None = None
+    novig_clv_ev: float | None = None
+    novig_result: str | None = None
+    novig_pnl: float | None = None
 
 
 LEDGER_FIELDS = [
@@ -104,6 +112,7 @@ LEDGER_FIELDS = [
     "unit_ranks", "opp_unit_ranks", "ypp_tags",
     "shop_book", "shop_line", "shop_odds", "shop_result", "shop_pnl",
     "kalshi_strike", "kalshi_bid", "kalshi_ask", "kalshi_oi", "kalshi_result", "kalshi_pnl",
+    "novig_line", "novig_odds", "novig_clv_ev", "novig_result", "novig_pnl",
 ]
 _OPTIONAL_FLOAT_FIELDS = (
     "line", "odds", "under_odds", "ev", "fair_prob", "bet_prob",
@@ -111,6 +120,7 @@ _OPTIONAL_FLOAT_FIELDS = (
     "sharp_div", "open_drift",
     "shop_line", "shop_odds", "shop_pnl",
     "kalshi_strike", "kalshi_bid", "kalshi_ask", "kalshi_oi", "kalshi_pnl",
+    "novig_line", "novig_odds", "novig_clv_ev", "novig_pnl",
 )
 
 
@@ -220,6 +230,11 @@ def load_ledger(path: Path) -> list[LedgerEntry]:
                     kalshi_oi=_to_float(row.get("kalshi_oi", "") or ""),
                     kalshi_result=row.get("kalshi_result") or None,
                     kalshi_pnl=_to_float(row.get("kalshi_pnl", "") or ""),
+                    novig_line=_to_float(row.get("novig_line", "") or ""),
+                    novig_odds=_to_float(row.get("novig_odds", "") or ""),
+                    novig_clv_ev=_to_float(row.get("novig_clv_ev", "") or ""),
+                    novig_result=row.get("novig_result") or None,
+                    novig_pnl=_to_float(row.get("novig_pnl", "") or ""),
                 )
             )
     return out
@@ -245,7 +260,7 @@ def update_ledger(path: Path, new_entries: list[LedgerEntry], date: Date) -> lis
             row["unit_ranks"] = e.unit_ranks if e.unit_ranks is not None else ""
             row["opp_unit_ranks"] = e.opp_unit_ranks if e.opp_unit_ranks is not None else ""
             row["ypp_tags"] = e.ypp_tags if e.ypp_tags is not None else ""
-            for name in ("shop_book", "shop_result", "kalshi_result"):
+            for name in ("shop_book", "shop_result", "kalshi_result", "novig_result"):
                 row[name] = row[name] or ""
             w.writerow(row)
     return merged

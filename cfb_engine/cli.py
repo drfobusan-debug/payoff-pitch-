@@ -14,6 +14,7 @@ Commands mirror the MLB engine:
     cfb-engine probation grade markets, live screens and candidate screens
     cfb-engine weekly    write (and email) the weekly audit: the week + the ledger
     cfb-engine shop      totals at the card's number vs the best number vs Kalshi
+    cfb-engine novig     the card's sides valued at the close at the book vs at Novig
 """
 
 from __future__ import annotations
@@ -27,7 +28,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-from cfb_engine.audit import altlines, closefill, early, shop, snapshot, watchlist
+from cfb_engine.audit import altlines, closefill, early, novig, shop, snapshot, watchlist
 from cfb_engine.audit.availability import read_log, summarize
 from cfb_engine.audit.clv import (
     ClosingQuote,
@@ -577,6 +578,31 @@ def _stamp_shop(
     return n
 
 
+def _stamp_novig(
+    cfg: Config,
+    day: Date,
+    entries: list[LedgerEntry],
+    graded: list[tuple[Recommendation, str]],
+    index: ResultIndex,
+    closing: dict[str, ClosingQuote],
+) -> int:
+    quotes = snapshot.load(cfg.novig_file(day))
+    if not quotes:
+        return 0
+    return sum(
+        novig.stamp(
+            e,
+            rec,
+            quotes,
+            closing,
+            result_for(rec, index),
+            margin_sd=cfg.model.margin_sd,
+            total_sd=cfg.model.total_sd,
+        )
+        for e, (rec, _) in zip(entries, graded, strict=True)
+    )
+
+
 def _stamp_clv(
     cfg: Config,
     entries: list[LedgerEntry],
@@ -651,6 +677,7 @@ def _audit_slate(cfg: Config, day: Date) -> tuple[list[LedgerEntry], int] | None
     _stamp_units(entries, _unit_ranks(cfg, day))
     _stamp_ypp(entries, _ypp_book(cfg, day))
     _stamp_shop(cfg, day, entries, graded, index)
+    _stamp_novig(cfg, day, entries, graded, index, closing)
     _grade_alt_lines(cfg, day, graded, index)
     merged = update_ledger(cfg.ledger_file, entries, day)
     print(f"Graded {len(entries)} markets; ledger now {len(merged)} rows.")
@@ -822,6 +849,7 @@ def cmd_weekly(cfg: Config, args: argparse.Namespace) -> int:
         to=args.to,
         fast=_fast_start(cfg, entries, end),
         early_bars=_early_bars(cfg),
+        novig_rows=novig.compare(_timely_clv(cfg, entries)),
     )
     for line in report.week.findings + report.ledger.findings:
         print(f"- {line}")
@@ -1180,6 +1208,24 @@ def cmd_shop(cfg: Config, args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_novig(cfg: Config, args: argparse.Namespace) -> int:
+    """The card's sides valued at the close at the card's book and at Novig."""
+    _state_pull(cfg)
+    rows = novig.compare(_timely_clv(cfg, load_ledger(cfg.ledger_file)))
+    print(
+        f"{'group':20s} {'with Novig':>12s} {'EV@close book':>13s} {'Novig':>7s} "
+        f"{'gain':>16s} {'ROI book':>8s} {'Novig':>7s}  verdict"
+    )
+    for r in rows:
+        gain = "" if r.gain is None else f"{r.gain:+.2%} ± {r.gain_se or 0:.2%}"
+        print(
+            f"{r.label:20s} {f'{r.n} of {r.of}':>12s} {_cents(r.book_ev):>13s} "
+            f"{_cents(r.novig_ev):>7s} {gain:>16s} {_cents(r.book_roi):>8s} "
+            f"{_cents(r.novig_roi):>7s}  {r.verdict}"
+        )
+    return 0
+
+
 def _stamp_context(cfg: Config, day: Date, entries: list[LedgerEntry]) -> int:
     """Conference tier and AP top-25 on graded rows from before those columns existed.
 
@@ -1367,6 +1413,7 @@ def _build_parser() -> argparse.ArgumentParser:
     sub.add_parser(
         "shop", help="totals graded at the card's number vs the best allowed number vs Kalshi"
     )
+    sub.add_parser("novig", help="the card's sides valued at the close at the book vs at Novig")
     add_common(sub.add_parser("report", help="rebuild the ledger workbook/report"), email=True)
     add_common(
         sub.add_parser("weekly", help="weekly audit article: the week + the ledger to date"),
@@ -1407,6 +1454,7 @@ _DISPATCH = {
     "close-backfill": cmd_close_backfill,
     "stamp-units": cmd_stamp_units,
     "shop": cmd_shop,
+    "novig": cmd_novig,
     "report": cmd_report,
     "weekly": cmd_weekly,
     "calibrate": cmd_calibrate,

@@ -13,7 +13,7 @@ import logging
 from dataclasses import dataclass
 from datetime import date as Date
 
-from cfb_engine.audit import shop, snapshot
+from cfb_engine.audit import novig, shop, snapshot
 from cfb_engine.calibration import Calibrator, ConfidenceShrink
 from cfb_engine.config import Config
 from cfb_engine.data.advanced import AdvancedBook, parse_advanced
@@ -258,6 +258,7 @@ class Pipeline:
             self._baseline_board(slate_date, slate, board)
         if fetched and not early:
             self._capture_books(slate_date, slate, board)
+            self._capture_novig(slate_date, slate)
         try:
             self.briefs = build_briefs(
                 self.cfbd,
@@ -748,6 +749,16 @@ class Pipeline:
             )
         except OSError as exc:
             logger.warning("could not write per-book totals (%s)", exc)
+
+    def _capture_novig(self, slate_date: Date, slate: Slate) -> None:
+        """Keep Novig's price on every side for the audit; never read by pricing."""
+        if not self.cfg.novig:
+            return
+        try:
+            _, board = self.odds.fetch_board(slate_date, bookmakers=novig.BOOK)
+            novig.save_capture(slate, board, self.cfg.novig_file(slate_date))
+        except Exception as exc:  # noqa: BLE001 - bookkeeping must not cost the card
+            logger.warning("Novig capture skipped (%s)", exc)
 
     def _drift(
         self,
