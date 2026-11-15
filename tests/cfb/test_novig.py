@@ -8,6 +8,7 @@ from types import SimpleNamespace
 
 import pytest
 
+from cfb_engine import cli
 from cfb_engine.audit import novig, snapshot
 from cfb_engine.audit.ledger import LedgerEntry, load_ledger, update_ledger
 from cfb_engine.audit.snapshot import SideQuote
@@ -261,3 +262,14 @@ def test_novig_quotes_travel_on_the_state_branch(tmp_path: Path) -> None:
     push_state(mac, "card", repo=repo, branch="engine-state")
     pull_state(box, repo=repo, branch="engine-state")
     assert snapshot.load(box / "audit" / "novig_2026-11-21.json")[key].american == -260.0
+
+
+def test_a_restamped_close_revalues_the_novig_price_too() -> None:
+    cfg = cli.load_config()
+    e = _entry(novig_line=-6.5, novig_odds=100.0, novig_clv_ev=0.5)
+    closing = {snapshot.key(MATCHUP, "game_ats", "ALA -7.0"): SideQuote(-110.0, 0.5, -7.0)}
+    cli._restamp_clv(cfg, [e], closing)
+    close_at_novig = 0.5 + 0.5 * prob_per_point(cfg.model.margin_sd)
+    assert e.novig_clv_ev == pytest.approx(ev_per_dollar(close_at_novig, 100.0), abs=1e-4)
+    cli._restamp_clv(cfg, [e], {})  # a purged close leaves no stale Novig value behind
+    assert e.novig_clv_ev is None and e.clv_ev is None

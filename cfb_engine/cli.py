@@ -1057,6 +1057,13 @@ def _restamp_clv(cfg: Config, entries: list[LedgerEntry], closing: dict[str, Clo
         )
         e.close_odds, e.close_prob, e.clv, e.clv_ev = res.as_tuple()
         e.clv_pts = res.clv_pts
+        novig.revalue(
+            e,
+            closing,
+            _side_of(e.market, e.selection),
+            margin_sd=cfg.model.margin_sd,
+            total_sd=cfg.model.total_sd,
+        )
 
 
 def cmd_repair_closes(cfg: Config, args: argparse.Namespace) -> int:
