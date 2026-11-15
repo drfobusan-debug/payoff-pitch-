@@ -1,0 +1,128 @@
+{
+  "Clemson @ Duke|game_ats|Clemson": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 8.5,
+    "no_vig_prob": 0.5
+  },
+  "Clemson @ Duke|game_ats|Duke": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -8.5,
+    "no_vig_prob": 0.5
+  },
+  "Clemson @ Duke|game_ml|Clemson": {
+    "american": 280.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.26798891648492507
+  },
+  "Clemson @ Duke|game_ml|Duke": {
+    "american": -305.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.732011083515075
+  },
+  "Clemson @ Duke|game_total|Over": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 44.5,
+    "no_vig_prob": 0.5
+  },
+  "Clemson @ Duke|game_total|Under": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 44.5,
+    "no_vig_prob": 0.5
+  },
+  "Iowa State @ UCF|game_ats|Iowa State": {
+    "american": -115.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 1.0,
+    "no_vig_prob": 0.5108342361863488
+  },
+  "Iowa State @ UCF|game_ats|UCF": {
+    "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -1.0,
+    "no_vig_prob": 0.4891657638136511
+  },
+  "Iowa State @ UCF|game_ml|Iowa State": {
+    "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.4978351229650156
+  },
+  "Iowa State @ UCF|game_ml|UCF": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.5021648770349845
+  },
+  "Iowa State @ UCF|game_total|Over": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 54.5,
+    "no_vig_prob": 0.5
+  },
+  "Iowa State @ UCF|game_total|Under": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 54.5,
+    "no_vig_prob": 0.5
+  },
+  "Oregon @ Michigan State|game_ats|Michigan State": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 13.5,
+    "no_vig_prob": 0.5
+  },
+  "Oregon @ Michigan State|game_ats|Oregon": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -13.5,
+    "no_vig_prob": 0.5
+  },
+  "Oregon @ Michigan State|game_ml|Michigan State": {
+    "american": 500.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.17434399040158088
+  },
+  "Oregon @ Michigan State|game_ml|Oregon": {
+    "american": -500.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.825656009598419
+  },
+  "Oregon @ Michigan State|game_total|Over": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 43.5,
+    "no_vig_prob": 0.5
+  },
+  "Oregon @ Michigan State|game_total|Under": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 43.5,
+    "no_vig_prob": 0.5
+  }
+}
