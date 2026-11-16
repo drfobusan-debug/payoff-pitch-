@@ -541,7 +541,8 @@ def _card_pdf(root: Path, day: Date, pass_id: str, rows: list[ledger.Row], out: 
     try:
         logs = torvik.as_of(data_dir(), "game_logs", day).path
         adj = torvik.as_of(data_dir(), "team_results", day).path
-        stats = teamstats.season(teamstats.read_logs(logs), day, torvik.read_csv(adj) if adj else ())
+        table = torvik.read_csv(adj) if adj else []
+        stats = teamstats.season(teamstats.read_logs(logs), day, table)
         payload = injuries.fetch()
         if payload is not None:
             injuries.archive(data_dir(), day, payload, at=quotes.now_utc())
@@ -558,6 +559,7 @@ def _card_pdf(root: Path, day: Date, pass_id: str, rows: list[ledger.Row], out: 
             moves=movement.moves(qs, until=quotes.now_utc()),
             podcast=_podcast_view(root, day, rows),
             tips={q.event_id: q.tip_utc for q in sorted(qs, key=lambda q: q.captured_at)},
+            torvik_teams=[r["team"] for r in table if r.get("team")],
         )
         out.write_bytes(pdf.render_pdf(body))
     except Exception:

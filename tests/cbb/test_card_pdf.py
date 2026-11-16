@@ -138,6 +138,32 @@ def test_card_html_has_board_and_panel_for_each_game() -> None:
     assert "no Torvik games logged yet" in bare
 
 
+def test_a_team_with_no_d1_game_is_not_matched_to_a_school_its_name_contains() -> None:
+    logs = _rows(
+        "11/15/25",
+        "Missouri",
+        "Army",
+        _box(30, 60, 6, 20, 10, 25, 10, 80),
+        _box(25, 60, 4, 10, 8, 20, 15, 60),
+        70,
+    )
+    stats = teamstats.season(logs, date(2025, 11, 16))
+    teams = {"e1": ("Missouri St Bears", "Abilene Christian Wildcats")}
+    tips = {"e1": "2025-11-17T01:00:00Z"}
+    body = pdf.build_html(
+        date(2025, 11, 16),
+        [],
+        teams,
+        stats,
+        tips=tips,
+        torvik_teams=["Missouri", "Missouri St.", "Abilene Christian"],
+    )
+    assert "Missouri St. no D-I game logged" in body
+    assert "back-to-back" not in body
+    old = pdf.build_html(date(2025, 11, 16), [], teams, stats, tips=tips)
+    assert "back-to-back" in old
+
+
 def test_only_the_days_games_print_in_tip_order() -> None:
     teams = {
         "late": ("Kansas Jayhawks", "Utah Utes"),

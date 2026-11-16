@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import html
 from collections import defaultdict
-from collections.abc import Mapping, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import date as Date
 from datetime import datetime
@@ -249,7 +249,7 @@ def _rest_days(t: TeamStats | None, day: Date) -> int | None:
 def _rest(t: TeamStats | None, day: Date) -> str:
     n = _rest_days(t, day)
     if n is None:
-        return "first game"
+        return "no D-I game logged"
     return "back-to-back" if n == 0 else f"{n}d rest"
 
 
@@ -257,7 +257,7 @@ def rest_edge(away: TeamStats | None, home: TeamStats | None, day: Date, an: str
     """ "Duke +2 days rest"; a back-to-back is called out."""
     a, h = _rest_days(away, day), _rest_days(home, day)
     if a is None or h is None:
-        return "rest unknown (a team has no game logged yet)"
+        return "rest unknown (a team has no D-I game logged yet)"
     if a == h:
         return f"even ({a}d each)"
     team, diff = (an, a - h) if a > h else (hn, h - a)
@@ -369,14 +369,19 @@ def build_html(
     moves: Mapping[str, Sequence[Move]] | None = None,
     podcast: PodcastView | None = None,
     tips: Mapping[str, str] | None = None,
+    torvik_teams: Iterable[str] = (),
 ) -> str:
     """``teams`` maps event_id -> (home, away) as named by the Odds API; ``tips`` maps
     event_id -> tip (UTC) for games the card did not price. Only games tipping on ``day``
     (US Eastern) print, in tip order; a game with no known tip is left off.
 
+    ``torvik_teams`` is every D-I team Torvik lists. Names are matched against it as well as
+    ``stats`` so a team with no D-I game logged yet shows blank, not a school whose name it
+    contains ("Missouri St Bears" is not Missouri).
+
     ``podcast`` adds the shows' bets under each game and their records at the back.
     """
-    names = list(stats)
+    names = sorted(set(stats) | set(torvik_teams))
     lg = league(stats)
     listed = [(match_team(i.team, names), i) for i in injuries]
     unmatched = sorted({i.team for t, i in listed if t is None})
@@ -392,8 +397,9 @@ def build_html(
         home_name, away_name = teams.get(eid, ("", ""))
         if not home_name:
             continue
-        away, home = (stats.get(match_team(n, stats) or "") for n in (away_name, home_name))
-        an, hn = (t.team if t else n.split()[0] for t, n in ((away, away_name), (home, home_name)))
+        ma, mh = (match_team(n, names) for n in (away_name, home_name))
+        away, home = (stats.get(m or "") for m in (ma, mh))
+        an, hn = (m or n.split()[0] for m, n in ((ma, away_name), (mh, home_name)))
         tip = _tip(tip_of[eid])
         order.append(f"{away_name} @ {home_name}")
         blocks.append(
