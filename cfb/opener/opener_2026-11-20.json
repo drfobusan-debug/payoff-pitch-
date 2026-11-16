@@ -1,4 +1,46 @@
 {
+  "Bowling Green @ Toledo|game_ats|Bowling Green": {
+    "american": 104.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 15.5,
+    "no_vig_prob": 0.48865128896360377
+  },
+  "Bowling Green @ Toledo|game_ats|Toledo": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -15.5,
+    "no_vig_prob": 0.5113487110363962
+  },
+  "Bowling Green @ Toledo|game_ml|Bowling Green": {
+    "american": 530.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.155918034251088
+  },
+  "Bowling Green @ Toledo|game_ml|Toledo": {
+    "american": -700.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.844081965748912
+  },
+  "Bowling Green @ Toledo|game_total|Over": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 48.5,
+    "no_vig_prob": 0.5003658179689786
+  },
+  "Bowling Green @ Toledo|game_total|Under": {
+    "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 48.5,
+    "no_vig_prob": 0.49963418203102133
+  },
   "Clemson @ Duke|game_ats|Clemson": {
     "american": -110.0,
     "captured_at": "",
@@ -83,6 +125,48 @@
     "line": 54.5,
     "no_vig_prob": 0.5
   },
+  "New Mexico @ Wyoming|game_ats|New Mexico": {
+    "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -7.5,
+    "no_vig_prob": 0.5004372926229335
+  },
+  "New Mexico @ Wyoming|game_ats|Wyoming": {
+    "american": -107.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 7.5,
+    "no_vig_prob": 0.4995627073770665
+  },
+  "New Mexico @ Wyoming|game_ml|New Mexico": {
+    "american": -295.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.7350701701951897
+  },
+  "New Mexico @ Wyoming|game_ml|Wyoming": {
+    "american": 280.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.2649298298048104
+  },
+  "New Mexico @ Wyoming|game_total|Over": {
+    "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 37.5,
+    "no_vig_prob": 0.49733078463354713
+  },
+  "New Mexico @ Wyoming|game_total|Under": {
+    "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 37.5,
+    "no_vig_prob": 0.5026692153664529
+  },
   "Oregon @ Michigan State|game_ats|Michigan State": {
     "american": -110.0,
     "captured_at": "",
@@ -124,5 +208,47 @@
     "kickoff_utc": "",
     "line": 43.5,
     "no_vig_prob": 0.5
+  },
+  "UTEP @ Air Force|game_ats|Air Force": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -21.5,
+    "no_vig_prob": 0.508729463622328
+  },
+  "UTEP @ Air Force|game_ats|UTEP": {
+    "american": -101.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 21.5,
+    "no_vig_prob": 0.491270536377672
+  },
+  "UTEP @ Air Force|game_ml|Air Force": {
+    "american": -1800.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.9170792044481695
+  },
+  "UTEP @ Air Force|game_ml|UTEP": {
+    "american": 1160.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.08292079555183052
+  },
+  "UTEP @ Air Force|game_total|Over": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 45.5,
+    "no_vig_prob": 0.5003658179689786
+  },
+  "UTEP @ Air Force|game_total|Under": {
+    "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 45.5,
+    "no_vig_prob": 0.49963418203102133
   }
 }
