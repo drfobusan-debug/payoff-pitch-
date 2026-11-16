@@ -73,6 +73,9 @@ def test_daily_budget_from_cadence_table() -> None:
     # 24 + 6 + 12 board passes x 3 credits; 18 featured x 3; at most one 3-credit close per game
     assert out["board"] == 126 and out["featured"] == 54 and out["close"] == 180
     assert out["event_markets"] == 0 and out["total"] == 360
+    # the Novig twin of each board pass: one bookmaker, so one region whatever `regions` is
+    with_novig = cadence.daily_budget(60, Cadence(), regions=2, novig_cost=3)
+    assert with_novig["novig"] == 126 and with_novig["board"] == 252
 
 
 def _event() -> dict[str, object]:
@@ -172,11 +175,12 @@ def test_capture_tick_runs_only_due_passes(tmp_path: Path, monkeypatch: pytest.M
     assert cli.main(["capture", "--date", "2026-11-10"]) == 0
     man = quotes.read_manifest(tmp_path / "rt", "cbb", "2026-11-10")
     assert sorted(m["pass_kind"] for m in man) == ["board", "close", "featured"]
-    assert fake.calls == ["events", "board", "board", "board"]
+    # board, its Novig twin (bookmakers=novig, graded only), featured, close
+    assert fake.calls == ["events", "board", "board", "board", "board"]
     close = next(m for m in man if m["pass_kind"] == "close")
     assert close["event_ids"] == ["ev1"]
     # second tick a minute later: nothing due (board 15, featured 10, close already taken)
     assert cli.main(["capture", "--date", "2026-11-10"]) == 0
-    assert fake.calls[4:] == ["events"]
+    assert fake.calls[5:] == ["events"]
     assert quotes.verify(tmp_path / "rt", "cbb", "2026-11-10") == []
     assert not (tmp_path / "rt" / "ledger").exists()

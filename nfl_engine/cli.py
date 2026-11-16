@@ -30,12 +30,14 @@ from __future__ import annotations
 
 import argparse
 import logging
+import os
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import date as Date
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+from engine_common import novig
 from engine_common.podcasts import audit as podcast_audit
 from engine_common.podcasts import state as podcast_state
 from engine_common.podcasts.episodes import store_dir
@@ -44,6 +46,7 @@ from engine_common.podcasts.shows import NFL
 from nfl_engine import calibration, podcast, props, props_grade, state
 from nfl_engine import replay as replay_mod
 from nfl_engine.audit import availability, early, outside
+from nfl_engine.audit.graduation import has_true_close
 from nfl_engine.audit.ledger import (
     ENGINE,
     PAPER,
@@ -147,12 +150,78 @@ def _fetch(days: int, *, kind: str = capture.GAME_KIND, archive: bool = True) ->
         event_ids={game.matchup(): game.game_id for game in games},
     )
     written = capture.write_snapshot(rows, season=season, week=week, kind=kind) if archive else None
+    if archive:
+        _capture_novig(client, season, week, first_day, days, games, taken)
     if rows:
         print(f"{capture.archive_summary(rows)}")
         print(f"  archived {written.name if written else '(unchanged: board had not moved)'}")
     if client.credits_remaining is not None:
         print(f"  Odds API credits remaining: {client.credits_remaining}")
     return Fetched(season, week, taken, games, board, written)
+
+
+def _capture_novig(
+    client: OddsAPIClient,
+    season: int,
+    week: int,
+    first_day: Date,
+    days: int,
+    games: list[Game],
+    taken: str,
+) -> None:
+    """Novig's board beside the card (graded only; never priced). NFLE_NOVIG=0 turns it off."""
+    if os.getenv("NFLE_NOVIG", "1") == "0":
+        return
+    try:
+        _, board = client.fetch_board(
+            season=season, week=week, first_day=first_day, days=days, bookmakers=novig.BOOK
+        )
+        tips = {game.matchup(): game.kickoff_utc or "" for game in games}
+        rows = capture.rows_from_board(
+            board,
+            season=season,
+            week=week,
+            captured_at=taken,
+            dates={game.matchup(): game.game_date.isoformat() for game in games},
+        )
+        novig.append(
+            data_dir() / "novig.jsonl",
+            (
+                novig.record(
+                    novig.key(r.game_date, r.matchup, r.market, r.side),
+                    r.line,
+                    r.american,
+                    r.opposite_american,
+                    taken,
+                    tips.get(r.matchup, ""),
+                )
+                for r in rows
+                if r.book == novig.BOOK
+            ),
+        )
+    except Exception as exc:  # noqa: BLE001 - bookkeeping must not cost the card
+        log.warning("Novig capture skipped (%s)", exc)
+
+
+def cmd_novig(args: argparse.Namespace) -> int:
+    """The ledger's rows valued at the close at the book vs at Novig, same side and line."""
+    index = novig.load(data_dir() / "novig.jsonl")
+    pairs = []
+    for e in load_ledger(ledger_path()):
+        if e.result not in ("win", "loss", "push"):
+            continue
+        if e.source != ENGINE or e.clv_ev is None or e.odds is None or not has_true_close(e):
+            continue
+        k = novig.key(e.date, e.matchup, e.market, e.side)
+        q = novig.as_of(index, k, e.line, e.captured_at)
+        at = (
+            None
+            if q is None
+            else novig.close_ev_at_novig(e.odds, e.clv_ev, float(str(q["american"])))
+        )
+        pairs.append(novig.Pair(e.market, f"{e.date}|{e.matchup}", e.tier != "Pass", e.clv_ev, at))
+    print(novig.render(novig.compare(pairs)))
+    return 0
 
 
 def cmd_capture(args: argparse.Namespace) -> int:
@@ -1317,6 +1386,9 @@ def main(argv: list[str] | None = None) -> int:
         help="replace the shipped map file with this fit and its measurements",
     )
     calibrate.set_defaults(func=cmd_calibrate)
+
+    nv = sub.add_parser("novig", help="the ledger valued at the close at the book vs at Novig")
+    nv.set_defaults(func=cmd_novig)
 
     report = sub.add_parser("report", help="tier, market and screen records")
     report.add_argument("--all", action="store_true")

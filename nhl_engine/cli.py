@@ -35,6 +35,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import os
 import sys
 from dataclasses import asdict, replace
 from datetime import date as Date
@@ -42,6 +43,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
+from engine_common import novig
 from engine_runtime import faststart
 from engine_runtime.odds_client import OddsClient
 from nhl_engine import (
@@ -125,6 +127,7 @@ def cmd_capture(args: argparse.Namespace) -> int:
         slate_date=slate_date, horizon_hours=cfg.capture.horizon_hours, captured_at=taken
     )
     written = [capture.write_snapshot(rows, root, slate_date, label="board", captured_at=taken)]
+    _capture_novig(client, root, slate_date, cfg.capture.horizon_hours, taken)
     if not args.board_only and slate.games:
         event_rows = client.fetch_event_markets(
             slate.games,
@@ -702,6 +705,58 @@ def cmd_podcast(args: argparse.Namespace) -> int:
     return 0
 
 
+def _capture_novig(
+    client: OddsAPIClient, root: Path, slate_date: Date, horizon: int, taken: str
+) -> None:
+    """Novig's board beside the card (graded only; never priced). NHLE_NOVIG=0 turns it off."""
+    if os.getenv("NHLE_NOVIG", "1") == "0":
+        return
+    try:
+        slate, rows = client.fetch_board(
+            slate_date=slate_date, horizon_hours=horizon, captured_at=taken, bookmakers=novig.BOOK
+        )
+        tips = {g.event_id: g.start_utc for g in slate.games}
+        novig.append(
+            root / "novig.jsonl",
+            (
+                novig.record(
+                    novig.key(r.game_date, r.matchup, r.market, r.side, r.entity),
+                    r.line,
+                    r.american,
+                    r.opposite_american,
+                    taken,
+                    tips.get(r.event_id, ""),
+                )
+                for r in rows
+                if r.book == novig.BOOK
+            ),
+        )
+    except Exception as exc:  # noqa: BLE001 - bookkeeping must not cost the capture
+        log.warning("Novig capture skipped (%s)", exc)
+
+
+def cmd_novig(args: argparse.Namespace) -> int:
+    """The ledger's rows valued at the close at the book vs at Novig, same side and line."""
+    root = data_dir()
+    index = novig.load(root / "novig.jsonl")
+    pairs = []
+    for p in sorted((root / "ledger").glob("graded_*.json")):
+        for r in ledger.load_rows(p):
+            if r.close_consensus is None or not r.close_fresh or r.outcome is None:
+                continue
+            book_ev = r.close_consensus * novig.decimal(r.american) - 1.0
+            k = novig.key(r.slate_date, r.matchup, r.market, r.side, r.entity)
+            q = novig.as_of(index, k, r.line, r.priced_at)
+            at = (
+                None
+                if q is None
+                else novig.close_ev_at_novig(r.american, book_ev, float(str(q["american"])))
+            )
+            pairs.append(novig.Pair(r.market, f"{r.slate_date}|{r.matchup}", r.is_buy, book_ev, at))
+    print(novig.render(novig.compare(pairs)))
+    return 0
+
+
 def cmd_audit(args: argparse.Namespace) -> int:
     root = data_dir()
     day = _parse_date(args.date) if args.date else _today() - timedelta(days=1)
@@ -1192,6 +1247,9 @@ def build_parser() -> argparse.ArgumentParser:
     pc.add_argument("--model", default=podcast.WHISPER_MODEL, help="faster-whisper model")
     pc.add_argument("--no-transcribe", action="store_true", help="use a cached transcript only")
     pc.set_defaults(func=cmd_podcast)
+
+    nv = sub.add_parser("novig", help="the ledger valued at the close at the book vs at Novig")
+    nv.set_defaults(func=cmd_novig)
 
     au = sub.add_parser("audit", help="grade a date's ledger and print the scorecard")
     au.add_argument("--date", help="default yesterday")

@@ -41,6 +41,7 @@ import argparse
 import html
 import json
 import logging
+import os
 import sys
 import time
 from dataclasses import asdict, replace
@@ -48,6 +49,7 @@ from datetime import date as Date
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+from engine_common import novig
 from engine_common.podcasts import state as podcast_state
 from engine_common.podcasts.episodes import store_dir
 from engine_common.podcasts.run import read_feeds
@@ -233,6 +235,7 @@ def cmd_capture(args: argparse.Namespace) -> int:
         path = capture.write_snapshot(board, root, slate_date, label="board", captured_at=taken)
         if path is not None:
             written.append(path.name)
+        _capture_novig(client, root, slate_date, cfg.capture.horizon_hours, taken)
         games = [g for g in slate.games if g.game_date == slate_date]
         if not args.board_only and games:
             ev = client.fetch_event_markets(
@@ -464,6 +467,57 @@ def cmd_alt_report(args: argparse.Namespace) -> int:
     print(f"{'group':28} {'n':>6} {'W-L-P':>12} {'units':>9} {'ROI':>7}")
     for label, n, w, lo, p, units, roi in table:
         print(f"{label:28} {n:6} {f'{w}-{lo}-{p}':>12} {units:+9.2f} {_pct(roi):>7}")
+    return 0
+
+
+def _capture_novig(
+    client: OddsAPIClient, root: Path, slate_date: Date, horizon: int, taken: str
+) -> None:
+    """Novig's board beside the card (graded only; never priced). NBAE_NOVIG=0 turns it off."""
+    if os.getenv("NBAE_NOVIG", "1") == "0":
+        return
+    try:
+        slate, rows = client.fetch_board(
+            slate_date=slate_date, horizon_hours=horizon, captured_at=taken, bookmakers=novig.BOOK
+        )
+        tips = {g.event_id: g.start_utc for g in slate.games}
+        novig.append(
+            root / "novig.jsonl",
+            (
+                novig.record(
+                    novig.key(r.event_id, r.market, r.side, r.entity),
+                    r.line,
+                    r.american,
+                    r.opposite_american,
+                    taken,
+                    tips.get(r.event_id, ""),
+                )
+                for r in rows
+                if r.book == novig.BOOK
+            ),
+        )
+    except Exception as exc:  # noqa: BLE001 - bookkeeping must not cost the capture
+        log.warning("Novig capture skipped (%s)", exc)
+
+
+def cmd_novig(args: argparse.Namespace) -> int:
+    """The ledger's rows valued at the close at the book vs at Novig, same side and line."""
+    root = data_dir()
+    index = novig.load(root / "novig.jsonl")
+    pairs = []
+    for r in ledger.graded_rows(root, _ledger_days(root, None, None)):
+        if r.clv_ev is None or r.american is None:
+            continue
+        q = novig.as_of(
+            index, novig.key(r.event_id, r.market, r.side, r.entity), r.line, r.priced_at
+        )
+        at = (
+            None
+            if q is None
+            else novig.close_ev_at_novig(r.american, r.clv_ev, float(str(q["american"])))
+        )
+        pairs.append(novig.Pair(r.market, f"{r.slate_date}|{r.event_id}", r.is_buy, r.clv_ev, at))
+    print(novig.render(novig.compare(pairs)))
     return 0
 
 
@@ -1355,6 +1409,9 @@ def build_parser() -> argparse.ArgumentParser:
     gr.add_argument("--date", help="slate date (ET), default yesterday")
     gr.add_argument("--no-sync", action="store_true", help="do not pull/push engine-state")
     gr.set_defaults(func=cmd_grade)
+
+    nv = sub.add_parser("novig", help="the ledger valued at the close at the book vs at Novig")
+    nv.set_defaults(func=cmd_novig)
 
     au = sub.add_parser("audit", help="the graded ledger's tables")
     au.add_argument("--since")
