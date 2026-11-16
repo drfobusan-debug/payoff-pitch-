@@ -1,0 +1,25 @@
+captured_at,game_date,matchup,event_id,market,side,entity,line,book,american,opposite_american,source
+2026-11-16T04:35:22Z,2026-11-15,OKC @ SAC,f8334b355cf9346d423fa9eb93b425f0,game_ats,OKC,,-22.5,fanduel,-110,-118,oddsapi
+2026-11-16T04:35:22Z,2026-11-15,OKC @ SAC,f8334b355cf9346d423fa9eb93b425f0,game_ats,SAC,,22.5,fanduel,-118,-110,oddsapi
+2026-11-16T04:35:22Z,2026-11-15,OKC @ SAC,f8334b355cf9346d423fa9eb93b425f0,game_total,over,,228.5,fanduel,154,-210,oddsapi
+2026-11-16T04:35:22Z,2026-11-15,OKC @ SAC,f8334b355cf9346d423fa9eb93b425f0,game_total,under,,228.5,fanduel,-210,154,oddsapi
+2026-11-16T04:35:22Z,2026-11-15,OKC @ SAC,f8334b355cf9346d423fa9eb93b425f0,game_ats,OKC,,-22.5,betmgm,150,-200,oddsapi
+2026-11-16T04:35:22Z,2026-11-15,OKC @ SAC,f8334b355cf9346d423fa9eb93b425f0,game_ats,SAC,,22.5,betmgm,-200,150,oddsapi
+2026-11-16T04:35:22Z,2026-11-15,OKC @ SAC,f8334b355cf9346d423fa9eb93b425f0,game_total,over,,229.5,betmgm,-118,-110,oddsapi
+2026-11-16T04:35:22Z,2026-11-15,OKC @ SAC,f8334b355cf9346d423fa9eb93b425f0,game_total,under,,229.5,betmgm,-110,-118,oddsapi
+2026-11-16T04:35:22Z,2026-11-15,OKC @ SAC,f8334b355cf9346d423fa9eb93b425f0,game_ats,OKC,,-22.5,williamhill_us,1800,-6000,oddsapi
+2026-11-16T04:35:22Z,2026-11-15,OKC @ SAC,f8334b355cf9346d423fa9eb93b425f0,game_ats,SAC,,22.5,williamhill_us,-6000,1800,oddsapi
+2026-11-16T04:35:22Z,2026-11-15,OKC @ SAC,f8334b355cf9346d423fa9eb93b425f0,game_total,over,,228.5,williamhill_us,2500,-15000,oddsapi
+2026-11-16T04:35:22Z,2026-11-15,OKC @ SAC,f8334b355cf9346d423fa9eb93b425f0,game_total,under,,228.5,williamhill_us,-15000,2500,oddsapi
+2026-11-16T04:35:22Z,2026-11-15,OKC @ SAC,f8334b355cf9346d423fa9eb93b425f0,game_ats,OKC,,-23.5,mybookieag,-133,105,oddsapi
+2026-11-16T04:35:22Z,2026-11-15,OKC @ SAC,f8334b355cf9346d423fa9eb93b425f0,game_ats,SAC,,23.5,mybookieag,105,-133,oddsapi
+2026-11-16T04:35:22Z,2026-11-15,OKC @ SAC,f8334b355cf9346d423fa9eb93b425f0,game_ats,OKC,,-22.5,draftkings,-270,200,oddsapi
+2026-11-16T04:35:22Z,2026-11-15,OKC @ SAC,f8334b355cf9346d423fa9eb93b425f0,game_ats,SAC,,22.5,draftkings,200,-270,oddsapi
+2026-11-16T04:35:22Z,2026-11-15,OKC @ SAC,f8334b355cf9346d423fa9eb93b425f0,game_total,over,,227.5,draftkings,-120,-110,oddsapi
+2026-11-16T04:35:22Z,2026-11-15,OKC @ SAC,f8334b355cf9346d423fa9eb93b425f0,game_total,under,,227.5,draftkings,-110,-120,oddsapi
+2026-11-16T04:35:22Z,2026-11-15,OKC @ SAC,f8334b355cf9346d423fa9eb93b425f0,game_ats,OKC,,-21.5,betrivers,-500,310,oddsapi
+2026-11-16T04:35:22Z,2026-11-15,OKC @ SAC,f8334b355cf9346d423fa9eb93b425f0,game_ats,SAC,,21.5,betrivers,310,-500,oddsapi
+2026-11-16T04:35:22Z,2026-11-15,OKC @ SAC,f8334b355cf9346d423fa9eb93b425f0,game_ats,OKC,,-22.5,fanatics,225,-330,oddsapi
+2026-11-16T04:35:22Z,2026-11-15,OKC @ SAC,f8334b355cf9346d423fa9eb93b425f0,game_ats,SAC,,22.5,fanatics,-330,225,oddsapi
+2026-11-16T04:35:22Z,2026-11-15,OKC @ SAC,f8334b355cf9346d423fa9eb93b425f0,game_total,over,,229.5,fanatics,-140,105,oddsapi
+2026-11-16T04:35:22Z,2026-11-15,OKC @ SAC,f8334b355cf9346d423fa9eb93b425f0,game_total,under,,229.5,fanatics,105,-140,oddsapi
