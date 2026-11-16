@@ -1,0 +1,60 @@
+{
+ "episode_guid": "vsin-96311",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "846ab11cae4016c9a8b769e707ba3c390571b7f3",
+ "picks": [
+  {
+   "pick_id": "647f2788797a",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-96311",
+   "episode_title": "College Basketball Picks for Monday, November 16 from Adam Burke",
+   "published": "2026-11-16T15:56:22+00:00",
+   "kind": "official",
+   "market": "game_total",
+   "team": "Central Arkansas Bears",
+   "opponent": "Oklahoma State Cowboys",
+   "side": "over",
+   "line": 161.5,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Over 161.5",
+   "reason": "https://vsin.com/college-basketball/college-basketball-picks-for-monday-november-16-from-adam-burke/",
+   "description": "Over 161.5",
+   "league": "cbb",
+   "edge": "",
+   "fair_line": null
+  },
+  {
+   "pick_id": "6df2bbef9f21",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-96311",
+   "episode_title": "College Basketball Picks for Monday, November 16 from Adam Burke",
+   "published": "2026-11-16T15:56:22+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Northwestern",
+   "opponent": "Columbia Lions",
+   "side": null,
+   "line": -12.0,
+   "price": null,
+   "units": null,
+   "seconds": 1,
+   "quote": "Northwestern -12",
+   "reason": "https://vsin.com/college-basketball/college-basketball-picks-for-monday-november-16-from-adam-burke/",
+   "description": "Northwestern -12",
+   "league": "cbb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cbb"
+ ]
+}

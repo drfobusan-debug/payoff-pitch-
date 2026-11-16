@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-96247",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "b6e4f042ed636a02eb2111a62fd6785b3117f55e",
+ "picks": [
+  {
+   "pick_id": "cf4e3405a970",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-96247",
+   "episode_title": "Richmond vs. Virginia Tech Basketball Prediction: Monday, November 16, 2026",
+   "published": "2026-11-16T04:19:05+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Virginia Tech",
+   "opponent": "Richmond",
+   "side": null,
+   "line": -13.0,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Virginia Tech -13",
+   "reason": "https://vsin.com/college-basketball/richmond-vs-virginia-tech-basketball-prediction-monday-november-16-2026/",
+   "description": "Virginia Tech -13",
+   "league": "cbb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cbb"
+ ]
+}
