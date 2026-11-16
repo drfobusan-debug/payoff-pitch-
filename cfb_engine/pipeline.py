@@ -59,6 +59,7 @@ from cfb_engine.market.linevalue import drift_probability
 from cfb_engine.market.mlsharp import SharpGate
 from cfb_engine.market.ordering import order_recs
 from cfb_engine.market.priceband import PriceBand
+from cfb_engine.market.strongest import without_situational
 from cfb_engine.market.tiers import Tier, bump_tier, classify
 from cfb_engine.models.markov import DriveShape, MarkovSim
 from cfb_engine.models.montecarlo import (
@@ -121,6 +122,8 @@ class Pipeline:
         self._opener: dict[str, snapshot.SideQuote] = {}
         self._top_defenses: frozenset[str] = frozenset()
         self._early = False
+        # The shadow price has its own draws so it never moves the engine's.
+        self._shadow_mc = MonteCarlo(cfg.model)
 
     def _load_calibrator(self) -> Calibrator:
         if self.cfg.calibrate and self.cfg.calibration_file.exists():
@@ -328,12 +331,19 @@ class Pipeline:
         means = self._means(game, odds, ratings, home_hfa, total_blend=total_blend)
         if means is None:
             return []
+        game_ctx = context_for(ctx_book, game.home.name, game.away.name)
         adj = compute_adjustment(
-            context_for(ctx_book, game.home.name, game.away.name),
-            self.cfg.features,
-            home_hfa,
-            game.home.abbrev,
-            game.away.abbrev,
+            game_ctx, self.cfg.features, home_hfa, game.home.abbrev, game.away.abbrev
+        )
+        situational = (
+            adj.margin_delta
+            - compute_adjustment(
+                game_ctx,
+                without_situational(self.cfg.features),
+                home_hfa,
+                game.home.abbrev,
+                game.away.abbrev,
+            ).margin_delta
         )
         if returning is not None:
             delta = returning.margin_delta(
@@ -372,17 +382,57 @@ class Pipeline:
             total_sd=self.cfg.model.total_sd,
         )
         sim = self._simulate(game, exp, mc, markov)
+        shadow = self._shadow_sim(
+            game, odds, ratings, home_hfa, total_blend, means.source, adj, situational
+        )
         signal = (
             build_signal(self.advanced, game.home.name, game.away.name)
             if self.cfg.marking.enabled
             else MatchupSignal()
         )
-        ctx = _GameCtx(game, sim, adj, signal)
+        ctx = _GameCtx(game, sim, adj, signal, shadow)
         out: list[Recommendation] = []
         out.extend(self._price_ml(ctx, odds))
         out.extend(self._price_ats(ctx, odds))
         out.extend(self._price_total(ctx, odds))
         return out
+
+    def _shadow_sim(
+        self,
+        game: Game,
+        odds: GameOdds,
+        ratings: RatingBook | None,
+        home_hfa: float,
+        total_blend: float | None,
+        source: str,
+        adj: Adjustment,
+        situational: float,
+    ) -> GameSimResult | None:
+        """The game priced at ``shadow_blend`` without rest/bye/travel (graded only).
+
+        Every other adjustment (neutral site, injuries, weather) is kept. A game
+        without a market line has nothing to blend toward and gets no shadow.
+        """
+        if source not in ("ratings+market", "market"):
+            return None
+        w = self.cfg.shadow_blend
+        means = self._means(
+            game,
+            odds,
+            ratings,
+            home_hfa,
+            total_blend=None if total_blend is None else max(total_blend, w),
+            blend=w,
+        )
+        if means is None:
+            return None
+        exp = ExpectedGame(
+            exp_margin=means.exp_margin + adj.margin_delta - situational,
+            exp_total=max(0.0, means.exp_total + adj.total_delta),
+            margin_sd=self.cfg.model.margin_sd,
+            total_sd=self.cfg.model.total_sd,
+        )
+        return self._shadow_mc.simulate(exp)
 
     def _simulate(
         self, game: Game, exp: ExpectedGame, mc: MonteCarlo, markov: MarkovSim | None
@@ -407,6 +457,7 @@ class Pipeline:
         home_hfa: float,
         *,
         total_blend: float | None = None,
+        blend: float | None = None,
     ) -> _Means | None:
         mkt_spread = odds.consensus_home_spread()
         mkt_total = odds.consensus_total()
@@ -435,7 +486,7 @@ class Pipeline:
                 rating_total = home_pts + away_pts
 
         if rating_margin is not None and market_margin is not None:
-            w = self.cfg.model.market_blend
+            w = self.cfg.model.market_blend if blend is None else blend
             wt = w if total_blend is None else total_blend
             return _Means(
                 exp_margin=(1 - w) * rating_margin + w * market_margin,
@@ -526,16 +577,18 @@ class Pipeline:
             adj.reasons.append(f"{detail} -{self.cfg.injury_qb_pts:.1f}")
 
     # -- markets ----------------------------------------------------------
+    def _home_win(self, sim: GameSimResult) -> float:
+        if self.cfg.model.ml_market_sd:
+            return market_win_prob(sim.exp_margin, self.cfg.model)
+        return sim.home_win_prob()
+
     def _price_ml(self, ctx: _GameCtx, odds: GameOdds) -> list[Recommendation]:
-        home_p = (
-            market_win_prob(ctx.sim.exp_margin, self.cfg.model)
-            if self.cfg.model.ml_market_sd
-            else ctx.sim.home_win_prob()
-        )
+        home_p = self._home_win(ctx.sim)
+        shadow_p = None if ctx.shadow is None else self._home_win(ctx.shadow)
         out = []
-        for side, ab, prob in (
-            ("home", ctx.home_ab, home_p),
-            ("away", ctx.away_ab, 1.0 - home_p),
+        for side, ab, prob, shadow in (
+            ("home", ctx.home_ab, home_p, shadow_p),
+            ("away", ctx.away_ab, 1.0 - home_p, None if shadow_p is None else 1.0 - shadow_p),
         ):
             quotes = odds.ml.get(ab)
             if not quotes:
@@ -549,6 +602,7 @@ class Pipeline:
                     quotes,
                     team_side=side,
                     side="win",
+                    shadow_prob=shadow,
                 )
             )
         return out
@@ -558,11 +612,18 @@ class Pipeline:
         if point is None or point not in odds.spreads:
             return []
         home_cover = ctx.sim.cover_prob(point)
+        shadow_cover = None if ctx.shadow is None else ctx.shadow.cover_prob(point)
         sides = odds.spreads[point]
         out = []
-        for team_side, ab, prob, pt in (
-            ("home", ctx.home_ab, home_cover, point),
-            ("away", ctx.away_ab, 1.0 - home_cover, -point),
+        for team_side, ab, prob, pt, shadow in (
+            ("home", ctx.home_ab, home_cover, point, shadow_cover),
+            (
+                "away",
+                ctx.away_ab,
+                1.0 - home_cover,
+                -point,
+                None if shadow_cover is None else 1.0 - shadow_cover,
+            ),
         ):
             quotes = sides.get(ab)
             if not quotes:
@@ -577,6 +638,7 @@ class Pipeline:
                     line=pt,
                     team_side=team_side,
                     side="cover",
+                    shadow_prob=shadow,
                 )
             )
         return out
@@ -586,11 +648,12 @@ class Pipeline:
         if line is None or line not in odds.totals:
             return []
         over_p = ctx.sim.over_prob(line)
+        shadow_over = None if ctx.shadow is None else ctx.shadow.over_prob(line)
         sides = odds.totals[line]
         out = []
-        for is_over, prob, key in (
-            (True, over_p, "over"),
-            (False, 1.0 - over_p, "under"),
+        for is_over, prob, key, shadow in (
+            (True, over_p, "over", shadow_over),
+            (False, 1.0 - over_p, "under", None if shadow_over is None else 1.0 - shadow_over),
         ):
             quotes = sides.get(key)
             if not quotes:
@@ -604,6 +667,7 @@ class Pipeline:
                     quotes,
                     line=line,
                     side=key,
+                    shadow_prob=shadow,
                 )
             )
         return out
@@ -620,19 +684,9 @@ class Pipeline:
         line: float | None = None,
         team_side: str | None = None,
         side: str | None = None,
+        shadow_prob: float | None = None,
     ) -> Recommendation:
-        model_prob = self.calibrator.apply(market, raw_prob)
-        # The tail shrink is one-sided, so on a two-sided moneyline it takes
-        # probability off the favourite and hands the dog the difference: the
-        # sides summed to .90 and the dog read as value in every game.
-        if self.shrink is not None and market != "game_ml":
-            model_prob = self.shrink.apply(model_prob)
-
-        result: EVResult = evaluate(model_prob, quotes)
-        bet_prob = anchor_to_market(model_prob, result.fair_prob, self.cfg.market_anchor)
-        if bet_prob != model_prob:
-            result = evaluate(bet_prob, quotes)
-
+        model_prob, bet_prob, result = self._screen_price(market, raw_prob, quotes)
         thr = self.cfg.ev.for_market(market)
         tier, reasons = classify(result, thr)
         # Surface the situational nudges alongside the EV reasoning.
@@ -675,6 +729,11 @@ class Pipeline:
             if not keep:
                 reasons = [*reasons, graded_reason]
                 tier, pass_gate = Tier.PASS, graded_gate
+        shadow_model: float | None = None
+        strongest = False
+        if shadow_prob is not None:
+            shadow_model, _, shadow_result = self._screen_price(market, shadow_prob, quotes)
+            strongest = tier != Tier.PASS and classify(shadow_result, thr)[0] != Tier.PASS
         return Recommendation(
             game_date=ctx.game.game_date,
             game_id=ctx.game.game_id,
@@ -710,7 +769,26 @@ class Pipeline:
             exp_margin_sd=ctx.sim.exp_margin_sd,
             exp_total=ctx.sim.exp_total,
             exp_total_sd=ctx.sim.exp_total_sd,
+            shadow_prob=shadow_model,
+            strongest=strongest,
         )
+
+    def _screen_price(
+        self, market: str, raw_prob: float, quotes: list[MarketQuote]
+    ) -> tuple[float, float, EVResult]:
+        """``(model_prob, bet_prob, result)``: calibrate, shrink, anchor and evaluate."""
+        model_prob = self.calibrator.apply(market, raw_prob)
+        # The tail shrink is one-sided, so on a two-sided moneyline it takes
+        # probability off the favourite and hands the dog the difference: the
+        # sides summed to .90 and the dog read as value in every game.
+        if self.shrink is not None and market != "game_ml":
+            model_prob = self.shrink.apply(model_prob)
+
+        result: EVResult = evaluate(model_prob, quotes)
+        bet_prob = anchor_to_market(model_prob, result.fair_prob, self.cfg.market_anchor)
+        if bet_prob != model_prob:
+            result = evaluate(bet_prob, quotes)
+        return model_prob, bet_prob, result
 
     # -- market movement since the first board ----------------------------
     def _baseline_board(
@@ -823,13 +901,19 @@ class Pipeline:
 
 
 class _GameCtx:
-    __slots__ = ("game", "sim", "adj", "signal", "home_ab", "away_ab", "matchup")
+    __slots__ = ("game", "sim", "adj", "signal", "shadow", "home_ab", "away_ab", "matchup")
 
     def __init__(
-        self, game: Game, sim: GameSimResult, adj: Adjustment, signal: MatchupSignal
+        self,
+        game: Game,
+        sim: GameSimResult,
+        adj: Adjustment,
+        signal: MatchupSignal,
+        shadow: GameSimResult | None = None,
     ) -> None:
         self.game = game
         self.sim = sim
+        self.shadow = shadow
         self.adj = adj
         self.signal = signal
         self.home_ab = game.home.abbrev

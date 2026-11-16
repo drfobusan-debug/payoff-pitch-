@@ -432,6 +432,9 @@ class Config:
     # Weight given to the devigged market price when forming the probability the
     # EV screen bets on (see market.ev.anchor_to_market). Default 0 (off).
     market_anchor: float = field(default_factory=lambda: _env_float("CFBE_MARKET_ANCHOR", 0.0))
+    # Margin blend of the graded-only "strongest buy" shadow price
+    # (``cfb_engine.market.strongest``); never changes a tier or a stake.
+    shadow_blend: float = field(default_factory=lambda: _env_float("CFBE_SHADOW_BLEND", 0.9))
 
     # Odds API budget/behaviour.
     odds_regions: str = field(default_factory=lambda: os.getenv("CFBE_ODDS_REGIONS", "us"))

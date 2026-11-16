@@ -7,7 +7,7 @@ from dataclasses import asdict, dataclass, field
 from datetime import date as Date
 from pathlib import Path
 
-from cfb_engine.market import gradedonly, lineagree, lowtotal
+from cfb_engine.market import gradedonly, lineagree, lowtotal, strongest
 from cfb_engine.market.odds import american_to_decimal, prob_to_american
 from cfb_engine.market.tiers import Tier
 from cfb_engine.output.brief import GameBrief
@@ -74,6 +74,10 @@ class Recommendation:
     # Reader's context for the card (records, ranks, leaders, venue, weather,
     # storyline); the same object on every rec of a game. Never priced.
     brief: GameBrief | None = None
+    # The calibrated probability at the graded-only "strongest buy" shadow price,
+    # and whether this buy still clears the gates there (``market.strongest``).
+    shadow_prob: float | None = None
+    strongest: bool = False
 
     @property
     def model_american(self) -> float:
@@ -142,6 +146,7 @@ class Recommendation:
             "Kelly": round(self.kelly, 3) if self.kelly is not None else "",
             "Handle-Tickets": self.sharp_div if self.sharp_div is not None else "",
             "Tier": self.tier.value,
+            strongest.LABEL: strongest.CELL if self.strongest else "",
             lineagree.LABEL: self._line_agrees_cell(),
             lowtotal.LABEL: "WOULD SKIP" if self.low_total_under else "",
             "Notes": "; ".join(self.reasons),

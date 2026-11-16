@@ -21,7 +21,7 @@ from zoneinfo import ZoneInfo
 
 from cfb_engine.audit.probation import Probation
 from cfb_engine.audit.watchlist import Watchlist
-from cfb_engine.market import lineagree, lowtotal, unitranks
+from cfb_engine.market import lineagree, lowtotal, strongest, unitranks
 from cfb_engine.market.keys import side_of
 from cfb_engine.market.ordering import order_buys, order_recs
 from cfb_engine.market.tiers import Tier
@@ -184,6 +184,16 @@ def _bet_label(b: Recommendation, units: unitranks.UnitRanks | None) -> str:
     return f"<b><i>{label}</i></b>" if _elite_defense(b, units) else f"<b>{label}</b>"
 
 
+def _li(b: Recommendation) -> str:
+    return "<li class='strongest'>" if b.strongest else "<li>"
+
+
+def _strongest_note(buys: list[Recommendation]) -> str:
+    return (
+        f"<p class='elitenote'>{strongest.CARD_NOTE}</p>" if any(b.strongest for b in buys) else ""
+    )
+
+
 def _elite_note(buys: list[Recommendation], units: unitranks.UnitRanks | None) -> str:
     return (
         f"<p class='elitenote'>{ELITE_DEF_NOTE}</p>"
@@ -197,13 +207,13 @@ def _game_best_block(recs: list[Recommendation], units: unitranks.UnitRanks | No
     if not buys:
         return "<p class='bets'><b>Best bets:</b> none clear the buy threshold — model passes.</p>"
     items = "".join(
-        f"<li>{_bet_label(b, units)} — {b.display_category}, "
+        f"{_li(b)}{_bet_label(b, units)} — {b.display_category}, "
         f"model {b.model_prob * 100:.0f}%, edge {(b.edge or 0.0) * 100:+.1f}% · <i>{b.tier.value}</i></li>"
         for b in buys
     )
     return (
         f"<p class='bets'><b>Best bets</b></p><ul class='bets'>{items}</ul>"
-        f"{_elite_note(buys, units)}"
+        f"{_elite_note(buys, units)}{_strongest_note(buys)}"
     )
 
 
@@ -586,7 +596,7 @@ def _slate_best_block(recs: list[Recommendation], units: unitranks.UnitRanks | N
             "<p>The model passes the entire board today.</p></div>"
         )
     items = "".join(
-        f"<li>{_kick_prefix(b)}{_bet_label(b, units)} — {b.display_category} "
+        f"{_li(b)}{_kick_prefix(b)}{_bet_label(b, units)} — {b.display_category} "
         f"({b.matchup}), model {b.model_prob * 100:.0f}%, edge {(b.edge or 0.0) * 100:+.1f}% "
         f"· <i>{b.tier.value}</i></li>"
         for b in buys
@@ -594,7 +604,7 @@ def _slate_best_block(recs: list[Recommendation], units: unitranks.UnitRanks | N
     return (
         "<div class='slatebets'><h2>Slate best bets</h2>"
         f"<p class='sbnote'>{len(buys)} plays clear the buy threshold, by kickoff:</p>"
-        f"<ul class='bets big'>{items}</ul>{_elite_note(buys, units)}</div>"
+        f"<ul class='bets big'>{items}</ul>{_elite_note(buys, units)}{_strongest_note(buys)}</div>"
     )
 
 
@@ -752,6 +762,8 @@ ul.bets b{color:#111;}
 .slatebets .sbnote{color:#c6ccd4;font-style:italic;font-size:9.4pt;margin:0 0 6px;}
 .elitenote{color:#4b5563;font-size:8.4pt;margin:0 0 4px;}.slatebets .elitenote{color:#c6ccd4;}
 ul.bets.big{font-size:10.5pt;}ul.bets.big b{color:#fff;}.slatebets i{color:#ffd76a;}
+li.strongest{text-transform:uppercase;font-weight:900;letter-spacing:.3px;color:#111;}
+.slatebets li.strongest{color:#fff;}
 .lineagree{page-break-inside:avoid;border:1px solid #9fb3c8;border-left:4px solid #1f4e79;background:#f3f7fb;border-radius:6px;padding:10px 14px;margin:14px 0 8px;}
 .lineagree h2{border:none;margin:0 0 4px;color:#1f4e79;font-size:13pt;}
 .watch{border:1px solid #9fb3c8;border-left:4px solid #1f4e79;background:#f3f7fb;border-radius:6px;padding:8px 12px;margin:12px 0 8px;}
