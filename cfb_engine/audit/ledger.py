@@ -101,6 +101,9 @@ class LedgerEntry:
     novig_clv_ev: float | None = None
     novig_result: str | None = None
     novig_pnl: float | None = None
+    # The buy still cleared the gates at the graded-only near-market shadow
+    # price (``cfb_engine.market.strongest``); blank on rows from before it.
+    strongest: bool | None = None
 
 
 LEDGER_FIELDS = [
@@ -113,6 +116,7 @@ LEDGER_FIELDS = [
     "shop_book", "shop_line", "shop_odds", "shop_result", "shop_pnl",
     "kalshi_strike", "kalshi_bid", "kalshi_ask", "kalshi_oi", "kalshi_result", "kalshi_pnl",
     "novig_line", "novig_odds", "novig_clv_ev", "novig_result", "novig_pnl",
+    "strongest",
 ]
 _OPTIONAL_FLOAT_FIELDS = (
     "line", "odds", "under_odds", "ev", "fair_prob", "bet_prob",
@@ -162,6 +166,7 @@ def entries_from_graded(
                 pass_gate=attributed_gate(rec.pass_gate, rec.reasons),
                 sharp_div=rec.sharp_div,
                 top25=atscontext.top25_game(rec.brief),
+                strongest=rec.strongest if rec.shadow_prob is not None else None,
             )
         )
     return entries
@@ -235,6 +240,7 @@ def load_ledger(path: Path) -> list[LedgerEntry]:
                     novig_clv_ev=_to_float(row.get("novig_clv_ev", "") or ""),
                     novig_result=row.get("novig_result") or None,
                     novig_pnl=_to_float(row.get("novig_pnl", "") or ""),
+                    strongest=_to_bool(row.get("strongest", "") or ""),
                 )
             )
     return out
@@ -257,6 +263,7 @@ def update_ledger(path: Path, new_entries: list[LedgerEntry], date: Date) -> lis
                     row[name] = ""
             row["conf_tier"] = e.conf_tier or ""
             row["top25"] = "" if e.top25 is None else str(int(e.top25))
+            row["strongest"] = "" if e.strongest is None else str(int(e.strongest))
             row["unit_ranks"] = e.unit_ranks if e.unit_ranks is not None else ""
             row["opp_unit_ranks"] = e.opp_unit_ranks if e.opp_unit_ranks is not None else ""
             row["ypp_tags"] = e.ypp_tags if e.ypp_tags is not None else ""
