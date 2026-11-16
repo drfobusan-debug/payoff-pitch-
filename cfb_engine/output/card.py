@@ -608,6 +608,28 @@ def _slate_best_block(recs: list[Recommendation], units: unitranks.UnitRanks | N
     )
 
 
+def _shadow_watch_block(recs: list[Recommendation]) -> str:
+    """Passes the near-market shadow price would buy; empty on cards priced without it."""
+    if all(r.shadow_prob is None for r in recs):
+        return ""
+    picks = sorted((r for r in recs if r.shadow_watch), key=lambda r: r.kickoff_utc or "")
+    if picks:
+        items = "".join(
+            f"<li>{_kick_prefix(r)}<b>{escape(r.selection)} ({_odds(r.market_american)})</b> "
+            f"&mdash; {r.display_category} ({escape(r.matchup)}), shadow model "
+            f"{(r.shadow_prob or 0.0) * 100:.1f}% vs market {(r.fair_prob or 0.0) * 100:.1f}%, "
+            f"engine {r.model_prob * 100:.1f}%</li>"
+            for r in picks
+        )
+        body = f"<ul class='bets'>{items}</ul>"
+    else:
+        body = "<p>No pass clears the gates at the near-market price today.</p>"
+    return (
+        f"<div class='lineagree'><h2>{strongest.WATCH_LABEL}</h2>"
+        f"<p class='sbnote'>{strongest.WATCH_NOTE}</p>{body}</div>"
+    )
+
+
 def _line_agrees_block(recs: list[Recommendation], record: Probation | None) -> str:
     picks = sorted((r for r in recs if r.line_agrees), key=_line_agrees_order)
     if record is None:
@@ -809,6 +831,7 @@ def build_article(
     body = _watching_block(watching)
     body += "".join(_game_section(g, podcast, units) for g in ordered_games)
     body += _slate_best_block(recs, units)
+    body += _shadow_watch_block(recs)
     body += _line_agrees_block(recs, line_agrees_record)
     body += _low_total_block(recs, low_total_record)
     body += records_block(podcast, ordered_games)
