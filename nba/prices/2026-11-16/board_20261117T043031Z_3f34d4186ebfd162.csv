@@ -1,0 +1,25 @@
+captured_at,game_date,matchup,event_id,market,side,entity,line,book,american,opposite_american,source
+2026-11-17T04:30:31Z,2026-11-16,PHX @ DEN,c2c9d9729305c19d4a453f92c83feae8,game_ats,DEN,,10.5,draftkings,-155,120,oddsapi
+2026-11-17T04:30:31Z,2026-11-16,PHX @ DEN,c2c9d9729305c19d4a453f92c83feae8,game_ats,PHX,,-10.5,draftkings,120,-155,oddsapi
+2026-11-17T04:30:31Z,2026-11-16,PHX @ DEN,c2c9d9729305c19d4a453f92c83feae8,game_ats,DEN,,12.5,williamhill_us,-240,185,oddsapi
+2026-11-17T04:30:31Z,2026-11-16,PHX @ DEN,c2c9d9729305c19d4a453f92c83feae8,game_ats,PHX,,-12.5,williamhill_us,185,-240,oddsapi
+2026-11-17T04:30:31Z,2026-11-16,PHX @ DEN,c2c9d9729305c19d4a453f92c83feae8,game_total,over,,222.5,williamhill_us,350,-500,oddsapi
+2026-11-17T04:30:31Z,2026-11-16,PHX @ DEN,c2c9d9729305c19d4a453f92c83feae8,game_total,under,,222.5,williamhill_us,-500,350,oddsapi
+2026-11-17T04:30:31Z,2026-11-16,PHX @ DEN,c2c9d9729305c19d4a453f92c83feae8,game_ats,DEN,,11.5,fanduel,102,-136,oddsapi
+2026-11-17T04:30:31Z,2026-11-16,PHX @ DEN,c2c9d9729305c19d4a453f92c83feae8,game_ats,PHX,,-11.5,fanduel,-136,102,oddsapi
+2026-11-17T04:30:31Z,2026-11-16,PHX @ DEN,c2c9d9729305c19d4a453f92c83feae8,game_ats,DEN,,9.5,fanatics,-140,105,oddsapi
+2026-11-17T04:30:31Z,2026-11-16,PHX @ DEN,c2c9d9729305c19d4a453f92c83feae8,game_ats,PHX,,-9.5,fanatics,105,-140,oddsapi
+2026-11-17T04:30:31Z,2026-11-16,PHX @ DEN,c2c9d9729305c19d4a453f92c83feae8,game_total,over,,222.5,fanatics,-125,-105,oddsapi
+2026-11-17T04:30:31Z,2026-11-16,PHX @ DEN,c2c9d9729305c19d4a453f92c83feae8,game_total,under,,222.5,fanatics,-105,-125,oddsapi
+2026-11-17T04:30:31Z,2026-11-16,PHX @ DEN,c2c9d9729305c19d4a453f92c83feae8,game_ats,DEN,,12.5,betmgm,-500,340,oddsapi
+2026-11-17T04:30:31Z,2026-11-16,PHX @ DEN,c2c9d9729305c19d4a453f92c83feae8,game_ats,PHX,,-12.5,betmgm,340,-500,oddsapi
+2026-11-17T04:30:31Z,2026-11-16,PHX @ DEN,c2c9d9729305c19d4a453f92c83feae8,game_total,over,,222.5,betmgm,210,-285,oddsapi
+2026-11-17T04:30:31Z,2026-11-16,PHX @ DEN,c2c9d9729305c19d4a453f92c83feae8,game_total,under,,222.5,betmgm,-285,210,oddsapi
+2026-11-17T04:30:31Z,2026-11-16,PHX @ DEN,c2c9d9729305c19d4a453f92c83feae8,game_ats,DEN,,8.5,betrivers,-200,143,oddsapi
+2026-11-17T04:30:31Z,2026-11-16,PHX @ DEN,c2c9d9729305c19d4a453f92c83feae8,game_ats,PHX,,-8.5,betrivers,143,-200,oddsapi
+2026-11-17T04:30:31Z,2026-11-16,PHX @ DEN,c2c9d9729305c19d4a453f92c83feae8,game_total,over,,220.5,betrivers,100,-136,oddsapi
+2026-11-17T04:30:31Z,2026-11-16,PHX @ DEN,c2c9d9729305c19d4a453f92c83feae8,game_total,under,,220.5,betrivers,-136,100,oddsapi
+2026-11-17T04:30:31Z,2026-11-16,PHX @ DEN,c2c9d9729305c19d4a453f92c83feae8,game_ats,DEN,,10,bovada,-110,-120,oddsapi
+2026-11-17T04:30:31Z,2026-11-16,PHX @ DEN,c2c9d9729305c19d4a453f92c83feae8,game_ats,PHX,,-10,bovada,-120,-110,oddsapi
+2026-11-17T04:30:31Z,2026-11-16,PHX @ DEN,c2c9d9729305c19d4a453f92c83feae8,game_ats,DEN,,11.5,mybookieag,-118,-111,oddsapi
+2026-11-17T04:30:31Z,2026-11-16,PHX @ DEN,c2c9d9729305c19d4a453f92c83feae8,game_ats,PHX,,-11.5,mybookieag,-111,-118,oddsapi
