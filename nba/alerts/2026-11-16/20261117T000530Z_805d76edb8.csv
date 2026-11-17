@@ -1,0 +1,4 @@
+detected_at,game_date,event_id,matchup,kind,detail,before,after
+2026-11-17T00:05:30Z,2026-11-16,efd4d1a289cc2aca91d30116e3629d1f,PHI @ BKN,ml_move,home ml 0.363 -> 0.328,0.363,0.328
+2026-11-17T00:05:30Z,2026-11-16,efd4d1a289cc2aca91d30116e3629d1f,PHI @ BKN,spread_move,home spread 4.5 -> 5.5,4.5,5.5
+2026-11-17T00:05:30Z,2026-11-16,efd4d1a289cc2aca91d30116e3629d1f,PHI @ BKN,total_move,total 225.5 -> 227.5,225.5,227.5
