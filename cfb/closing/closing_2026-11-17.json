@@ -1,0 +1,128 @@
+{
+  "Ball State @ Ohio|game_ats|Ball State": {
+    "american": -101.0,
+    "captured_at": "2026-11-17T22:45:37Z",
+    "kickoff_utc": "2026-11-18T00:00:00Z",
+    "line": 10.0,
+    "no_vig_prob": 0.49154530242354
+  },
+  "Ball State @ Ohio|game_ats|Ohio": {
+    "american": -110.0,
+    "captured_at": "2026-11-17T22:45:37Z",
+    "kickoff_utc": "2026-11-18T00:00:00Z",
+    "line": -10.0,
+    "no_vig_prob": 0.50845469757646
+  },
+  "Ball State @ Ohio|game_ml|Ball State": {
+    "american": 330.0,
+    "captured_at": "2026-11-17T22:45:37Z",
+    "kickoff_utc": "2026-11-18T00:00:00Z",
+    "line": null,
+    "no_vig_prob": 0.22736527053247996
+  },
+  "Ball State @ Ohio|game_ml|Ohio": {
+    "american": -400.0,
+    "captured_at": "2026-11-17T22:45:37Z",
+    "kickoff_utc": "2026-11-18T00:00:00Z",
+    "line": null,
+    "no_vig_prob": 0.77263472946752
+  },
+  "Ball State @ Ohio|game_total|Over": {
+    "american": -105.0,
+    "captured_at": "2026-11-17T22:45:37Z",
+    "kickoff_utc": "2026-11-18T00:00:00Z",
+    "line": 50.5,
+    "no_vig_prob": 0.49530255174044435
+  },
+  "Ball State @ Ohio|game_total|Under": {
+    "american": -110.0,
+    "captured_at": "2026-11-17T22:45:37Z",
+    "kickoff_utc": "2026-11-18T00:00:00Z",
+    "line": 50.5,
+    "no_vig_prob": 0.5046974482595556
+  },
+  "Eastern Michig @ Western Michig|game_ats|Eastern Michig": {
+    "american": 101.0,
+    "captured_at": "2026-11-17T22:45:37Z",
+    "kickoff_utc": "2026-11-17T23:00:00Z",
+    "line": 17.0,
+    "no_vig_prob": 0.49542026792559907
+  },
+  "Eastern Michig @ Western Michig|game_ats|Western Michig": {
+    "american": -108.0,
+    "captured_at": "2026-11-17T22:45:37Z",
+    "kickoff_utc": "2026-11-17T23:00:00Z",
+    "line": -17.0,
+    "no_vig_prob": 0.504579732074401
+  },
+  "Eastern Michig @ Western Michig|game_ml|Eastern Michig": {
+    "american": 650.0,
+    "captured_at": "2026-11-17T22:45:37Z",
+    "kickoff_utc": "2026-11-17T23:00:00Z",
+    "line": null,
+    "no_vig_prob": 0.1382197314472505
+  },
+  "Eastern Michig @ Western Michig|game_ml|Western Michig": {
+    "american": -850.0,
+    "captured_at": "2026-11-17T22:45:37Z",
+    "kickoff_utc": "2026-11-17T23:00:00Z",
+    "line": null,
+    "no_vig_prob": 0.8617802685527495
+  },
+  "Eastern Michig @ Western Michig|game_total|Over": {
+    "american": -105.0,
+    "captured_at": "2026-11-17T22:45:37Z",
+    "kickoff_utc": "2026-11-17T23:00:00Z",
+    "line": 45.5,
+    "no_vig_prob": 0.4998116792723866
+  },
+  "Eastern Michig @ Western Michig|game_total|Under": {
+    "american": -107.0,
+    "captured_at": "2026-11-17T22:45:37Z",
+    "kickoff_utc": "2026-11-17T23:00:00Z",
+    "line": 45.5,
+    "no_vig_prob": 0.5001883207276133
+  },
+  "Miami (OH) @ Kent State|game_ats|Kent State": {
+    "american": -102.0,
+    "captured_at": "2026-11-17T22:45:37Z",
+    "kickoff_utc": "2026-11-18T00:00:00Z",
+    "line": 9.5,
+    "no_vig_prob": 0.49793382133562064
+  },
+  "Miami (OH) @ Kent State|game_ats|Miami (OH)": {
+    "american": -107.0,
+    "captured_at": "2026-11-17T22:45:37Z",
+    "kickoff_utc": "2026-11-18T00:00:00Z",
+    "line": -9.5,
+    "no_vig_prob": 0.5020661786643794
+  },
+  "Miami (OH) @ Kent State|game_ml|Kent State": {
+    "american": 295.0,
+    "captured_at": "2026-11-17T22:45:37Z",
+    "kickoff_utc": "2026-11-18T00:00:00Z",
+    "line": null,
+    "no_vig_prob": 0.24599338081238836
+  },
+  "Miami (OH) @ Kent State|game_ml|Miami (OH)": {
+    "american": -350.0,
+    "captured_at": "2026-11-17T22:45:37Z",
+    "kickoff_utc": "2026-11-18T00:00:00Z",
+    "line": null,
+    "no_vig_prob": 0.7540066191876117
+  },
+  "Miami (OH) @ Kent State|game_total|Over": {
+    "american": -105.0,
+    "captured_at": "2026-11-17T22:45:37Z",
+    "kickoff_utc": "2026-11-18T00:00:00Z",
+    "line": 45.5,
+    "no_vig_prob": 0.49375732529858324
+  },
+  "Miami (OH) @ Kent State|game_total|Under": {
+    "american": -110.0,
+    "captured_at": "2026-11-17T22:45:37Z",
+    "kickoff_utc": "2026-11-18T00:00:00Z",
+    "line": 45.5,
+    "no_vig_prob": 0.5062426747014167
+  }
+}
