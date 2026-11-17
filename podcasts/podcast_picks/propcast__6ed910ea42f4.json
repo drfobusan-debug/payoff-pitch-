@@ -1,0 +1,70 @@
+{
+ "episode_guid": "a5870114-cf51-4ea9-b160-dc9af8375661",
+ "model": "gpt-4o-mini",
+ "prompt_version": "picks-v2",
+ "transcript_sha": "bd807f763a01981605c084f8b2d764909141e0fb",
+ "picks": [],
+ "rejected": [
+  {
+   "league": "nhl",
+   "kind": "official",
+   "host": "Adam",
+   "team": "Ducks",
+   "opponent": "Blues",
+   "market": "other",
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "stamp": "04:47",
+   "quote": "give me a Michael Grandland over 0.5 or to have an assist plus 130.",
+   "edge": "St. Louis has given up an assist to at least one top six center in 10 of 20 games this season.",
+   "fair_line": null,
+   "reason": "Grandland has been setting up goals and has a good hit rate against a weak defense.",
+   "description": "Michael Grandland over 0.5 assists +130",
+   "why": "league not read from this show"
+  },
+  {
+   "league": "nhl",
+   "kind": "official",
+   "host": "Adam",
+   "team": "Bruins",
+   "opponent": "Canucks",
+   "market": "other",
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "stamp": "09:28",
+   "quote": "give me a Lindholm point at even money.",
+   "edge": "Lindholm has been consistently getting points and is on the first line power play against a weak defense.",
+   "fair_line": null,
+   "reason": "Lindholm has been a point machine and the Canucks have a poor defense.",
+   "description": "Elias Lindholm to record a point at even money",
+   "why": "league not read from this show"
+  },
+  {
+   "league": "nhl",
+   "kind": "official",
+   "host": "Adam",
+   "team": "Blackhawks",
+   "opponent": null,
+   "market": "other",
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "stamp": "11:19",
+   "quote": "give me a Dard assist at minus one 10.",
+   "edge": "Bedard has been getting assists frequently and is facing a weak defense.",
+   "fair_line": null,
+   "reason": "Bedard has been more well-rounded this year and has a good matchup.",
+   "description": "Connor Bedard to record an assist at -110",
+   "why": "league not read from this show"
+  }
+ ],
+ "leagues": [
+  "nfl",
+  "cfb"
+ ]
+}
