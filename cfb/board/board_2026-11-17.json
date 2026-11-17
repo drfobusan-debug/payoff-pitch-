@@ -1,0 +1,128 @@
+{
+  "Ball State @ Ohio|game_ats|Ball State": {
+    "american": -104.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 11.0,
+    "no_vig_prob": 0.49706480270270836
+  },
+  "Ball State @ Ohio|game_ats|Ohio": {
+    "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -11.0,
+    "no_vig_prob": 0.5029351972972916
+  },
+  "Ball State @ Ohio|game_ml|Ball State": {
+    "american": 365.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.2119845304623167
+  },
+  "Ball State @ Ohio|game_ml|Ohio": {
+    "american": -450.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.7880154695376834
+  },
+  "Ball State @ Ohio|game_total|Over": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 49.5,
+    "no_vig_prob": 0.501202450027434
+  },
+  "Ball State @ Ohio|game_total|Under": {
+    "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 49.5,
+    "no_vig_prob": 0.498797549972566
+  },
+  "Eastern Michig @ Western Michig|game_ats|Eastern Michig": {
+    "american": -104.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 15.0,
+    "no_vig_prob": 0.49737224409062825
+  },
+  "Eastern Michig @ Western Michig|game_ats|Western Michig": {
+    "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -15.0,
+    "no_vig_prob": 0.5026277559093718
+  },
+  "Eastern Michig @ Western Michig|game_ml|Eastern Michig": {
+    "american": 550.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.15854474096016213
+  },
+  "Eastern Michig @ Western Michig|game_ml|Western Michig": {
+    "american": -650.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.8414552590398379
+  },
+  "Eastern Michig @ Western Michig|game_total|Over": {
+    "american": -109.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 46.5,
+    "no_vig_prob": 0.5016133675979935
+  },
+  "Eastern Michig @ Western Michig|game_total|Under": {
+    "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 46.5,
+    "no_vig_prob": 0.4983866324020066
+  },
+  "Miami (OH) @ Kent State|game_ats|Kent State": {
+    "american": -104.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 9.5,
+    "no_vig_prob": 0.49988405962747245
+  },
+  "Miami (OH) @ Kent State|game_ats|Miami (OH)": {
+    "american": -107.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -9.5,
+    "no_vig_prob": 0.5001159403725276
+  },
+  "Miami (OH) @ Kent State|game_ml|Kent State": {
+    "american": 296.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.24854162001792957
+  },
+  "Miami (OH) @ Kent State|game_ml|Miami (OH)": {
+    "american": -340.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.7514583799820704
+  },
+  "Miami (OH) @ Kent State|game_total|Over": {
+    "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 45.0,
+    "no_vig_prob": 0.4973908004601024
+  },
+  "Miami (OH) @ Kent State|game_total|Under": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 45.0,
+    "no_vig_prob": 0.5026091995398976
+  }
+}
