@@ -32,6 +32,7 @@ POWER = frozenset({"ACC", "B10", "B12", "SEC", "BE"})
 WEAK_RANK = 200
 SLOW_SHARE = 1 / 3
 BIG_SPREAD = 15.0
+MID_MAJOR_BIG = 9.0
 LONG_SHOT = 0.25
 HEAVY_FAV = 0.85
 MOVE_PTS = 1.0
@@ -123,6 +124,15 @@ def _inside_not_outside(r: ledger.Row, c: GameCtx) -> bool:
     return me.two > them.two and me.three < them.three  # type: ignore[operator]
 
 
+def _neutral_dog(r: ledger.Row, c: GameCtx, pts: float) -> bool:
+    """The underdog's spread row on a neutral court, getting ``pts`` or more."""
+    return _ats(r) and c.neutral and not _fav(r, c) and r.line is not None and r.line >= pts
+
+
+def _both_mid_major(c: GameCtx) -> bool:
+    return c.home.power is False and c.away.power is False
+
+
 def _side(market: str, side: str, fav: bool | None = None) -> Pred:
     return lambda r, c: r.market == market and r.side == side and (fav is None or _fav(r, c) == fav)
 
@@ -166,6 +176,8 @@ BANDS: tuple[tuple[str, Pred], ...] = (
     ("both teams slow tempo: Under", lambda r, c: r.market == "game_total" and r.side == "under" and bool(c.home.slow and c.away.slow)),
     ("big spread (>= 15) favourite ATS", lambda r, c: _ats(r) and r.line is not None and r.line <= -BIG_SPREAD),
     ("big spread (>= 15) underdog ATS", lambda r, c: _ats(r) and r.line is not None and r.line >= BIG_SPREAD),
+    ("neutral court: underdog of 15+ ATS", lambda r, c: _neutral_dog(r, c, BIG_SPREAD)),
+    ("neutral court, both mid-major: underdog of 9+ ATS", lambda r, c: _neutral_dog(r, c, MID_MAJOR_BIG) and _both_mid_major(c)),
     ("exploratory: underdog better 2P%, worse 3P% (10+ games) ATS", lambda r, c: _ats(r) and not _fav(r, c) and _inside_not_outside(r, c)),
 )
 
