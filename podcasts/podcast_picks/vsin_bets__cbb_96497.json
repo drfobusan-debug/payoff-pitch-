@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-96497",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "9921a28f45a1f0fbce198ecd0708666db767926e",
+ "picks": [
+  {
+   "pick_id": "5f15e8f47898",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-96497",
+   "episode_title": "Illinois vs. Duke Basketball Prediction: Tuesday, November 17, 2026",
+   "published": "2026-11-17T01:39:27+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Illinois",
+   "opponent": "Duke",
+   "side": null,
+   "line": 7.5,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Illinois +7.5",
+   "reason": "https://vsin.com/college-basketball/illinois-vs-duke-basketball-prediction-tuesday-november-17-2026/",
+   "description": "Illinois +7.5",
+   "league": "cbb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cbb"
+ ]
+}
