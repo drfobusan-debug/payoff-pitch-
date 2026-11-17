@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-96188",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "1e2f07d143c7fef1c08ff04144fb7e835ffab997",
+ "picks": [
+  {
+   "pick_id": "972434e39ea9",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Zachary Cohen",
+   "episode_guid": "vsin-96188",
+   "episode_title": "Chargers vs. Ravens Predictions: Week 10 Monday Night Football odds, picks, and player props",
+   "published": "2026-11-16T05:09:06+00:00",
+   "kind": "official",
+   "market": "game_total",
+   "team": "Chargers",
+   "opponent": "Ravens",
+   "side": "over",
+   "line": 38.5,
+   "price": -110.0,
+   "units": null,
+   "seconds": 0,
+   "quote": "Over 38.5 (-110)",
+   "reason": "https://vsin.com/nfl/chargers-vs-ravens-predictions-week-10-monday-night-football-odds-picks-and-player-props/",
+   "description": "Over 38.5 (-110)",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "nfl"
+ ]
+}
