@@ -198,3 +198,20 @@ def test_books_disagreeing_on_the_favourite_give_the_game_one_underdog() -> None
     reads = {b.name: b for b in bands.read_bands(rows, ctx)}
     assert reads["weak game (both Torvik rank > 200) favourite ATS"].record == "0-1"
     assert reads["weak game (both Torvik rank > 200) underdog ATS"].record == "2-1"  # e away; f is a dead tie
+
+
+def test_neutral_court_big_underdog_bands() -> None:
+    mid, power = bands.Team(power=False), bands.Team(power=True)
+    ctx = {
+        "a": bands.GameCtx(home=mid, away=mid, neutral=True),  # mid-majors, 16: both bands
+        "b": bands.GameCtx(home=power, away=mid, neutral=True),  # 16 with a power team: 15+ only
+        "c": bands.GameCtx(home=mid, away=mid, neutral=True),  # mid-majors, 10: 9+ only
+        "d": bands.GameCtx(home=mid, away=mid),  # home court: neither
+        "e": bands.GameCtx(home=mid, away=bands.Team(), neutral=True),  # unknown conference: 15+ only
+    }
+    rows = []
+    for eid, line in (("a", 16.0), ("b", 16.0), ("c", 10.0), ("d", 16.0), ("e", 16.0)):
+        rows += [_row(eid, "game_ats", "home", -line, outcome="loss"), _row(eid, "game_ats", "away", line)]
+    reads = {b.name: b for b in bands.read_bands(rows, ctx)}
+    assert reads["neutral court: underdog of 15+ ATS"].record == "3-0"
+    assert reads["neutral court, both mid-major: underdog of 9+ ATS"].record == "2-0"
