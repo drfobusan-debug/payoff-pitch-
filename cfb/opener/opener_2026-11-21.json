@@ -209,6 +209,34 @@
     "line": 52.5,
     "no_vig_prob": 0.5030956957111407
   },
+  "Chattanooga @ Alabama|game_ats|Alabama": {
+    "american": 100.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -49.5,
+    "no_vig_prob": 0.4782608695652174
+  },
+  "Chattanooga @ Alabama|game_ats|Chattanooga": {
+    "american": -120.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 49.5,
+    "no_vig_prob": 0.5217391304347826
+  },
+  "Chattanooga @ Alabama|game_total|Over": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 58.5,
+    "no_vig_prob": 0.5
+  },
+  "Chattanooga @ Alabama|game_total|Under": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 58.5,
+    "no_vig_prob": 0.5
+  },
   "Coastal Caroli @ Louisiana|game_ats|Coastal Caroli": {
     "american": -105.0,
     "captured_at": "",
@@ -1679,6 +1707,48 @@
     "line": 50.5,
     "no_vig_prob": 0.4891657638136511
   },
+  "Tennessee Tech @ Mississippi St|game_ats|Mississippi St": {
+    "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -39.5,
+    "no_vig_prob": 0.4956702459300312
+  },
+  "Tennessee Tech @ Mississippi St|game_ats|Tennessee Tech": {
+    "american": -112.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 39.5,
+    "no_vig_prob": 0.5043297540699688
+  },
+  "Tennessee Tech @ Mississippi St|game_ml|Mississippi St": {
+    "american": -8000.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.9578344612181156
+  },
+  "Tennessee Tech @ Mississippi St|game_ml|Tennessee Tech": {
+    "american": 2200.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.042165538781884435
+  },
+  "Tennessee Tech @ Mississippi St|game_total|Over": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 59.5,
+    "no_vig_prob": 0.5
+  },
+  "Tennessee Tech @ Mississippi St|game_total|Under": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 59.5,
+    "no_vig_prob": 0.5
+  },
   "Texas A&M @ Oklahoma|game_ats|Oklahoma": {
     "american": -106.0,
     "captured_at": "",
@@ -2265,6 +2335,34 @@
     "captured_at": "",
     "kickoff_utc": "",
     "line": 45.5,
+    "no_vig_prob": 0.5
+  },
+  "Wofford @ Ole Miss|game_ats|Ole Miss": {
+    "american": -120.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -48.5,
+    "no_vig_prob": 0.5217391304347826
+  },
+  "Wofford @ Ole Miss|game_ats|Wofford": {
+    "american": 100.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 48.5,
+    "no_vig_prob": 0.4782608695652174
+  },
+  "Wofford @ Ole Miss|game_total|Over": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 59.5,
+    "no_vig_prob": 0.5
+  },
+  "Wofford @ Ole Miss|game_total|Under": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 59.5,
     "no_vig_prob": 0.5
   }
 }
