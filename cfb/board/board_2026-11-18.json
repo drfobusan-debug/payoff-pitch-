@@ -1,0 +1,86 @@
+{
+  "Akron @ UMass|game_ats|Akron": {
+    "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 3.5,
+    "no_vig_prob": 0.49974552899145513
+  },
+  "Akron @ UMass|game_ats|UMass": {
+    "american": -107.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -3.5,
+    "no_vig_prob": 0.5002544710085449
+  },
+  "Akron @ UMass|game_ml|Akron": {
+    "american": 155.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.38904728601259725
+  },
+  "Akron @ UMass|game_ml|UMass": {
+    "american": -165.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.6109527139874028
+  },
+  "Akron @ UMass|game_total|Over": {
+    "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 47.5,
+    "no_vig_prob": 0.49904939306369134
+  },
+  "Akron @ UMass|game_total|Under": {
+    "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 47.5,
+    "no_vig_prob": 0.5009506069363086
+  },
+  "Central Michig @ Buffalo|game_ats|Buffalo": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -2.5,
+    "no_vig_prob": 0.5106884428732189
+  },
+  "Central Michig @ Buffalo|game_ats|Central Michig": {
+    "american": 100.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 2.5,
+    "no_vig_prob": 0.48931155712678104
+  },
+  "Central Michig @ Buffalo|game_ml|Buffalo": {
+    "american": -134.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.5610181071311967
+  },
+  "Central Michig @ Buffalo|game_ml|Central Michig": {
+    "american": 122.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.43898189286880335
+  },
+  "Central Michig @ Buffalo|game_total|Over": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 46.0,
+    "no_vig_prob": 0.5068726995759099
+  },
+  "Central Michig @ Buffalo|game_total|Under": {
+    "american": -103.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 46.0,
+    "no_vig_prob": 0.49312730042409014
+  }
+}
