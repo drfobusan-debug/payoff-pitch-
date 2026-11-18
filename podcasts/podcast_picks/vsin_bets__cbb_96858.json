@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-96858",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "144c86bd5535ba9c4daff7ecd8a61c0d5e189fc6",
+ "picks": [
+  {
+   "pick_id": "adf9fe3cca29",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-96858",
+   "episode_title": "Florida vs. Houston Basketball Prediction: Wednesday, November 18, 2026",
+   "published": "2026-11-18T02:49:20+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Florida",
+   "opponent": "Houston",
+   "side": null,
+   "line": -1.5,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Florida -1.5",
+   "reason": "https://vsin.com/college-basketball/florida-vs-houston-basketball-prediction-tuesday-november-18-2026/",
+   "description": "Florida -1.5",
+   "league": "cbb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cbb"
+ ]
+}
