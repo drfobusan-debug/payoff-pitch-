@@ -78,6 +78,9 @@ class Recommendation:
     # and whether this buy still clears the gates there (``market.strongest``).
     shadow_prob: float | None = None
     strongest: bool = False
+    # The shadow price alone would buy it (a pass at the engine's price is a
+    # near-market watch row: graded, never staked).
+    shadow_buy: bool = False
 
     @property
     def model_american(self) -> float:
@@ -129,6 +132,16 @@ class Recommendation:
             return ""
         return f"YES (+{self.pre_bet_move * 100:.1f} pp)"
 
+    @property
+    def shadow_watch(self) -> bool:
+        """A pass the near-market shadow price would buy (``market.strongest``)."""
+        return self.shadow_buy and self.tier == Tier.PASS
+
+    def _strongest_cell(self) -> str:
+        if self.strongest:
+            return strongest.CELL
+        return strongest.WATCH_CELL if self.shadow_watch else ""
+
     def as_row(self) -> dict[str, object]:
         return {
             "Date": self.game_date.isoformat(),
@@ -146,7 +159,7 @@ class Recommendation:
             "Kelly": round(self.kelly, 3) if self.kelly is not None else "",
             "Handle-Tickets": self.sharp_div if self.sharp_div is not None else "",
             "Tier": self.tier.value,
-            strongest.LABEL: strongest.CELL if self.strongest else "",
+            strongest.LABEL: self._strongest_cell(),
             lineagree.LABEL: self._line_agrees_cell(),
             lowtotal.LABEL: "WOULD SKIP" if self.low_total_under else "",
             "Notes": "; ".join(self.reasons),

@@ -40,7 +40,7 @@ from cfb_engine.data.roster import RosterBook
 from cfb_engine.data.starters import StarterBook, starter_absent
 from cfb_engine.data.teamnames import school_key
 from cfb_engine.data.vsin import hfa_for, hfa_note
-from cfb_engine.data.vsin_splits import SplitBook, SplitsProvider, lookup
+from cfb_engine.data.vsin_splits import Split, SplitBook, SplitsProvider, lookup
 from cfb_engine.data.watch import fetch_watch_book
 from cfb_engine.features.adjustments import Adjustment, compute_adjustment
 from cfb_engine.features.context import ContextBook, build_context_book, context_for
@@ -700,40 +700,16 @@ class Pipeline:
         drift = self._drift(ctx.matchup, market, selection, side, line, result.fair_prob)
         split = lookup(self.splits, ctx.matchup, market, selection)
         pass_gate: str | None = mark_gate
-        if tier != Tier.PASS and not result.executable:
-            reasons = [*reasons, "no DraftKings/BetMGM quote: not a bet"]
-            tier, pass_gate = Tier.PASS, "no_exec_book"
-        if tier != Tier.PASS:
-            keep, drift_reason, gate = self.drift_gate.verdict(drift)
-            if drift_reason:
-                reasons = [*reasons, drift_reason]
-            if not keep:
-                tier, pass_gate = Tier.PASS, gate
-        if tier != Tier.PASS:
-            band = self.price_band.for_market(market)
-            keep, band_reason, band_gate = band.verdict(result.best_quote.american)
-            if band_reason:
-                reasons = [*reasons, band_reason]
-            if not keep:
-                tier, pass_gate = Tier.PASS, band_gate
-        # The moneyline is the market whose own EV signal graded inverted in the
-        # sibling engine, so it is the one asked to have the money on its side.
-        if tier != Tier.PASS and market == "game_ml":
-            keep, sharp_reason, sharp_gate = self.sharp_gate.verdict(split)
-            if sharp_reason:
-                reasons = [*reasons, sharp_reason]
-            if not keep:
-                tier, pass_gate = Tier.PASS, sharp_gate
-        if tier != Tier.PASS:
-            keep, graded_reason, graded_gate = self.graded_only.verdict(market, tier.value)
-            if not keep:
-                reasons = [*reasons, graded_reason]
-                tier, pass_gate = Tier.PASS, graded_gate
+        tier, reasons, gate = self._buy_gates(tier, reasons, result, market, drift, split)
+        pass_gate = gate or pass_gate
         shadow_model: float | None = None
-        strongest = False
+        shadow_buy = False
         if shadow_prob is not None:
             shadow_model, _, shadow_result = self._screen_price(market, shadow_prob, quotes)
-            strongest = tier != Tier.PASS and classify(shadow_result, thr)[0] != Tier.PASS
+            shadow_tier, _ = classify(shadow_result, thr)
+            shadow_tier, _, _ = self._mark(ctx.signal, market, team_side, side, line, shadow_tier)
+            shadow_tier, _, _ = self._buy_gates(shadow_tier, [], shadow_result, market, drift, split)
+            shadow_buy = shadow_tier != Tier.PASS
         return Recommendation(
             game_date=ctx.game.game_date,
             game_id=ctx.game.game_id,
@@ -770,8 +746,51 @@ class Pipeline:
             exp_total=ctx.sim.exp_total,
             exp_total_sd=ctx.sim.exp_total_sd,
             shadow_prob=shadow_model,
-            strongest=strongest,
+            strongest=shadow_buy and tier != Tier.PASS,
+            shadow_buy=shadow_buy,
         )
+
+    def _buy_gates(
+        self,
+        tier: Tier,
+        reasons: list[str],
+        result: EVResult,
+        market: str,
+        drift: float | None,
+        split: Split | None,
+    ) -> tuple[Tier, list[str], str | None]:
+        """The screens a classified buy must still pass: ``(tier, reasons, gate)``."""
+        pass_gate: str | None = None
+        if tier != Tier.PASS and not result.executable:
+            reasons = [*reasons, "no DraftKings/BetMGM quote: not a bet"]
+            tier, pass_gate = Tier.PASS, "no_exec_book"
+        if tier != Tier.PASS:
+            keep, drift_reason, gate = self.drift_gate.verdict(drift)
+            if drift_reason:
+                reasons = [*reasons, drift_reason]
+            if not keep:
+                tier, pass_gate = Tier.PASS, gate
+        if tier != Tier.PASS:
+            band = self.price_band.for_market(market)
+            keep, band_reason, band_gate = band.verdict(result.best_quote.american)
+            if band_reason:
+                reasons = [*reasons, band_reason]
+            if not keep:
+                tier, pass_gate = Tier.PASS, band_gate
+        # The moneyline is the market whose own EV signal graded inverted in the
+        # sibling engine, so it is the one asked to have the money on its side.
+        if tier != Tier.PASS and market == "game_ml":
+            keep, sharp_reason, sharp_gate = self.sharp_gate.verdict(split)
+            if sharp_reason:
+                reasons = [*reasons, sharp_reason]
+            if not keep:
+                tier, pass_gate = Tier.PASS, sharp_gate
+        if tier != Tier.PASS:
+            keep, graded_reason, graded_gate = self.graded_only.verdict(market, tier.value)
+            if not keep:
+                reasons = [*reasons, graded_reason]
+                tier, pass_gate = Tier.PASS, graded_gate
+        return tier, reasons, pass_gate
 
     def _screen_price(
         self, market: str, raw_prob: float, quotes: list[MarketQuote]

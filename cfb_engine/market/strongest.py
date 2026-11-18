@@ -17,6 +17,13 @@ from cfb_engine.config import FeatureParams
 
 LABEL = "Strongest Buy"
 CELL = "STRONGEST"
+WATCH_CELL = "WATCH (no bet)"
+WATCH_LABEL = "Near-market watch (graded only)"
+WATCH_NOTE = (
+    "Rows the engine passes on at its own price that would clear the buy gates with "
+    "the margin blended 90% to the market and rest, bye and travel left out. "
+    "Tracked to grade the near-market price on its own; these are not bets and carry no stake."
+)
 CARD_NOTE = (
     "<b>BOLD CAPS</b> = strongest buy: still clears the buy gates with the margin "
     "blended 90% to the market and rest, bye and travel left out. Graded only; "
