@@ -1,0 +1,80 @@
+{
+ "episode_guid": "83314185-8a97-4053-bb5a-e7b9a3e0b9c6",
+ "model": "gpt-4o-mini",
+ "prompt_version": "picks-v2",
+ "transcript_sha": "f77f73cb5027c2242ed44544860692a75883b290",
+ "picks": [
+  {
+   "pick_id": "515c2305adf7",
+   "show": "ftm",
+   "show_name": "Follow the Money",
+   "host": "Mitch Moss",
+   "episode_guid": "83314185-8a97-4053-bb5a-e7b9a3e0b9c6",
+   "episode_title": "Follow the Money | November 18, 2026 | Hour 1",
+   "published": "2026-11-18T17:07:26-05:00",
+   "kind": "official",
+   "market": "game_ml",
+   "team": "Florida",
+   "opponent": "Houston",
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": 1.0,
+   "seconds": 1261,
+   "quote": "I bet him small money line.",
+   "reason": "Florida's front court should dominate against Houston's rebounding issues.",
+   "description": "Florida money line over Houston.",
+   "league": "cbb",
+   "edge": "Florida has a strong front court and Houston struggles with offensive rebounds.",
+   "fair_line": null
+  }
+ ],
+ "rejected": [
+  {
+   "league": "cfb",
+   "kind": "official",
+   "host": "Mitch Moss",
+   "team": "Iowa",
+   "opponent": null,
+   "market": "other",
+   "side": null,
+   "line": -450,
+   "price": null,
+   "units": null,
+   "stamp": "[10:10]",
+   "quote": "They were my locked during and after the show last night... I still think the $5 with Boise to make it. They're up to 17 now.",
+   "edge": "Iowa's playoff chances are severely diminished, making this a strong bet to miss the playoffs.",
+   "fair_line": null,
+   "reason": "Iowa's chances of making the playoffs are very low after recent performances.",
+   "description": "Iowa to miss the playoffs at -450.",
+   "why": "bad stamp"
+  },
+  {
+   "league": "cbb",
+   "kind": "official",
+   "host": "Mitch Moss",
+   "team": "Florida",
+   "opponent": "Houston",
+   "market": "game_ml",
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "stamp": "[19:24]",
+   "quote": "I did take a bet on Florida money line over Houston.",
+   "edge": "",
+   "fair_line": null,
+   "reason": "Mitch believes Florida has a good chance to win against Houston.",
+   "description": "Florida money line over Houston.",
+   "why": "bad stamp"
+  }
+ ],
+ "leagues": [
+  "cfb",
+  "nfl",
+  "mlb",
+  "nba",
+  "cbb",
+  "nhl"
+ ]
+}
