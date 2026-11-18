@@ -1,0 +1,4 @@
+detected_at,game_date,event_id,matchup,kind,detail,before,after
+2026-11-18T23:04:40Z,2026-11-18,5896e4ed2ed41ce673e882b6529078b8,WAS @ TOR,settled,line steady over the last 4 poll(s),"{""ml"": 0.6164383561643836, ""spread"": -4.25, ""total"": 224.0}","{""ml"": 0.6140350877192983, ""spread"": -4.0, ""total"": 223.5}"
+2026-11-18T23:04:40Z,2026-11-18,635a9b07c018a821e08b521ea473133b,PHI @ ORL,settled,line steady over the last 4 poll(s),"{""ml"": 0.543415571932073, ""spread"": -2.0, ""total"": 220.25}","{""ml"": 0.5609191832100723, ""spread"": -2.5, ""total"": 219.5}"
+2026-11-18T23:04:40Z,2026-11-18,f9ae24215832bbc1703c9836d0c96751,HOU @ IND,settled,line steady over the last 2 poll(s),"{""ml"": 0.2553191489361702, ""spread"": 8.5, ""total"": 225.5}","{""ml"": 0.2553191489361702, ""spread"": 8.5, ""total"": 225.5}"
