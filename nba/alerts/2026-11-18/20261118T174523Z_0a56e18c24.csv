@@ -1,0 +1,4 @@
+detected_at,game_date,event_id,matchup,kind,detail,before,after
+2026-11-18T17:45:23Z,2026-11-18,5896e4ed2ed41ce673e882b6529078b8,WAS @ TOR,ml_move,home ml 0.684 -> 0.626,0.684,0.626
+2026-11-18T17:45:23Z,2026-11-18,5896e4ed2ed41ce673e882b6529078b8,WAS @ TOR,spread_move,home spread -6.5 -> -4.5,-6.5,-4.5
+2026-11-18T17:45:23Z,2026-11-18,5896e4ed2ed41ce673e882b6529078b8,WAS @ TOR,total_move,total 227 -> 225.5,227,225.5
