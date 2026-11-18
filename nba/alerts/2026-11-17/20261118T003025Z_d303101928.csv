@@ -1,0 +1,4 @@
+detected_at,game_date,event_id,matchup,kind,detail,before,after
+2026-11-18T00:30:25Z,2026-11-17,f1c9f0cd022cd864154413efbd9d9522,POR @ MIN,ml_move,home ml 0.548 -> 0.612,0.548,0.612
+2026-11-18T00:30:25Z,2026-11-17,f1c9f0cd022cd864154413efbd9d9522,POR @ MIN,spread_move,home spread -2.5 -> -4.5,-2.5,-4.5
+2026-11-18T00:30:25Z,2026-11-17,f1c9f0cd022cd864154413efbd9d9522,POR @ MIN,total_move,total 227 -> 225.5,227,225.5
