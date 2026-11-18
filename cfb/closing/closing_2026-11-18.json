@@ -1,0 +1,86 @@
+{
+  "Akron @ UMass|game_ats|Akron": {
+    "american": -105.0,
+    "captured_at": "2026-11-18T23:45:37Z",
+    "kickoff_utc": "2026-11-19T00:00:00Z",
+    "line": 3.0,
+    "no_vig_prob": 0.5031784884574637
+  },
+  "Akron @ UMass|game_ats|UMass": {
+    "american": 100.0,
+    "captured_at": "2026-11-18T23:45:37Z",
+    "kickoff_utc": "2026-11-19T00:00:00Z",
+    "line": -3.0,
+    "no_vig_prob": 0.4968215115425363
+  },
+  "Akron @ UMass|game_ml|Akron": {
+    "american": 140.0,
+    "captured_at": "2026-11-18T23:45:37Z",
+    "kickoff_utc": "2026-11-19T00:00:00Z",
+    "line": null,
+    "no_vig_prob": 0.4096995090559252
+  },
+  "Akron @ UMass|game_ml|UMass": {
+    "american": -154.0,
+    "captured_at": "2026-11-18T23:45:37Z",
+    "kickoff_utc": "2026-11-19T00:00:00Z",
+    "line": null,
+    "no_vig_prob": 0.5903004909440749
+  },
+  "Akron @ UMass|game_total|Over": {
+    "american": -110.0,
+    "captured_at": "2026-11-18T23:45:37Z",
+    "kickoff_utc": "2026-11-19T00:00:00Z",
+    "line": 46.5,
+    "no_vig_prob": 0.5016895234171156
+  },
+  "Akron @ UMass|game_total|Under": {
+    "american": -108.0,
+    "captured_at": "2026-11-18T23:45:37Z",
+    "kickoff_utc": "2026-11-19T00:00:00Z",
+    "line": 46.5,
+    "no_vig_prob": 0.49831047658288435
+  },
+  "Central Michig @ Buffalo|game_ats|Buffalo": {
+    "american": -110.0,
+    "captured_at": "2026-11-18T23:45:37Z",
+    "kickoff_utc": "2026-11-19T00:30:00Z",
+    "line": -2.5,
+    "no_vig_prob": 0.5129139031365053
+  },
+  "Central Michig @ Buffalo|game_ats|Central Michig": {
+    "american": 100.0,
+    "captured_at": "2026-11-18T23:45:37Z",
+    "kickoff_utc": "2026-11-19T00:30:00Z",
+    "line": 2.5,
+    "no_vig_prob": 0.48708609686349474
+  },
+  "Central Michig @ Buffalo|game_ml|Buffalo": {
+    "american": -134.0,
+    "captured_at": "2026-11-18T23:45:37Z",
+    "kickoff_utc": "2026-11-19T00:30:00Z",
+    "line": null,
+    "no_vig_prob": 0.5646973876052138
+  },
+  "Central Michig @ Buffalo|game_ml|Central Michig": {
+    "american": 127.0,
+    "captured_at": "2026-11-18T23:45:37Z",
+    "kickoff_utc": "2026-11-19T00:30:00Z",
+    "line": null,
+    "no_vig_prob": 0.43530261239478624
+  },
+  "Central Michig @ Buffalo|game_total|Over": {
+    "american": -110.0,
+    "captured_at": "2026-11-18T23:45:37Z",
+    "kickoff_utc": "2026-11-19T00:30:00Z",
+    "line": 46.5,
+    "no_vig_prob": 0.5067671091220262
+  },
+  "Central Michig @ Buffalo|game_total|Under": {
+    "american": 100.0,
+    "captured_at": "2026-11-18T23:45:37Z",
+    "kickoff_utc": "2026-11-19T00:30:00Z",
+    "line": 46.5,
+    "no_vig_prob": 0.4932328908779738
+  }
+}
