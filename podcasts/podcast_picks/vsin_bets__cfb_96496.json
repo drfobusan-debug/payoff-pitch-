@@ -1,0 +1,60 @@
+{
+ "episode_guid": "vsin-96496",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "03604d82abe8df02378272e64bdcba20d6822f5e",
+ "picks": [
+  {
+   "pick_id": "01ec5d8c2a25",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-96496",
+   "episode_title": "College Football Week 12 Picks: Akron vs. UMass; Central Michigan vs. Buffalo",
+   "published": "2026-11-17T01:36:00+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "UMass",
+   "opponent": "Akron",
+   "side": null,
+   "line": -3.0,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "UMass -3",
+   "reason": "https://vsin.com/college-football/college-football-week-12-picks-akron-vs-umass-central-michigan-vs-buffalo/",
+   "description": "UMass -3",
+   "league": "cfb",
+   "edge": "",
+   "fair_line": null
+  },
+  {
+   "pick_id": "1af35a404274",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-96496",
+   "episode_title": "College Football Week 12 Picks: Akron vs. UMass; Central Michigan vs. Buffalo",
+   "published": "2026-11-17T01:36:00+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Buffalo",
+   "opponent": "Central Michigan",
+   "side": null,
+   "line": -2.5,
+   "price": null,
+   "units": null,
+   "seconds": 1,
+   "quote": "Buffalo -2.5",
+   "reason": "https://vsin.com/college-football/college-football-week-12-picks-akron-vs-umass-central-michigan-vs-buffalo/",
+   "description": "Buffalo -2.5",
+   "league": "cfb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cfb"
+ ]
+}

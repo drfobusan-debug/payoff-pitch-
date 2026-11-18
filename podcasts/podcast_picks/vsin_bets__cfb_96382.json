@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-96382",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "e823893b01d858b7645029bf25cf72a4e2765595",
+ "picks": [
+  {
+   "pick_id": "2a561695f036",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-96382",
+   "episode_title": "College Football Week 12 Picks: Ball State vs. Ohio",
+   "published": "2026-11-17T01:35:00+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Ball State",
+   "opponent": "Ohio",
+   "side": null,
+   "line": 11.0,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Ball State +11",
+   "reason": "https://vsin.com/college-football/college-football-week-12-picks-ball-state-vs-ohio/",
+   "description": "Ball State +11",
+   "league": "cfb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cfb"
+ ]
+}
