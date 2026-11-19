@@ -63,7 +63,7 @@ class GameCtx:
     opener: Mapping[tuple[str, str], float] = field(default_factory=dict)  # (market, side) -> first line
     public: Mapping[tuple[str, str], Public] = field(default_factory=dict)  # (market, side) -> VSiN shares before tip
     ats_fav: str | None = None  # the game's spread favourite across both sides' main rows (set by read_bands)
-    ats_fav_by: float | None = None  # points that favourite lays on its main row (set by read_bands)
+    home_spread: float | None = None  # median home line on the card's spread rows, graded or not (set by read_bands)
 
 
 Pred = Callable[[ledger.Row, GameCtx], bool]
@@ -136,11 +136,11 @@ def _both_mid_major(c: GameCtx) -> bool:
 
 
 def _power_fav_of_mid_major(c: GameCtx) -> bool:
-    """A Power team lays a mid-major ``PVM_SPREAD`` points on the card's main spread rows."""
-    if c.ats_fav is None or c.ats_fav_by is None:
+    """A Power team lays a mid-major ``PVM_SPREAD`` points on the card's spread."""
+    if c.home_spread is None or c.home.power is None or c.away.power is None or c.home.power == c.away.power:
         return False
-    fav, dog = (c.home, c.away) if c.ats_fav == "home" else (c.away, c.home)
-    return fav.power is True and dog.power is False and PVM_SPREAD[0] <= c.ats_fav_by < PVM_SPREAD[1] + 0.5
+    lay = -c.home_spread if c.home.power else c.home_spread
+    return PVM_SPREAD[0] <= lay < PVM_SPREAD[1] + 0.5
 
 
 def _side(market: str, side: str, fav: bool | None = None) -> Pred:
@@ -261,12 +261,23 @@ def ats_favourites(main: Iterable[ledger.Row]) -> dict[str, str]:
     return out
 
 
+def card_home_spreads(rows: Iterable[ledger.Row]) -> dict[str, float]:
+    """Each game's median home line across its card spread rows on its own slate, graded or not.
+
+    Big spreads are often research rows the grader leaves ungraded, so ``main_rows`` has no spread for them."""
+    ats = [r for r in rows if r.bet_of_record and r.market == "game_ats" and r.side == "home" and r.line is not None]
+    lines: dict[str, list[float]] = defaultdict(list)
+    for r in one_slate_per_game(ats):
+        lines[r.event_id].append(r.line)  # type: ignore[arg-type]
+    return {eid: sorted(v)[len(v) // 2] for eid, v in lines.items()}
+
+
 def read_bands(rows: Iterable[ledger.Row], ctx: Mapping[str, GameCtx]) -> list[BandRead]:
+    rows = list(rows)
     main = [r for r in main_rows(rows) if r.event_id in ctx]
     favs = ats_favourites(main)
-    lines = {(r.event_id, r.side): r.line for r in main if r.market == "game_ats" and r.line is not None}
-    lays = {eid: -lines[(eid, side)] for eid, side in favs.items() if (eid, side) in lines}
-    ctx = {eid: replace(c, ats_fav=favs.get(eid), ats_fav_by=lays.get(eid)) for eid, c in ctx.items()}
+    spreads = card_home_spreads(rows)
+    ctx = {eid: replace(c, ats_fav=favs.get(eid), home_spread=spreads.get(eid)) for eid, c in ctx.items()}
     out: list[BandRead] = []
     for name, hit in BANDS:
         rs = [r for r in main if hit(r, ctx[r.event_id])]
