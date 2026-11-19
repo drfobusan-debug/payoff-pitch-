@@ -1,0 +1,60 @@
+{
+ "episode_guid": "vsin-97262",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "8c1e96ffbc92fecf8d8a4c526bc8bbcbe6faef2e",
+ "picks": [
+  {
+   "pick_id": "dada5e8eec4b",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-97262",
+   "episode_title": "College Basketball Picks for Thursday, November 19 from Adam Burke",
+   "published": "2026-11-19T16:18:44+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Jacksonville",
+   "opponent": "Little Rock Trojans",
+   "side": null,
+   "line": -3.0,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Jacksonville -3",
+   "reason": "https://vsin.com/college-basketball/college-basketball-picks-for-thursday-november-19-from-adam-burke/",
+   "description": "Jacksonville -3",
+   "league": "cbb",
+   "edge": "",
+   "fair_line": null
+  },
+  {
+   "pick_id": "980c08b477df",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-97262",
+   "episode_title": "College Basketball Picks for Thursday, November 19 from Adam Burke",
+   "published": "2026-11-19T16:18:44+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Texas A&M",
+   "opponent": "TCU Horned Frogs",
+   "side": null,
+   "line": 0.0,
+   "price": null,
+   "units": null,
+   "seconds": 1,
+   "quote": "Texas A&M PK",
+   "reason": "https://vsin.com/college-basketball/college-basketball-picks-for-thursday-november-19-from-adam-burke/",
+   "description": "Texas A&M PK",
+   "league": "cbb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cbb"
+ ]
+}

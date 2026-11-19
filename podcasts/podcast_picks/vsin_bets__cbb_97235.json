@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-97235",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "d73142e0719f9c922980903dd837155eb9bda8d4",
+ "picks": [
+  {
+   "pick_id": "72b9fa7ebd15",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-97235",
+   "episode_title": "Houston vs. Kansas Basketball Prediction: Thursday, November 19, 2026",
+   "published": "2026-11-19T15:12:45+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Houston",
+   "opponent": "Kansas",
+   "side": null,
+   "line": -2.0,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Houston -2",
+   "reason": "https://vsin.com/college-basketball/houston-vs-kansas-basketball-prediction-thursday-november-19-2026/",
+   "description": "Houston -2",
+   "league": "cbb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cbb"
+ ]
+}
