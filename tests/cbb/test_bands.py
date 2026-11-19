@@ -215,3 +215,25 @@ def test_neutral_court_big_underdog_bands() -> None:
     reads = {b.name: b for b in bands.read_bands(rows, ctx)}
     assert reads["neutral court: underdog of 15+ ATS"].record == "3-0"
     assert reads["neutral court, both mid-major: underdog of 9+ ATS"].record == "2-0"
+
+
+def test_power_favourite_of_a_mid_major_under_band() -> None:
+    mid, power = bands.Team(power=False), bands.Team(power=True)
+    ctx = {
+        "a": bands.GameCtx(home=power, away=mid),  # Power home lays 12: in
+        "b": bands.GameCtx(home=mid, away=power),  # Power away lays 10: in
+        "c": bands.GameCtx(home=mid, away=power),  # mid-major home lays 12: out
+        "d": bands.GameCtx(home=power, away=mid),  # Power lays 31: out
+        "e": bands.GameCtx(home=power, away=power),  # Power vs Power: out
+        "f": bands.GameCtx(home=power, away=bands.Team()),  # unknown conference: out
+        "g": bands.GameCtx(home=power, away=mid),  # Power lays 29.5 on ungraded research spread rows: in
+    }
+    rows = []
+    for eid, home_line in (("a", -12.0), ("b", 10.0), ("c", -12.0), ("d", -31.0), ("e", -12.0), ("f", -12.0), ("g", -29.5)):
+        rows += [_row(eid, "game_ats", "home", home_line), _row(eid, "game_ats", "away", -home_line),
+                 _row(eid, "game_total", "under", 145.5), _row(eid, "game_total", "over", 145.5, outcome="loss")]
+    for r in rows:
+        if r.event_id == "g" and r.market == "game_ats":
+            r.outcome, r.pnl, r.status = "", None, "research"
+    reads = {b.name: b for b in bands.read_bands(rows, ctx)}
+    assert reads["Power vs mid-major, Power fav 10-29.5: Under"].record == "3-0"
