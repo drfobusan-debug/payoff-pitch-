@@ -1,0 +1,44 @@
+{
+  "Rice @ Temple|game_ats|Rice": {
+    "american": 106.0,
+    "captured_at": "2026-11-19T21:45:12Z",
+    "kickoff_utc": "2026-11-20T00:30:00Z",
+    "line": 2.5,
+    "no_vig_prob": 0.48318156476491353
+  },
+  "Rice @ Temple|game_ats|Temple": {
+    "american": -108.0,
+    "captured_at": "2026-11-19T21:45:12Z",
+    "kickoff_utc": "2026-11-20T00:30:00Z",
+    "line": -2.5,
+    "no_vig_prob": 0.5168184352350864
+  },
+  "Rice @ Temple|game_ml|Rice": {
+    "american": 127.0,
+    "captured_at": "2026-11-19T21:45:12Z",
+    "kickoff_utc": "2026-11-20T00:30:00Z",
+    "line": null,
+    "no_vig_prob": 0.4355872950589818
+  },
+  "Rice @ Temple|game_ml|Temple": {
+    "american": -133.0,
+    "captured_at": "2026-11-19T21:45:12Z",
+    "kickoff_utc": "2026-11-20T00:30:00Z",
+    "line": null,
+    "no_vig_prob": 0.564412704941018
+  },
+  "Rice @ Temple|game_total|Over": {
+    "american": -106.0,
+    "captured_at": "2026-11-19T21:45:12Z",
+    "kickoff_utc": "2026-11-20T00:30:00Z",
+    "line": 51.5,
+    "no_vig_prob": 0.509663905550795
+  },
+  "Rice @ Temple|game_total|Under": {
+    "american": 102.0,
+    "captured_at": "2026-11-19T21:45:12Z",
+    "kickoff_utc": "2026-11-20T00:30:00Z",
+    "line": 51.5,
+    "no_vig_prob": 0.490336094449205
+  }
+}
