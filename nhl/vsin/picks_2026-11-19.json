@@ -1,0 +1,38 @@
+[
+ {
+  "slate_date": "2026-11-19",
+  "matchup": "BUF @ WSH",
+  "market": "game_total",
+  "side": "over",
+  "line": 6.5,
+  "american": -122,
+  "stake": 1.0,
+  "host": "Jonathan Davis",
+  "stamp": "2026-11-19T19:10:11+00:00",
+  "text": "Sabres/Capitals Over 6.5 (-122) - 1 unit",
+  "outcome": null,
+  "pnl_flat": null,
+  "pnl_stake": null,
+  "close_consensus": null,
+  "clv": null,
+  "graded_at": ""
+ },
+ {
+  "slate_date": "2026-11-19",
+  "matchup": "ANA @ COL",
+  "market": "game_total",
+  "side": "over",
+  "line": 6.5,
+  "american": -130,
+  "stake": 1.5,
+  "host": "Jonathan Davis",
+  "stamp": "2026-11-19T19:10:11+00:00",
+  "text": "Anaheim/Coloado Over 6.5 (-130) - 1.5 units",
+  "outcome": null,
+  "pnl_flat": null,
+  "pnl_stake": null,
+  "close_consensus": null,
+  "clv": null,
+  "graded_at": ""
+ }
+]
