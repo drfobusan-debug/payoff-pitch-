@@ -1,0 +1,60 @@
+{
+ "episode_guid": "vsin-96899",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "b4f4ea7a373d5cd4254d0c1690a6a4333a26cca6",
+ "picks": [
+  {
+   "pick_id": "0965d111b7b2",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Zachary Cohen",
+   "episode_guid": "vsin-96899",
+   "episode_title": "Colts vs. Texans Predictions: Week 11 Thursday Night Football odds, picks, and player props",
+   "published": "2026-11-18T05:59:26+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Colts",
+   "opponent": "Texans",
+   "side": null,
+   "line": 12.5,
+   "price": -110.0,
+   "units": null,
+   "seconds": 0,
+   "quote": "Colts +12.5 (-110)",
+   "reason": "https://vsin.com/nfl/colts-vs-texans-predictions-week-11-thursday-night-football-odds-picks-and-player-props/",
+   "description": "Colts +12.5 (-110)",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  },
+  {
+   "pick_id": "27c61dc6e1cb",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Zachary Cohen",
+   "episode_guid": "vsin-96899",
+   "episode_title": "Colts vs. Texans Predictions: Week 11 Thursday Night Football odds, picks, and player props",
+   "published": "2026-11-18T05:59:26+00:00",
+   "kind": "official",
+   "market": "other",
+   "team": null,
+   "opponent": null,
+   "side": null,
+   "line": null,
+   "price": -114.0,
+   "units": null,
+   "seconds": 1,
+   "quote": "Jones Over 176.5 Passing Yards (-114)",
+   "reason": "https://vsin.com/nfl/colts-vs-texans-predictions-week-11-thursday-night-football-odds-picks-and-player-props/",
+   "description": "Jones Over 176.5 Passing Yards (-114)",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "nfl"
+ ]
+}

@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-97020",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "b1ea81001bc3a00ccd4d4d6ea3bbddf7bc06c224",
+ "picks": [
+  {
+   "pick_id": "e73ca4305073",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-97020",
+   "episode_title": "College Football Week 12 Picks: Iowa State vs. UCF",
+   "published": "2026-11-18T19:39:41+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Iowa State",
+   "opponent": "UCF",
+   "side": null,
+   "line": 2.0,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Iowa State +2 (or ML)",
+   "reason": "https://vsin.com/college-football/college-football-week-12-picks-iowa-state-vs-ucf/",
+   "description": "Iowa State +2 (or ML)",
+   "league": "cfb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cfb"
+ ]
+}

@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-96839",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "7000833cfc5551264a065cd6804a52e18507db01",
+ "picks": [
+  {
+   "pick_id": "61f95f51d05c",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-96839",
+   "episode_title": "College Football Week 12 Picks: Rice vs. Temple",
+   "published": "2026-11-18T02:41:00+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Rice",
+   "opponent": "Temple",
+   "side": null,
+   "line": 3.0,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Rice +3",
+   "reason": "https://vsin.com/college-football/college-football-week-12-picks-rice-vs-temple/",
+   "description": "Rice +3",
+   "league": "cfb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cfb"
+ ]
+}
