@@ -26,7 +26,7 @@ from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass
 
 from cbb_engine import audit, history
-from cbb_engine.bands import GameCtx, main_lines, main_rows
+from cbb_engine.bands import PVM_SPREAD, GameCtx, main_lines, main_rows
 from cbb_engine.data import espn
 from engine_common.bands import CALL_SE, MIN_N
 from engine_runtime import ledger, quotes
@@ -59,9 +59,6 @@ class Called:
 def _pairs(c: GameCtx, attr: str, a: object, b: object) -> bool:
     x, y = getattr(c.home, attr), getattr(c.away, attr)
     return {x, y} == {a, b} if a != b else x == y == a
-
-
-PVM_SPREAD = (10.0, 29.5)
 
 
 def _power_fav_by(c: GameCtx, g: Called) -> float | None:

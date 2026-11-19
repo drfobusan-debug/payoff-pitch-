@@ -33,6 +33,7 @@ WEAK_RANK = 200
 SLOW_SHARE = 1 / 3
 BIG_SPREAD = 15.0
 MID_MAJOR_BIG = 9.0
+PVM_SPREAD = (10.0, 29.5)  # points a Power favourite lays a mid-major
 LONG_SHOT = 0.25
 HEAVY_FAV = 0.85
 MOVE_PTS = 1.0
@@ -62,6 +63,7 @@ class GameCtx:
     opener: Mapping[tuple[str, str], float] = field(default_factory=dict)  # (market, side) -> first line
     public: Mapping[tuple[str, str], Public] = field(default_factory=dict)  # (market, side) -> VSiN shares before tip
     ats_fav: str | None = None  # the game's spread favourite across both sides' main rows (set by read_bands)
+    ats_fav_by: float | None = None  # points that favourite lays on its main row (set by read_bands)
 
 
 Pred = Callable[[ledger.Row, GameCtx], bool]
@@ -133,6 +135,14 @@ def _both_mid_major(c: GameCtx) -> bool:
     return c.home.power is False and c.away.power is False
 
 
+def _power_fav_of_mid_major(c: GameCtx) -> bool:
+    """A Power team lays a mid-major ``PVM_SPREAD`` points on the card's main spread rows."""
+    if c.ats_fav is None or c.ats_fav_by is None:
+        return False
+    fav, dog = (c.home, c.away) if c.ats_fav == "home" else (c.away, c.home)
+    return fav.power is True and dog.power is False and PVM_SPREAD[0] <= c.ats_fav_by < PVM_SPREAD[1] + 0.5
+
+
 def _side(market: str, side: str, fav: bool | None = None) -> Pred:
     return lambda r, c: r.market == market and r.side == side and (fav is None or _fav(r, c) == fav)
 
@@ -178,6 +188,8 @@ BANDS: tuple[tuple[str, Pred], ...] = (
     ("big spread (>= 15) underdog ATS", lambda r, c: _ats(r) and r.line is not None and r.line >= BIG_SPREAD),
     ("neutral court: underdog of 15+ ATS", lambda r, c: _neutral_dog(r, c, BIG_SPREAD)),
     ("neutral court, both mid-major: underdog of 9+ ATS", lambda r, c: _neutral_dog(r, c, MID_MAJOR_BIG) and _both_mid_major(c)),
+    ("Power vs mid-major, Power fav 10-29.5: Under",
+        lambda r, c: r.market == "game_total" and r.side == "under" and _power_fav_of_mid_major(c)),
     ("exploratory: underdog better 2P%, worse 3P% (10+ games) ATS", lambda r, c: _ats(r) and not _fav(r, c) and _inside_not_outside(r, c)),
 )
 
@@ -252,7 +264,9 @@ def ats_favourites(main: Iterable[ledger.Row]) -> dict[str, str]:
 def read_bands(rows: Iterable[ledger.Row], ctx: Mapping[str, GameCtx]) -> list[BandRead]:
     main = [r for r in main_rows(rows) if r.event_id in ctx]
     favs = ats_favourites(main)
-    ctx = {eid: replace(c, ats_fav=favs.get(eid)) for eid, c in ctx.items()}
+    lines = {(r.event_id, r.side): r.line for r in main if r.market == "game_ats" and r.line is not None}
+    lays = {eid: -lines[(eid, side)] for eid, side in favs.items() if (eid, side) in lines}
+    ctx = {eid: replace(c, ats_fav=favs.get(eid), ats_fav_by=lays.get(eid)) for eid, c in ctx.items()}
     out: list[BandRead] = []
     for name, hit in BANDS:
         rs = [r for r in main if hit(r, ctx[r.event_id])]
