@@ -120,6 +120,7 @@ class Pipeline:
         self.briefs: dict[str, GameBrief] = {}
         self._first_board: dict[str, snapshot.SideQuote] = {}
         self._opener: dict[str, snapshot.SideQuote] = {}
+        self._novig: dict[str, snapshot.SideQuote] = {}
         self._top_defenses: frozenset[str] = frozenset()
         self._early = False
         # The shadow price has its own draws so it never moves the engine's.
@@ -259,6 +260,7 @@ class Pipeline:
             self._opener = snapshot.load(self.cfg.opener_file(slate_date))
         else:
             self._baseline_board(slate_date, slate, board)
+        self._novig = {}
         if fetched and not early:
             self._capture_books(slate_date, slate, board)
             self._capture_novig(slate_date, slate)
@@ -697,6 +699,7 @@ class Pipeline:
         reasons = [*reasons, *mark_reasons]
 
         opened = self._first_board.get(snapshot.key(ctx.matchup, market, selection))
+        novig_q = self._novig.get(snapshot.key(ctx.matchup, market, selection))
         drift = self._drift(ctx.matchup, market, selection, side, line, result.fair_prob)
         split = lookup(self.splits, ctx.matchup, market, selection)
         pass_gate: str | None = mark_gate
@@ -748,6 +751,8 @@ class Pipeline:
             shadow_prob=shadow_model,
             strongest=shadow_buy and tier != Tier.PASS,
             shadow_buy=shadow_buy,
+            novig_line=None if novig_q is None else novig_q.line,
+            novig_american=None if novig_q is None else novig_q.american,
         )
 
     def _buy_gates(
@@ -853,7 +858,11 @@ class Pipeline:
             return
         try:
             _, board = self.odds.fetch_board(slate_date, bookmakers=novig.BOOK)
-            novig.save_capture(slate, board, self.cfg.novig_file(slate_date))
+            fresh = novig.capture(slate, board)
+            if fresh:
+                path = self.cfg.novig_file(slate_date)
+                snapshot.save(snapshot.merge_last_wins(snapshot.load(path), fresh), path)
+            self._novig = fresh
         except Exception as exc:  # noqa: BLE001 - bookkeeping must not cost the card
             logger.warning("Novig capture skipped (%s)", exc)
 

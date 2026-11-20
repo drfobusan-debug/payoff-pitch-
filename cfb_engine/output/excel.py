@@ -40,13 +40,13 @@ CENTER = Alignment(horizontal="center")
 
 COLUMNS = [
     "Date", "Matchup", "Market", "Selection", "Line",
-    "Model %", "Market %", "Fair Odds", "Book", "Book Odds",
+    "Model %", "Market %", "Fair Odds", "Book", "Book Odds", "Novig",
     "EV", "Edge", "Kelly", "Handle-Tickets", "Tier", strongest.LABEL, lineagree.LABEL,
     lowtotal.LABEL, "Notes",
 ]
-WIDTHS = [11, 22, 13, 22, 7, 8, 8, 9, 12, 10, 8, 8, 8, 14, 12, 13, 22, 22, 46]
+WIDTHS = [11, 22, 13, 22, 7, 8, 8, 9, 12, 10, 18, 8, 8, 8, 14, 12, 13, 22, 22, 46]
 CENTER_COLS = {
-    "Line", "Model %", "Market %", "Fair Odds", "Book Odds", "EV", "Edge", "Kelly",
+    "Line", "Model %", "Market %", "Fair Odds", "Book Odds", "Novig", "EV", "Edge", "Kelly",
     "Handle-Tickets", "Tier", strongest.LABEL, lineagree.LABEL, lowtotal.LABEL,
 }
 # The graded-only totals rule gets its own tab, named so it cannot be read as a buy list.

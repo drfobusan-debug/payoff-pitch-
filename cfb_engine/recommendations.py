@@ -81,6 +81,10 @@ class Recommendation:
     # The shadow price alone would buy it (a pass at the engine's price is a
     # near-market watch row: graded, never staked).
     shadow_buy: bool = False
+    # Novig's quote on this side from the card's own pull (``audit.novig``): shown
+    # beside the book so a buy can be placed there; never read by pricing.
+    novig_line: float | None = None
+    novig_american: float | None = None
 
     @property
     def model_american(self) -> float:
@@ -137,6 +141,33 @@ class Recommendation:
         """A pass the near-market shadow price would buy (``market.strongest``)."""
         return self.shadow_buy and self.tier == Tier.PASS
 
+    @property
+    def novig_at_least_as_good(self) -> bool:
+        """Novig's number is no worse than the book's and its price pays at least as much."""
+        if self.novig_american is None or self.market_american is None:
+            return False
+        if american_to_decimal(self.novig_american) < american_to_decimal(self.market_american):
+            return False
+        if self.line is None or self.novig_line is None:
+            return self.line is None and self.novig_line is None
+        if self.side == "over":
+            return self.novig_line <= self.line
+        return self.novig_line >= self.line
+
+    def novig_quote(self) -> str:
+        """``-108`` on a moneyline, ``+3.5 -108`` on a spread; blank without a quote."""
+        if self.novig_american is None:
+            return ""
+        price = f"{self.novig_american:+.0f}"
+        if self.novig_line is None:
+            return price
+        number = f"{self.novig_line:+g}" if self.market == "game_ats" else f"{self.novig_line:g}"
+        return f"{number} {price}"
+
+    def _novig_cell(self) -> str:
+        quote = self.novig_quote()
+        return f"{quote} (bet here)" if quote and self.novig_at_least_as_good else quote
+
     def _strongest_cell(self) -> str:
         if self.strongest:
             return strongest.CELL
@@ -154,6 +185,7 @@ class Recommendation:
             "Fair Odds": round(self.model_american),
             "Book": self.book or "",
             "Book Odds": round(self.market_american) if self.market_american is not None else "",
+            "Novig": self._novig_cell(),
             "EV": round(self.ev, 3) if self.ev is not None else "",
             "Edge": round(self.edge, 3) if self.edge is not None else "",
             "Kelly": round(self.kelly, 3) if self.kelly is not None else "",
