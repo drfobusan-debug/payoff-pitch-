@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-97277",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "4235131703d88f7aa9b907e1828ca5ec6abd758d",
+ "picks": [
+  {
+   "pick_id": "3f56fa23ff40",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-97277",
+   "episode_title": "NFL Survivor Pool Week 11 Picks",
+   "published": "2026-11-19T18:32:41+00:00",
+   "kind": "official",
+   "market": "other",
+   "team": null,
+   "opponent": null,
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Broncos",
+   "reason": "https://vsin.com/nfl/nfl-survivor-pool-week-11-picks/",
+   "description": "Broncos",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "nfl"
+ ]
+}
