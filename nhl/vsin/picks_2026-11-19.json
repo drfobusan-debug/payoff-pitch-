@@ -10,12 +10,12 @@
   "host": "Jonathan Davis",
   "stamp": "2026-11-19T19:10:11+00:00",
   "text": "Sabres/Capitals Over 6.5 (-122) - 1 unit",
-  "outcome": null,
-  "pnl_flat": null,
-  "pnl_stake": null,
-  "close_consensus": null,
-  "clv": null,
-  "graded_at": ""
+  "outcome": "win",
+  "pnl_flat": 0.819672131147541,
+  "pnl_stake": 0.819672131147541,
+  "close_consensus": 0.532733107905919,
+  "clv": -0.01681644164363061,
+  "graded_at": "2026-11-20T14:30:50Z"
  },
  {
   "slate_date": "2026-11-19",
@@ -28,11 +28,11 @@
   "host": "Jonathan Davis",
   "stamp": "2026-11-19T19:10:11+00:00",
   "text": "Anaheim/Coloado Over 6.5 (-130) - 1.5 units",
-  "outcome": null,
-  "pnl_flat": null,
-  "pnl_stake": null,
-  "close_consensus": null,
-  "clv": null,
-  "graded_at": ""
+  "outcome": "loss",
+  "pnl_flat": -1.0,
+  "pnl_stake": -1.5,
+  "close_consensus": 0.5517829504851259,
+  "clv": -0.013434440819221849,
+  "graded_at": "2026-11-20T14:30:50Z"
  }
 ]
