@@ -22,7 +22,8 @@ with the market reads as a model error, not a bigger bet.
 Gates (all stamped, none silently applied):
 
 ``min_edge`` ``max_edge`` ``min_ev`` ``max_buy_odds`` ``stale_quote``
-``one_way_quote`` ``settlement_unverified`` ``goalie_unconfirmed``
+``one_way_quote`` ``settlement_unverified`` ``goalie_unconfirmed`` (every
+non-prop market waits for both starters to be confirmed; 'probable' is not enough)
 ``probation`` (market not yet a live buy market) ``no_exec_book`` (no
 DraftKings/BetMGM quote: the best price is somewhere a buy can't be placed).
 """
@@ -36,10 +37,6 @@ from engine_common.odds import american_to_prob, prob_to_american
 from nhl_engine.config import GateParams
 from nhl_engine.market.board import Selection
 from nhl_engine.models.markets import Prob
-
-GOALIE_MARKETS = frozenset(
-    {"game_ml", "game_ml3", "game_pl", "game_pl_alt", "team_total", "team_total_alt"}
-)
 
 
 class Tier(str, Enum):
@@ -151,9 +148,8 @@ def stamp(
         gates.append("no_exec_book")
     if settlement_gate:
         gates.append(settlement_gate)
-    if sel.market in GOALIE_MARKETS or (sel.market.startswith("p") and "total" not in sel.market):
-        if not goalie_confirmed:
-            gates.append("goalie_unconfirmed")
+    if not is_prop(sel.market) and not goalie_confirmed:
+        gates.append("goalie_unconfirmed")
     if is_prop(sel.market):
         gates.append("research_only")
         if sel.market == "g_saves" and not goalie_confirmed:
@@ -197,7 +193,6 @@ def stamp(
 
 
 __all__ = [
-    "GOALIE_MARKETS",
     "PROP_PREFIXES",
     "Priced",
     "Tier",
