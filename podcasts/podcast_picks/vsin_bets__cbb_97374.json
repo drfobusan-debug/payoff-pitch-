@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-97374",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "f8671bf4de1a51ab0a3e4d649c7a04cd42a067e3",
+ "picks": [
+  {
+   "pick_id": "cc6a32d60e0a",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-97374",
+   "episode_title": "Kentucky vs. Indiana Basketball Prediction: Friday, November 20, 2026",
+   "published": "2026-11-20T01:17:00+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Indiana",
+   "opponent": "Kentucky",
+   "side": null,
+   "line": -2.5,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Indiana -2.5",
+   "reason": "https://vsin.com/college-basketball/kentucky-vs-indiana-basketball-prediction-friday-november-20-2026/",
+   "description": "Indiana -2.5",
+   "league": "cbb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cbb"
+ ]
+}
