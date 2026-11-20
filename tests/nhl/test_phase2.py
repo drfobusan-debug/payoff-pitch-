@@ -398,19 +398,21 @@ def test_gates_are_stamped_not_filtered():
         goalie_confirmed=False,
         settlement_gate=None,
     )
-    assert period.gates == ["probation"]  # goalie gate does not apply to period totals
+    assert period.gates == ["goalie_unconfirmed", "probation"]  # period totals wait too
     assert any("edge" in r for r in ok.reasons)
 
 
-def test_goalie_gate_vetoes_ml_pl_team_total_only():
+def test_goalie_gate_vetoes_every_game_and_period_market_but_not_props():
     thr = GateParams()
     for mk, gated in [
         ("game_ml", True),
         ("game_pl", True),
         ("team_total", True),
-        ("game_total", False),
+        ("game_total", True),
+        ("game_total_alt", True),
         ("p1_ml", True),
-        ("p2_total", False),
+        ("p2_total", True),
+        ("sk_sog", False),
     ]:
         r = stamp(
             _sel(market=mk, line=1.5 if "pl" in mk or "total" in mk else None, entity="H"),
@@ -639,6 +641,36 @@ def _inputs(code: str, rates: dict[str, float], status: str) -> TeamInputs:
         "team_rate [reported, not scored]",
         Starter(code, 1, f"{code} G", status, "test", None),
     )
+
+
+@pytest.mark.parametrize(
+    ("away", "gated"),
+    [("confirmed", False), ("probable", True), ("projected", True), ("unknown", True)],
+)
+def test_a_game_buy_waits_for_both_goalies_confirmed(away: str, gated: bool):
+    rows = [
+        _q("game_ml", "H", -150, 130),
+        _q("game_ml", "A", 130, -150),
+        _q("game_total", "over", -110, -110, line=6.5),
+        _q("game_total", "under", -110, -110, line=6.5),
+    ]
+    card = price_game(
+        selections(rows),
+        home_in=_inputs("H", STRONG, "confirmed"),
+        away_in=_inputs("A", WEAK, away),
+        league=LEAGUE,
+        cfg=Config(sim=SimParams(draws=2000)),
+        slate=Date(2026, 10, 1),
+        rules=BookRules([]),
+        calib=Calibrator(),
+        now=NOW,
+        priced_at="t",
+        tag="goalie",
+        seed=1,
+    )
+    assert card.rows
+    for r in card.rows:
+        assert ("goalie_unconfirmed" in r.gates) is gated, (r.market, r.side)
 
 
 def test_price_game_and_outputs(tmp_path: Path):

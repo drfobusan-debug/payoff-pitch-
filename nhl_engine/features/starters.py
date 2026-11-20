@@ -55,6 +55,15 @@ class Starter:
     def confirmed(self) -> bool:
         return self.status in SURE
 
+    @property
+    def locked(self) -> bool:
+        """Named by the team as tonight's starter: the only status a buy waits for.
+
+        'probable' was the wrong goalie 38 times in 178 games through 2026-11-18;
+        'confirmed' was wrong 0 times in 479.
+        """
+        return self.status == "confirmed"
+
     def as_dict(self) -> dict[str, object]:
         out: dict[str, object] = {
             "team": self.team,

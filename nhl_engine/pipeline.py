@@ -371,7 +371,7 @@ def price_game(
     )
     sim = simulate(rates, cfg.sim, seed=seed)
     card = GameCard(matchup, home, away, "", home_in, away_in, rates, sim, markets.summary(sim))
-    both_confirmed = home_in.starter.confirmed and away_in.starter.confirmed
+    both_confirmed = home_in.starter.locked and away_in.starter.locked
     for sel in _per_book_rules(s for s in board if s.matchup == matchup):
         ot_rule = DEFAULT_OT_RULE.get(sel.market, "reg_only")
         if is_prop(sel.market):
