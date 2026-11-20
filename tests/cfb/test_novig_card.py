@@ -61,6 +61,9 @@ def test_the_card_and_workbook_show_the_novig_quote(tmp_path: Path) -> None:
     cells = {r[sel]: r[col] for r in ws.iter_rows(min_row=2, values_only=True) if r[sel]}
     assert cells["IND -7"] == "-7 -105 (bet here)" and cells["OSU -3"] == "-3.5 -110"
 
+    passed = dataclasses.replace(good, tier=Tier.PASS)
+    assert passed.as_row()["Novig"] == "-7 -105"
+
     path = tmp_path / "p.json"
     save_json([good], path)
     assert load_json(path)[0].novig_american == -105

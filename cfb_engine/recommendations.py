@@ -166,7 +166,8 @@ class Recommendation:
 
     def _novig_cell(self) -> str:
         quote = self.novig_quote()
-        return f"{quote} (bet here)" if quote and self.novig_at_least_as_good else quote
+        buy = self.tier != Tier.PASS
+        return f"{quote} (bet here)" if quote and buy and self.novig_at_least_as_good else quote
 
     def _strongest_cell(self) -> str:
         if self.strongest:
