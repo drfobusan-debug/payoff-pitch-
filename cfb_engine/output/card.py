@@ -181,7 +181,31 @@ def _elite_defense(r: Recommendation, units: unitranks.UnitRanks | None) -> bool
 
 def _bet_label(b: Recommendation, units: unitranks.UnitRanks | None) -> str:
     label = f"{b.selection} ({_odds(b.market_american)})"
-    return f"<b><i>{label}</i></b>" if _elite_defense(b, units) else f"<b>{label}</b>"
+    bold = f"<b><i>{label}</i></b>" if _elite_defense(b, units) else f"<b>{label}</b>"
+    return bold + _novig_tag(b)
+
+
+NOVIG_NOTE = (
+    "<b>Novig ✓</b> = Novig's number and price are at least as good as the book's: "
+    "place this one on Novig. Novig is shown for reference otherwise; the stake is unchanged."
+)
+
+
+def _novig_tag(b: Recommendation) -> str:
+    quote = b.novig_quote()
+    if not quote:
+        return ""
+    if b.novig_at_least_as_good:
+        return f" <span class='novig'>&middot; Novig {escape(quote)} ✓</span>"
+    return f" <span class='novigx'>&middot; Novig {escape(quote)}</span>"
+
+
+def _novig_note(buys: list[Recommendation]) -> str:
+    return (
+        f"<p class='elitenote'>{NOVIG_NOTE}</p>"
+        if any(b.novig_american is not None for b in buys)
+        else ""
+    )
 
 
 def _li(b: Recommendation) -> str:
@@ -213,7 +237,7 @@ def _game_best_block(recs: list[Recommendation], units: unitranks.UnitRanks | No
     )
     return (
         f"<p class='bets'><b>Best bets</b></p><ul class='bets'>{items}</ul>"
-        f"{_elite_note(buys, units)}{_strongest_note(buys)}"
+        f"{_elite_note(buys, units)}{_strongest_note(buys)}{_novig_note(buys)}"
     )
 
 
@@ -604,7 +628,8 @@ def _slate_best_block(recs: list[Recommendation], units: unitranks.UnitRanks | N
     return (
         "<div class='slatebets'><h2>Slate best bets</h2>"
         f"<p class='sbnote'>{len(buys)} plays clear the buy threshold, by kickoff:</p>"
-        f"<ul class='bets big'>{items}</ul>{_elite_note(buys, units)}{_strongest_note(buys)}</div>"
+        f"<ul class='bets big'>{items}</ul>{_elite_note(buys, units)}{_strongest_note(buys)}"
+        f"{_novig_note(buys)}</div>"
     )
 
 
@@ -786,6 +811,10 @@ ul.bets b{color:#111;}
 ul.bets.big{font-size:10.5pt;}ul.bets.big b{color:#fff;}.slatebets i{color:#ffd76a;}
 li.strongest{text-transform:uppercase;font-weight:900;letter-spacing:.3px;color:#111;}
 .slatebets li.strongest{color:#fff;}
+.novig{font-size:.85em;font-weight:bold;color:#0a7a3a;}
+.slatebets .novig{color:#9be7b4;}
+.novigx{font-size:.85em;color:#6b7280;}
+.slatebets .novigx{color:#c9cdd3;}
 .lineagree{page-break-inside:avoid;border:1px solid #9fb3c8;border-left:4px solid #1f4e79;background:#f3f7fb;border-radius:6px;padding:10px 14px;margin:14px 0 8px;}
 .lineagree h2{border:none;margin:0 0 4px;color:#1f4e79;font-size:13pt;}
 .watch{border:1px solid #9fb3c8;border-left:4px solid #1f4e79;background:#f3f7fb;border-radius:6px;padding:8px 12px;margin:12px 0 8px;}
