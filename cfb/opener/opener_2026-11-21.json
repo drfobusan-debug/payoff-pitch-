@@ -1497,6 +1497,34 @@
     "line": 57.5,
     "no_vig_prob": 0.5
   },
+  "Samford @ Auburn|game_ats|Auburn": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -48.0,
+    "no_vig_prob": 0.49840966921119595
+  },
+  "Samford @ Auburn|game_ats|Samford": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 48.0,
+    "no_vig_prob": 0.5015903307888041
+  },
+  "Samford @ Auburn|game_total|Over": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 59.5,
+    "no_vig_prob": 0.5
+  },
+  "Samford @ Auburn|game_total|Under": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 59.5,
+    "no_vig_prob": 0.5
+  },
   "San Diego Stat @ Boise State|game_ats|Boise State": {
     "american": -110.0,
     "captured_at": "",

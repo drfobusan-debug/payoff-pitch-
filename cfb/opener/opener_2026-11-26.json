@@ -1,0 +1,44 @@
+{
+  "TCU @ Texas Tech|game_ats|TCU": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 10.5,
+    "no_vig_prob": 0.5
+  },
+  "TCU @ Texas Tech|game_ats|Texas Tech": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -10.5,
+    "no_vig_prob": 0.5
+  },
+  "TCU @ Texas Tech|game_ml|TCU": {
+    "american": 290.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.2471743613043022
+  },
+  "TCU @ Texas Tech|game_ml|Texas Tech": {
+    "american": -360.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.7528256386956977
+  },
+  "TCU @ Texas Tech|game_total|Over": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 47.5,
+    "no_vig_prob": 0.5
+  },
+  "TCU @ Texas Tech|game_total|Under": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 47.5,
+    "no_vig_prob": 0.5
+  }
+}
