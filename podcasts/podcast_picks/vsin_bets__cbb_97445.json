@@ -1,0 +1,60 @@
+{
+ "episode_guid": "vsin-97445",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "10639e18975d474f01519aa11cbc51e2c8d263da",
+ "picks": [
+  {
+   "pick_id": "6b762ebeba43",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-97445",
+   "episode_title": "College Basketball Picks for Friday, November 20 from Adam Burke",
+   "published": "2026-11-20T15:39:08+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Xavier",
+   "opponent": "Iowa Hawkeyes",
+   "side": null,
+   "line": -3.5,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Xavier -3.5",
+   "reason": "https://vsin.com/college-basketball/college-basketball-picks-for-friday-november-20-from-adam-burke/",
+   "description": "Xavier -3.5",
+   "league": "cbb",
+   "edge": "",
+   "fair_line": null
+  },
+  {
+   "pick_id": "071d1d35b7dc",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-97445",
+   "episode_title": "College Basketball Picks for Friday, November 20 from Adam Burke",
+   "published": "2026-11-20T15:39:08+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "UT Arlington",
+   "opponent": "Northwestern State Demons",
+   "side": null,
+   "line": -3.5,
+   "price": null,
+   "units": null,
+   "seconds": 1,
+   "quote": "UT Arlington -3.5",
+   "reason": "https://vsin.com/college-basketball/college-basketball-picks-for-friday-november-20-from-adam-burke/",
+   "description": "UT Arlington -3.5",
+   "league": "cbb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cbb"
+ ]
+}
