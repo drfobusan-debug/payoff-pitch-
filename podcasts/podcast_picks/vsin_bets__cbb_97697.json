@@ -1,0 +1,60 @@
+{
+ "episode_guid": "vsin-97697",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "ee2cca0d8842619f5687023376b1ac52fab55587",
+ "picks": [
+  {
+   "pick_id": "fb29a2db2571",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-97697",
+   "episode_title": "College Basketball Picks for Saturday, November 21 from Adam Burke",
+   "published": "2026-11-21T18:06:18+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Chattanooga",
+   "opponent": "Radford Highlanders",
+   "side": null,
+   "line": -7.5,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Chattanooga -7.5",
+   "reason": "https://vsin.com/college-basketball/college-basketball-picks-for-saturday-november-21-from-adam-burke/",
+   "description": "Chattanooga -7.5",
+   "league": "cbb",
+   "edge": "",
+   "fair_line": null
+  },
+  {
+   "pick_id": "2a52aa17bf14",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-97697",
+   "episode_title": "College Basketball Picks for Saturday, November 21 from Adam Burke",
+   "published": "2026-11-21T18:06:18+00:00",
+   "kind": "official",
+   "market": "other",
+   "team": null,
+   "opponent": null,
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "seconds": 1,
+   "quote": "Mercer -9.5, Over 161.5",
+   "reason": "https://vsin.com/college-basketball/college-basketball-picks-for-saturday-november-21-from-adam-burke/",
+   "description": "Mercer -9.5, Over 161.5",
+   "league": "cbb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cbb"
+ ]
+}
