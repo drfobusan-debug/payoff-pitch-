@@ -24,10 +24,10 @@
     "status": "probable"
   },
   "CBJ": {
-    "name": "Jet Greaves",
-    "player_id": 8482982,
+    "name": "Cam Talbot",
+    "player_id": 8475660,
     "source": "rotowire",
-    "status": "probable"
+    "status": "confirmed"
   },
   "CGY": {
     "name": "Dustin Wolf",
@@ -156,9 +156,9 @@
     "status": "confirmed"
   },
   "WSH": {
-    "name": "Logan Thompson",
-    "player_id": 8480313,
-    "source": "rotowire",
+    "name": "Charlie Lindgren",
+    "player_id": 8479292,
+    "source": "dailyfaceoff",
     "status": "probable"
   }
 }
