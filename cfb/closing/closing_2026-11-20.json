@@ -1,87 +1,87 @@
 {
   "Bowling Green @ Toledo|game_ats|Bowling Green": {
-    "american": 100.0,
-    "captured_at": "2026-11-20T22:45:39Z",
+    "american": -105.0,
+    "captured_at": "2026-11-21T00:15:37Z",
     "kickoff_utc": "2026-11-21T00:30:00Z",
-    "line": 16.5,
-    "no_vig_prob": 0.49183440552742624
+    "line": 17.0,
+    "no_vig_prob": 0.49716435270148374
   },
   "Bowling Green @ Toledo|game_ats|Toledo": {
     "american": -110.0,
-    "captured_at": "2026-11-20T22:45:39Z",
+    "captured_at": "2026-11-21T00:15:37Z",
     "kickoff_utc": "2026-11-21T00:30:00Z",
-    "line": -16.5,
-    "no_vig_prob": 0.5081655944725738
+    "line": -17.0,
+    "no_vig_prob": 0.5028356472985163
   },
   "Bowling Green @ Toledo|game_ml|Bowling Green": {
-    "american": 610.0,
-    "captured_at": "2026-11-20T22:45:39Z",
+    "american": 720.0,
+    "captured_at": "2026-11-21T00:15:37Z",
     "kickoff_utc": "2026-11-21T00:30:00Z",
     "line": null,
-    "no_vig_prob": 0.14852580749616587
+    "no_vig_prob": 0.13832782122156728
   },
   "Bowling Green @ Toledo|game_ml|Toledo": {
-    "american": -750.0,
-    "captured_at": "2026-11-20T22:45:39Z",
+    "american": -800.0,
+    "captured_at": "2026-11-21T00:15:37Z",
     "kickoff_utc": "2026-11-21T00:30:00Z",
     "line": null,
-    "no_vig_prob": 0.8514741925038342
+    "no_vig_prob": 0.8616721787784328
   },
   "Bowling Green @ Toledo|game_total|Over": {
-    "american": -110.0,
-    "captured_at": "2026-11-20T22:45:39Z",
+    "american": -106.0,
+    "captured_at": "2026-11-21T00:15:37Z",
     "kickoff_utc": "2026-11-21T00:30:00Z",
-    "line": 45.5,
-    "no_vig_prob": 0.5019498717524667
+    "line": 46.0,
+    "no_vig_prob": 0.5004169136112043
   },
   "Bowling Green @ Toledo|game_total|Under": {
-    "american": -108.0,
-    "captured_at": "2026-11-20T22:45:39Z",
+    "american": -106.0,
+    "captured_at": "2026-11-21T00:15:37Z",
     "kickoff_utc": "2026-11-21T00:30:00Z",
-    "line": 45.5,
-    "no_vig_prob": 0.49805012824753314
+    "line": 46.0,
+    "no_vig_prob": 0.4995830863887956
   },
   "Clemson @ Duke|game_ats|Clemson": {
     "american": -107.0,
-    "captured_at": "2026-11-20T22:45:39Z",
+    "captured_at": "2026-11-21T00:15:37Z",
     "kickoff_utc": "2026-11-21T00:30:00Z",
-    "line": 12.0,
-    "no_vig_prob": 0.4980646602010433
+    "line": 11.5,
+    "no_vig_prob": 0.4978422790816819
   },
   "Clemson @ Duke|game_ats|Duke": {
-    "american": -110.0,
-    "captured_at": "2026-11-20T22:45:39Z",
+    "american": -108.0,
+    "captured_at": "2026-11-21T00:15:37Z",
     "kickoff_utc": "2026-11-21T00:30:00Z",
-    "line": -12.0,
-    "no_vig_prob": 0.5019353397989568
+    "line": -11.5,
+    "no_vig_prob": 0.5021577209183181
   },
   "Clemson @ Duke|game_ml|Clemson": {
     "american": 400.0,
-    "captured_at": "2026-11-20T22:45:39Z",
+    "captured_at": "2026-11-21T00:15:37Z",
     "kickoff_utc": "2026-11-21T00:30:00Z",
     "line": null,
-    "no_vig_prob": 0.20082560322383763
+    "no_vig_prob": 0.1990214107119649
   },
   "Clemson @ Duke|game_ml|Duke": {
-    "american": -467.0,
-    "captured_at": "2026-11-20T22:45:39Z",
+    "american": -500.0,
+    "captured_at": "2026-11-21T00:15:37Z",
     "kickoff_utc": "2026-11-21T00:30:00Z",
     "line": null,
-    "no_vig_prob": 0.7991743967761624
+    "no_vig_prob": 0.8009785892880351
   },
   "Clemson @ Duke|game_total|Over": {
-    "american": -104.0,
-    "captured_at": "2026-11-20T22:45:39Z",
+    "american": -105.0,
+    "captured_at": "2026-11-21T00:15:37Z",
     "kickoff_utc": "2026-11-21T00:30:00Z",
     "line": 41.5,
-    "no_vig_prob": 0.49360225724571166
+    "no_vig_prob": 0.4947275740557712
   },
   "Clemson @ Duke|game_total|Under": {
     "american": -110.0,
-    "captured_at": "2026-11-20T22:45:39Z",
+    "captured_at": "2026-11-21T00:15:37Z",
     "kickoff_utc": "2026-11-21T00:30:00Z",
     "line": 41.5,
-    "no_vig_prob": 0.5063977427542884
+    "no_vig_prob": 0.5052724259442287
   },
   "Iowa State @ UCF|game_ats|Iowa State": {
     "american": 102.0,
@@ -126,129 +126,129 @@
     "no_vig_prob": 0.4994227542014172
   },
   "New Mexico @ Wyoming|game_ats|New Mexico": {
-    "american": -110.0,
-    "captured_at": "2026-11-20T22:45:39Z",
+    "american": -104.0,
+    "captured_at": "2026-11-21T00:15:37Z",
     "kickoff_utc": "2026-11-21T02:00:00Z",
-    "line": -9.5,
-    "no_vig_prob": 0.5065316418859817
+    "line": -10.0,
+    "no_vig_prob": 0.496749332646102
   },
   "New Mexico @ Wyoming|game_ats|Wyoming": {
-    "american": -105.0,
-    "captured_at": "2026-11-20T22:45:39Z",
+    "american": -108.0,
+    "captured_at": "2026-11-21T00:15:37Z",
     "kickoff_utc": "2026-11-21T02:00:00Z",
-    "line": 9.5,
-    "no_vig_prob": 0.49346835811401835
+    "line": 10.0,
+    "no_vig_prob": 0.5032506673538981
   },
   "New Mexico @ Wyoming|game_ml|New Mexico": {
-    "american": -360.0,
-    "captured_at": "2026-11-20T22:45:39Z",
+    "american": -365.0,
+    "captured_at": "2026-11-21T00:15:37Z",
     "kickoff_utc": "2026-11-21T02:00:00Z",
     "line": null,
-    "no_vig_prob": 0.7558349775468468
+    "no_vig_prob": 0.758651849673202
   },
   "New Mexico @ Wyoming|game_ml|Wyoming": {
-    "american": 320.0,
-    "captured_at": "2026-11-20T22:45:39Z",
+    "american": 330.0,
+    "captured_at": "2026-11-21T00:15:37Z",
     "kickoff_utc": "2026-11-21T02:00:00Z",
     "line": null,
-    "no_vig_prob": 0.24416502245315325
+    "no_vig_prob": 0.24134815032679818
   },
   "New Mexico @ Wyoming|game_total|Over": {
     "american": -108.0,
-    "captured_at": "2026-11-20T22:45:39Z",
+    "captured_at": "2026-11-21T00:15:37Z",
     "kickoff_utc": "2026-11-21T02:00:00Z",
     "line": 37.5,
-    "no_vig_prob": 0.5014228009960487
+    "no_vig_prob": 0.5001824654919741
   },
   "New Mexico @ Wyoming|game_total|Under": {
-    "american": -105.0,
-    "captured_at": "2026-11-20T22:45:39Z",
+    "american": -108.0,
+    "captured_at": "2026-11-21T00:15:37Z",
     "kickoff_utc": "2026-11-21T02:00:00Z",
     "line": 37.5,
-    "no_vig_prob": 0.4985771990039513
+    "no_vig_prob": 0.4998175345080259
   },
   "Oregon @ Michigan State|game_ats|Michigan State": {
-    "american": -105.0,
-    "captured_at": "2026-11-20T22:45:39Z",
+    "american": 100.0,
+    "captured_at": "2026-11-21T00:15:37Z",
     "kickoff_utc": "2026-11-21T01:00:00Z",
     "line": 17.5,
-    "no_vig_prob": 0.49441113778121976
+    "no_vig_prob": 0.49513830348938337
   },
   "Oregon @ Michigan State|game_ats|Oregon": {
-    "american": -110.0,
-    "captured_at": "2026-11-20T22:45:39Z",
+    "american": -106.0,
+    "captured_at": "2026-11-21T00:15:37Z",
     "kickoff_utc": "2026-11-21T01:00:00Z",
     "line": -17.5,
-    "no_vig_prob": 0.5055888622187802
+    "no_vig_prob": 0.5048616965106166
   },
   "Oregon @ Michigan State|game_ml|Michigan State": {
-    "american": 750.0,
-    "captured_at": "2026-11-20T22:45:39Z",
+    "american": 754.0,
+    "captured_at": "2026-11-21T00:15:37Z",
     "kickoff_utc": "2026-11-21T01:00:00Z",
     "line": null,
-    "no_vig_prob": 0.12582078511454234
+    "no_vig_prob": 0.11775448994398859
   },
   "Oregon @ Michigan State|game_ml|Oregon": {
     "american": -950.0,
-    "captured_at": "2026-11-20T22:45:39Z",
+    "captured_at": "2026-11-21T00:15:37Z",
     "kickoff_utc": "2026-11-21T01:00:00Z",
     "line": null,
-    "no_vig_prob": 0.8741792148854577
+    "no_vig_prob": 0.8822455100560115
   },
   "Oregon @ Michigan State|game_total|Over": {
     "american": -108.0,
-    "captured_at": "2026-11-20T22:45:39Z",
+    "captured_at": "2026-11-21T00:15:37Z",
     "kickoff_utc": "2026-11-21T01:00:00Z",
-    "line": 43.0,
-    "no_vig_prob": 0.5013621495486082
+    "line": 42.5,
+    "no_vig_prob": 0.5009135576201398
   },
   "Oregon @ Michigan State|game_total|Under": {
-    "american": -105.0,
-    "captured_at": "2026-11-20T22:45:39Z",
+    "american": -108.0,
+    "captured_at": "2026-11-21T00:15:37Z",
     "kickoff_utc": "2026-11-21T01:00:00Z",
-    "line": 43.0,
-    "no_vig_prob": 0.4986378504513918
+    "line": 42.5,
+    "no_vig_prob": 0.49908644237986016
   },
   "UTEP @ Air Force|game_ats|Air Force": {
-    "american": -110.0,
-    "captured_at": "2026-11-20T22:45:39Z",
+    "american": -111.0,
+    "captured_at": "2026-11-21T00:15:37Z",
     "kickoff_utc": "2026-11-21T01:00:00Z",
     "line": -21.5,
-    "no_vig_prob": 0.507244611145152
+    "no_vig_prob": 0.5085155955565822
   },
   "UTEP @ Air Force|game_ats|UTEP": {
     "american": -101.0,
-    "captured_at": "2026-11-20T22:45:39Z",
+    "captured_at": "2026-11-21T00:15:37Z",
     "kickoff_utc": "2026-11-21T01:00:00Z",
     "line": 21.5,
-    "no_vig_prob": 0.492755388854848
+    "no_vig_prob": 0.4914844044434178
   },
   "UTEP @ Air Force|game_ml|Air Force": {
     "american": -1800.0,
-    "captured_at": "2026-11-20T22:45:39Z",
+    "captured_at": "2026-11-21T00:15:37Z",
     "kickoff_utc": "2026-11-21T01:00:00Z",
     "line": null,
     "no_vig_prob": 0.9171525305855855
   },
   "UTEP @ Air Force|game_ml|UTEP": {
     "american": 1200.0,
-    "captured_at": "2026-11-20T22:45:39Z",
+    "captured_at": "2026-11-21T00:15:37Z",
     "kickoff_utc": "2026-11-21T01:00:00Z",
     "line": null,
     "no_vig_prob": 0.08284746941441457
   },
   "UTEP @ Air Force|game_total|Over": {
     "american": -108.0,
-    "captured_at": "2026-11-20T22:45:39Z",
+    "captured_at": "2026-11-21T00:15:37Z",
     "kickoff_utc": "2026-11-21T01:00:00Z",
     "line": 48.5,
-    "no_vig_prob": 0.499751271250168
+    "no_vig_prob": 0.5000231122559694
   },
   "UTEP @ Air Force|game_total|Under": {
-    "american": -108.0,
-    "captured_at": "2026-11-20T22:45:39Z",
+    "american": -105.0,
+    "captured_at": "2026-11-21T00:15:37Z",
     "kickoff_utc": "2026-11-21T01:00:00Z",
     "line": 48.5,
-    "no_vig_prob": 0.500248728749832
+    "no_vig_prob": 0.4999768877440306
   }
 }
