@@ -1,0 +1,128 @@
+{
+  "Buffalo @ Akron|game_ats|Akron": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 10.5,
+    "no_vig_prob": 0.5
+  },
+  "Buffalo @ Akron|game_ats|Buffalo": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -10.5,
+    "no_vig_prob": 0.5
+  },
+  "Buffalo @ Akron|game_ml|Akron": {
+    "american": 330.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.22278268179907523
+  },
+  "Buffalo @ Akron|game_ml|Buffalo": {
+    "american": -430.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.7772173182009248
+  },
+  "Buffalo @ Akron|game_total|Over": {
+    "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 48.5,
+    "no_vig_prob": 0.49133599029630914
+  },
+  "Buffalo @ Akron|game_total|Under": {
+    "american": -114.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 48.5,
+    "no_vig_prob": 0.5086640097036909
+  },
+  "Nebraska @ Iowa|game_ats|Iowa": {
+    "american": -104.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -6.5,
+    "no_vig_prob": 0.4934963579604578
+  },
+  "Nebraska @ Iowa|game_ats|Nebraska": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 6.5,
+    "no_vig_prob": 0.5065036420395421
+  },
+  "Nebraska @ Iowa|game_ml|Iowa": {
+    "american": -220.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.6613039796782388
+  },
+  "Nebraska @ Iowa|game_ml|Nebraska": {
+    "american": 184.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.3386960203217612
+  },
+  "Nebraska @ Iowa|game_total|Over": {
+    "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 38.5,
+    "no_vig_prob": 0.49458288190682553
+  },
+  "Nebraska @ Iowa|game_total|Under": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 38.5,
+    "no_vig_prob": 0.5054171180931744
+  },
+  "Texas @ Texas A&M|game_ats|Texas": {
+    "american": -115.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -7.5,
+    "no_vig_prob": 0.5119207601327165
+  },
+  "Texas @ Texas A&M|game_ats|Texas A&M": {
+    "american": -104.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 7.5,
+    "no_vig_prob": 0.4880792398672834
+  },
+  "Texas @ Texas A&M|game_ml|Texas": {
+    "american": -310.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.7292884679210601
+  },
+  "Texas @ Texas A&M|game_ml|Texas A&M": {
+    "american": 260.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.27071153207894
+  },
+  "Texas @ Texas A&M|game_total|Over": {
+    "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 40.5,
+    "no_vig_prob": 0.4891657638136511
+  },
+  "Texas @ Texas A&M|game_total|Under": {
+    "american": -115.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 40.5,
+    "no_vig_prob": 0.5108342361863488
+  }
+}
