@@ -72,24 +72,6 @@ def _ratio(num: float, den: float) -> float:
     return num / den if den > 0 and math.isfinite(num) else 1.0
 
 
-FIN_TEAM_MEAN = "fin60_5v5_team_mean"
-FIN_LAST = "fin60_5v5_last"
-
-
-def finishing(own: Mapping[str, float], league: Mapping[str, float], params: SimParams) -> float:
-    """Goals/60 added to this side's xG-derived rates for finishing.
-
-    Default: ``own - league``. With ``params.finishing_split`` and the slate's
-    team mean and last season's league rate on ``league``: skill
-    ``own - team mean`` plus level ``league - last season``.
-    """
-    own_fin = own.get("fin60_5v5", 0.0)
-    lg = league.get("fin60_5v5", 0.0)
-    if params.finishing_split and FIN_TEAM_MEAN in league and FIN_LAST in league:
-        return (own_fin - league[FIN_TEAM_MEAN]) + (lg - league[FIN_LAST])
-    return own_fin - lg
-
-
 def side_rates(
     own: Mapping[str, float],
     opp: Mapping[str, float],
@@ -104,7 +86,7 @@ def side_rates(
     hfa = params.home_xg_share / (1.0 - params.home_xg_share)
     venue = math.sqrt(hfa) if is_home else 1.0 / math.sqrt(hfa)
     g_opp = goalie_factor(opp_goalie_gsax60)
-    fin = finishing(own, league, params)
+    fin = own.get("fin60_5v5", 0.0) - league.get("fin60_5v5", 0.0)
 
     lvl = params.goal_level
     xg5 = l5 * _ratio(own["xgf60_5v5"], l5) * _ratio(opp["xga60_5v5"], l5) * venue
