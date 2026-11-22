@@ -13,10 +13,12 @@ Each rung is also priced by the engine: the main-line probability the card bet
 at, moved along the sim's normal margin (or total) to the alternate number, so
 the market owns the main line and the sim owns the shape around it. A rung
 whose edge over that book's two-way no-vig price passes the same EV and edge
-bars as a main-line buy, and whose edge beats the main line's own, is a
-candidate; the best candidate per game and side is ``flagged``. That is the
+bars as a main-line buy, and whose edge beats the main line's own by
+``EDGE_MARGIN``, is a candidate; the best candidate per game and side is ``flagged``. That is the
 graded-only answer to which number to take instead of the main one. Only rungs
-within ``WINDOW`` points of the main number are graded.
+within ``WINDOW`` points of the main number are graded. Each row carries the
+main line's own result, so a flagged rung is read against the main line on the
+same games.
 """
 
 from __future__ import annotations
@@ -40,6 +42,8 @@ ALT_MARKETS = ("alternate_spreads", "alternate_totals")
 _MARKET = {"alternate_spreads": "game_ats", "alternate_totals": "game_total"}
 #: Points either side of the main number graded: a spread window that crosses the 3.
 WINDOW = 3.5
+#: A rung must beat the main line's edge by this much: the best of ~14 rungs edges past it by chance.
+EDGE_MARGIN = 0.01
 
 
 def tracked(market: str, tier: str, pass_gate: str | None) -> bool:
@@ -127,6 +131,9 @@ class AltRow:
     edge: float | None = None
     #: The game's best rung that passes the main-line buy bars and beats the main line's edge.
     flagged: bool = False
+    #: The main line's own result and 1u P&L on the card's price, for the same-games comparison.
+    main_result: str = ""
+    main_pnl: float | None = None
 
 
 def favour(market: str, side: str, main: float, alt: float) -> float:
@@ -193,12 +200,14 @@ def grade(
     sd: float | None = None,
     thr: EVThresholds | None = None,
     main_edge: float | None = None,
+    main_result: str = "",
+    main_american: float | None = None,
 ) -> list[AltRow]:
     """Every alternate number on our side within ``WINDOW``, from the first capture, at its best price.
 
     With the card's ``p_main`` and the sim's ``mean``/``sd`` each rung is priced;
     under ``thr`` the rung with the biggest edge among those that clear the
-    main-line buy bars and beat ``main_edge`` is flagged.
+    main-line buy bars and beat ``main_edge`` by ``EDGE_MARGIN`` is flagged.
     """
     pregame = [
         r
@@ -221,6 +230,7 @@ def grade(
         cur = best.get(r["point"])
         if cur is None or american_to_decimal(r["american"]) > american_to_decimal(cur["american"]):
             best[r["point"]] = r
+    main_pnl = _pnl(main_result, main_american) if main_result and main_american is not None else None
     out = []
     for point, r in sorted(best.items()):
         f = favour(market, side, main_line, point)
@@ -238,7 +248,9 @@ def grade(
                 ev = p_eng * american_to_decimal(r["american"]) - 1.0
                 if thr is not None and main_edge is not None:
                     candidate = (
-                        ev > thr.min_ev and thr.min_edge <= edge <= thr.max_edge and edge > main_edge
+                        ev > thr.min_ev
+                        and thr.min_edge <= edge <= thr.max_edge
+                        and edge >= main_edge + EDGE_MARGIN
                     )
         out.append(
             AltRow(
@@ -259,6 +271,8 @@ def grade(
                 None if fair is None else round(fair, 4),
                 None if edge is None else round(edge, 4),
                 candidate,
+                main_result,
+                main_pnl,
             )
         )
     picks = [a for a in out if a.flagged]
@@ -288,7 +302,10 @@ def save_day(path: Path, day: str, rows: list[AltRow]) -> int:
 
 
 def report(path: Path) -> list[tuple[str, int, int, int, float, float]]:
-    """(label, n, wins, losses, units, ROI) by market, direction and points moved."""
+    """(label, n, wins, losses, units, ROI) by market, direction and points moved.
+
+    Each engine-flagged group is followed by the main line on the same games.
+    """
     if not path.exists():
         return []
     with path.open(newline="", encoding="utf-8") as fh:
@@ -297,24 +314,29 @@ def report(path: Path) -> list[tuple[str, int, int, int, float, float]]:
             for r in csv.DictReader(fh)
             if r["result"] in ("win", "loss", "push") and abs(float(r["favour"])) <= WINDOW
         ]
-    groups: dict[str, list[dict]] = defaultdict(list)
+    groups: dict[str, list[tuple[str, float]]] = defaultdict(list)
     for r in rows:
         f = float(r["favour"])
         way = "bought" if f > 0 else "sold"
-        groups[f"{r['market']} {way} {abs(f):g} pts"].append(r)
-        groups[f"{r['market']} {way} (all)"].append(r)
+        mine = (r["result"], float(r["pnl"]))
+        groups[f"{r['market']} {way} {abs(f):g} pts"].append(mine)
+        groups[f"{r['market']} {way} (all)"].append(mine)
         if r.get("flagged") == "True":
-            groups[f"{r['market']} {way} engine-flagged"].append(r)
+            groups[f"{r['market']} {way} engine-flagged"].append(mine)
+            if r.get("main_pnl"):
+                groups[f"{r['market']} {way} engine-flagged: main line"].append(
+                    (r["main_result"], float(r["main_pnl"]))
+                )
     out = []
     for label in sorted(groups):
         g = groups[label]
-        units = sum(float(r["pnl"]) for r in g)
+        units = sum(p for _, p in g)
         out.append(
             (
                 label,
                 len(g),
-                sum(r["result"] == "win" for r in g),
-                sum(r["result"] == "loss" for r in g),
+                sum(res == "win" for res, _ in g),
+                sum(res == "loss" for res, _ in g),
                 round(units, 2),
                 round(units / len(g), 4),
             )
@@ -322,9 +344,11 @@ def report(path: Path) -> list[tuple[str, int, int, int, float, float]]:
     return out
 
 
+def alts(path: Path, *, flagged_only: bool = False, main_line: bool = False) -> list[rt.Alt]:
+    """The alt ledger as records for the shared alt-lines table (every row sits beside a tracked side).
 
-def alts(path: Path, *, flagged_only: bool = False) -> list[rt.Alt]:
-    """The alt ledger as records for the shared alt-lines table (every row sits beside a tracked side)."""
+    ``main_line`` reads the flagged rungs' games at the main number instead (same games, same table).
+    """
     if not path.exists():
         return []
     with path.open(newline="", encoding="utf-8") as fh:
@@ -333,7 +357,8 @@ def alts(path: Path, *, flagged_only: bool = False) -> list[rt.Alt]:
             for r in csv.DictReader(fh)
             if r["result"] in ("win", "loss", "push")
             and abs(float(r["favour"])) <= WINDOW
-            and (not flagged_only or r.get("flagged") == "True")
+            and (not (flagged_only or main_line) or r.get("flagged") == "True")
+            and (not main_line or bool(r.get("main_pnl")))
         ]
     return [
         rt.Alt(
@@ -341,8 +366,8 @@ def alts(path: Path, *, flagged_only: bool = False) -> list[rt.Alt]:
             kind="spread" if r["market"] == "game_ats" else "total",
             favour=float(r["favour"]),
             beside_buy=r["tier"] != "Pass",
-            outcome=r["result"],
-            pnl=float(r["pnl"]),
+            outcome=r["main_result"] if main_line else r["result"],
+            pnl=float(r["main_pnl"] if main_line else r["pnl"]),
         )
         for r in rows
     ]
