@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-97636",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "5fe0c7303a1b703d9336c762bfb6e0f50e76412a",
+ "picks": [
+  {
+   "pick_id": "ccf0617c316e",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Zachary Cohen",
+   "episode_guid": "vsin-97636",
+   "episode_title": "Vikings vs. 49ers Predictions: Week 11 Sunday Night Football odds, picks, and player props",
+   "published": "2026-11-22T05:24:31+00:00",
+   "kind": "official",
+   "market": "other",
+   "team": null,
+   "opponent": null,
+   "side": null,
+   "line": null,
+   "price": -118.0,
+   "units": null,
+   "seconds": 0,
+   "quote": "49ers -3 (-118)",
+   "reason": "https://vsin.com/nfl/vikings-vs-49ers-predictions-week-11-sunday-night-football-odds-picks-and-player-props/",
+   "description": "49ers -3 (-118)",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "nfl"
+ ]
+}
