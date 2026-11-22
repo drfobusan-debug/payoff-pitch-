@@ -1,0 +1,5 @@
+detected_at,game_date,event_id,matchup,kind,detail,before,after
+2026-11-22T21:35:29Z,2026-11-22,90da1cde4144fac00d41f2c0db2cc921,OKC @ MIA,ml_move,home ml 0.600 -> 0.656,0.600,0.656
+2026-11-22T21:35:29Z,2026-11-22,90da1cde4144fac00d41f2c0db2cc921,OKC @ MIA,spread_move,home spread -4 -> -6.75,-4,-6.75
+2026-11-22T21:35:29Z,2026-11-22,90da1cde4144fac00d41f2c0db2cc921,OKC @ MIA,total_move,total 231.5 -> 228.75,231.5,228.75
+2026-11-22T21:35:29Z,2026-11-22,90da1cde4144fac00d41f2c0db2cc921,OKC @ MIA,injury,MIA Myron Gardner: Day-To-Day -> cleared,Day-To-Day,
