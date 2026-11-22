@@ -616,43 +616,43 @@
     "no_vig_prob": 0.5017712239741721
   },
   "Hawaii @ Nevada|game_ats|Hawaii": {
-    "american": -109.0,
-    "captured_at": "2026-11-22T03:00:59Z",
+    "american": -101.0,
+    "captured_at": "2026-11-22T03:15:34Z",
     "kickoff_utc": "2026-11-22T03:30:00Z",
     "line": 7.0,
-    "no_vig_prob": 0.5030410280510103
+    "no_vig_prob": 0.4976152168135654
   },
   "Hawaii @ Nevada|game_ats|Nevada": {
-    "american": -103.0,
-    "captured_at": "2026-11-22T03:00:59Z",
+    "american": -105.0,
+    "captured_at": "2026-11-22T03:15:34Z",
     "kickoff_utc": "2026-11-22T03:30:00Z",
     "line": -7.0,
-    "no_vig_prob": 0.4969589719489898
+    "no_vig_prob": 0.5023847831864346
   },
   "Hawaii @ Nevada|game_ml|Hawaii": {
-    "american": 225.0,
-    "captured_at": "2026-11-22T03:00:59Z",
+    "american": 230.0,
+    "captured_at": "2026-11-22T03:15:34Z",
     "kickoff_utc": "2026-11-22T03:30:00Z",
     "line": null,
-    "no_vig_prob": 0.2997812114681453
+    "no_vig_prob": 0.29906704672607914
   },
   "Hawaii @ Nevada|game_ml|Nevada": {
     "american": -255.0,
-    "captured_at": "2026-11-22T03:00:59Z",
+    "captured_at": "2026-11-22T03:15:34Z",
     "kickoff_utc": "2026-11-22T03:30:00Z",
     "line": null,
-    "no_vig_prob": 0.7002187885318547
+    "no_vig_prob": 0.7009329532739208
   },
   "Hawaii @ Nevada|game_total|Over": {
     "american": -109.0,
-    "captured_at": "2026-11-22T03:00:59Z",
+    "captured_at": "2026-11-22T03:15:34Z",
     "kickoff_utc": "2026-11-22T03:30:00Z",
     "line": 40.5,
     "no_vig_prob": 0.5046891351951046
   },
   "Hawaii @ Nevada|game_total|Under": {
     "american": -103.0,
-    "captured_at": "2026-11-22T03:00:59Z",
+    "captured_at": "2026-11-22T03:15:34Z",
     "kickoff_utc": "2026-11-22T03:30:00Z",
     "line": 40.5,
     "no_vig_prob": 0.49531086480489533
@@ -2073,42 +2073,42 @@
   },
   "Utah State @ Oregon State|game_ats|Oregon State": {
     "american": -110.0,
-    "captured_at": "2026-11-22T03:00:59Z",
+    "captured_at": "2026-11-22T03:15:34Z",
     "kickoff_utc": "2026-11-22T03:30:00Z",
     "line": -6.5,
-    "no_vig_prob": 0.5167334887574918
+    "no_vig_prob": 0.515248880092359
   },
   "Utah State @ Oregon State|game_ats|Utah State": {
     "american": 104.0,
-    "captured_at": "2026-11-22T03:00:59Z",
+    "captured_at": "2026-11-22T03:15:34Z",
     "kickoff_utc": "2026-11-22T03:30:00Z",
     "line": 6.5,
-    "no_vig_prob": 0.4832665112425081
+    "no_vig_prob": 0.48475111990764097
   },
   "Utah State @ Oregon State|game_ml|Oregon State": {
-    "american": -240.0,
-    "captured_at": "2026-11-22T03:00:59Z",
+    "american": -250.0,
+    "captured_at": "2026-11-22T03:15:34Z",
     "kickoff_utc": "2026-11-22T03:30:00Z",
     "line": null,
-    "no_vig_prob": 0.6936876095908353
+    "no_vig_prob": 0.6937822258410178
   },
   "Utah State @ Oregon State|game_ml|Utah State": {
-    "american": 230.0,
-    "captured_at": "2026-11-22T03:00:59Z",
+    "american": 220.0,
+    "captured_at": "2026-11-22T03:15:34Z",
     "kickoff_utc": "2026-11-22T03:30:00Z",
     "line": null,
-    "no_vig_prob": 0.3063123904091648
+    "no_vig_prob": 0.3062177741589822
   },
   "Utah State @ Oregon State|game_total|Over": {
     "american": -106.0,
-    "captured_at": "2026-11-22T03:00:59Z",
+    "captured_at": "2026-11-22T03:15:34Z",
     "kickoff_utc": "2026-11-22T03:30:00Z",
     "line": 51.5,
     "no_vig_prob": 0.500991592923332
   },
   "Utah State @ Oregon State|game_total|Under": {
     "american": -107.0,
-    "captured_at": "2026-11-22T03:00:59Z",
+    "captured_at": "2026-11-22T03:15:34Z",
     "kickoff_utc": "2026-11-22T03:30:00Z",
     "line": 51.5,
     "no_vig_prob": 0.49900840707666805
