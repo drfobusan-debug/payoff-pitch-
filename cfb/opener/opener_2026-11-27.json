@@ -41,6 +41,132 @@
     "line": 48.5,
     "no_vig_prob": 0.5086640097036909
   },
+  "Florida @ Florida State|game_ats|Florida": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -4.5,
+    "no_vig_prob": 0.5
+  },
+  "Florida @ Florida State|game_ats|Florida State": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 4.5,
+    "no_vig_prob": 0.5
+  },
+  "Florida @ Florida State|game_ml|Florida": {
+    "american": -180.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.638178645813852
+  },
+  "Florida @ Florida State|game_ml|Florida State": {
+    "american": 172.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.3618213541861481
+  },
+  "Florida @ Florida State|game_total|Over": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 52.5,
+    "no_vig_prob": 0.5
+  },
+  "Florida @ Florida State|game_total|Under": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 52.5,
+    "no_vig_prob": 0.5
+  },
+  "Minnesota @ Wisconsin|game_ats|Minnesota": {
+    "american": -104.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 5.5,
+    "no_vig_prob": 0.4897840117576577
+  },
+  "Minnesota @ Wisconsin|game_ats|Wisconsin": {
+    "american": -115.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -5.5,
+    "no_vig_prob": 0.5102159882423423
+  },
+  "Minnesota @ Wisconsin|game_ml|Minnesota": {
+    "american": 190.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.3282107658499747
+  },
+  "Minnesota @ Wisconsin|game_ml|Wisconsin": {
+    "american": -235.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.6717892341500253
+  },
+  "Minnesota @ Wisconsin|game_total|Over": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 36.5,
+    "no_vig_prob": 0.5026510010179843
+  },
+  "Minnesota @ Wisconsin|game_total|Under": {
+    "american": -109.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 36.5,
+    "no_vig_prob": 0.4973489989820156
+  },
+  "Mississippi St @ Ole Miss|game_ats|Mississippi St": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 20.5,
+    "no_vig_prob": 0.5
+  },
+  "Mississippi St @ Ole Miss|game_ats|Ole Miss": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -20.5,
+    "no_vig_prob": 0.5
+  },
+  "Mississippi St @ Ole Miss|game_ml|Mississippi St": {
+    "american": 800.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.10768266952372835
+  },
+  "Mississippi St @ Ole Miss|game_ml|Ole Miss": {
+    "american": -1200.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.8923173304762717
+  },
+  "Mississippi St @ Ole Miss|game_total|Over": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 57.5,
+    "no_vig_prob": 0.5035133577863036
+  },
+  "Mississippi St @ Ole Miss|game_total|Under": {
+    "american": -107.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 57.5,
+    "no_vig_prob": 0.4964866422136965
+  },
   "Nebraska @ Iowa|game_ats|Iowa": {
     "american": -104.0,
     "captured_at": "",
@@ -124,5 +250,47 @@
     "kickoff_utc": "",
     "line": 40.5,
     "no_vig_prob": 0.5108342361863488
+  },
+  "West Virginia @ Utah|game_ats|Utah": {
+    "american": -109.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -18.5,
+    "no_vig_prob": 0.49823266598801047
+  },
+  "West Virginia @ Utah|game_ats|West Virginia": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 18.5,
+    "no_vig_prob": 0.5017673340119896
+  },
+  "West Virginia @ Utah|game_ml|Utah": {
+    "american": -1200.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.8891180981878124
+  },
+  "West Virginia @ Utah|game_ml|West Virginia": {
+    "american": 800.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.11088190181218767
+  },
+  "West Virginia @ Utah|game_total|Over": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 70.5,
+    "no_vig_prob": 0.5
+  },
+  "West Virginia @ Utah|game_total|Under": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 70.5,
+    "no_vig_prob": 0.5
   }
 }
