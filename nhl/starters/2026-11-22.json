@@ -1,0 +1,62 @@
+{
+  "BUF": {
+    "name": "Ukko-Pekka Luukkonen",
+    "player_id": 8480045,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "CAR": {
+    "name": "Brandon Bussi",
+    "player_id": 8483548,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "CHI": {
+    "name": "Drew Commesso",
+    "player_id": 8482123,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "DAL": {
+    "name": "Jake Oettinger",
+    "player_id": 8479979,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "EDM": {
+    "name": "Tristan Jarry",
+    "player_id": 8477465,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "NYR": {
+    "name": "Dylan Garand",
+    "player_id": 8482193,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "PIT": {
+    "name": "Arturs Silovs",
+    "player_id": 8481668,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "STL": {
+    "name": "Joel Hofer",
+    "player_id": 8480981,
+    "source": "dailyfaceoff",
+    "status": "confirmed"
+  },
+  "TBL": {
+    "name": "Andrei Vasilevskiy",
+    "player_id": 8476883,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "VAN": {
+    "name": "Nikita Tolopilo",
+    "player_id": 8484268,
+    "source": "rotowire",
+    "status": "probable"
+  }
+}
