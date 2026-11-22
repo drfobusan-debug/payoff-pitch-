@@ -617,42 +617,42 @@
   },
   "Hawaii @ Nevada|game_ats|Hawaii": {
     "american": -105.0,
-    "captured_at": "2026-11-22T01:45:40Z",
+    "captured_at": "2026-11-22T02:15:42Z",
     "kickoff_utc": "2026-11-22T03:30:00Z",
     "line": 7.0,
-    "no_vig_prob": 0.5019674193610995
+    "no_vig_prob": 0.5005162832246175
   },
   "Hawaii @ Nevada|game_ats|Nevada": {
     "american": 100.0,
-    "captured_at": "2026-11-22T01:45:40Z",
+    "captured_at": "2026-11-22T02:15:42Z",
     "kickoff_utc": "2026-11-22T03:30:00Z",
     "line": -7.0,
-    "no_vig_prob": 0.49803258063890066
+    "no_vig_prob": 0.49948371677538256
   },
   "Hawaii @ Nevada|game_ml|Hawaii": {
     "american": 235.0,
-    "captured_at": "2026-11-22T01:45:40Z",
+    "captured_at": "2026-11-22T02:15:42Z",
     "kickoff_utc": "2026-11-22T03:30:00Z",
     "line": null,
-    "no_vig_prob": 0.2953688671048771
+    "no_vig_prob": 0.29423088333381664
   },
   "Hawaii @ Nevada|game_ml|Nevada": {
     "american": -255.0,
-    "captured_at": "2026-11-22T01:45:40Z",
+    "captured_at": "2026-11-22T02:15:42Z",
     "kickoff_utc": "2026-11-22T03:30:00Z",
     "line": null,
-    "no_vig_prob": 0.7046311328951229
+    "no_vig_prob": 0.7057691166661834
   },
   "Hawaii @ Nevada|game_total|Over": {
     "american": -109.0,
-    "captured_at": "2026-11-22T01:45:40Z",
+    "captured_at": "2026-11-22T02:15:42Z",
     "kickoff_utc": "2026-11-22T03:30:00Z",
     "line": 40.5,
     "no_vig_prob": 0.5046891351951046
   },
   "Hawaii @ Nevada|game_total|Under": {
     "american": -103.0,
-    "captured_at": "2026-11-22T01:45:40Z",
+    "captured_at": "2026-11-22T02:15:42Z",
     "kickoff_utc": "2026-11-22T03:30:00Z",
     "line": 40.5,
     "no_vig_prob": 0.49531086480489533
@@ -1288,46 +1288,46 @@
     "no_vig_prob": 0.5002777628076361
   },
   "Oklahoma State @ Arizona State|game_ats|Arizona State": {
-    "american": -101.0,
-    "captured_at": "2026-11-22T01:45:40Z",
+    "american": -105.0,
+    "captured_at": "2026-11-22T02:15:42Z",
     "kickoff_utc": "2026-11-22T03:15:00Z",
     "line": 2.5,
-    "no_vig_prob": 0.49492443982650813
+    "no_vig_prob": 0.4953567559201362
   },
   "Oklahoma State @ Arizona State|game_ats|Oklahoma State": {
     "american": -110.0,
-    "captured_at": "2026-11-22T01:45:40Z",
+    "captured_at": "2026-11-22T02:15:42Z",
     "kickoff_utc": "2026-11-22T03:15:00Z",
     "line": -2.5,
-    "no_vig_prob": 0.5050755601734919
+    "no_vig_prob": 0.5046432440798638
   },
   "Oklahoma State @ Arizona State|game_ml|Arizona State": {
-    "american": 120.0,
-    "captured_at": "2026-11-22T01:45:40Z",
+    "american": 130.0,
+    "captured_at": "2026-11-22T02:15:42Z",
     "kickoff_utc": "2026-11-22T03:15:00Z",
     "line": null,
-    "no_vig_prob": 0.4465909422045274
+    "no_vig_prob": 0.4335014923285719
   },
   "Oklahoma State @ Arizona State|game_ml|Oklahoma State": {
-    "american": -130.0,
-    "captured_at": "2026-11-22T01:45:40Z",
+    "american": -134.0,
+    "captured_at": "2026-11-22T02:15:42Z",
     "kickoff_utc": "2026-11-22T03:15:00Z",
     "line": null,
-    "no_vig_prob": 0.5534090577954727
+    "no_vig_prob": 0.5664985076714282
   },
   "Oklahoma State @ Arizona State|game_total|Over": {
-    "american": -110.0,
-    "captured_at": "2026-11-22T01:45:40Z",
+    "american": -108.0,
+    "captured_at": "2026-11-22T02:15:42Z",
     "kickoff_utc": "2026-11-22T03:15:00Z",
-    "line": 59.5,
-    "no_vig_prob": 0.5013337231606856
+    "line": 60.0,
+    "no_vig_prob": 0.5006462319507416
   },
   "Oklahoma State @ Arizona State|game_total|Under": {
     "american": -108.0,
-    "captured_at": "2026-11-22T01:45:40Z",
+    "captured_at": "2026-11-22T02:15:42Z",
     "kickoff_utc": "2026-11-22T03:15:00Z",
-    "line": 59.5,
-    "no_vig_prob": 0.4986662768393144
+    "line": 60.0,
+    "no_vig_prob": 0.49935376804925835
   },
   "Old Dominion @ UConn|game_ats|Old Dominion": {
     "american": 102.0,
@@ -1527,45 +1527,45 @@
   },
   "San Diego Stat @ Boise State|game_ats|Boise State": {
     "american": -106.0,
-    "captured_at": "2026-11-22T01:45:40Z",
+    "captured_at": "2026-11-22T02:15:42Z",
     "kickoff_utc": "2026-11-22T02:30:00Z",
     "line": -20.5,
-    "no_vig_prob": 0.5016547764064369
+    "no_vig_prob": 0.49998864441273716
   },
   "San Diego Stat @ Boise State|game_ats|San Diego Stat": {
-    "american": -105.0,
-    "captured_at": "2026-11-22T01:45:40Z",
+    "american": -106.0,
+    "captured_at": "2026-11-22T02:15:42Z",
     "kickoff_utc": "2026-11-22T02:30:00Z",
     "line": 20.5,
-    "no_vig_prob": 0.4983452235935632
+    "no_vig_prob": 0.500011355587263
   },
   "San Diego Stat @ Boise State|game_ml|Boise State": {
     "american": -1200.0,
-    "captured_at": "2026-11-22T01:45:40Z",
+    "captured_at": "2026-11-22T02:15:42Z",
     "kickoff_utc": "2026-11-22T02:30:00Z",
     "line": null,
-    "no_vig_prob": 0.9002692449085508
+    "no_vig_prob": 0.9006578647688644
   },
   "San Diego Stat @ Boise State|game_ml|San Diego Stat": {
     "american": 975.0,
-    "captured_at": "2026-11-22T01:45:40Z",
+    "captured_at": "2026-11-22T02:15:42Z",
     "kickoff_utc": "2026-11-22T02:30:00Z",
     "line": null,
-    "no_vig_prob": 0.09973075509144919
+    "no_vig_prob": 0.0993421352311356
   },
   "San Diego Stat @ Boise State|game_total|Over": {
     "american": -110.0,
-    "captured_at": "2026-11-22T01:45:40Z",
+    "captured_at": "2026-11-22T02:15:42Z",
     "kickoff_utc": "2026-11-22T02:30:00Z",
     "line": 60.5,
-    "no_vig_prob": 0.5121342645688668
+    "no_vig_prob": 0.5109694122555984
   },
   "San Diego Stat @ Boise State|game_total|Under": {
     "american": -101.0,
-    "captured_at": "2026-11-22T01:45:40Z",
+    "captured_at": "2026-11-22T02:15:42Z",
     "kickoff_utc": "2026-11-22T02:30:00Z",
     "line": 60.5,
-    "no_vig_prob": 0.48786573543113315
+    "no_vig_prob": 0.48903058774440156
   },
   "South Alabama @ Southern Missi|game_ats|South Alabama": {
     "american": -104.0,
@@ -2073,45 +2073,45 @@
   },
   "Utah State @ Oregon State|game_ats|Oregon State": {
     "american": -105.0,
-    "captured_at": "2026-11-22T01:45:40Z",
+    "captured_at": "2026-11-22T02:15:42Z",
     "kickoff_utc": "2026-11-22T03:30:00Z",
     "line": -7.0,
     "no_vig_prob": 0.4959296638799437
   },
   "Utah State @ Oregon State|game_ats|Utah State": {
     "american": -108.0,
-    "captured_at": "2026-11-22T01:45:40Z",
+    "captured_at": "2026-11-22T02:15:42Z",
     "kickoff_utc": "2026-11-22T03:30:00Z",
     "line": 7.0,
     "no_vig_prob": 0.5040703361200563
   },
   "Utah State @ Oregon State|game_ml|Oregon State": {
     "american": -240.0,
-    "captured_at": "2026-11-22T01:45:40Z",
+    "captured_at": "2026-11-22T02:15:42Z",
     "kickoff_utc": "2026-11-22T03:30:00Z",
     "line": null,
-    "no_vig_prob": 0.6927810365783831
+    "no_vig_prob": 0.6932229365343712
   },
   "Utah State @ Oregon State|game_ml|Utah State": {
     "american": 230.0,
-    "captured_at": "2026-11-22T01:45:40Z",
+    "captured_at": "2026-11-22T02:15:42Z",
     "kickoff_utc": "2026-11-22T03:30:00Z",
     "line": null,
-    "no_vig_prob": 0.307218963421617
+    "no_vig_prob": 0.3067770634656288
   },
   "Utah State @ Oregon State|game_total|Over": {
-    "american": -105.0,
-    "captured_at": "2026-11-22T01:45:40Z",
+    "american": -106.0,
+    "captured_at": "2026-11-22T02:15:42Z",
     "kickoff_utc": "2026-11-22T03:30:00Z",
     "line": 51.5,
-    "no_vig_prob": 0.4993692660008844
+    "no_vig_prob": 0.500991592923332
   },
   "Utah State @ Oregon State|game_total|Under": {
     "american": -107.0,
-    "captured_at": "2026-11-22T01:45:40Z",
+    "captured_at": "2026-11-22T02:15:42Z",
     "kickoff_utc": "2026-11-22T03:30:00Z",
     "line": 51.5,
-    "no_vig_prob": 0.5006307339991157
+    "no_vig_prob": 0.49900840707666805
   },
   "Vanderbilt @ Florida|game_ats|Florida": {
     "american": -108.0,
