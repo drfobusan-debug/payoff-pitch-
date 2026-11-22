@@ -56,6 +56,14 @@ COMPLETIONS = "completions"
 RECEIVING_YARDS = "receiving_yards"
 RUSHING_YARDS = "rushing_yards"
 PASSING_YARDS = "passing_yards"
+# Rushing plus receiving touchdowns: what an anytime-scorer prop settles on.
+# Priced as Poisson, P(at least one) = 1 - exp(-mean), on the same shrunk usage
+# mean. ``scripts.nfl.td_study`` (fitted 2016-2021, scored 2022-2025, QB/RB/WR/TE
+# after four games): Brier 0.1486 vs 0.1588 for the position base rate (n 15,162),
+# 0.2147 vs 0.2184 at a mean of 0.25 or more. A two-parameter recalibration fitted
+# on 2016-2021 did no better out of time, so none is applied. That is skill
+# against the base rate only; against a book's price it is not answerable yet.
+TOUCHDOWNS = "touchdowns"
 
 COUNT_STATS = (TARGETS, RECEPTIONS, CARRIES, ATTEMPTS, COMPLETIONS)
 YARD_STATS = (RECEIVING_YARDS, RUSHING_YARDS, PASSING_YARDS)
@@ -201,6 +209,11 @@ def yards_prob(mean: float, sd: float, line: float) -> MarketProb:
     z = (math.log(line) - mu) / sigma
     over = 0.5 * math.erfc(z / math.sqrt(2.0))
     return MarketProb(win=min(max(over, 0.0), 1.0), push=0.0)
+
+
+def anytime_prob(mean: float) -> float:
+    """P(at least one touchdown) for a Poisson count with this mean."""
+    return 1.0 - math.exp(-max(mean, 0.0))
 
 
 def prob_over(stat: str, mean: float, line: float, *, sd: float | None = None) -> MarketProb:

@@ -24,6 +24,7 @@ from nfl_engine.data import nflverse
 from nfl_engine.models.player import (
     MIN_GAMES,
     STATS,
+    TOUCHDOWNS,
     Projection,
     shrunk_mean,
 )
@@ -43,7 +44,19 @@ POSITIONS = {
     "attempts": ("QB",),
     "completions": ("QB",),
     "passing_yards": ("QB",),
+    TOUCHDOWNS: ("RB", "WR", "TE", "QB", "FB"),
 }
+TOUCHDOWN_PARTS = ("rushing_tds", "receiving_tds")
+PROJECTED = (*STATS, TOUCHDOWNS)
+
+
+def add_touchdowns(frame: pd.DataFrame) -> pd.DataFrame:
+    """Add the anytime-scorer count: rushing plus receiving touchdowns."""
+    parts = [c for c in TOUCHDOWN_PARTS if c in frame.columns]
+    if not parts:
+        return frame
+    return frame.assign(**{TOUCHDOWNS: sum(frame[c].fillna(0) for c in parts)})
+
 
 _SUFFIX = re.compile(r"\b(jr|sr|ii|iii|iv|v)\b")
 _NON_ALPHA = re.compile(r"[^a-z ]")
@@ -67,8 +80,9 @@ def _weekly(season: int) -> pd.DataFrame:
         return frame
     if "season_type" in frame.columns:
         frame = frame[frame.season_type == REGULAR]
+    frame = add_touchdowns(frame)
     keep = ["player_id", "player_display_name", "player_name", "position", "season", "week", "team"]
-    columns = [c for c in keep + list(STATS) if c in frame.columns]
+    columns = [c for c in keep + list(PROJECTED) if c in frame.columns]
     return frame[columns].copy()
 
 
@@ -95,7 +109,7 @@ def projections(season: int, week: int) -> dict[tuple[str, str], Projection]:
     previous = _weekly(season - 1)
     out: dict[tuple[str, str], Projection] = {}
 
-    for stat in STATS:
+    for stat in PROJECTED:
         if stat not in prior.columns:
             continue
         rows = prior[prior.position.isin(POSITIONS[stat])]
