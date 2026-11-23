@@ -1,0 +1,55 @@
+{
+ "episode_guid": "f316cf9c-b8c0-4823-90b1-766342d20947",
+ "model": "gpt-4o-mini",
+ "prompt_version": "picks-v2",
+ "transcript_sha": "0e51b15ffd58d557d4928b30fe5a2807736893da",
+ "picks": [],
+ "rejected": [
+  {
+   "league": "nfl",
+   "kind": "official",
+   "host": "Dustin Swedelson",
+   "team": "Jaden Daniels",
+   "opponent": "Cincinnati Bengals",
+   "market": "other",
+   "side": null,
+   "line": 40.5,
+   "price": null,
+   "units": null,
+   "stamp": "[03:36]",
+   "quote": "I think Jaden Daniels does rush for 40 plus yards here tonight on Monday Night Football.",
+   "edge": "The Bengals have allowed the second most scramble yards in the NFL, which should benefit Daniels' rushing.",
+   "fair_line": null,
+   "reason": "Jaden Daniels is expected to have opportunities to scramble due to pressure from the Bengals' defensive line.",
+   "description": "Jaden Daniels over 40.5 rushing yards",
+   "why": "bad stamp"
+  },
+  {
+   "league": "nfl",
+   "kind": "lean",
+   "host": "Dustin Swedelson",
+   "team": null,
+   "opponent": null,
+   "market": "other",
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "stamp": "[08:42]",
+   "quote": "I just lean towards the over in this game.",
+   "edge": "",
+   "fair_line": null,
+   "reason": "The game is expected to be high-scoring based on both teams' offensive capabilities.",
+   "description": "Lean towards the over in Bengals vs. Commanders.",
+   "why": "bad stamp"
+  }
+ ],
+ "leagues": [
+  "cfb",
+  "nfl",
+  "mlb",
+  "nba",
+  "cbb",
+  "nhl"
+ ]
+}

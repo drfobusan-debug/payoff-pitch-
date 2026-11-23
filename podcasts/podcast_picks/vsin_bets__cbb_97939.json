@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-97939",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "a8c4f34dd1264574c816da440ba55dd20e85ca34",
+ "picks": [
+  {
+   "pick_id": "3da6f15ee829",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-97939",
+   "episode_title": "VCU vs. Providence Basketball Prediction: Monday, November 23, 2026",
+   "published": "2026-11-23T02:40:24+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "VCU",
+   "opponent": "Providence",
+   "side": null,
+   "line": 2.0,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "VCU +2",
+   "reason": "https://vsin.com/college-basketball/vcu-vs-providence-basketball-prediction-monday-november-23-2026/",
+   "description": "VCU +2",
+   "league": "cbb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cbb"
+ ]
+}
