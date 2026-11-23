@@ -47,6 +47,7 @@ from nfl_engine.market.screens import Tier
 
 MARKETS = ("moneyline", "spread", "total")
 GAP_BANDS = ((0.0, 0.02), (0.02, 0.04), (0.04, 0.06), (0.06, 1.0))
+SHRINK_KEEPS = (0.75, 0.5, 0.25)
 
 
 def _mean(values: list[float]) -> float:
@@ -155,6 +156,11 @@ def _model(entry: LedgerEntry) -> float:
     return entry.model_prob
 
 
+def _shrunk(keep: float) -> Callable[[LedgerEntry], float]:
+    """The model pulled toward fair, keeping ``keep`` of its gap."""
+    return lambda e: _fair(e) + keep * (e.model_prob - _fair(e))
+
+
 def lean_lines(leans: list[LedgerEntry]) -> list[str]:
     out = []
     for market in MARKETS:
@@ -178,6 +184,11 @@ def lean_lines(leans: list[LedgerEntry]) -> list[str]:
                     f"  win {bw / len(band):.3f} vs fair {_mean([_fair(e) for e in band]):.3f}"
                     f"  units {sum(e.pnl for e in band):+.2f}"
                 )
+        if market == "moneyline":
+            shrunk = "  ".join(
+                f"keep {keep:.2f} {brier(rows, _shrunk(keep)):.4f}" for keep in SHRINK_KEEPS
+            )
+            out.append(f"      Brier with the model shrunk toward fair: {shrunk}")
         if market == "total":
             overs = [e for e in rows if e.side == "over"]
             ow = _wins(overs)

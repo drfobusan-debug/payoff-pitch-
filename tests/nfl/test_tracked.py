@@ -6,13 +6,18 @@ from nfl_engine.audit.graduation import MEETS_BAR, NOT_YET, WATCHING
 from nfl_engine.audit.ledger import LedgerEntry
 from nfl_engine.audit.tracked import (
     ML_LONGSHOT_RULE,
+    ML_SHRUNK_RULE,
     SPREAD_DOG_GAP_RULE,
     SPREAD_DOG_REFUSED_RULE,
     SPREAD_LEAN_RULE,
+    TOTAL_OVER_RULE,
     ml_longshot,
+    ml_shrunk,
+    shrunk_prob,
     spread_dog_gap,
     spread_dog_refused,
     spread_lean,
+    total_over_lean,
     tracked,
     tracked_lines,
 )
@@ -120,3 +125,24 @@ def test_spread_lean_takes_any_positive_gap_and_waits_for_the_band_bar() -> None
     assert by_name[SPREAD_DOG_GAP_RULE].min_n == 100
     line = next(x for x in tracked_lines(rows) if SPREAD_LEAN_RULE in x)
     assert "need 150" in line and "120-0" in line
+
+
+def test_ml_shrunk_keeps_only_leans_whose_edge_outlives_a_halfway_pull_to_fair() -> None:
+    ml = {"market": "moneyline", "line": None, "side": "G0"}
+    assert shrunk_prob(lean(model_prob=0.40, fair_prob=0.30)) == 0.35
+    assert ml_shrunk(lean(odds=200.0, model_prob=0.40, fair_prob=0.32, **ml))  # 0.36 x 3 > 1
+    assert not ml_shrunk(lean(odds=200.0, model_prob=0.33, fair_prob=0.32, **ml))  # 0.325 x 3 < 1
+    assert not ml_shrunk(lean(odds=200.0, model_prob=0.30, fair_prob=0.32, **ml))  # not a lean
+    assert not ml_shrunk(lean(odds=200.0, model_prob=0.40, fair_prob=None, **ml))
+    assert not ml_shrunk(lean(odds=200.0, model_prob=0.40, fair_prob=0.32))  # a spread
+
+
+def test_total_over_lean_takes_overs_above_fair_and_waits_for_the_band_bar() -> None:
+    tot = {"market": "total", "line": 44.5}
+    assert total_over_lean(lean(side="over", **tot))
+    assert not total_over_lean(lean(side="under", **tot))
+    assert not total_over_lean(lean(side="over", model_prob=0.49, **tot))
+    assert not total_over_lean(lean())  # a spread
+    by = {t.name: t for t in tracked([lean(i, side="over", **tot) for i in range(5)])}
+    assert by[TOTAL_OVER_RULE].min_n == 150 and by[TOTAL_OVER_RULE].wins == 5
+    assert by[ML_SHRUNK_RULE].min_n == 100 and by[ML_SHRUNK_RULE].verdict.n == 0
