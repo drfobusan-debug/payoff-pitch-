@@ -1,0 +1,36 @@
+{
+ "episode_guid": "0923930a-634c-491a-aeb4-76a7d6f5292b",
+ "model": "gpt-4o-mini",
+ "prompt_version": "picks-v2",
+ "transcript_sha": "ab6a3700fa1508a9b9f03cb500f6b3252b20c0d1",
+ "picks": [],
+ "rejected": [
+  {
+   "league": "nfl",
+   "kind": "official",
+   "host": "Dustin Swedelson",
+   "team": "Eagles",
+   "opponent": null,
+   "market": "other",
+   "side": null,
+   "line": 19.5,
+   "price": -120,
+   "units": null,
+   "stamp": "[03:18]",
+   "quote": "It is the Philadelphia Eagles team total over 19 and a half minus 120 right now",
+   "edge": "The Cowboys have allowed at least 20 points in 18 straight games.",
+   "fair_line": null,
+   "reason": "The Eagles offense is improving and the Cowboys defense has been consistently allowing points.",
+   "description": "Eagles team total over 19.5",
+   "why": "bad stamp"
+  }
+ ],
+ "leagues": [
+  "cfb",
+  "nfl",
+  "mlb",
+  "nba",
+  "cbb",
+  "nhl"
+ ]
+}
