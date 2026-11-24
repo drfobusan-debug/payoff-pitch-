@@ -1,0 +1,1357 @@
+captured_at,game_date,matchup,event_id,market,side,entity,line,book,american,opposite_american,source
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,EDM,1.5,betrivers,-560,335,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,EDM,1.5,betrivers,335,-560,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,EDM,4.5,betrivers,300,-480,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,EDM,4.5,betrivers,-480,300,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,EDM,2.5,betrivers,-186,135,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,EDM,2.5,betrivers,135,-186,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,EDM,3.5,betrivers,133,-182,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,EDM,3.5,betrivers,-182,133,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,VGK,1.5,betrivers,-670,380,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,VGK,1.5,betrivers,380,-670,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,VGK,3.5,betrivers,128,-175,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,VGK,3.5,betrivers,-175,128,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,VGK,2.5,betrivers,-200,143,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,VGK,2.5,betrivers,143,-200,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,VGK,4.5,betrivers,295,-480,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,VGK,4.5,betrivers,-480,295,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_ml3,EDM,,,betrivers,150,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_ml3,VGK,,,betrivers,135,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_ml3,draw,,,betrivers,330,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_ml3,EDM,,,betrivers,170,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_ml3,VGK,,,betrivers,180,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_ml3,draw,,,betrivers,180,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p2_ml3,EDM,,,betrivers,175,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p2_ml3,VGK,,,betrivers,160,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p2_ml3,draw,,,betrivers,205,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p3_ml3,EDM,,,betrivers,163,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p3_ml3,VGK,,,betrivers,148,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p3_ml3,draw,,,betrivers,235,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Rasmus Andersson,,betrivers,650,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Connor McDavid,,betrivers,138,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Mattias Ekholm,,betrivers,650,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Leon Draisaitl,,betrivers,108,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Ivan Barbashev,,betrivers,510,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Parker Wotherspoon,,betrivers,700,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Tomas Hertl,,betrivers,245,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Kasperi Kapanen,,betrivers,340,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Marc Gatcomb,,betrivers,600,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Ty Emberson,,betrivers,800,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Colton Dach,,betrivers,650,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Owen Michaels,,betrivers,650,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Jake Walman,,betrivers,800,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Mark Stone,,betrivers,188,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Ryan Shea,,betrivers,650,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Alex Formenton,,betrivers,700,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Victor Olofsson,,betrivers,245,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Braeden Bowman,,betrivers,550,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Dylan Coghlan,,betrivers,750,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Mitch Marner,,betrivers,270,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Nic Dowd,,betrivers,650,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Jack Eichel,,betrivers,190,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Ryan Nugent-Hopkins,,betrivers,320,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Evan Bouchard,,betrivers,360,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Vasily Podkolzin,,betrivers,255,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Trent Frederic,,betrivers,700,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Mathieu Joseph,,betrivers,500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Filip Hallander,,betrivers,525,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Jeremy Lauzon,,betrivers,800,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Jason Dickinson,,betrivers,650,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Brett Howden,,betrivers,360,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Brayden McNabb,,betrivers,850,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Connor Murphy,,betrivers,900,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Shea Theodore,,betrivers,600,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,William Karlsson,,betrivers,335,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Trevor Connelly,,betrivers,335,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,William Karlsson,1.5,betrivers,2200,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Evan Bouchard,1.5,betrivers,2400,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Victor Olofsson,1.5,betrivers,1400,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Tomas Hertl,2.5,betrivers,8000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Rasmus Andersson,1.5,betrivers,7000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Parker Wotherspoon,1.5,betrivers,8000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Connor McDavid,1.5,betrivers,600,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Kasperi Kapanen,1.5,betrivers,2400,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Leon Draisaitl,2.5,betrivers,2000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Owen Michaels,1.5,betrivers,7500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Filip Hallander,1.5,betrivers,5500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Tomas Hertl,1.5,betrivers,1400,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Brett Howden,1.5,betrivers,2500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Vasily Podkolzin,1.5,betrivers,1500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Mathieu Joseph,1.5,betrivers,4500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Mattias Ekholm,1.5,betrivers,6600,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Victor Olofsson,2.5,betrivers,8000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Brayden McNabb,1.5,betrivers,10000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Dylan Coghlan,1.5,betrivers,9000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Ty Emberson,1.5,betrivers,10000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Jack Eichel,2.5,betrivers,5000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Mark Stone,1.5,betrivers,1050,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Ryan Shea,1.5,betrivers,6600,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Marc Gatcomb,1.5,betrivers,6000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Jason Dickinson,1.5,betrivers,7000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Jack Eichel,1.5,betrivers,1000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Shea Theodore,1.5,betrivers,6600,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Braeden Bowman,1.5,betrivers,5500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Mitch Marner,1.5,betrivers,1800,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Jake Walman,1.5,betrivers,9000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Mitch Marner,2.5,betrivers,10000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Trevor Connelly,1.5,betrivers,2200,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Nic Dowd,1.5,betrivers,7000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Connor McDavid,2.5,betrivers,2900,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Leon Draisaitl,1.5,betrivers,500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Vasily Podkolzin,2.5,betrivers,8000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Trent Frederic,1.5,betrivers,7500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Jeremy Lauzon,1.5,betrivers,11000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Mark Stone,2.5,betrivers,5500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Ryan Nugent-Hopkins,1.5,betrivers,2000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Colton Dach,1.5,betrivers,6600,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Alex Formenton,1.5,betrivers,7000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Ivan Barbashev,1.5,betrivers,4500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_total,over,,2.5,betrivers,225,-360,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_total,under,,2.5,betrivers,-360,225,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p2_total,over,,3.5,betrivers,410,-835,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p2_total,under,,3.5,betrivers,-835,410,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p3_total,over,,2.5,betrivers,130,-190,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p3_total,under,,2.5,betrivers,-190,130,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_ml,EDM,,,betonlineag,-102,-118,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_ml,VGK,,,betonlineag,-118,-102,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Tomas Hertl,0.5,betonlineag,-122,-106,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Tomas Hertl,0.5,betonlineag,-106,-122,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Shea Theodore,0.5,betonlineag,155,-204,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Shea Theodore,0.5,betonlineag,-204,155,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Mark Stone,0.5,betonlineag,-182,138,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Mark Stone,0.5,betonlineag,138,-182,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Leon Draisaitl,1.5,betonlineag,117,-152,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Leon Draisaitl,1.5,betonlineag,-152,117,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Connor McDavid,1.5,betonlineag,-106,-122,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Connor McDavid,1.5,betonlineag,-122,-106,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Evan Bouchard,1.5,betonlineag,199,-270,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Evan Bouchard,1.5,betonlineag,-270,199,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Jack Eichel,1.5,betonlineag,182,-244,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Jack Eichel,1.5,betonlineag,-244,182,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Victor Olofsson,0.5,betonlineag,-105,-123,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Victor Olofsson,0.5,betonlineag,-123,-105,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Mitch Marner,0.5,betonlineag,-204,155,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Mitch Marner,0.5,betonlineag,155,-204,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Trevor Connelly,0.5,betonlineag,128,-167,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Trevor Connelly,0.5,betonlineag,-167,128,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Vasily Podkolzin,0.5,betonlineag,100,-130,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Vasily Podkolzin,0.5,betonlineag,-130,100,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Kasperi Kapanen,0.5,betonlineag,132,-172,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Kasperi Kapanen,0.5,betonlineag,-172,132,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Ivan Barbashev,0.5,betonlineag,164,-217,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Ivan Barbashev,0.5,betonlineag,-217,164,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,William Karlsson,0.5,betonlineag,132,-172,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,William Karlsson,0.5,betonlineag,-172,132,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Mattias Ekholm,0.5,betonlineag,199,-270,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Mattias Ekholm,0.5,betonlineag,-270,199,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Ryan Nugent-Hopkins,0.5,betonlineag,-119,-109,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Ryan Nugent-Hopkins,0.5,betonlineag,-109,-119,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Colton Dach,0.5,betonlineag,233,-323,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Colton Dach,0.5,betonlineag,-323,233,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Brett Howden,0.5,betonlineag,152,-200,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Brett Howden,0.5,betonlineag,-200,152,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Jack Eichel,2.5,betonlineag,-111,-116,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Jack Eichel,2.5,betonlineag,-116,-111,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Shea Theodore,1.5,betonlineag,109,-141,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Shea Theodore,1.5,betonlineag,-141,109,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Evan Bouchard,2.5,betonlineag,110,-143,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Evan Bouchard,2.5,betonlineag,-143,110,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Connor McDavid,2.5,betonlineag,-133,103,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Connor McDavid,2.5,betonlineag,103,-133,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Tomas Hertl,2.5,betonlineag,146,-192,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Tomas Hertl,2.5,betonlineag,-192,146,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,William Karlsson,1.5,betonlineag,-139,107,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,William Karlsson,1.5,betonlineag,107,-139,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Mark Stone,1.5,betonlineag,-141,108,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Mark Stone,1.5,betonlineag,108,-141,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Victor Olofsson,1.5,betonlineag,-164,125,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Victor Olofsson,1.5,betonlineag,125,-164,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Mitch Marner,2.5,betonlineag,120,-156,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Mitch Marner,2.5,betonlineag,-156,120,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Kasperi Kapanen,1.5,betonlineag,100,-130,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Kasperi Kapanen,1.5,betonlineag,-130,100,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Vasily Podkolzin,1.5,betonlineag,-125,-103,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Vasily Podkolzin,1.5,betonlineag,-103,-125,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Leon Draisaitl,3.5,betonlineag,132,-172,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Leon Draisaitl,3.5,betonlineag,-172,132,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Trevor Connelly,2.5,betonlineag,144,-189,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Trevor Connelly,2.5,betonlineag,-189,144,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Rasmus Andersson,1.5,betonlineag,103,-133,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Rasmus Andersson,1.5,betonlineag,-133,103,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Ryan Nugent-Hopkins,1.5,betonlineag,-103,-125,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Ryan Nugent-Hopkins,1.5,betonlineag,-125,-103,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Colton Dach,1.5,betonlineag,128,-167,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Colton Dach,1.5,betonlineag,-167,128,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Mattias Ekholm,1.5,betonlineag,152,-200,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Mattias Ekholm,1.5,betonlineag,-200,152,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Brett Howden,1.5,betonlineag,103,-133,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Brett Howden,1.5,betonlineag,-133,103,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,g_saves,over,Devon Levi,23.5,betonlineag,107,-139,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,g_saves,under,Devon Levi,23.5,betonlineag,-139,107,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,g_saves,over,Carter Hart,22.5,betonlineag,117,-152,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,g_saves,under,Carter Hart,22.5,betonlineag,-152,117,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_pl,EDM,,0.5,betonlineag,-207,178,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_pl,VGK,,-0.5,betonlineag,178,-207,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total,over,EDM,2.5,betonlineag,-167,130,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total,under,EDM,2.5,betonlineag,130,-167,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total,over,VGK,3.5,betonlineag,119,-152,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total,under,VGK,3.5,betonlineag,-152,119,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_total,over,,1.5,betonlineag,-143,123,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_total,under,,1.5,betonlineag,123,-143,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_ml3,EDM,,,fanatics,150,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_ml3,VGK,,,fanatics,130,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_ml3,draw,,,fanatics,280,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Mathieu Joseph,,fanatics,650,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Connor Murphy,,fanatics,1900,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Jason Dickinson,,fanatics,900,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Kasperi Kapanen,,fanatics,340,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Evan Bouchard,,fanatics,285,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Mattias Ekholm,,fanatics,1000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Leon Draisaitl,,fanatics,110,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Ryan Nugent-Hopkins,,fanatics,285,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Connor McDavid,,fanatics,130,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Vasily Podkolzin,,fanatics,260,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Colton Dach,,fanatics,575,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Shakir Mukhamadullin,,fanatics,1900,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Filip Hallander,,fanatics,450,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Owen Michaels,,fanatics,900,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Alex Formenton,,fanatics,800,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Parker Wotherspoon,,fanatics,2500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Mitch Marner,,fanatics,230,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Victor Olofsson,,fanatics,220,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Jeremy Lauzon,,fanatics,2500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Dylan Coghlan,,fanatics,1900,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Nic Dowd,,fanatics,1400,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Tomas Hertl,,fanatics,230,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Brayden McNabb,,fanatics,2000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Jack Eichel,,fanatics,175,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Brett Howden,,fanatics,325,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Shea Theodore,,fanatics,700,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Ivan Barbashev,,fanatics,500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Mark Stone,,fanatics,175,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,William Karlsson,,fanatics,350,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Rasmus Andersson,,fanatics,800,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Marc Gatcomb,,fanatics,1000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Braeden Bowman,,fanatics,575,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Trevor Connelly,,fanatics,325,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Trent Frederic,,fanatics,900,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Jake Walman,,fanatics,1800,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Ryan Shea,,fanatics,1200,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Mathieu Joseph,,fanatics,3000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Connor Murphy,,fanatics,7000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Jason Dickinson,,fanatics,4000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Kasperi Kapanen,,fanatics,1500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Evan Bouchard,,fanatics,1500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Mattias Ekholm,,fanatics,4500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Leon Draisaitl,,fanatics,700,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Ryan Nugent-Hopkins,,fanatics,1500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Connor McDavid,,fanatics,800,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Vasily Podkolzin,,fanatics,1300,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Colton Dach,,fanatics,2500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Shakir Mukhamadullin,,fanatics,7000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Filip Hallander,,fanatics,2200,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Owen Michaels,,fanatics,3500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Alex Formenton,,fanatics,3500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Parker Wotherspoon,,fanatics,10000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Mitch Marner,,fanatics,1300,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Victor Olofsson,,fanatics,1300,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Jeremy Lauzon,,fanatics,12000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Dylan Coghlan,,fanatics,8000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Nic Dowd,,fanatics,5000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Tomas Hertl,,fanatics,1300,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Brayden McNabb,,fanatics,10000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Jack Eichel,,fanatics,1000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Brett Howden,,fanatics,1700,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Shea Theodore,,fanatics,3500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Ivan Barbashev,,fanatics,2500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Mark Stone,,fanatics,1100,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,William Karlsson,,fanatics,1900,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Rasmus Andersson,,fanatics,3500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Marc Gatcomb,,fanatics,4000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Braeden Bowman,,fanatics,2800,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Trevor Connelly,,fanatics,1700,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,No 1st Goal,,fanatics,15000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Trent Frederic,,fanatics,4000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Jake Walman,,fanatics,8000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Ryan Shea,,fanatics,5000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_ml,EDM,,,betus,-110,-120,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_ml,VGK,,,betus,-120,-110,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_pl,EDM,,0.5,betus,-205,165,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_pl,VGK,,-0.5,betus,165,-205,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_total,over,,1.5,betus,-145,115,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_total,under,,1.5,betus,115,-145,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl_alt,EDM,,1.5,fanduel,-270,200,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl_alt,EDM,,2.5,fanduel,-550,350,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl_alt,EDM,,3.5,fanduel,-1800,920,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl_alt,EDM,,-1.5,fanduel,230,-320,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl_alt,EDM,,-2.5,fanduel,410,-650,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl_alt,EDM,,-3.5,fanduel,1140,-2400,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl_alt,EDM,,-4.5,fanduel,3400,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl_alt,VGK,,1.5,fanduel,-320,230,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl_alt,VGK,,2.5,fanduel,-650,410,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl_alt,VGK,,3.5,fanduel,-2400,1140,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl_alt,VGK,,-1.5,fanduel,200,-270,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl_alt,VGK,,-2.5,fanduel,350,-550,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl_alt,VGK,,-3.5,fanduel,920,-1800,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl_alt,VGK,,-4.5,fanduel,2300,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl_alt,VGK,,-5.5,fanduel,6000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,EDM,0.5,fanduel,-3500,1500,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,EDM,1.5,fanduel,-600,390,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,EDM,2.5,fanduel,-180,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,EDM,3.5,fanduel,140,-180,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,EDM,4.5,fanduel,330,-480,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,EDM,5.5,fanduel,850,-1600,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,EDM,6.5,fanduel,2300,-6000,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,EDM,0.5,fanduel,1500,-3500,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,EDM,1.5,fanduel,390,-600,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,EDM,3.5,fanduel,-180,140,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,EDM,4.5,fanduel,-480,330,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,EDM,5.5,fanduel,-1600,850,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,EDM,6.5,fanduel,-6000,2300,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,VGK,0.5,fanduel,-4500,1700,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,VGK,1.5,fanduel,-700,440,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,VGK,2.5,fanduel,-205,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,VGK,3.5,fanduel,124,-158,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,VGK,4.5,fanduel,300,-430,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,VGK,5.5,fanduel,720,-1350,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,VGK,6.5,fanduel,1750,-4500,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,VGK,7.5,fanduel,5000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,VGK,0.5,fanduel,1700,-4500,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,VGK,1.5,fanduel,440,-700,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,VGK,3.5,fanduel,-158,124,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,VGK,4.5,fanduel,-430,300,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,VGK,5.5,fanduel,-1350,720,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,VGK,6.5,fanduel,-4500,1750,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,over,,2.5,fanduel,-6000,2700,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,over,,3.5,fanduel,-1100,620,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,over,,4.5,fanduel,-550,350,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,over,,5.5,fanduel,-158,124,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,over,,6.5,fanduel,100,-128,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,over,,7.5,fanduel,240,-340,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,over,,8.5,fanduel,370,-600,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,over,,9.5,fanduel,880,-1600,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,over,,10.5,fanduel,1360,-3000,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,over,,11.5,fanduel,2900,-8000,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,over,,12.5,fanduel,5000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,under,,2.5,fanduel,2700,-6000,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,under,,3.5,fanduel,620,-1100,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,under,,4.5,fanduel,350,-550,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,under,,5.5,fanduel,124,-158,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,under,,6.5,fanduel,-128,100,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,under,,7.5,fanduel,-340,240,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,under,,8.5,fanduel,-600,370,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,under,,9.5,fanduel,-1600,880,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,under,,10.5,fanduel,-3000,1360,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,under,,11.5,fanduel,-8000,2900,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_ml3,EDM,,,fanduel,155,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_ml3,VGK,,,fanduel,130,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_ml3,draw,,,fanduel,330,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_ml3,EDM,,,fanduel,195,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_ml3,VGK,,,fanduel,175,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_ml3,draw,,,fanduel,175,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p2_ml3,EDM,,,fanduel,175,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p2_ml3,VGK,,,fanduel,165,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p2_ml3,draw,,,fanduel,210,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p3_ml3,EDM,,,fanduel,165,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p3_ml3,VGK,,,fanduel,145,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p3_ml3,draw,,,fanduel,250,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_ml,EDM,,,fanduel,-106,-122,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_ml,VGK,,,fanduel,-122,-106,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p2_ml,EDM,,,fanduel,-108,-118,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p2_ml,VGK,,,fanduel,-118,-108,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p3_ml,EDM,,,fanduel,-104,-122,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p3_ml,VGK,,,fanduel,-122,-104,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Leon Draisaitl,,fanduel,115,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Connor McDavid,,fanduel,130,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Mark Stone,,fanduel,180,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Jack Eichel,,fanduel,190,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Tomas Hertl,,fanduel,235,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Vasily Podkolzin,,fanduel,240,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Victor Olofsson,,fanduel,240,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Mitch Marner,,fanduel,260,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Ryan Nugent-Hopkins,,fanduel,290,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Evan Bouchard,,fanduel,310,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Trevor Connelly,,fanduel,330,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Kasperi Kapanen,,fanduel,340,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,William Karlsson,,fanduel,340,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Brett Howden,,fanduel,360,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Filip Hallander,,fanduel,440,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Ivan Barbashev,,fanduel,480,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Braeden Bowman,,fanduel,600,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Mathieu Joseph,,fanduel,600,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Colton Dach,,fanduel,600,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Shea Theodore,,fanduel,750,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Rasmus Andersson,,fanduel,800,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Jason Dickinson,,fanduel,850,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Owen Michaels,,fanduel,850,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Alex Formenton,,fanduel,900,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Marc Gatcomb,,fanduel,950,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Mattias Ekholm,,fanduel,1000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Nic Dowd,,fanduel,1200,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Ryan Shea,,fanduel,1300,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Brayden McNabb,,fanduel,1900,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Dylan Coghlan,,fanduel,1900,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Jeremy Lauzon,,fanduel,1900,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Connor Murphy,,fanduel,2200,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Shakir Mukhamadullin,,fanduel,2200,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Parker Wotherspoon,,fanduel,2500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Leon Draisaitl,,fanduel,800,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Connor McDavid,,fanduel,900,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Mark Stone,,fanduel,1200,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Jack Eichel,,fanduel,1300,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Vasily Podkolzin,,fanduel,1500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Victor Olofsson,,fanduel,1600,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Tomas Hertl,,fanduel,1700,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Mitch Marner,,fanduel,1700,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Ryan Nugent-Hopkins,,fanduel,1900,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Trevor Connelly,,fanduel,2000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Evan Bouchard,,fanduel,2000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Brett Howden,,fanduel,2000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Kasperi Kapanen,,fanduel,2200,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,William Karlsson,,fanduel,2200,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Ivan Barbashev,,fanduel,2500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Filip Hallander,,fanduel,2700,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Braeden Bowman,,fanduel,3300,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Mathieu Joseph,,fanduel,3300,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Colton Dach,,fanduel,3500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Shea Theodore,,fanduel,4000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Jason Dickinson,,fanduel,4000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Owen Michaels,,fanduel,4000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Rasmus Andersson,,fanduel,4000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Alex Formenton,,fanduel,4500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Marc Gatcomb,,fanduel,4500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Mattias Ekholm,,fanduel,5000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Nic Dowd,,fanduel,6000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Ryan Shea,,fanduel,7500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Brayden McNabb,,fanduel,8000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Dylan Coghlan,,fanduel,10000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Shakir Mukhamadullin,,fanduel,10000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Jeremy Lauzon,,fanduel,10000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Parker Wotherspoon,,fanduel,10000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Connor Murphy,,fanduel,12500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Mitch Marner,0.5,fanduel,260,-390,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,under,Mitch Marner,0.5,fanduel,-390,260,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Connor McDavid,0.5,fanduel,130,-180,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,under,Connor McDavid,0.5,fanduel,-180,130,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Leon Draisaitl,0.5,fanduel,115,-150,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,under,Leon Draisaitl,0.5,fanduel,-150,115,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Jack Eichel,0.5,fanduel,190,-260,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,under,Jack Eichel,0.5,fanduel,-260,190,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Tomas Hertl,0.5,fanduel,235,-340,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,under,Tomas Hertl,0.5,fanduel,-340,235,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Victor Olofsson,0.5,fanduel,240,-340,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,under,Victor Olofsson,0.5,fanduel,-340,240,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,over,Mark Stone,0.5,fanduel,180,-250,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_g,under,Mark Stone,0.5,fanduel,-250,180,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Mitch Marner,2.5,fanduel,122,-160,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Mitch Marner,2.5,fanduel,-160,122,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Jack Eichel,2.5,fanduel,-114,-114,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Jack Eichel,2.5,fanduel,-114,-114,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Leon Draisaitl,3.5,fanduel,126,-165,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Leon Draisaitl,3.5,fanduel,-165,126,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Evan Bouchard,2.5,fanduel,106,-138,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Evan Bouchard,2.5,fanduel,-138,106,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Connor McDavid,2.5,fanduel,-135,104,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Connor McDavid,2.5,fanduel,104,-135,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Trevor Connelly,1.5,fanduel,-196,148,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Trevor Connelly,1.5,fanduel,148,-196,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Mark Stone,1.5,fanduel,-140,108,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Mark Stone,1.5,fanduel,108,-140,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Tomas Hertl,1.5,fanduel,-176,134,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Tomas Hertl,1.5,fanduel,134,-176,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,g_saves,over,Carter Hart,21.5,fanduel,-118,-112,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,g_saves,under,Carter Hart,21.5,fanduel,-112,-118,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,g_saves,over,Devon Levi,23.5,fanduel,-106,-125,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,g_saves,under,Devon Levi,23.5,fanduel,-125,-106,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_pl,EDM,,0.5,fanduel,-230,176,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_pl,VGK,,-0.5,fanduel,176,-230,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p2_pl,EDM,,0.5,fanduel,-210,162,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p2_pl,VGK,,-0.5,fanduel,162,-210,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p3_pl,EDM,,0.5,fanduel,-186,144,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p3_pl,VGK,,-0.5,fanduel,144,-186,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total,over,EDM,2.5,fanduel,-180,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total,under,EDM,3.5,fanduel,-180,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total,over,VGK,2.5,fanduel,-205,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total,under,VGK,3.5,fanduel,-158,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_team_total,over,EDM,0.5,fanduel,-166,130,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_team_total,under,EDM,0.5,fanduel,130,-166,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_team_total,over,VGK,0.5,fanduel,-180,140,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_team_total,under,VGK,0.5,fanduel,140,-180,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_total,over,,1.5,fanduel,-152,118,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_total,under,,1.5,fanduel,118,-152,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p2_total,over,,1.5,fanduel,-200,154,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p2_total,under,,1.5,fanduel,154,-200,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p3_total,over,,2.5,fanduel,146,-190,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p3_total,under,,2.5,fanduel,-190,146,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl_alt,EDM,,-1.5,circasports,245,-290,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl_alt,VGK,,1.5,circasports,-290,245,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_ml3,EDM,,,circasports,160,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_ml3,VGK,,,circasports,133,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_ml3,draw,,,circasports,319,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_ml,EDM,,,circasports,-106,-114,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_ml,VGK,,,circasports,-114,-106,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Brett Howden,,circasports,325,-415,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,no,Brett Howden,,circasports,-415,325,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Jack Eichel,,circasports,200,-250,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,no,Jack Eichel,,circasports,-250,200,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Ryan Nugent-Hopkins,,circasports,300,-380,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,no,Ryan Nugent-Hopkins,,circasports,-380,300,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Braeden Bowman,,circasports,600,-850,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,no,Braeden Bowman,,circasports,-850,600,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Ivan Barbashev,,circasports,440,-580,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,no,Ivan Barbashev,,circasports,-580,440,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Mark Stone,,circasports,200,-250,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,no,Mark Stone,,circasports,-250,200,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Mitch Marner,,circasports,260,-330,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,no,Mitch Marner,,circasports,-330,260,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Tomas Hertl,,circasports,235,-295,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,no,Tomas Hertl,,circasports,-295,235,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Trevor Connelly,,circasports,325,-415,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,no,Trevor Connelly,,circasports,-415,325,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Victor Olofsson,,circasports,235,-295,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,no,Victor Olofsson,,circasports,-295,235,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,William Karlsson,,circasports,310,-395,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,no,William Karlsson,,circasports,-395,310,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Evan Bouchard,,circasports,290,-370,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,no,Evan Bouchard,,circasports,-370,290,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Connor McDavid,,circasports,135,-165,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,no,Connor McDavid,,circasports,-165,135,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Leon Draisaitl,,circasports,105,-135,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,no,Leon Draisaitl,,circasports,-135,105,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Vasily Podkolzin,,circasports,255,-320,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,no,Vasily Podkolzin,,circasports,-320,255,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_pl,EDM,,0.5,circasports,-200,175,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_pl,VGK,,-0.5,circasports,175,-200,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_total,over,,1.5,circasports,-130,110,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_total,under,,1.5,circasports,110,-130,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl_alt,EDM,,-3.5,williamhill_us,875,-3333,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl_alt,EDM,,-2.5,williamhill_us,330,-556,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl_alt,EDM,,-1.5,williamhill_us,195,-270,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl_alt,EDM,,1.5,williamhill_us,-260,210,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl_alt,EDM,,2.5,williamhill_us,-526,320,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl_alt,EDM,,3.5,williamhill_us,-3333,900,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl_alt,VGK,,3.5,williamhill_us,-3333,875,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl_alt,VGK,,2.5,williamhill_us,-556,330,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl_alt,VGK,,1.5,williamhill_us,-270,195,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl_alt,VGK,,-1.5,williamhill_us,210,-260,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl_alt,VGK,,-2.5,williamhill_us,320,-526,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl_alt,VGK,,-3.5,williamhill_us,900,-3333,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,over,,3.5,williamhill_us,-1000,500,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,over,,4.5,williamhill_us,-526,330,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,over,,5.5,williamhill_us,-161,123,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,over,,6.5,williamhill_us,-112,-119,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,over,,7.5,williamhill_us,210,-303,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,over,,8.5,williamhill_us,315,-500,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,over,,9.5,williamhill_us,725,-2000,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,under,,3.5,williamhill_us,500,-1000,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,under,,4.5,williamhill_us,330,-526,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,under,,5.5,williamhill_us,123,-161,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,under,,6.5,williamhill_us,-119,-112,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,under,,7.5,williamhill_us,-303,210,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,under,,8.5,williamhill_us,-500,315,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,under,,9.5,williamhill_us,-2000,725,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_ml3,EDM,,,williamhill_us,129,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_ml3,VGK,,,williamhill_us,130,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_ml3,draw,,,williamhill_us,270,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_ml3,EDM,,,williamhill_us,167,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_ml3,VGK,,,williamhill_us,161,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_ml3,draw,,,williamhill_us,166,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Leon Draisaitl,,williamhill_us,112,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Connor McDavid,,williamhill_us,133,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Jack Eichel,,williamhill_us,179,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Mark Stone,,williamhill_us,184,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Victor Olofsson,,williamhill_us,225,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Tomas Hertl,,williamhill_us,225,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Vasily Podkolzin,,williamhill_us,245,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Mitch Marner,,williamhill_us,250,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Evan Bouchard,,williamhill_us,270,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Ryan Nugent-Hopkins,,williamhill_us,275,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Trevor Connelly,,williamhill_us,290,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,William Karlsson,,williamhill_us,305,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Brett Howden,,williamhill_us,320,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Kasperi Kapanen,,williamhill_us,325,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Ivan Barbashev,,williamhill_us,400,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Filip Hallander,,williamhill_us,400,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Colton Dach,,williamhill_us,450,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Braeden Bowman,,williamhill_us,475,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Mathieu Joseph,,williamhill_us,525,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Shea Theodore,,williamhill_us,550,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Trent Frederic,,williamhill_us,575,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Rasmus Andersson,,williamhill_us,575,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Owen Michaels,,williamhill_us,600,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Jason Dickinson,,williamhill_us,600,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Alex Formenton,,williamhill_us,625,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Mattias Ekholm,,williamhill_us,650,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Marc Gatcomb,,williamhill_us,650,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Nic Dowd,,williamhill_us,675,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Ryan Shea,,williamhill_us,750,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Jake Walman,,williamhill_us,750,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Brayden McNabb,,williamhill_us,850,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Shakir Mukhamadullin,,williamhill_us,900,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Jeremy Lauzon,,williamhill_us,900,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Connor Murphy,,williamhill_us,900,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Dylan Coghlan,,williamhill_us,900,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Parker Wotherspoon,,williamhill_us,950,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Leon Draisaitl,,williamhill_us,750,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Connor McDavid,,williamhill_us,850,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Mark Stone,,williamhill_us,1100,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Jack Eichel,,williamhill_us,1100,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Victor Olofsson,,williamhill_us,1400,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Tomas Hertl,,williamhill_us,1400,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Mitch Marner,,williamhill_us,1500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Vasily Podkolzin,,williamhill_us,1600,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Ryan Nugent-Hopkins,,williamhill_us,1700,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Trevor Connelly,,williamhill_us,1800,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Evan Bouchard,,williamhill_us,1900,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,William Karlsson,,williamhill_us,2000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Kasperi Kapanen,,williamhill_us,2100,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Brett Howden,,williamhill_us,2100,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Ivan Barbashev,,williamhill_us,2500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Filip Hallander,,williamhill_us,2600,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Braeden Bowman,,williamhill_us,3000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Colton Dach,,williamhill_us,3300,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Mathieu Joseph,,williamhill_us,3300,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Shea Theodore,,williamhill_us,4000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Rasmus Andersson,,williamhill_us,4000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Owen Michaels,,williamhill_us,4000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Jason Dickinson,,williamhill_us,4000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Alex Formenton,,williamhill_us,4500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Trent Frederic,,williamhill_us,5000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Marc Gatcomb,,williamhill_us,5000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Mattias Ekholm,,williamhill_us,5500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Ryan Shea,,williamhill_us,6000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Nic Dowd,,williamhill_us,6000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Jake Walman,,williamhill_us,7000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total,over,EDM,3.5,williamhill_us,120,-170,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total,under,EDM,3.5,williamhill_us,-170,120,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total,over,VGK,3.5,williamhill_us,112,-157,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total,under,VGK,3.5,williamhill_us,-157,112,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl_alt,EDM,,3.5,draftkings,-1600,750,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl_alt,EDM,,2.5,draftkings,-505,330,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl_alt,EDM,,-1.5,draftkings,210,-290,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl_alt,EDM,,-2.5,draftkings,370,-600,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl_alt,EDM,,-3.5,draftkings,750,-1600,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl_alt,VGK,,-3.5,draftkings,750,-1600,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl_alt,VGK,,-2.5,draftkings,330,-505,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl_alt,VGK,,1.5,draftkings,-290,210,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl_alt,VGK,,2.5,draftkings,-600,370,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl_alt,VGK,,3.5,draftkings,-1600,750,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,EDM,0.5,draftkings,-4500,1200,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,EDM,0.5,draftkings,1200,-4500,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,EDM,1.5,draftkings,-550,350,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,EDM,1.5,draftkings,350,-550,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,EDM,2.5,draftkings,-180,140,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,EDM,2.5,draftkings,140,-180,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,EDM,3.5,draftkings,130,-170,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,EDM,3.5,draftkings,-170,130,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,EDM,4.5,draftkings,295,-440,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,EDM,4.5,draftkings,-440,295,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,EDM,5.5,draftkings,675,-1350,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,EDM,5.5,draftkings,-1350,675,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,VGK,0.5,draftkings,-4500,1200,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,VGK,0.5,draftkings,1200,-4500,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,VGK,1.5,draftkings,-550,350,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,VGK,1.5,draftkings,350,-550,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,VGK,2.5,draftkings,-190,145,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,VGK,2.5,draftkings,145,-190,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,VGK,3.5,draftkings,125,-165,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,VGK,3.5,draftkings,-165,125,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,VGK,4.5,draftkings,285,-425,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,VGK,4.5,draftkings,-425,285,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,VGK,5.5,draftkings,650,-1300,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,VGK,5.5,draftkings,-1300,650,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,over,,3.5,draftkings,-935,520,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,over,,4.5,draftkings,-475,310,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,over,,5.5,draftkings,-160,120,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,over,,7.5,draftkings,225,-320,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,over,,8.5,draftkings,340,-525,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,over,,9.5,draftkings,750,-1600,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,under,,3.5,draftkings,520,-935,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,under,,4.5,draftkings,310,-475,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,under,,5.5,draftkings,120,-160,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,under,,7.5,draftkings,-320,225,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,under,,8.5,draftkings,-525,340,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,under,,9.5,draftkings,-1600,750,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_ml3,EDM,,,draftkings,140,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_ml3,VGK,,,draftkings,135,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_ml3,draw,,,draftkings,310,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_ml3,EDM,,,draftkings,175,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_ml3,VGK,,,draftkings,180,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_ml3,draw,,,draftkings,180,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p2_ml3,EDM,,,draftkings,170,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p2_ml3,VGK,,,draftkings,170,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p2_ml3,draw,,,draftkings,200,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p3_ml3,EDM,,,draftkings,160,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p3_ml3,VGK,,,draftkings,150,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p3_ml3,draw,,,draftkings,240,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,over,Connor McDavid,0.5,draftkings,-205,150,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,under,Connor McDavid,0.5,draftkings,150,-205,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,over,Leon Draisaitl,0.5,draftkings,-150,115,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,under,Leon Draisaitl,0.5,draftkings,115,-150,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,over,Evan Bouchard,0.5,draftkings,-140,105,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,under,Evan Bouchard,0.5,draftkings,105,-140,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,over,Jack Eichel,0.5,draftkings,-130,-105,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,under,Jack Eichel,0.5,draftkings,-105,-130,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,over,Mitch Marner,0.5,draftkings,-130,-105,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,under,Mitch Marner,0.5,draftkings,-105,-130,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,over,Mark Stone,0.5,draftkings,120,-165,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,under,Mark Stone,0.5,draftkings,-165,120,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,over,Ryan Nugent-Hopkins,0.5,draftkings,160,-215,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,under,Ryan Nugent-Hopkins,0.5,draftkings,-215,160,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,over,Tomas Hertl,0.5,draftkings,160,-220,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,under,Tomas Hertl,0.5,draftkings,-220,160,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,over,Victor Olofsson,0.5,draftkings,205,-285,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,under,Victor Olofsson,0.5,draftkings,-285,205,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,over,Vasily Podkolzin,0.5,draftkings,210,-290,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,under,Vasily Podkolzin,0.5,draftkings,-290,210,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,over,Shea Theodore,0.5,draftkings,215,-295,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,under,Shea Theodore,0.5,draftkings,-295,215,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,over,Mattias Ekholm,0.5,draftkings,250,-350,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,under,Mattias Ekholm,0.5,draftkings,-350,250,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,over,Trevor Connelly,0.5,draftkings,255,-360,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,under,Trevor Connelly,0.5,draftkings,-360,255,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,over,Ivan Barbashev,0.5,draftkings,270,-380,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,under,Ivan Barbashev,0.5,draftkings,-380,270,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,over,William Karlsson,0.5,draftkings,280,-400,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,under,William Karlsson,0.5,draftkings,-400,280,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,over,Kasperi Kapanen,0.5,draftkings,295,-425,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,under,Kasperi Kapanen,0.5,draftkings,-425,295,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,over,Brett Howden,0.5,draftkings,320,-475,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,under,Brett Howden,0.5,draftkings,-475,320,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,over,Colton Dach,0.5,draftkings,380,-575,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,under,Colton Dach,0.5,draftkings,-575,380,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,over,Mathieu Joseph,0.5,draftkings,390,-575,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,under,Mathieu Joseph,0.5,draftkings,-575,390,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,over,Jason Dickinson,0.5,draftkings,500,-800,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,under,Jason Dickinson,0.5,draftkings,-800,500,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_blk,over,Connor Murphy,1.5,draftkings,-150,110,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_blk,under,Connor Murphy,1.5,draftkings,110,-150,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_blk,over,Brayden McNabb,1.5,draftkings,-130,-110,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_blk,under,Brayden McNabb,1.5,draftkings,-110,-130,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Leon Draisaitl,,draftkings,110,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Connor McDavid,,draftkings,135,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Mark Stone,,draftkings,175,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Jack Eichel,,draftkings,190,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Victor Olofsson,,draftkings,225,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Tomas Hertl,,draftkings,235,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Mitch Marner,,draftkings,250,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Vasily Podkolzin,,draftkings,280,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Ryan Nugent-Hopkins,,draftkings,290,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Evan Bouchard,,draftkings,300,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Brett Howden,,draftkings,330,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Trevor Connelly,,draftkings,330,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,William Karlsson,,draftkings,340,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Kasperi Kapanen,,draftkings,350,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Filip Hallander,,draftkings,500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Ivan Barbashev,,draftkings,500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Colton Dach,,draftkings,600,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Braeden Bowman,,draftkings,600,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Shea Theodore,,draftkings,700,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Mathieu Joseph,,draftkings,750,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Rasmus Andersson,,draftkings,850,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Alex Formenton,,draftkings,900,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Jason Dickinson,,draftkings,950,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Trent Frederic,,draftkings,1000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Owen Michaels,,draftkings,1000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Marc Gatcomb,,draftkings,1100,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Mattias Ekholm,,draftkings,1200,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Ryan Shea,,draftkings,1200,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Nic Dowd,,draftkings,1400,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Jake Walman,,draftkings,1600,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Connor Murphy,,draftkings,1700,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Shakir Mukhamadullin,,draftkings,1700,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Brayden McNabb,,draftkings,1900,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Dylan Coghlan,,draftkings,2000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Jeremy Lauzon,,draftkings,2200,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Parker Wotherspoon,,draftkings,2500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Leon Draisaitl,,draftkings,750,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Connor McDavid,,draftkings,900,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Mark Stone,,draftkings,1100,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Jack Eichel,,draftkings,1200,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Victor Olofsson,,draftkings,1400,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Mitch Marner,,draftkings,1500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Tomas Hertl,,draftkings,1600,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Ryan Nugent-Hopkins,,draftkings,1700,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Vasily Podkolzin,,draftkings,1700,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Evan Bouchard,,draftkings,1900,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Kasperi Kapanen,,draftkings,2000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Brett Howden,,draftkings,2000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Trevor Connelly,,draftkings,2000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,William Karlsson,,draftkings,2200,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Ivan Barbashev,,draftkings,2500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Filip Hallander,,draftkings,2800,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Colton Dach,,draftkings,3500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Braeden Bowman,,draftkings,3500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Mathieu Joseph,,draftkings,3500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Alex Formenton,,draftkings,4000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Shea Theodore,,draftkings,4000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Rasmus Andersson,,draftkings,4500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Trent Frederic,,draftkings,5000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Owen Michaels,,draftkings,5000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Jason Dickinson,,draftkings,5000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Marc Gatcomb,,draftkings,5500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Mattias Ekholm,,draftkings,5500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Ryan Shea,,draftkings,6000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Nic Dowd,,draftkings,6500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Connor Murphy,,draftkings,7000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Jake Walman,,draftkings,7000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Shakir Mukhamadullin,,draftkings,7500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Dylan Coghlan,,draftkings,8000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Brayden McNabb,,draftkings,8000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Jeremy Lauzon,,draftkings,10000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Parker Wotherspoon,,draftkings,12000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,lgs,yes,Leon Draisaitl,,draftkings,700,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,lgs,yes,Connor McDavid,,draftkings,750,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,lgs,yes,Jack Eichel,,draftkings,1000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,lgs,yes,Mark Stone,,draftkings,1000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,lgs,yes,Tomas Hertl,,draftkings,1300,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,lgs,yes,Mitch Marner,,draftkings,1400,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,lgs,yes,Victor Olofsson,,draftkings,1400,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,lgs,yes,Evan Bouchard,,draftkings,1400,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,lgs,yes,William Karlsson,,draftkings,1500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,lgs,yes,Vasily Podkolzin,,draftkings,1500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,lgs,yes,Trevor Connelly,,draftkings,1600,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,lgs,yes,Brett Howden,,draftkings,1600,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,lgs,yes,Ryan Nugent-Hopkins,,draftkings,1700,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,lgs,yes,Kasperi Kapanen,,draftkings,1700,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,lgs,yes,Ivan Barbashev,,draftkings,2000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,lgs,yes,Filip Hallander,,draftkings,2000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,lgs,yes,Colton Dach,,draftkings,2500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,lgs,yes,Braeden Bowman,,draftkings,2500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,lgs,yes,Shea Theodore,,draftkings,2800,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,lgs,yes,Jason Dickinson,,draftkings,3000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,lgs,yes,Mathieu Joseph,,draftkings,3000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,lgs,yes,Rasmus Andersson,,draftkings,3000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,lgs,yes,Alex Formenton,,draftkings,3500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,lgs,yes,Trent Frederic,,draftkings,3500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,lgs,yes,Owen Michaels,,draftkings,3500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,lgs,yes,Marc Gatcomb,,draftkings,4000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,lgs,yes,Ryan Shea,,draftkings,4000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,lgs,yes,Mattias Ekholm,,draftkings,4000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,lgs,yes,Connor Murphy,,draftkings,4500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,lgs,yes,Nic Dowd,,draftkings,4500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,lgs,yes,Jake Walman,,draftkings,5000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,lgs,yes,Shakir Mukhamadullin,,draftkings,5000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,lgs,yes,Brayden McNabb,,draftkings,5500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,lgs,yes,Dylan Coghlan,,draftkings,5500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,lgs,yes,Jeremy Lauzon,,draftkings,6000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,lgs,yes,Parker Wotherspoon,,draftkings,7000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Connor McDavid,1.5,draftkings,-105,-125,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Connor McDavid,1.5,draftkings,-125,-105,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Leon Draisaitl,1.5,draftkings,110,-150,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Leon Draisaitl,1.5,draftkings,-150,110,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Jack Eichel,1.5,draftkings,175,-240,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Jack Eichel,1.5,draftkings,-240,175,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Mitch Marner,0.5,draftkings,-215,155,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Mitch Marner,0.5,draftkings,155,-215,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Evan Bouchard,0.5,draftkings,-210,155,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Evan Bouchard,0.5,draftkings,155,-210,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Mark Stone,0.5,draftkings,-175,130,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Mark Stone,0.5,draftkings,130,-175,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Tomas Hertl,0.5,draftkings,-125,-110,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Tomas Hertl,0.5,draftkings,-110,-125,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Ryan Nugent-Hopkins,0.5,draftkings,-120,-115,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Ryan Nugent-Hopkins,0.5,draftkings,-115,-120,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Victor Olofsson,0.5,draftkings,-110,-125,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Victor Olofsson,0.5,draftkings,-125,-110,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Vasily Podkolzin,0.5,draftkings,100,-140,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Vasily Podkolzin,0.5,draftkings,-140,100,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Trevor Connelly,0.5,draftkings,125,-170,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Trevor Connelly,0.5,draftkings,-170,125,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,William Karlsson,0.5,draftkings,135,-185,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,William Karlsson,0.5,draftkings,-185,135,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Kasperi Kapanen,0.5,draftkings,145,-200,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Kasperi Kapanen,0.5,draftkings,-200,145,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Brett Howden,0.5,draftkings,150,-200,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Brett Howden,0.5,draftkings,-200,150,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Shea Theodore,0.5,draftkings,155,-210,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Shea Theodore,0.5,draftkings,-210,155,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Ivan Barbashev,0.5,draftkings,165,-225,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Ivan Barbashev,0.5,draftkings,-225,165,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Mattias Ekholm,0.5,draftkings,200,-275,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Mattias Ekholm,0.5,draftkings,-275,200,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Colton Dach,0.5,draftkings,230,-320,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Colton Dach,0.5,draftkings,-320,230,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Mathieu Joseph,0.5,draftkings,250,-350,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Mathieu Joseph,0.5,draftkings,-350,250,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Jason Dickinson,0.5,draftkings,330,-475,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Jason Dickinson,0.5,draftkings,-475,330,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Leon Draisaitl,3.5,draftkings,120,-160,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Leon Draisaitl,3.5,draftkings,-160,120,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Connor McDavid,2.5,draftkings,-135,100,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Connor McDavid,2.5,draftkings,100,-135,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Jack Eichel,2.5,draftkings,-120,-115,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Jack Eichel,2.5,draftkings,-115,-120,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Mitch Marner,2.5,draftkings,100,-135,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Mitch Marner,2.5,draftkings,-135,100,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Evan Bouchard,2.5,draftkings,110,-150,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Evan Bouchard,2.5,draftkings,-150,110,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Tomas Hertl,2.5,draftkings,135,-185,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Tomas Hertl,2.5,draftkings,-185,135,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Trevor Connelly,2.5,draftkings,135,-180,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Trevor Connelly,2.5,draftkings,-180,135,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Victor Olofsson,1.5,draftkings,-170,125,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Victor Olofsson,1.5,draftkings,125,-170,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Mark Stone,1.5,draftkings,-155,115,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Mark Stone,1.5,draftkings,115,-155,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,William Karlsson,1.5,draftkings,-140,105,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,William Karlsson,1.5,draftkings,105,-140,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Vasily Podkolzin,1.5,draftkings,-135,100,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Vasily Podkolzin,1.5,draftkings,100,-135,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Ryan Nugent-Hopkins,1.5,draftkings,-105,-130,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Ryan Nugent-Hopkins,1.5,draftkings,-130,-105,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Brett Howden,1.5,draftkings,100,-135,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Brett Howden,1.5,draftkings,-135,100,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Kasperi Kapanen,1.5,draftkings,100,-140,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Kasperi Kapanen,1.5,draftkings,-140,100,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Rasmus Andersson,1.5,draftkings,100,-140,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Rasmus Andersson,1.5,draftkings,-140,100,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Shea Theodore,1.5,draftkings,105,-140,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Shea Theodore,1.5,draftkings,-140,105,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Colton Dach,1.5,draftkings,120,-165,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Colton Dach,1.5,draftkings,-165,120,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Mattias Ekholm,1.5,draftkings,145,-200,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Mattias Ekholm,1.5,draftkings,-200,145,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Ivan Barbashev,0.5,draftkings,-230,170,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Ivan Barbashev,0.5,draftkings,170,-230,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,g_saves,over,Devon Levi,23.5,draftkings,-105,-130,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,g_saves,under,Devon Levi,23.5,draftkings,-130,-105,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,g_saves,over,Carter Hart,21.5,draftkings,-130,-105,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,g_saves,under,Carter Hart,21.5,draftkings,-105,-130,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_pl,EDM,,-0.5,draftkings,170,-220,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_pl,VGK,,0.5,draftkings,-220,170,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p2_pl,EDM,,0.5,draftkings,-215,165,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p2_pl,VGK,,-0.5,draftkings,165,-215,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p3_pl,EDM,,0.5,draftkings,-195,150,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p3_pl,VGK,,-0.5,draftkings,150,-195,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_team_total,over,EDM,0.5,draftkings,-180,140,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_team_total,under,EDM,0.5,draftkings,140,-180,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_team_total,over,VGK,0.5,draftkings,-180,140,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_team_total,under,VGK,0.5,draftkings,140,-180,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_total,over,,1.5,draftkings,-154,120,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_total,under,,1.5,draftkings,120,-154,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p2_total,over,,1.5,draftkings,-166,130,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p2_total,under,,1.5,draftkings,130,-166,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p3_total,over,,2.5,draftkings,145,-188,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p3_total,under,,2.5,draftkings,-188,145,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,EDM,1,betmgm,-3000,825,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,EDM,1,betmgm,825,-3000,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,EDM,1.5,betmgm,-525,320,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,EDM,1.5,betmgm,320,-525,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,EDM,2,betmgm,-375,250,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,EDM,2,betmgm,250,-375,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,EDM,2.5,betmgm,-185,130,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,EDM,2.5,betmgm,130,-185,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,EDM,3,betmgm,-120,-115,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,EDM,3,betmgm,-115,-120,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,EDM,3.5,betmgm,120,-165,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,EDM,3.5,betmgm,-165,120,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,EDM,4,betmgm,220,-325,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,EDM,4,betmgm,-325,220,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,EDM,4.5,betmgm,270,-425,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,EDM,4.5,betmgm,-425,270,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,EDM,5,betmgm,525,-1100,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,EDM,5,betmgm,-1100,525,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,VGK,1,betmgm,-3000,825,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,VGK,1,betmgm,825,-3000,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,VGK,1.5,betmgm,-525,320,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,VGK,1.5,betmgm,320,-525,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,VGK,2,betmgm,-375,250,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,VGK,2,betmgm,250,-375,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,VGK,2.5,betmgm,-185,130,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,VGK,2.5,betmgm,130,-185,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,VGK,3,betmgm,-125,-110,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,VGK,3,betmgm,-110,-125,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,VGK,3.5,betmgm,120,-165,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,VGK,3.5,betmgm,-165,120,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,VGK,4,betmgm,220,-325,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,VGK,4,betmgm,-325,220,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,VGK,4.5,betmgm,270,-425,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,VGK,4.5,betmgm,-425,270,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,VGK,5,betmgm,525,-1100,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,VGK,5,betmgm,-1100,525,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_ml3,EDM,,,betmgm,140,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_ml3,VGK,,,betmgm,140,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_ml3,draw,,,betmgm,310,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_ml3,EDM,,,betmgm,165,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_ml3,VGK,,,betmgm,165,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_ml3,draw,,,betmgm,180,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p2_ml3,EDM,,,betmgm,160,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p2_ml3,VGK,,,betmgm,160,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p2_ml3,draw,,,betmgm,195,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p3_ml3,EDM,,,betmgm,150,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p3_ml3,VGK,,,betmgm,145,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p3_ml3,draw,,,betmgm,230,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_ml,EDM,,,betmgm,-115,-115,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_ml,VGK,,,betmgm,-115,-115,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p2_ml,EDM,,,betmgm,-118,-118,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p2_ml,VGK,,,betmgm,-118,-118,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p3_ml,EDM,,,betmgm,-118,-118,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p3_ml,VGK,,,betmgm,-118,-118,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,over,Ivan Barbashev,0.5,betmgm,240,-350,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,under,Ivan Barbashev,0.5,betmgm,-350,240,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,over,Jack Eichel,0.5,betmgm,-118,-111,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,under,Jack Eichel,0.5,betmgm,-111,-118,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,over,Kasperi Kapanen,0.5,betmgm,250,-350,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,under,Kasperi Kapanen,0.5,betmgm,-350,250,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,over,Mark Stone,0.5,betmgm,120,-160,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,under,Mark Stone,0.5,betmgm,-160,120,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,over,Mattias Ekholm,0.5,betmgm,250,-350,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,under,Mattias Ekholm,0.5,betmgm,-350,250,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,over,Mitch Marner,0.5,betmgm,-125,-105,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,under,Mitch Marner,0.5,betmgm,-105,-125,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,over,Shea Theodore,0.5,betmgm,200,-275,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,under,Shea Theodore,0.5,betmgm,-275,200,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,over,Tomas Hertl,0.5,betmgm,180,-250,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,under,Tomas Hertl,0.5,betmgm,-250,180,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,over,Trevor Connelly,0.5,betmgm,220,-300,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,under,Trevor Connelly,0.5,betmgm,-300,220,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,over,Victor Olofsson,0.5,betmgm,220,-300,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,under,Victor Olofsson,0.5,betmgm,-300,220,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,over,Vasily Podkolzin,0.5,betmgm,230,-325,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,under,Vasily Podkolzin,0.5,betmgm,-325,230,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,over,William Karlsson,0.5,betmgm,210,-295,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,under,William Karlsson,0.5,betmgm,-295,210,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,over,Leon Draisaitl,0.5,betmgm,-155,115,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,under,Leon Draisaitl,0.5,betmgm,115,-155,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,over,Evan Bouchard,0.5,betmgm,-155,115,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,under,Evan Bouchard,0.5,betmgm,115,-155,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,over,Connor McDavid,0.5,betmgm,-235,175,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,under,Connor McDavid,0.5,betmgm,175,-235,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,over,Ryan Nugent-Hopkins,0.5,betmgm,155,-210,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_a,under,Ryan Nugent-Hopkins,0.5,betmgm,-210,155,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Alex Formenton,,betmgm,550,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Braeden Bowman,,betmgm,575,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Brayden McNabb,,betmgm,1400,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Brett Howden,,betmgm,380,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Colton Dach,,betmgm,525,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Connor Murphy,,betmgm,1500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Dylan Coghlan,,betmgm,1600,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Filip Hallander,,betmgm,475,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Ivan Barbashev,,betmgm,350,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Jack Eichel,,betmgm,200,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Jake Walman,,betmgm,1050,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Jason Dickinson,,betmgm,700,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Jeremy Lauzon,,betmgm,1500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Kasperi Kapanen,,betmgm,400,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Marc Gatcomb,,betmgm,650,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Mark Stone,,betmgm,200,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Mathieu Joseph,,betmgm,600,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Mattias Ekholm,,betmgm,950,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Mitch Marner,,betmgm,250,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Nic Dowd,,betmgm,700,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Owen Michaels,,betmgm,825,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Parker Wotherspoon,,betmgm,1850,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Rasmus Andersson,,betmgm,850,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Shea Theodore,,betmgm,700,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Tomas Hertl,,betmgm,210,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Trent Frederic,,betmgm,700,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Victor Olofsson,,betmgm,250,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Trevor Connelly,,betmgm,340,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Vasily Podkolzin,,betmgm,275,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,William Karlsson,,betmgm,340,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Connor McDavid,,betmgm,140,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Evan Bouchard,,betmgm,325,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Leon Draisaitl,,betmgm,115,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Ryan Nugent-Hopkins,,betmgm,280,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Leon Draisaitl,,betmgm,800,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Connor McDavid,,betmgm,1150,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Mark Stone,,betmgm,1200,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Tomas Hertl,,betmgm,1300,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Jack Eichel,,betmgm,1350,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Victor Olofsson,,betmgm,1400,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Mitch Marner,,betmgm,1500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Trevor Connelly,,betmgm,1700,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,William Karlsson,,betmgm,1750,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Vasily Podkolzin,,betmgm,1800,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Ivan Barbashev,,betmgm,1850,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Brett Howden,,betmgm,1900,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Evan Bouchard,,betmgm,2000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Filip Hallander,,betmgm,2000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Colton Dach,,betmgm,2200,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Kasperi Kapanen,,betmgm,2500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Alex Formenton,,betmgm,2500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Mathieu Joseph,,betmgm,2500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Jason Dickinson,,betmgm,2800,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Marc Gatcomb,,betmgm,2800,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Braeden Bowman,,betmgm,2800,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Trent Frederic,,betmgm,3000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Nic Dowd,,betmgm,3000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Owen Michaels,,betmgm,3300,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Shea Theodore,,betmgm,3300,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Rasmus Andersson,,betmgm,3500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Mattias Ekholm,,betmgm,4000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Jake Walman,,betmgm,4000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Brayden McNabb,,betmgm,5000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Jeremy Lauzon,,betmgm,5000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Dylan Coghlan,,betmgm,5000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Connor Murphy,,betmgm,5500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Ryan Shea,,betmgm,5500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Shakir Mukhamadullin,,betmgm,6000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Parker Wotherspoon,,betmgm,6000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,No Scorer,,betmgm,8000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Ivan Barbashev,0.5,betmgm,145,-200,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Ivan Barbashev,0.5,betmgm,-200,145,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Jack Eichel,0.5,betmgm,-250,180,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Jack Eichel,0.5,betmgm,180,-250,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Kasperi Kapanen,0.5,betmgm,125,-165,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Kasperi Kapanen,0.5,betmgm,-165,125,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Mark Stone,0.5,betmgm,-185,135,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Mark Stone,0.5,betmgm,135,-185,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Mattias Ekholm,0.5,betmgm,210,-295,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Mattias Ekholm,0.5,betmgm,-295,210,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Mitch Marner,0.5,betmgm,-220,165,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Mitch Marner,0.5,betmgm,165,-220,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Shea Theodore,0.5,betmgm,145,-200,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Shea Theodore,0.5,betmgm,-200,145,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Tomas Hertl,0.5,betmgm,-125,-105,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Tomas Hertl,0.5,betmgm,-105,-125,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Victor Olofsson,0.5,betmgm,100,-135,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Victor Olofsson,0.5,betmgm,-135,100,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Trevor Connelly,0.5,betmgm,130,-175,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Trevor Connelly,0.5,betmgm,-175,130,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Vasily Podkolzin,0.5,betmgm,-105,-125,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Vasily Podkolzin,0.5,betmgm,-125,-105,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,William Karlsson,0.5,betmgm,105,-145,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,William Karlsson,0.5,betmgm,-145,105,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Evan Bouchard,0.5,betmgm,-250,180,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Evan Bouchard,0.5,betmgm,180,-250,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Connor McDavid,1.5,betmgm,-105,-125,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Connor McDavid,1.5,betmgm,-125,-105,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Leon Draisaitl,1.5,betmgm,110,-150,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Leon Draisaitl,1.5,betmgm,-150,110,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,over,Ryan Nugent-Hopkins,0.5,betmgm,-120,-110,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_pts,under,Ryan Nugent-Hopkins,0.5,betmgm,-110,-120,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_ppp,over,Jack Eichel,0.5,betmgm,155,-210,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_ppp,under,Jack Eichel,0.5,betmgm,-210,155,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_ppp,over,Mark Stone,0.5,betmgm,230,-325,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_ppp,under,Mark Stone,0.5,betmgm,-325,230,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_ppp,over,Mitch Marner,0.5,betmgm,180,-250,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_ppp,under,Mitch Marner,0.5,betmgm,-250,180,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_ppp,over,Tomas Hertl,0.5,betmgm,250,-350,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_ppp,under,Tomas Hertl,0.5,betmgm,-350,250,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_ppp,over,Vasily Podkolzin,0.5,betmgm,450,-700,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_ppp,under,Vasily Podkolzin,0.5,betmgm,-700,450,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_ppp,over,Victor Olofsson,0.5,betmgm,300,-450,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_ppp,under,Victor Olofsson,0.5,betmgm,-450,300,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_ppp,over,Leon Draisaitl,0.5,betmgm,140,-190,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_ppp,under,Leon Draisaitl,0.5,betmgm,-190,140,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_ppp,over,Evan Bouchard,0.5,betmgm,175,-235,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_ppp,under,Evan Bouchard,0.5,betmgm,-235,175,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_ppp,over,Connor McDavid,0.5,betmgm,120,-160,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_ppp,under,Connor McDavid,0.5,betmgm,-160,120,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_ppp,over,Ryan Nugent-Hopkins,0.5,betmgm,240,-325,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_ppp,under,Ryan Nugent-Hopkins,0.5,betmgm,-325,240,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Ivan Barbashev,1.5,betmgm,160,-220,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Ivan Barbashev,1.5,betmgm,-220,160,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Jack Eichel,2.5,betmgm,-115,-115,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Jack Eichel,2.5,betmgm,-115,-115,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Kasperi Kapanen,1.5,betmgm,-105,-125,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Kasperi Kapanen,1.5,betmgm,-125,-105,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Mark Stone,1.5,betmgm,-140,105,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Mark Stone,1.5,betmgm,105,-140,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Mitch Marner,2.5,betmgm,110,-150,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Mitch Marner,2.5,betmgm,-150,110,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Rasmus Andersson,1.5,betmgm,100,-135,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Rasmus Andersson,1.5,betmgm,-135,100,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Shea Theodore,1.5,betmgm,105,-140,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Shea Theodore,1.5,betmgm,-140,105,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Tomas Hertl,1.5,betmgm,-190,138,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Tomas Hertl,1.5,betmgm,138,-190,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Victor Olofsson,1.5,betmgm,-175,130,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Victor Olofsson,1.5,betmgm,130,-175,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Trevor Connelly,1.5,betmgm,-160,120,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Trevor Connelly,1.5,betmgm,120,-160,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Vasily Podkolzin,1.5,betmgm,-115,-115,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Vasily Podkolzin,1.5,betmgm,-115,-115,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,William Karlsson,1.5,betmgm,-140,105,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,William Karlsson,1.5,betmgm,105,-140,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Leon Draisaitl,3.5,betmgm,120,-160,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Leon Draisaitl,3.5,betmgm,-160,120,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Evan Bouchard,2.5,betmgm,100,-135,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Evan Bouchard,2.5,betmgm,-135,100,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Connor McDavid,2.5,betmgm,-150,110,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Connor McDavid,2.5,betmgm,110,-150,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Ryan Nugent-Hopkins,1.5,betmgm,-105,-125,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Ryan Nugent-Hopkins,1.5,betmgm,-125,-105,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_pl,EDM,,1.5,betmgm,-1000,525,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_pl,VGK,,-1.5,betmgm,525,-1000,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p2_pl,EDM,,1.5,betmgm,-900,450,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p2_pl,VGK,,-1.5,betmgm,450,-900,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p3_pl,EDM,,1.5,betmgm,-700,400,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p3_pl,VGK,,-1.5,betmgm,400,-700,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total,over,EDM,3,betmgm,-120,-115,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total,under,EDM,3,betmgm,-115,-120,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total,over,VGK,3,betmgm,-125,-110,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total,under,VGK,3,betmgm,-110,-125,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_total,over,,2.5,betmgm,220,-300,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_total,under,,2.5,betmgm,-300,220,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p2_total,over,,3,betmgm,333,-550,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p2_total,under,,3,betmgm,-550,333,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p3_total,over,,3,betmgm,280,-450,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p3_total,under,,3,betmgm,-450,280,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl_alt,EDM,,-1.5,bovada,240,-340,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl_alt,EDM,,-2.5,bovada,385,-625,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl_alt,EDM,,2.5,bovada,-500,330,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl_alt,VGK,,1.5,bovada,-340,240,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl_alt,VGK,,2.5,bovada,-625,385,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl_alt,VGK,,-2.5,bovada,330,-500,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,EDM,0.5,bovada,1500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,EDM,1.5,bovada,-550,350,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,EDM,1.5,bovada,350,-550,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,EDM,2.5,bovada,-175,135,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,EDM,2.5,bovada,135,-175,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,EDM,3.5,bovada,140,-185,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,EDM,3.5,bovada,-185,140,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,EDM,4.5,bovada,320,-485,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,EDM,4.5,bovada,-485,320,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,VGK,1.5,bovada,-700,425,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,VGK,1.5,bovada,425,-700,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,VGK,2.5,bovada,-200,150,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,VGK,2.5,bovada,150,-200,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,VGK,3.5,bovada,125,-165,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,VGK,3.5,bovada,-165,125,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,VGK,4.5,bovada,285,-425,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,VGK,4.5,bovada,-425,285,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,over,VGK,5.5,bovada,750,-1600,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,team_total_alt,under,VGK,5.5,bovada,-1600,750,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,over,,3.5,bovada,-1000,550,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,over,,4.5,bovada,-526,340,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,over,,5,bovada,-350,250,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,over,,5.5,bovada,-155,120,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,over,,6.5,bovada,100,-130,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,over,,7,bovada,180,-240,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,over,,7.5,bovada,230,-325,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,over,,8.5,bovada,350,-550,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,under,,3.5,bovada,550,-1000,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,under,,4.5,bovada,340,-526,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,under,,5,bovada,250,-350,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,under,,5.5,bovada,120,-155,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,under,,6.5,bovada,-130,100,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,under,,7,bovada,-240,180,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,under,,7.5,bovada,-325,230,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total_alt,under,,8.5,bovada,-550,350,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_ml3,EDM,,,bovada,157,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_ml3,VGK,,,bovada,128,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_ml3,draw,,,bovada,310,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_ml3,EDM,,,bovada,180,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_ml3,VGK,,,bovada,176,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_ml3,draw,,,bovada,178,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_ml,EDM,,,bovada,-110,-120,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_ml,VGK,,,bovada,-120,-110,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p2_ml,EDM,,,bovada,-105,-125,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p2_ml,VGK,,,bovada,-125,-105,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p3_ml,EDM,,,bovada,-105,-125,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p3_ml,VGK,,,bovada,-125,-105,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Jake Walman,,bovada,1600,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Trent Frederic,,bovada,1000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Brayden McNabb,,bovada,1800,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Tomas Hertl,,bovada,230,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Ivan Barbashev,,bovada,475,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,William Karlsson,,bovada,335,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Victor Olofsson,,bovada,230,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Alex Formenton,,bovada,850,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Connor McDavid,,bovada,132,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Rasmus Andersson,,bovada,775,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Ryan Shea,,bovada,1200,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Nic Dowd,,bovada,1200,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Jack Eichel,,bovada,185,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Brett Howden,,bovada,350,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Owen Michaels,,bovada,850,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Jeremy Lauzon,,bovada,1900,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Colton Dach,,bovada,575,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Kasperi Kapanen,,bovada,335,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Parker Wotherspoon,,bovada,2300,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Mathieu Joseph,,bovada,625,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Mark Stone,,bovada,175,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Dylan Coghlan,,bovada,1800,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Braeden Bowman,,bovada,575,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Leon Draisaitl,,bovada,108,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Marc Gatcomb,,bovada,1000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Jason Dickinson,,bovada,850,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Mattias Ekholm,,bovada,1000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Evan Bouchard,,bovada,300,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Trevor Connelly,,bovada,320,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Ryan Nugent-Hopkins,,bovada,285,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Shakir Mukhamadullin,,bovada,1900,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Mitch Marner,,bovada,250,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Connor Murphy,,bovada,1900,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Vasily Podkolzin,,bovada,250,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Filip Hallander,,bovada,440,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,ags,yes,Shea Theodore,,bovada,700,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Braeden Bowman,,bovada,3300,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Jeremy Lauzon,,bovada,10000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Mathieu Joseph,,bovada,3300,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Ivan Barbashev,,bovada,2500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Dylan Coghlan,,bovada,10000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Brett Howden,,bovada,2000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Mark Stone,,bovada,1200,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Owen Michaels,,bovada,4000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Marc Gatcomb,,bovada,4500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Evan Bouchard,,bovada,2000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Rasmus Andersson,,bovada,4000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Parker Wotherspoon,,bovada,10000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,William Karlsson,,bovada,2200,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Mattias Ekholm,,bovada,5000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Victor Olofsson,,bovada,1600,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Alex Formenton,,bovada,4500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Jason Dickinson,,bovada,4000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Colton Dach,,bovada,3500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Trevor Connelly,,bovada,2000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Leon Draisaitl,,bovada,800,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Tomas Hertl,,bovada,1700,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Nic Dowd,,bovada,6000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Jack Eichel,,bovada,1300,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Brayden McNabb,,bovada,8000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Kasperi Kapanen,,bovada,2200,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Connor McDavid,,bovada,900,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Ryan Shea,,bovada,7500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Shea Theodore,,bovada,4000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Ryan Nugent-Hopkins,,bovada,1900,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Connor Murphy,,bovada,12500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Mitch Marner,,bovada,1700,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Vasily Podkolzin,,bovada,1500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Shakir Mukhamadullin,,bovada,10000,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,fgs,yes,Filip Hallander,,bovada,2500,,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Connor McDavid,2.5,bovada,-135,105,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Connor McDavid,2.5,bovada,105,-135,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Evan Bouchard,2.5,bovada,115,-150,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Evan Bouchard,2.5,bovada,-150,115,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Ivan Barbashev,0.5,bovada,-225,170,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Ivan Barbashev,0.5,bovada,170,-225,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Jack Eichel,2.5,bovada,-120,-110,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Jack Eichel,2.5,bovada,-110,-120,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Kasperi Kapanen,1.5,bovada,-105,-125,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Kasperi Kapanen,1.5,bovada,-125,-105,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Leon Draisaitl,3.5,bovada,125,-165,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Leon Draisaitl,3.5,bovada,-165,125,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Mark Stone,1.5,bovada,-150,115,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Mark Stone,1.5,bovada,115,-150,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Mitch Marner,2.5,bovada,110,-145,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Mitch Marner,2.5,bovada,-145,110,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Shea Theodore,1.5,bovada,105,-135,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Shea Theodore,1.5,bovada,-135,105,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Tomas Hertl,2.5,bovada,145,-190,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Tomas Hertl,2.5,bovada,-190,145,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Trevor Connelly,2.5,bovada,145,-190,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Trevor Connelly,2.5,bovada,-190,145,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Vasily Podkolzin,1.5,bovada,-135,105,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Vasily Podkolzin,1.5,bovada,105,-135,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,Victor Olofsson,1.5,bovada,-170,130,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,Victor Olofsson,1.5,bovada,130,-170,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,over,William Karlsson,1.5,bovada,-150,115,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,sk_sog,under,William Karlsson,1.5,bovada,115,-150,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,g_saves,over,Devon Levi,23.5,bovada,-105,-125,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,g_saves,under,Devon Levi,23.5,bovada,-125,-105,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_pl,EDM,,0.5,bovada,-220,165,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_pl,VGK,,-0.5,bovada,165,-220,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p2_pl,EDM,,0.5,bovada,-210,155,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p2_pl,VGK,,-0.5,bovada,155,-210,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p3_pl,EDM,,0.5,bovada,-185,140,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p3_pl,VGK,,-0.5,bovada,140,-185,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_total,over,,1.5,bovada,-150,115,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p1_total,under,,1.5,bovada,115,-150,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p2_total,over,,2,bovada,105,-135,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p2_total,under,,2,bovada,-135,105,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p3_total,over,,2.5,bovada,145,-190,oddsapi
+2026-11-24T22:13:34Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,p3_total,under,,2.5,bovada,-190,145,oddsapi
