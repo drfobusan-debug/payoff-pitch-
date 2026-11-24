@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-98073",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "89bd140f17a6451cb8ea17797c1a612a1fd23aa4",
+ "picks": [
+  {
+   "pick_id": "0c53df5b4519",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-98073",
+   "episode_title": "College Football Week 13 Picks: Kent State vs. Eastern Michigan",
+   "published": "2026-11-23T17:09:10+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Eastern Michigan",
+   "opponent": "Kent State",
+   "side": null,
+   "line": -6.0,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Eastern Michigan -6",
+   "reason": "https://vsin.com/college-football/college-football-week-13-picks-kent-state-vs-eastern-michigan/",
+   "description": "Eastern Michigan -6",
+   "league": "cfb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cfb"
+ ]
+}

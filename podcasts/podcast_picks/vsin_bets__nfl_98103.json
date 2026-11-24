@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-98103",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "751b23be5853351c41a43c9e3d28eb143d4d9a00",
+ "picks": [
+  {
+   "pick_id": "d12db8f63da8",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Zachary Cohen",
+   "episode_guid": "vsin-98103",
+   "episode_title": "Packers vs. Rams Predictions: Week 12 Thanksgiving Eve odds, picks, and player props",
+   "published": "2026-11-23T21:00:17+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Rams",
+   "opponent": "Packers",
+   "side": null,
+   "line": -2.5,
+   "price": -115.0,
+   "units": null,
+   "seconds": 0,
+   "quote": "Rams -2.5 (-115)",
+   "reason": "https://vsin.com/nfl/packers-vs-rams-predictions-week-12-thanksgiving-eve-odds-picks-and-player-props/",
+   "description": "Rams -2.5 (-115)",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "nfl"
+ ]
+}
