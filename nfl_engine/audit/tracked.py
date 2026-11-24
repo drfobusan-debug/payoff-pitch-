@@ -20,6 +20,14 @@ bar exists to wait out.
 
 The spread zone is also graded on the leans the engine refused (``Pass``) alone,
 which asks whether the screens cost winners rather than whether the zone wins.
+
+The 2026 wk1-11 audit added two more. ``ml_shrunk_half`` asks whether the
+moneyline leans survive once the model is pulled halfway to the de-vigged fair:
+the model rated its 140 ML leans (112 of them dogs) at 38.0% against a 34.7% fair,
+and they won 30.7%, so only leans whose edge outlives that shrink still show
+positive EV at the price taken. ``total_over_lean`` is every Over the model rates
+above fair (99 of its 150 total leans, 54-45); like ``spread_lean`` it is judged
+at the band bar.
 """
 
 from __future__ import annotations
@@ -36,14 +44,19 @@ from nfl_engine.audit.graduation import (
     priced_before_kickoff,
 )
 from nfl_engine.audit.ledger import LOSS, WIN, LedgerEntry
-from nfl_engine.market.ev import MONEYLINE, SPREAD
+from nfl_engine.market.board import OVER
+from nfl_engine.market.ev import MONEYLINE, SPREAD, TOTAL, ev
+from nfl_engine.market.odds import american_to_decimal
 from nfl_engine.market.screens import MAX_AMERICAN, Tier
 
 SPREAD_DOG_GAP_RULE = "spread_dog_gap_2_4"
 SPREAD_DOG_REFUSED_RULE = "spread_dog_refused"
 ML_LONGSHOT_RULE = "ml_dog_over_300"
 SPREAD_LEAN_RULE = "spread_lean"
+ML_SHRUNK_RULE = "ml_shrunk_half"
+TOTAL_OVER_RULE = "total_over_lean"
 GAP_LO, GAP_HI = 0.02, 0.04
+ML_SHRINK = 0.5  # share of the model's gap to fair kept
 
 
 def model_gap(entry: LedgerEntry) -> float | None:
@@ -85,12 +98,39 @@ def ml_longshot(entry: LedgerEntry) -> bool:
     )
 
 
+def shrunk_prob(entry: LedgerEntry, keep: float = ML_SHRINK) -> float | None:
+    """The model pulled toward the de-vigged fair, keeping ``keep`` of its gap."""
+    fair = entry.fair_prob
+    return None if fair is None else fair + keep * (entry.model_prob - fair)
+
+
+def ml_shrunk(entry: LedgerEntry) -> bool:
+    """A moneyline lean still +EV at the price taken with the model shrunk halfway to fair."""
+    prob, fair = shrunk_prob(entry), entry.fair_prob
+    return (
+        entry.market == MONEYLINE
+        and entry.odds is not None
+        and prob is not None
+        and fair is not None
+        and prob > fair
+        and ev(prob, american_to_decimal(entry.odds)) > 0
+    )
+
+
+def total_over_lean(entry: LedgerEntry) -> bool:
+    """Any Over the model rates above the de-vigged fair."""
+    gap = model_gap(entry)
+    return entry.market == TOTAL and entry.side == OVER and gap is not None and gap > 0
+
+
 # (name, label, rule, games needed before the verdict is read)
 RULES: tuple[tuple[str, str, Callable[[LedgerEntry], bool], int], ...] = (
     (SPREAD_DOG_GAP_RULE, "spread dog, model gap 2-4 pts", spread_dog_gap, MIN_N),
     (SPREAD_DOG_REFUSED_RULE, "the same zone, refused leans only", spread_dog_refused, MIN_N),
     (ML_LONGSHOT_RULE, f"ML dog above +{MAX_AMERICAN:.0f}", ml_longshot, MIN_N),
     (SPREAD_LEAN_RULE, "every spread lean, any gap (band bar)", spread_lean, BAND_MIN_N),
+    (ML_SHRUNK_RULE, "ML lean still +EV with the model shrunk halfway to fair", ml_shrunk, MIN_N),
+    (TOTAL_OVER_RULE, "every Over lean, any gap (band bar)", total_over_lean, BAND_MIN_N),
 )
 
 
