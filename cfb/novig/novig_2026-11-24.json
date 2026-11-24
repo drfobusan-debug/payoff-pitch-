@@ -1,0 +1,86 @@
+{
+  "Kent State @ Eastern Michig|game_ats|Eastern Michig": {
+    "american": -106.0,
+    "captured_at": "2026-11-24T14:03:56Z",
+    "kickoff_utc": "2026-11-25T00:00:00Z",
+    "line": -5.5,
+    "no_vig_prob": 0.509663905550795
+  },
+  "Kent State @ Eastern Michig|game_ats|Kent State": {
+    "american": 102.0,
+    "captured_at": "2026-11-24T14:03:56Z",
+    "kickoff_utc": "2026-11-25T00:00:00Z",
+    "line": 5.5,
+    "no_vig_prob": 0.490336094449205
+  },
+  "Kent State @ Eastern Michig|game_ml|Eastern Michig": {
+    "american": -208.0,
+    "captured_at": "2026-11-24T14:03:56Z",
+    "kickoff_utc": "2026-11-25T00:00:00Z",
+    "line": null,
+    "no_vig_prob": 0.6717257844474761
+  },
+  "Kent State @ Eastern Michig|game_ml|Kent State": {
+    "american": 203.0,
+    "captured_at": "2026-11-24T14:03:56Z",
+    "kickoff_utc": "2026-11-25T00:00:00Z",
+    "line": null,
+    "no_vig_prob": 0.3282742155525239
+  },
+  "Kent State @ Eastern Michig|game_total|Over": {
+    "american": 100.0,
+    "captured_at": "2026-11-24T14:03:56Z",
+    "kickoff_utc": "2026-11-25T00:00:00Z",
+    "line": 46.5,
+    "no_vig_prob": 0.49514563106796117
+  },
+  "Kent State @ Eastern Michig|game_total|Under": {
+    "american": -104.0,
+    "captured_at": "2026-11-24T14:03:56Z",
+    "kickoff_utc": "2026-11-25T00:00:00Z",
+    "line": 46.5,
+    "no_vig_prob": 0.5048543689320388
+  },
+  "Miami (OH) @ Western Michig|game_ats|Miami (OH)": {
+    "american": -102.0,
+    "captured_at": "2026-11-24T14:03:56Z",
+    "kickoff_utc": "2026-11-25T00:00:00Z",
+    "line": 6.5,
+    "no_vig_prob": 0.5
+  },
+  "Miami (OH) @ Western Michig|game_ats|Western Michig": {
+    "american": -102.0,
+    "captured_at": "2026-11-24T14:03:56Z",
+    "kickoff_utc": "2026-11-25T00:00:00Z",
+    "line": -6.5,
+    "no_vig_prob": 0.5
+  },
+  "Miami (OH) @ Western Michig|game_ml|Miami (OH)": {
+    "american": 228.0,
+    "captured_at": "2026-11-24T14:03:56Z",
+    "kickoff_utc": "2026-11-25T00:00:00Z",
+    "line": null,
+    "no_vig_prob": 0.3034887535999417
+  },
+  "Miami (OH) @ Western Michig|game_ml|Western Michig": {
+    "american": -233.0,
+    "captured_at": "2026-11-24T14:03:56Z",
+    "kickoff_utc": "2026-11-25T00:00:00Z",
+    "line": null,
+    "no_vig_prob": 0.6965112464000583
+  },
+  "Miami (OH) @ Western Michig|game_total|Over": {
+    "american": 102.0,
+    "captured_at": "2026-11-24T14:03:56Z",
+    "kickoff_utc": "2026-11-25T00:00:00Z",
+    "line": 45.5,
+    "no_vig_prob": 0.490336094449205
+  },
+  "Miami (OH) @ Western Michig|game_total|Under": {
+    "american": -106.0,
+    "captured_at": "2026-11-24T14:03:56Z",
+    "kickoff_utc": "2026-11-25T00:00:00Z",
+    "line": 45.5,
+    "no_vig_prob": 0.509663905550795
+  }
+}

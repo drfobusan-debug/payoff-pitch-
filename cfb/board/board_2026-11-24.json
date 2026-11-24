@@ -1,0 +1,86 @@
+{
+  "Kent State @ Eastern Michig|game_ats|Eastern Michig": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -5.5,
+    "no_vig_prob": 0.5057947119498215
+  },
+  "Kent State @ Eastern Michig|game_ats|Kent State": {
+    "american": -101.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 5.5,
+    "no_vig_prob": 0.49420528805017855
+  },
+  "Kent State @ Eastern Michig|game_ml|Eastern Michig": {
+    "american": -210.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.660254927579823
+  },
+  "Kent State @ Eastern Michig|game_ml|Kent State": {
+    "american": 192.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.339745072420177
+  },
+  "Kent State @ Eastern Michig|game_total|Over": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 46.5,
+    "no_vig_prob": 0.5035457753847813
+  },
+  "Kent State @ Eastern Michig|game_total|Under": {
+    "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 46.5,
+    "no_vig_prob": 0.4964542246152187
+  },
+  "Miami (OH) @ Western Michig|game_ats|Miami (OH)": {
+    "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 6.5,
+    "no_vig_prob": 0.4972919090826667
+  },
+  "Miami (OH) @ Western Michig|game_ats|Western Michig": {
+    "american": -106.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -6.5,
+    "no_vig_prob": 0.5027080909173333
+  },
+  "Miami (OH) @ Western Michig|game_ml|Miami (OH)": {
+    "american": 220.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.30669595195279037
+  },
+  "Miami (OH) @ Western Michig|game_ml|Western Michig": {
+    "american": -245.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.6933040480472097
+  },
+  "Miami (OH) @ Western Michig|game_total|Over": {
+    "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 45.5,
+    "no_vig_prob": 0.5009179564501839
+  },
+  "Miami (OH) @ Western Michig|game_total|Under": {
+    "american": -107.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 45.5,
+    "no_vig_prob": 0.4990820435498162
+  }
+}
