@@ -43,10 +43,18 @@ def read_transcript(path: Path) -> list[Line]:
     return out
 
 
-def write_transcript(path: Path, lines: list[Line]) -> Path:
+def write_atomic(path: Path, text: str) -> Path:
+    """Write via a ``.part`` sibling and rename, so a reader killed mid-write never
+    leaves a truncated transcript or picks file at ``path``."""
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text("".join(f"[{ln.stamp}] {ln.text}\n" for ln in lines))
+    tmp = path.with_name(path.name + ".part")
+    tmp.write_text(text)
+    tmp.replace(path)
     return path
+
+
+def write_transcript(path: Path, lines: list[Line]) -> Path:
+    return write_atomic(path, "".join(f"[{ln.stamp}] {ln.text}\n" for ln in lines))
 
 
 @contextmanager
@@ -97,5 +105,6 @@ __all__ = [
     "read_transcript",
     "stamp_seconds",
     "transcribe",
+    "write_atomic",
     "write_transcript",
 ]

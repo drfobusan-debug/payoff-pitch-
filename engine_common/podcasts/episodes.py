@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import logging
 import os
-import shutil
 from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import datetime
@@ -20,7 +19,12 @@ import requests
 
 from engine_common.podcasts.feed import FeedItem, download, fetch_xml, parse_items
 from engine_common.podcasts.shows import Show
-from engine_common.podcasts.transcript import WHISPER_MODEL, PodcastUnavailable, transcribe
+from engine_common.podcasts.transcript import (
+    WHISPER_MODEL,
+    PodcastUnavailable,
+    transcribe,
+    write_atomic,
+)
 
 log = logging.getLogger(__name__)
 
@@ -90,9 +94,7 @@ def ensure_transcript(
     for old in legacy:
         src = transcript_path(old, ep)
         if src.exists():
-            dest.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copyfile(src, dest)
-            return dest
+            return write_atomic(dest, src.read_text())
     if not transcribe_missing:
         return None
     audio = dest.with_suffix(".mp3")

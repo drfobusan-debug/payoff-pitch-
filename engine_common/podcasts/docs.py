@@ -36,6 +36,7 @@ from engine_common.podcasts.shows import (
     NFL,
     NHL,
 )
+from engine_common.podcasts.transcript import write_atomic
 
 PARSER_VERSION = "docs-1"
 CAPPER_URL = "https://www.docsports.com/cappers.html?cap_id={cap_id}"
@@ -270,8 +271,7 @@ def read_docs(
             ex = Extraction(
                 pick.episode_guid, "rules", PARSER_VERSION, sha, [pick], [], [pick.league]
             )
-            path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_text(ex.to_json())
+            write_atomic(path, ex.to_json())
             kept.append(ex)
     return kept
 

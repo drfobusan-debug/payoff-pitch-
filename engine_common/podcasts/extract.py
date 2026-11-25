@@ -25,7 +25,7 @@ import requests
 
 from engine_common.podcasts.episodes import Episode
 from engine_common.podcasts.shows import LEAGUE_NAME, LEAGUES
-from engine_common.podcasts.transcript import Line, stamp_seconds
+from engine_common.podcasts.transcript import Line, stamp_seconds, write_atomic
 
 log = logging.getLogger(__name__)
 
@@ -510,8 +510,7 @@ def extract(
     result = Extraction(
         ep.item.guid, use_model, PROMPT_VERSION, sha, _merge(kept), rejected, list(ep.show.leagues)
     )
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(result.to_json())
+    write_atomic(path, result.to_json())
     return result
 
 
