@@ -129,6 +129,12 @@ def _child(
         raise
 
 
+def max_seconds_from_env() -> float | None:
+    """``PODCAST_MAX_SECONDS`` (default an hour) as the feed read's limit; ``0`` means none."""
+    seconds = float(os.getenv("PODCAST_MAX_SECONDS") or 3600)
+    return seconds if seconds > 0 else None
+
+
 def run_within(seconds: float, fn: Callable[..., Any], *args: Any, **kwargs: Any) -> Any:
     """``fn(*args, **kwargs)`` in a child process, stopped after ``seconds``; ``None`` if it
     was stopped or failed.
@@ -163,4 +169,4 @@ def run_within(seconds: float, fn: Callable[..., Any], *args: Any, **kwargs: Any
     return value if ok else None
 
 
-__all__ = ["ReadReport", "read_feeds", "run_within"]
+__all__ = ["ReadReport", "max_seconds_from_env", "read_feeds", "run_within"]

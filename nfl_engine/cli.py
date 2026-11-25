@@ -41,7 +41,7 @@ from engine_common import novig
 from engine_common.podcasts import audit as podcast_audit
 from engine_common.podcasts import state as podcast_state
 from engine_common.podcasts.episodes import store_dir
-from engine_common.podcasts.run import read_feeds
+from engine_common.podcasts.run import max_seconds_from_env, read_feeds, run_within
 from engine_common.podcasts.shows import NFL
 from nfl_engine import calibration, podcast, props, props_grade, state
 from nfl_engine import replay as replay_mod
@@ -1007,13 +1007,18 @@ def cmd_podcast(args: argparse.Namespace) -> int:
     _podcast_pull()
     if not args.no_read:
         now = datetime.now(timezone.utc)
-        rep = read_feeds(
-            store_dir(),
-            now - timedelta(days=args.days),
-            now,
-            transcribe_missing=not args.no_transcribe,
-        )
-        print(f"  {rep.by_league.get(NFL, 0)} NFL picks read")
+        feed_args = (store_dir(), now - timedelta(days=args.days), now)
+        feed_kwargs = dict(transcribe_missing=not args.no_transcribe)
+        if args.max_seconds:
+            rep = run_within(args.max_seconds, read_feeds, *feed_args, **feed_kwargs)
+        else:
+            rep = read_feeds(*feed_args, **feed_kwargs)
+        if rep is None:
+            print(
+                f"  feed read stopped after {args.max_seconds:g}s; grading the picks already read"
+            )
+        else:
+            print(f"  {rep.by_league.get(NFL, 0)} NFL picks read")
     season, week = args.season, args.week
     if season is None or week is None:
         current_season, current, _ = current_week()
@@ -1461,6 +1466,12 @@ def main(argv: list[str] | None = None) -> int:
     pod.add_argument("--week", type=int, default=None)
     pod.add_argument("--no-read", action="store_true", help="grade only; read no feed")
     pod.add_argument("--no-transcribe", action="store_true", help="use transcripts on disk only")
+    pod.add_argument(
+        "--max-seconds",
+        type=float,
+        default=max_seconds_from_env(),
+        help="stop the feed read after this long (default PODCAST_MAX_SECONDS, else 3600; 0 = no limit)",
+    )
     pod.set_defaults(func=cmd_podcast)
 
     job = sub.add_parser("job", help="capture, price, close, grade and report in order")

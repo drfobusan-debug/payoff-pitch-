@@ -44,6 +44,7 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from engine_common import novig
+from engine_common.podcasts.run import max_seconds_from_env, run_within
 from engine_runtime import faststart
 from engine_runtime.odds_client import OddsClient
 from nhl_engine import (
@@ -658,10 +659,12 @@ def cmd_podcast(args: argparse.Namespace) -> int:
         print(f"podcast: no episode for {slate}; wrote {podcast_read.save_read(read, root)}")
         return 0
     ep = eps[0]
+    tr_kwargs = dict(model=args.model, transcribe_missing=not args.no_transcribe)
     try:
-        tpath = podcast.ensure_transcript(
-            ep, root, model=args.model, transcribe_missing=not args.no_transcribe
-        )
+        if args.max_seconds:
+            tpath = run_within(args.max_seconds, podcast.ensure_transcript, ep, root, **tr_kwargs)
+        else:
+            tpath = podcast.ensure_transcript(ep, root, **tr_kwargs)
     except podcast.PodcastUnavailable as exc:
         tpath = None
         print(f"podcast: {exc}", file=sys.stderr)
@@ -1246,6 +1249,12 @@ def build_parser() -> argparse.ArgumentParser:
     pc.add_argument("--feed", default=podcast.FEED_URL)
     pc.add_argument("--model", default=podcast.WHISPER_MODEL, help="faster-whisper model")
     pc.add_argument("--no-transcribe", action="store_true", help="use a cached transcript only")
+    pc.add_argument(
+        "--max-seconds",
+        type=float,
+        default=max_seconds_from_env(),
+        help="stop the transcription after this long (default PODCAST_MAX_SECONDS, else 3600; 0 = no limit)",
+    )
     pc.set_defaults(func=cmd_podcast)
 
     nv = sub.add_parser("novig", help="the ledger valued at the close at the book vs at Novig")

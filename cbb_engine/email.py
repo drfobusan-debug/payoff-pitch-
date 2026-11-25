@@ -13,6 +13,8 @@ import certifi
 
 from cbb_engine.config import Config
 
+SMTP_TIMEOUT_S = 120.0
+
 
 class EmailNotConfigured(RuntimeError):
     pass
@@ -47,7 +49,9 @@ def send(cfg: Config, *, subject: str, text: str, paths: dict[str, Path] | None 
     sender, recipient = addresses(cfg, to)
     msg = build(sender, recipient, subject, text, paths or {})
     context = ssl.create_default_context(cafile=certifi.where())
-    with smtplib.SMTP_SSL(cfg.delivery.smtp_host, cfg.delivery.smtp_port, context=context) as server:
+    with smtplib.SMTP_SSL(
+        cfg.delivery.smtp_host, cfg.delivery.smtp_port, context=context, timeout=SMTP_TIMEOUT_S
+    ) as server:
         server.login(sender, (cfg.delivery.gmail_app_password or "").replace(" ", ""))
         server.send_message(msg)
     return recipient

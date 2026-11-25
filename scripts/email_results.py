@@ -30,6 +30,7 @@ from pathlib import Path
 
 from mlb_engine.config import load_config
 
+SMTP_TIMEOUT_S = 120.0
 _XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 
 
@@ -83,7 +84,7 @@ def send(path: Path) -> int:
     )
 
     ctx = ssl.create_default_context()
-    with smtplib.SMTP_SSL(host, port, context=ctx) as smtp:
+    with smtplib.SMTP_SSL(host, port, context=ctx, timeout=SMTP_TIMEOUT_S) as smtp:
         smtp.login(user, password)
         smtp.send_message(msg)
     print(f"Emailed {path.name} -> {to_addr}")

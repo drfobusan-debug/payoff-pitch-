@@ -6,7 +6,11 @@ be read by a person, diffed, and quoted back with its timestamp.
 
 from __future__ import annotations
 
+import fcntl
+import os
 import re
+from collections.abc import Iterator
+from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -45,6 +49,20 @@ def write_transcript(path: Path, lines: list[Line]) -> Path:
     return path
 
 
+@contextmanager
+def one_at_a_time() -> Iterator[None]:
+    """Whisper passes take turns across every engine on the machine: run together they
+    split the cores and none of them finishes. ``WHISPER_LOCK`` names the lock file."""
+    path = Path(os.getenv("WHISPER_LOCK") or Path.home() / ".engine_whisper.lock")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a") as fh:
+        fcntl.flock(fh, fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            fcntl.flock(fh, fcntl.LOCK_UN)
+
+
 def transcribe(audio: Path, dest: Path, *, model: str = WHISPER_MODEL, threads: int = 4) -> Path:
     """Local Whisper pass; ``faster-whisper`` is an optional extra (``pip install -e .[podcast]``)."""
     try:
@@ -53,9 +71,10 @@ def transcribe(audio: Path, dest: Path, *, model: str = WHISPER_MODEL, threads: 
         raise PodcastUnavailable(
             "faster-whisper not installed (pip install -e '.[podcast]')"
         ) from exc
-    wm = WhisperModel(model, device="cpu", compute_type="int8", cpu_threads=threads)
-    segments, _ = wm.transcribe(str(audio), beam_size=1, vad_filter=True)
-    lines = [Line(int(s.start), s.text.strip()) for s in segments if s.text.strip()]
+    with one_at_a_time():
+        wm = WhisperModel(model, device="cpu", compute_type="int8", cpu_threads=threads)
+        segments, _ = wm.transcribe(str(audio), beam_size=1, vad_filter=True)
+        lines = [Line(int(s.start), s.text.strip()) for s in segments if s.text.strip()]
     return write_transcript(dest, lines)
 
 
@@ -74,6 +93,7 @@ __all__ = [
     "WHISPER_MODEL",
     "Line",
     "PodcastUnavailable",
+    "one_at_a_time",
     "read_transcript",
     "stamp_seconds",
     "transcribe",

@@ -9,11 +9,15 @@ from __future__ import annotations
 
 import operator
 import os
+import threading
 import time
 
 from cbb_engine import cli as cbb_cli
-from engine_common.podcasts.run import run_within
+from cfb_engine import cli as cfb_cli
+from engine_common.podcasts.run import max_seconds_from_env, run_within
+from engine_common.podcasts.transcript import one_at_a_time
 from nba_engine import cli as nba_cli
+from nhl_engine import cli as nhl_cli
 
 
 def test_a_stalled_read_is_stopped_and_returns_none() -> None:
@@ -39,3 +43,37 @@ def test_a_reader_that_dies_without_a_result_is_not_waited_on() -> None:
 def test_both_podcast_commands_take_the_limit() -> None:
     assert cbb_cli.build_parser().parse_args(["podcast", "--max-seconds", "60"]).max_seconds == 60
     assert nba_cli.build_parser().parse_args(["podcast", "--max-seconds", "60"]).max_seconds == 60
+
+
+def test_the_limit_comes_from_podcast_max_seconds(monkeypatch) -> None:
+    monkeypatch.delenv("PODCAST_MAX_SECONDS", raising=False)
+    assert max_seconds_from_env() == 3600
+    monkeypatch.setenv("PODCAST_MAX_SECONDS", "90")
+    assert max_seconds_from_env() == 90
+    monkeypatch.setenv("PODCAST_MAX_SECONDS", "0")
+    assert max_seconds_from_env() is None
+
+
+def test_cfb_and_nhl_podcast_reads_are_limited_by_default(monkeypatch) -> None:
+    monkeypatch.delenv("PODCAST_MAX_SECONDS", raising=False)
+    assert cfb_cli._build_parser().parse_args(["podcast"]).max_seconds == 3600
+    assert nhl_cli.build_parser().parse_args(["podcast"]).max_seconds == 3600
+
+
+def test_whisper_passes_take_turns(tmp_path, monkeypatch) -> None:
+    monkeypatch.setenv("WHISPER_LOCK", str(tmp_path / "whisper.lock"))
+    held = threading.Event()
+
+    def first() -> None:
+        with one_at_a_time():
+            held.set()
+            time.sleep(1)
+
+    t = threading.Thread(target=first)
+    t.start()
+    held.wait(5)
+    t0 = time.monotonic()
+    with one_at_a_time():
+        waited = time.monotonic() - t0
+    t.join()
+    assert waited > 0.5

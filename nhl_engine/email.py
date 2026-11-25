@@ -20,6 +20,8 @@ from nhl_engine.config import Config
 from nhl_engine.outputs import render_card
 from nhl_engine.pipeline import SlateCard
 
+SMTP_TIMEOUT_S = 120.0
+
 mimetypes.add_type("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", ".xlsx")
 mimetypes.add_type("text/markdown", ".md")
 
@@ -96,7 +98,7 @@ def _send(
     password = (cfg.creds.gmail_app_password or "").replace(" ", "")
     context = ssl.create_default_context(cafile=certifi.where())
     with smtplib.SMTP_SSL(
-        cfg.delivery.smtp_host, cfg.delivery.smtp_port, context=context
+        cfg.delivery.smtp_host, cfg.delivery.smtp_port, context=context, timeout=SMTP_TIMEOUT_S
     ) as server:
         server.login(sender, password)
         server.send_message(msg)

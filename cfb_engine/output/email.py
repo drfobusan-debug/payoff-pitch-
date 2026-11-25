@@ -11,6 +11,8 @@ import certifi
 
 from cfb_engine.config import Config
 
+SMTP_TIMEOUT_S = 120.0
+
 mimetypes.add_type(
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", ".xlsx"
 )
@@ -61,7 +63,9 @@ def send_card_email(
     # Gmail App Passwords are displayed in groups of four; strip any spaces.
     password = creds.gmail_app_password.replace(" ", "")
     context = ssl.create_default_context(cafile=certifi.where())
-    with smtplib.SMTP_SSL(cfg.smtp_host, cfg.smtp_port, context=context) as server:
+    with smtplib.SMTP_SSL(
+        cfg.smtp_host, cfg.smtp_port, context=context, timeout=SMTP_TIMEOUT_S
+    ) as server:
         server.login(sender, password)
         server.send_message(msg)
     return recipient

@@ -17,6 +17,8 @@ from email.message import EmailMessage
 
 import certifi
 
+SMTP_TIMEOUT_S = 120.0
+
 RECIPIENT_KEYS = (
     "LIVE_EDGE_EMAIL_TO",
     "CBBE_EMAIL_TO",
@@ -60,7 +62,7 @@ def send(subject: str, text: str) -> str:
     host = os.getenv("SMTP_HOST", "smtp.gmail.com")
     port = int(os.getenv("SMTP_PORT", "465"))
     ctx = ssl.create_default_context(cafile=certifi.where())
-    with smtplib.SMTP_SSL(host, port, context=ctx) as smtp:
+    with smtplib.SMTP_SSL(host, port, context=ctx, timeout=SMTP_TIMEOUT_S) as smtp:
         smtp.login(sender, os.environ["GMAIL_APP_PASSWORD"].replace(" ", ""))
         smtp.send_message(build(sender, to, subject, text))
     return to
