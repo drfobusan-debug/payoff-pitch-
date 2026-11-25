@@ -80,6 +80,8 @@ def transcribe(audio: Path, dest: Path, *, model: str = WHISPER_MODEL, threads: 
             "faster-whisper not installed (pip install -e '.[podcast]')"
         ) from exc
     with one_at_a_time():
+        if dest.exists():
+            return dest
         wm = WhisperModel(model, device="cpu", compute_type="int8", cpu_threads=threads)
         segments, _ = wm.transcribe(str(audio), beam_size=1, vad_filter=True)
         lines = [Line(int(s.start), s.text.strip()) for s in segments if s.text.strip()]

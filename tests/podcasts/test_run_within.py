@@ -9,13 +9,17 @@ from __future__ import annotations
 
 import operator
 import os
+import sys
 import threading
 import time
+import types
+
+import pytest
 
 from cbb_engine import cli as cbb_cli
 from cfb_engine import cli as cfb_cli
 from engine_common.podcasts.run import max_seconds_from_env, run_within
-from engine_common.podcasts.transcript import one_at_a_time
+from engine_common.podcasts.transcript import one_at_a_time, transcribe
 from nba_engine import cli as nba_cli
 from nhl_engine import cli as nhl_cli
 
@@ -79,3 +83,13 @@ def test_whisper_passes_take_turns(tmp_path, monkeypatch) -> None:
         waited = time.monotonic() - t0
     t.join()
     assert waited > 0.5
+
+
+def test_a_queued_pass_takes_the_transcript_the_first_one_wrote(tmp_path, monkeypatch) -> None:
+    fake = types.ModuleType("faster_whisper")
+    fake.WhisperModel = lambda *a, **k: pytest.fail("transcribed an episode already on disk")
+    monkeypatch.setitem(sys.modules, "faster_whisper", fake)
+    monkeypatch.setenv("WHISPER_LOCK", str(tmp_path / "whisper.lock"))
+    dest = tmp_path / "ep.txt"
+    dest.write_text("[00:00] done\n")
+    assert transcribe(tmp_path / "gone.mp3", dest) == dest
