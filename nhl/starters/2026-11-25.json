@@ -9,7 +9,7 @@
     "name": "Jeremy Swayman",
     "player_id": 8480280,
     "source": "rotowire",
-    "status": "probable"
+    "status": "confirmed"
   },
   "BUF": {
     "name": "Ukko-Pekka Luukkonen",
@@ -18,16 +18,16 @@
     "status": "probable"
   },
   "CAR": {
-    "name": "Pyotr Kochetkov",
-    "player_id": 8481611,
-    "source": "rotowire",
+    "name": "Brandon Bussi",
+    "player_id": 8483548,
+    "source": "dailyfaceoff",
     "status": "probable"
   },
   "CBJ": {
     "name": "Cam Talbot",
     "player_id": 8475660,
     "source": "rotowire",
-    "status": "probable"
+    "status": "confirmed"
   },
   "CGY": {
     "name": "Dustin Wolf",
@@ -69,7 +69,7 @@
     "name": "Jesper Wallstedt",
     "player_id": 8482661,
     "source": "rotowire",
-    "status": "probable"
+    "status": "confirmed"
   },
   "MTL": {
     "name": "Jacob Fowler",
@@ -99,7 +99,7 @@
     "name": "Joonas Korpisalo",
     "player_id": 8476914,
     "source": "rotowire",
-    "status": "probable"
+    "status": "confirmed"
   },
   "OTT": {
     "name": "Linus Ullmark",
@@ -108,10 +108,10 @@
     "status": "probable"
   },
   "PHI": {
-    "name": "Dan Vladar",
-    "player_id": 8478435,
+    "name": "Joseph Woll",
+    "player_id": 8479361,
     "source": "rotowire",
-    "status": "probable"
+    "status": "confirmed"
   },
   "PIT": {
     "name": "Arturs Silovs",
@@ -150,10 +150,10 @@
     "status": "probable"
   },
   "WPG": {
-    "name": "Stuart Skinner",
-    "player_id": 8479973,
+    "name": "Nico Daws",
+    "player_id": 8482076,
     "source": "rotowire",
-    "status": "probable"
+    "status": "confirmed"
   },
   "WSH": {
     "name": "Logan Thompson",
