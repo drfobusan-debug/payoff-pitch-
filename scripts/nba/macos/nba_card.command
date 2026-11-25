@@ -37,7 +37,10 @@ if [ "$PRICE" = 1 ]; then
         || echo "pricing pass failed; carding from the passes already recorded"
 fi
 nba-engine grade || true
-nba-engine podcast || echo "podcast read failed; the card prints without new picks" >&2
+# shellcheck disable=SC1091
+. "$REPO_DIR/scripts/macos/time_limit.sh"
+run_for "${PODCAST_MAX_SECONDS:-3600}" nba-engine podcast \
+    || echo "podcast read failed or ran out of time; the card prints without new picks" >&2
 nba-engine card --email ${ARGS[@]+"${ARGS[@]}"}
 echo
 echo "Package: ${NBAE_OUTPUT_DIR:-${NBAE_DATA_DIR:-$HOME/.nba_engine}/output}"
