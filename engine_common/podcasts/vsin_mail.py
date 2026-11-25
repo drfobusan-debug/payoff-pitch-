@@ -41,6 +41,7 @@ from engine_common.podcasts.shows import (
     VSIN_PRO_NAME,
     VSIN_PRO_SHOW,
 )
+from engine_common.podcasts.transcript import write_atomic
 
 SENDER = "bill@mail.vsin.com"
 SUBJECT = "picks at a glance"
@@ -372,8 +373,7 @@ def read_mail(
                 if not ex.picks:
                     continue
             path = extraction_path(root, show, mail)
-            path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_text(ex.to_json())
+            write_atomic(path, ex.to_json())
             kept.append(ex)
     return kept
 

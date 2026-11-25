@@ -89,6 +89,7 @@ from cfb_engine.recommendations import Recommendation, load_json, save_json
 from cfb_engine.state import auto_pull, auto_push
 from engine_common.podcasts import state as podcast_state
 from engine_common.podcasts.episodes import store_dir
+from engine_common.podcasts.run import max_seconds_from_env
 from engine_common.podcasts.shows import CFB
 from engine_runtime import faststart
 
@@ -775,7 +776,7 @@ def cmd_podcast(cfg: Config, args: argparse.Namespace) -> int:
     from the saved card, with no email, so a pick that lands after the 09:00 run
     still reaches the PDF.
     """
-    from engine_common.podcasts.run import read_feeds
+    from engine_common.podcasts.run import read_feeds, run_within
     from engine_common.podcasts.shows import BY_KEY, SHOWS
 
     _state_pull(cfg)
@@ -786,15 +787,17 @@ def cmd_podcast(cfg: Config, args: argparse.Namespace) -> int:
         else now - timedelta(days=9)
     )
     shows = [BY_KEY[k] for k in args.shows.split(",")] if args.shows else list(SHOWS)
-    rep = read_feeds(
-        store_dir(),
-        since,
-        now,
-        shows=shows,
-        transcribe_missing=not args.no_transcribe,
-        legacy=[cfg.data_dir],
+    feed_args = (store_dir(), since, now)
+    feed_kwargs = dict(
+        shows=shows, transcribe_missing=not args.no_transcribe, legacy=[cfg.data_dir]
     )
-    n_picks = rep.by_league.get(CFB, 0)
+    if args.max_seconds:
+        rep = run_within(args.max_seconds, read_feeds, *feed_args, **feed_kwargs)
+    else:
+        rep = read_feeds(*feed_args, **feed_kwargs)
+    if rep is None:
+        print(f"  feed read stopped after {args.max_seconds:g}s; grading the picks already read")
+    n_picks = rep.by_league.get(CFB, 0) if rep is not None else 0
 
     today = _today()
     for path in sorted(cfg.audit_dir.glob("predictions_*.json")):
@@ -1444,6 +1447,12 @@ def _build_parser() -> argparse.ArgumentParser:
     pc.add_argument("--shows", help="comma-separated show keys (default: all)")
     pc.add_argument("--no-transcribe", action="store_true", help="only use saved transcripts")
     pc.add_argument("--card", action="store_true", help="rebuild --date's PDF, no email")
+    pc.add_argument(
+        "--max-seconds",
+        type=float,
+        default=max_seconds_from_env(),
+        help="stop the feed read after this long (default PODCAST_MAX_SECONDS, else 3600; 0 = no limit)",
+    )
     return p
 
 

@@ -27,6 +27,7 @@ from bs4 import BeautifulSoup
 
 from engine_common.podcasts.extract import PICKS_DIR, Extraction, Pick
 from engine_common.podcasts.shows import CBB, CFB, MLB, NBA, NFL, NHL, VSIN_NAME, VSIN_SHOW
+from engine_common.podcasts.transcript import write_atomic
 
 API = "https://vsin.com/wp-json/wp/v2"
 SHOW_KEY = VSIN_SHOW
@@ -399,8 +400,7 @@ def read_articles(
             if not ex.picks:
                 continue
             path = extraction_path(root, post)
-            path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_text(ex.to_json())
+            write_atomic(path, ex.to_json())
             kept.append(ex)
     return kept
 
