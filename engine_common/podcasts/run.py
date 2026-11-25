@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import multiprocessing
 import os
+import time
 from collections import Counter
 from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass, field
@@ -139,11 +140,22 @@ def run_within(seconds: float, fn: Callable[..., Any], *args: Any, **kwargs: Any
     queue = ctx.Queue()
     proc = ctx.Process(target=_child, args=(queue, fn, args, kwargs), daemon=True)
     proc.start()
-    try:
-        ok, value = queue.get(timeout=seconds)
-    except Empty:
-        ok, value = False, None
-        proc.terminate()
+    deadline = time.monotonic() + seconds
+    ok, value = False, None
+    while True:
+        try:
+            ok, value = queue.get(timeout=min(1.0, max(0.0, deadline - time.monotonic())))
+            break
+        except Empty:
+            if not proc.is_alive():
+                try:
+                    ok, value = queue.get(timeout=1)
+                except Empty:
+                    pass
+                break
+            if time.monotonic() >= deadline:
+                proc.terminate()
+                break
     proc.join(15)
     if proc.is_alive():
         proc.kill()
