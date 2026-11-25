@@ -46,7 +46,7 @@ from engine_common import novig
 from engine_common.bands import BandRead
 from engine_common.podcasts import state as podcast_state
 from engine_common.podcasts.episodes import store_dir
-from engine_common.podcasts.run import read_feeds
+from engine_common.podcasts.run import read_feeds, run_within
 from engine_common.podcasts.shows import CBB, SHOWS
 from engine_runtime import faststart, ledger, quotes, runner, views
 from engine_runtime.odds_client import OddsClient
@@ -514,12 +514,20 @@ def cmd_podcast(args: argparse.Namespace) -> int:
         state.auto_pull(trees=("quotes", "ledger"))
     if not args.no_read:
         now = datetime.now(timezone.utc)
-        rep = read_feeds(
-            store_dir(), now - timedelta(days=args.days), now, league=CBB,
+        feed_args = (store_dir(), now - timedelta(days=args.days), now)
+        feed_kwargs = dict(
+            league=CBB,
             shows=[s for s in SHOWS if CBB in s.leagues],
             transcribe_missing=not args.no_transcribe,
         )
-        print(f"  {rep.by_league.get(CBB, 0)} CBB picks read")
+        if args.max_seconds:
+            rep = run_within(args.max_seconds, read_feeds, *feed_args, **feed_kwargs)
+        else:
+            rep = read_feeds(*feed_args, **feed_kwargs)
+        if rep is None:
+            print(f"  feed read stopped after {args.max_seconds:g}s; grading the picks already read")
+        else:
+            print(f"  {rep.by_league.get(CBB, 0)} CBB picks read")
     today = datetime.now(timezone.utc).date()
     n = 0
     for k in range(args.days, 0, -1):
@@ -818,6 +826,9 @@ def build_parser() -> argparse.ArgumentParser:
     po.add_argument("--no-read", action="store_true", help="only grade what was already read")
     po.add_argument("--no-transcribe", action="store_true")
     po.add_argument("--no-sync", action="store_true")
+    po.add_argument(
+        "--max-seconds", type=float, help="stop the feed read (downloads, Whisper) after this long"
+    )
     po.set_defaults(func=cmd_podcast)
     nv = sub.add_parser("novig", help="the ledger valued at the close at the book vs at Novig")
     nv.set_defaults(func=cmd_novig)

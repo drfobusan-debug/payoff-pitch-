@@ -52,7 +52,7 @@ from pathlib import Path
 from engine_common import novig
 from engine_common.podcasts import state as podcast_state
 from engine_common.podcasts.episodes import store_dir
-from engine_common.podcasts.run import read_feeds
+from engine_common.podcasts.run import read_feeds, run_within
 from engine_common.podcasts.shows import NBA
 from engine_runtime import altlines as alt_rt
 from engine_runtime import faststart
@@ -670,14 +670,18 @@ def cmd_podcast(args: argparse.Namespace) -> int:
         state.auto_pull(root, trees=("ledger",))
     if not args.no_read:
         now = datetime.now(timezone.utc)
-        rep = read_feeds(
-            store_dir(),
-            now - timedelta(days=args.days),
-            now,
-            league=NBA,
-            transcribe_missing=not args.no_transcribe,
-        )
-        print(f"  {rep.by_league.get(NBA, 0)} NBA picks read")
+        feed_args = (store_dir(), now - timedelta(days=args.days), now)
+        feed_kwargs = dict(league=NBA, transcribe_missing=not args.no_transcribe)
+        if args.max_seconds:
+            rep = run_within(args.max_seconds, read_feeds, *feed_args, **feed_kwargs)
+        else:
+            rep = read_feeds(*feed_args, **feed_kwargs)
+        if rep is None:
+            print(
+                f"  feed read stopped after {args.max_seconds:g}s; grading the picks already read"
+            )
+        else:
+            print(f"  {rep.by_league.get(NBA, 0)} NBA picks read")
     today = _today()
     days = [today - timedelta(days=k) for k in range(args.days, 0, -1)]
     n = _grade_podcasts(root, days)
@@ -1455,6 +1459,9 @@ def build_parser() -> argparse.ArgumentParser:
     pod.add_argument("--no-read", action="store_true", help="only grade picks already read")
     pod.add_argument("--no-transcribe", action="store_true", help="skip episodes not transcribed")
     pod.add_argument("--no-sync", action="store_true", help="skip the engine-state pull/push")
+    pod.add_argument(
+        "--max-seconds", type=float, help="stop the feed read (downloads, Whisper) after this long"
+    )
     pod.set_defaults(func=cmd_podcast)
     return parser
 

@@ -37,7 +37,7 @@ if [ "$PRICE" = 1 ]; then
         || echo "pricing pass failed; carding from the passes already recorded"
 fi
 nba-engine grade || true
-nba-engine podcast || echo "podcast read failed; the card prints without new picks" >&2
+nba-engine podcast --max-seconds "${PODCAST_MAX_SECONDS:-3600}" || echo "podcast read failed; the card prints without new picks" >&2
 nba-engine card --email ${ARGS[@]+"${ARGS[@]}"}
 echo
 echo "Package: ${NBAE_OUTPUT_DIR:-${NBAE_DATA_DIR:-$HOME/.nba_engine}/output}"
