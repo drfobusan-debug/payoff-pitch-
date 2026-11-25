@@ -1,0 +1,5 @@
+detected_at,game_date,event_id,matchup,kind,detail,before,after
+2026-11-24T23:59:29Z,2026-11-24,42f48a4769eab3d1472d76aac0fd0fa7,DET @ ORL,ml_move,home ml 0.442 -> 0.581,0.442,0.581
+2026-11-24T23:59:29Z,2026-11-24,42f48a4769eab3d1472d76aac0fd0fa7,DET @ ORL,spread_move,home spread 2.5 -> -3.5,2.5,-3.5
+2026-11-24T23:59:29Z,2026-11-24,42f48a4769eab3d1472d76aac0fd0fa7,DET @ ORL,total_move,total 213.25 -> 210.25,213.25,210.25
+2026-11-24T23:59:29Z,2026-11-24,42f48a4769eab3d1472d76aac0fd0fa7,DET @ ORL,injury,DET Cade Cunningham: Day-To-Day -> Out,Day-To-Day,Out
