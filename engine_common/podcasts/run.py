@@ -7,6 +7,7 @@ the ones in its league. Nothing here prices anything.
 
 from __future__ import annotations
 
+import logging
 import multiprocessing
 import os
 import time
@@ -25,6 +26,8 @@ from engine_common.podcasts.shows import SHOWS, Show
 from engine_common.podcasts.transcript import read_transcript
 from engine_common.podcasts.vsin import read_articles
 from engine_common.podcasts.vsin_mail import read_mail
+
+log = logging.getLogger(__name__)
 
 
 @dataclass
@@ -131,7 +134,12 @@ def _child(
 
 def max_seconds_from_env() -> float | None:
     """``PODCAST_MAX_SECONDS`` (default an hour) as the feed read's limit; ``0`` means none."""
-    seconds = float(os.getenv("PODCAST_MAX_SECONDS") or 3600)
+    raw = os.getenv("PODCAST_MAX_SECONDS") or "3600"
+    try:
+        seconds = float(raw)
+    except ValueError:
+        log.warning("PODCAST_MAX_SECONDS=%r is not a number; using 3600", raw)
+        seconds = 3600.0
     return seconds if seconds > 0 else None
 
 

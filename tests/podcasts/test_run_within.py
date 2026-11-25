@@ -52,6 +52,8 @@ def test_the_limit_comes_from_podcast_max_seconds(monkeypatch) -> None:
     assert max_seconds_from_env() == 90
     monkeypatch.setenv("PODCAST_MAX_SECONDS", "0")
     assert max_seconds_from_env() is None
+    monkeypatch.setenv("PODCAST_MAX_SECONDS", "1h")
+    assert max_seconds_from_env() == 3600
 
 
 def test_cfb_and_nhl_podcast_reads_are_limited_by_default(monkeypatch) -> None:
