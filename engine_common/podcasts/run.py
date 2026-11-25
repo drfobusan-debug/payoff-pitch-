@@ -7,12 +7,15 @@ the ones in its league. Nothing here prices anything.
 
 from __future__ import annotations
 
+import multiprocessing
 import os
 from collections import Counter
-from collections.abc import Iterable, Sequence
+from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
+from queue import Empty
+from typing import Any
 
 from engine_common.podcasts.docs import read_docs
 from engine_common.podcasts.episodes import Episode, ensure_transcript, fetch_episodes
@@ -115,4 +118,37 @@ def read_feeds(
     return rep
 
 
-__all__ = ["ReadReport", "read_feeds"]
+def _child(
+    queue: Any, fn: Callable[..., Any], args: tuple[Any, ...], kwargs: dict[str, Any]
+) -> None:
+    try:
+        queue.put((True, fn(*args, **kwargs)))
+    except BaseException as exc:
+        queue.put((False, repr(exc)))
+        raise
+
+
+def run_within(seconds: float, fn: Callable[..., Any], *args: Any, **kwargs: Any) -> Any:
+    """``fn(*args, **kwargs)`` in a child process, stopped after ``seconds``; ``None`` if it
+    was stopped or failed.
+
+    For the feed read only: a stalled download or Whisper pass is killed with the child,
+    while the caller's state sync stays in the parent, outside the limit.
+    """
+    ctx = multiprocessing.get_context("spawn")
+    queue = ctx.Queue()
+    proc = ctx.Process(target=_child, args=(queue, fn, args, kwargs), daemon=True)
+    proc.start()
+    try:
+        ok, value = queue.get(timeout=seconds)
+    except Empty:
+        ok, value = False, None
+        proc.terminate()
+    proc.join(15)
+    if proc.is_alive():
+        proc.kill()
+        proc.join()
+    return value if ok else None
+
+
+__all__ = ["ReadReport", "read_feeds", "run_within"]
