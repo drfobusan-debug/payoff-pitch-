@@ -1,0 +1,27 @@
+captured_at,game_date,matchup,event_id,market,side,entity,line,book,american,opposite_american,source
+2026-11-25T03:37:10Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl,EDM,,2.5,fanatics,-125,125,oddsapi
+2026-11-25T03:37:10Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl,VGK,,-2.5,fanatics,125,-125,oddsapi
+2026-11-25T03:37:10Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_ml,EDM,,,fanduel,1100,-4000,oddsapi
+2026-11-25T03:37:10Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_ml,VGK,,,fanduel,-4000,1100,oddsapi
+2026-11-25T03:37:10Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl,EDM,,1.5,fanduel,100,-130,oddsapi
+2026-11-25T03:37:10Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl,VGK,,-1.5,fanduel,-130,100,oddsapi
+2026-11-25T03:37:10Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_ml,EDM,,,williamhill_us,650,-1250,oddsapi
+2026-11-25T03:37:10Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_ml,VGK,,,williamhill_us,-1250,650,oddsapi
+2026-11-25T03:37:10Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl,EDM,,2.5,williamhill_us,-190,150,oddsapi
+2026-11-25T03:37:10Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl,VGK,,-2.5,williamhill_us,150,-190,oddsapi
+2026-11-25T03:37:10Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total,over,,8.5,williamhill_us,153,-197,oddsapi
+2026-11-25T03:37:10Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total,under,,8.5,williamhill_us,-197,153,oddsapi
+2026-11-25T03:37:10Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl,EDM,,2.5,draftkings,-188,145,oddsapi
+2026-11-25T03:37:10Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl,VGK,,-2.5,draftkings,145,-188,oddsapi
+2026-11-25T03:37:10Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_ml,EDM,,,betmgm,3300,-10000,oddsapi
+2026-11-25T03:37:10Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_ml,VGK,,,betmgm,-10000,3300,oddsapi
+2026-11-25T03:37:10Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl,EDM,,2.5,betmgm,-155,115,oddsapi
+2026-11-25T03:37:10Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl,VGK,,-2.5,betmgm,115,-155,oddsapi
+2026-11-25T03:37:10Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total,over,,8.5,betmgm,-160,120,oddsapi
+2026-11-25T03:37:10Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_total,under,,8.5,betmgm,120,-160,oddsapi
+2026-11-25T03:37:10Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl,EDM,,2.5,bovada,-170,130,oddsapi
+2026-11-25T03:37:10Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl,VGK,,-2.5,bovada,130,-170,oddsapi
+2026-11-25T03:37:10Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_ml,EDM,,,mybookieag,725,-1667,oddsapi
+2026-11-25T03:37:10Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_ml,VGK,,,mybookieag,-1667,725,oddsapi
+2026-11-25T03:37:10Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl,EDM,,1.5,mybookieag,-154,110,oddsapi
+2026-11-25T03:37:10Z,2026-11-24,VGK @ EDM,155fbdda10b6474a41649023baadfdf3,game_pl,VGK,,-1.5,mybookieag,110,-154,oddsapi
