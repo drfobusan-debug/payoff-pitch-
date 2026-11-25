@@ -19,7 +19,7 @@ import pytest
 from cbb_engine import cli as cbb_cli
 from cfb_engine import cli as cfb_cli
 from engine_common.podcasts.run import max_seconds_from_env, run_within
-from engine_common.podcasts.transcript import one_at_a_time, transcribe
+from engine_common.podcasts.transcript import one_at_a_time, transcribe, write_atomic
 from nba_engine import cli as nba_cli
 from nhl_engine import cli as nhl_cli
 
@@ -93,3 +93,15 @@ def test_a_queued_pass_takes_the_transcript_the_first_one_wrote(tmp_path, monkey
     dest = tmp_path / "ep.txt"
     dest.write_text("[00:00] done\n")
     assert transcribe(tmp_path / "gone.mp3", dest) == dest
+
+
+def test_concurrent_saves_of_one_file_never_publish_a_partial_write(tmp_path) -> None:
+    dest = tmp_path / "picks.json"
+    texts = ["a" * 200_000, "b" * 200_000]
+    workers = [threading.Thread(target=write_atomic, args=(dest, t)) for t in texts * 4]
+    for w in workers:
+        w.start()
+    for w in workers:
+        w.join()
+    assert dest.read_text() in texts
+    assert list(tmp_path.glob("*.part")) == []

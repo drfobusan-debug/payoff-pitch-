@@ -9,6 +9,7 @@ from __future__ import annotations
 import fcntl
 import os
 import re
+import tempfile
 from collections.abc import Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
@@ -44,12 +45,18 @@ def read_transcript(path: Path) -> list[Line]:
 
 
 def write_atomic(path: Path, text: str) -> Path:
-    """Write via a ``.part`` sibling and rename, so a reader killed mid-write never
+    """Write via a private ``.part`` sibling and rename, so a reader killed mid-write never
     leaves a truncated transcript or picks file at ``path``."""
     path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_name(path.name + ".part")
-    tmp.write_text(text)
-    tmp.replace(path)
+    fd, name = tempfile.mkstemp(dir=path.parent, prefix=path.name + ".", suffix=".part")
+    tmp = Path(name)
+    try:
+        with os.fdopen(fd, "w") as fh:
+            fh.write(text)
+        tmp.replace(path)
+    except BaseException:
+        tmp.unlink(missing_ok=True)
+        raise
     return path
 
 
