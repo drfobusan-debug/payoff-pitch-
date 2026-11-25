@@ -1,0 +1,4 @@
+detected_at,game_date,event_id,matchup,kind,detail,before,after
+2026-11-25T21:40:27Z,2026-11-25,f08629281f1510f47d91cc408f86a2a8,CLE @ NYK,ml_move,home ml 0.526 -> 0.610,0.526,0.610
+2026-11-25T21:40:27Z,2026-11-25,f08629281f1510f47d91cc408f86a2a8,CLE @ NYK,spread_move,home spread -1.5 -> -3.5,-1.5,-3.5
+2026-11-25T21:40:27Z,2026-11-25,f08629281f1510f47d91cc408f86a2a8,CLE @ NYK,total_move,total 216.5 -> 218.5,216.5,218.5
