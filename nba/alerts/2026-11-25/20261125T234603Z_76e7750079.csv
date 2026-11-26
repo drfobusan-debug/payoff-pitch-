@@ -1,0 +1,11 @@
+detected_at,game_date,event_id,matchup,kind,detail,before,after
+2026-11-25T23:46:03Z,2026-11-25,07421d1675d6bc51bb5fa91f84a09eb3,MIN @ OKC,spread_move,home spread -1.5 -> -2.5,-1.5,-2.5
+2026-11-25T23:46:03Z,2026-11-25,87ce247fb83685389ca8ffb21be6cd3e,CHI @ CHA,total_move,total 220.25 -> 218.5,220.25,218.5
+2026-11-25T23:46:03Z,2026-11-25,e6df92326adb480e427bb7c10f445c60,SAC @ GSW,spread_move,home spread -7.5 -> -8.5,-7.5,-8.5
+2026-11-25T23:46:03Z,2026-11-25,f08629281f1510f47d91cc408f86a2a8,CLE @ NYK,total_move,total 218.5 -> 220,218.5,220
+2026-11-25T23:46:03Z,2026-11-25,87ce247fb83685389ca8ffb21be6cd3e,CHI @ CHA,injury,CHA Sion James: Day-To-Day -> cleared,Day-To-Day,
+2026-11-25T23:46:03Z,2026-11-25,87ce247fb83685389ca8ffb21be6cd3e,CHI @ CHA,injury,CHI Jalen Smith: Day-To-Day -> Out,Day-To-Day,Out
+2026-11-25T23:46:03Z,2026-11-25,f08629281f1510f47d91cc408f86a2a8,CLE @ NYK,injury,NYK Josh Hart: Day-To-Day -> cleared,Day-To-Day,
+2026-11-25T23:46:03Z,2026-11-25,f08629281f1510f47d91cc408f86a2a8,CLE @ NYK,injury,NYK Karl-Anthony Towns: Day-To-Day -> cleared,Day-To-Day,
+2026-11-25T23:46:03Z,2026-11-25,f08629281f1510f47d91cc408f86a2a8,CLE @ NYK,injury,NYK Jalen Brunson: Day-To-Day -> cleared,Day-To-Day,
+2026-11-25T23:46:03Z,2026-11-25,e6df92326adb480e427bb7c10f445c60,SAC @ GSW,injury,SAC Zach LaVine: Day-To-Day -> Out,Day-To-Day,Out
