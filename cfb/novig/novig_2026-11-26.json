@@ -1,0 +1,44 @@
+{
+  "TCU @ Texas Tech|game_ats|TCU": {
+    "american": 100.0,
+    "captured_at": "2026-11-26T14:02:46Z",
+    "kickoff_utc": "2026-11-27T01:00:00Z",
+    "line": 15.5,
+    "no_vig_prob": 0.49282296650717705
+  },
+  "TCU @ Texas Tech|game_ats|Texas Tech": {
+    "american": -106.0,
+    "captured_at": "2026-11-26T14:02:46Z",
+    "kickoff_utc": "2026-11-27T01:00:00Z",
+    "line": -15.5,
+    "no_vig_prob": 0.507177033492823
+  },
+  "TCU @ Texas Tech|game_ml|TCU": {
+    "american": 614.0,
+    "captured_at": "2026-11-26T14:02:46Z",
+    "kickoff_utc": "2026-11-27T01:00:00Z",
+    "line": null,
+    "no_vig_prob": 0.13934490967967594
+  },
+  "TCU @ Texas Tech|game_ml|Texas Tech": {
+    "american": -641.0,
+    "captured_at": "2026-11-26T14:02:46Z",
+    "kickoff_utc": "2026-11-27T01:00:00Z",
+    "line": null,
+    "no_vig_prob": 0.860655090320324
+  },
+  "TCU @ Texas Tech|game_total|Over": {
+    "american": 104.0,
+    "captured_at": "2026-11-26T14:02:46Z",
+    "kickoff_utc": "2026-11-27T01:00:00Z",
+    "line": 47.5,
+    "no_vig_prob": 0.48561822936122523
+  },
+  "TCU @ Texas Tech|game_total|Under": {
+    "american": -108.0,
+    "captured_at": "2026-11-26T14:02:46Z",
+    "kickoff_utc": "2026-11-27T01:00:00Z",
+    "line": 47.5,
+    "no_vig_prob": 0.5143817706387748
+  }
+}
