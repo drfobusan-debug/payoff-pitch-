@@ -1,0 +1,41 @@
+{
+ "episode_guid": "a5f2afff-6232-4c93-b29c-75999ba4c21f",
+ "model": "gpt-4o-mini",
+ "prompt_version": "picks-v2",
+ "transcript_sha": "434aeebb179d3ee6d291b4c0984cbb8dcbdfa316",
+ "picks": [
+  {
+   "pick_id": "d2b4294358a4",
+   "show": "vsin_morning",
+   "show_name": "VSiN Daily Morning Bets",
+   "host": "Dustin Swedelson",
+   "episode_guid": "a5f2afff-6232-4c93-b29c-75999ba4c21f",
+   "episode_title": "VSiN Daily Morning Bets | November 25, 2026",
+   "published": "2026-11-25T02:01:51-05:00",
+   "kind": "official",
+   "market": "game_total",
+   "team": "Rams",
+   "opponent": "Packers",
+   "side": "under",
+   "line": null,
+   "price": null,
+   "units": null,
+   "seconds": 69,
+   "quote": "I'm on the under in this game.",
+   "reason": "The game is expected to be low-scoring due to key injuries and offensive struggles.",
+   "description": "Under 43 Rams-Packers",
+   "league": "nfl",
+   "edge": "Rams without Pukinukua and Packers' offensive inefficiencies.",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cfb",
+  "nfl",
+  "mlb",
+  "nba",
+  "cbb",
+  "nhl"
+ ]
+}
