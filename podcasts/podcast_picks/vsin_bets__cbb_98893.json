@@ -1,0 +1,60 @@
+{
+ "episode_guid": "vsin-98893",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "33434f33a8432b4a4de679c9548e8b56a162f433",
+ "picks": [
+  {
+   "pick_id": "bcc66b1c2b28",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-98893",
+   "episode_title": "College Basketball Picks for Friday, November 27 from Adam Burke",
+   "published": "2026-11-27T17:21:33+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "North Texas",
+   "opponent": "North Dakota State Bison",
+   "side": null,
+   "line": -5.5,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "North Texas -5.5",
+   "reason": "https://vsin.com/college-basketball/college-basketball-picks-for-friday-november-27-from-adam-burke/",
+   "description": "North Texas -5.5",
+   "league": "cbb",
+   "edge": "",
+   "fair_line": null
+  },
+  {
+   "pick_id": "e81e68eb986c",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-98893",
+   "episode_title": "College Basketball Picks for Friday, November 27 from Adam Burke",
+   "published": "2026-11-27T17:21:33+00:00",
+   "kind": "official",
+   "market": "game_total",
+   "team": "Missouri State Bears",
+   "opponent": "Oral Roberts Golden Eagles",
+   "side": "under",
+   "line": 142.0,
+   "price": null,
+   "units": null,
+   "seconds": 1,
+   "quote": "Under 142",
+   "reason": "https://vsin.com/college-basketball/college-basketball-picks-for-friday-november-27-from-adam-burke/",
+   "description": "Under 142",
+   "league": "cbb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cbb"
+ ]
+}
