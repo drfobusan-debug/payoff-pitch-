@@ -106,5 +106,23 @@
   "close_consensus": null,
   "clv": null,
   "graded_at": ""
+ },
+ {
+  "slate_date": "2026-11-27",
+  "matchup": "WPG @ NYI",
+  "market": "game_total",
+  "side": "over",
+  "line": 6.0,
+  "american": -130,
+  "stake": 1.0,
+  "host": "Jonathan Davis",
+  "stamp": "2026-11-27T15:43:51+00:00",
+  "text": "Jets/Islander Over 6 (-130) - 1 unit",
+  "outcome": null,
+  "pnl_flat": null,
+  "pnl_stake": null,
+  "close_consensus": null,
+  "clv": null,
+  "graded_at": ""
  }
 ]
