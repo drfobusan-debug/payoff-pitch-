@@ -1,0 +1,60 @@
+{
+ "episode_guid": "vsin-98764",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "0027f7fdd349fad7570ee7aa29534a2bcccb986e",
+ "picks": [
+  {
+   "pick_id": "95e41b4b46cb",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Zachary Cohen",
+   "episode_guid": "vsin-98764",
+   "episode_title": "Expert College Football Picks: Week 13 best bets and predictions from Zachary Cohen",
+   "published": "2026-11-27T04:11:11+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "USC",
+   "opponent": "UCLA Bruins",
+   "side": null,
+   "line": -6.5,
+   "price": -112.0,
+   "units": null,
+   "seconds": 0,
+   "quote": "USC -6.5 (-112)",
+   "reason": "https://vsin.com/college-football/expert-college-football-picks-week-13-best-bets-and-predictions-from-zachary-cohen/",
+   "description": "USC -6.5 (-112)",
+   "league": "cfb",
+   "edge": "",
+   "fair_line": null
+  },
+  {
+   "pick_id": "ae103d7e6ecd",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Zachary Cohen",
+   "episode_guid": "vsin-98764",
+   "episode_title": "Expert College Football Picks: Week 13 best bets and predictions from Zachary Cohen",
+   "published": "2026-11-27T04:11:11+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Indiana",
+   "opponent": "Purdue Boilermakers",
+   "side": null,
+   "line": -23.5,
+   "price": -102.0,
+   "units": null,
+   "seconds": 1,
+   "quote": "Indiana -23.5 (-102)",
+   "reason": "https://vsin.com/college-football/expert-college-football-picks-week-13-best-bets-and-predictions-from-zachary-cohen/",
+   "description": "Indiana -23.5 (-102)",
+   "league": "cfb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cfb"
+ ]
+}
