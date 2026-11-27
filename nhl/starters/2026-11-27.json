@@ -15,7 +15,7 @@
     "name": "Ukko-Pekka Luukkonen",
     "player_id": 8480045,
     "source": "rotowire",
-    "status": "probable"
+    "status": "confirmed"
   },
   "CBJ": {
     "name": "Jet Greaves",
@@ -42,10 +42,10 @@
     "status": "probable"
   },
   "DAL": {
-    "name": "Jake Oettinger",
-    "player_id": 8479979,
+    "name": "Casey DeSmith",
+    "player_id": 8479193,
     "source": "rotowire",
-    "status": "probable"
+    "status": "confirmed"
   },
   "DET": {
     "name": "Daniil Tarasov",
@@ -105,7 +105,7 @@
     "name": "Linus Ullmark",
     "player_id": 8476999,
     "source": "rotowire",
-    "status": "probable"
+    "status": "confirmed"
   },
   "PHI": {
     "name": "Dan Vladar",
@@ -135,7 +135,7 @@
     "name": "Joel Hofer",
     "player_id": 8480981,
     "source": "rotowire",
-    "status": "probable"
+    "status": "confirmed"
   },
   "TBL": {
     "name": "Andrei Vasilevskiy",
@@ -153,7 +153,7 @@
     "name": "Karel Vejmelka",
     "player_id": 8478872,
     "source": "rotowire",
-    "status": "probable"
+    "status": "confirmed"
   },
   "VGK": {
     "name": "Carter Hart",
@@ -171,6 +171,6 @@
     "name": "Logan Thompson",
     "player_id": 8480313,
     "source": "rotowire",
-    "status": "probable"
+    "status": "confirmed"
   }
 }
