@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-98705",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "e5d62d4d561367be4751bde1395384cfd4311307",
+ "picks": [
+  {
+   "pick_id": "0539d0d155e1",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-98705",
+   "episode_title": "College Basketball Picks for Thursday, November 26 from Adam Burke",
+   "published": "2026-11-26T16:59:22+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "St John",
+   "opponent": null,
+   "side": null,
+   "line": -2.0,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "St. John's -2",
+   "reason": "https://vsin.com/college-basketball/college-basketball-picks-for-thursday-november-26-from-adam-burke/",
+   "description": "St. John's -2",
+   "league": "cbb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cbb"
+ ]
+}

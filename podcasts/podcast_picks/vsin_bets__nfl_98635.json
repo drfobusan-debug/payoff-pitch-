@@ -1,0 +1,60 @@
+{
+ "episode_guid": "vsin-98635",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "afe4601c2ca9b087e0a22fc621f3e8c9cd84d107",
+ "picks": [
+  {
+   "pick_id": "44e3aeec175d",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Zachary Cohen",
+   "episode_guid": "vsin-98635",
+   "episode_title": "Expert NFL Picks: Week 12 best bets, predictions, and player props from Zachary Cohen",
+   "published": "2026-11-26T18:55:35+00:00",
+   "kind": "official",
+   "market": "other",
+   "team": null,
+   "opponent": null,
+   "side": null,
+   "line": null,
+   "price": -125.0,
+   "units": null,
+   "seconds": 0,
+   "quote": "Jefferson Over 84.5 Receiving Yards (-125)",
+   "reason": "https://vsin.com/nfl/expert-nfl-picks-week-12-best-bets-predictions-and-player-props-from-zachary-cohen/",
+   "description": "Jefferson Over 84.5 Receiving Yards (-125)",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  },
+  {
+   "pick_id": "8879fe293d17",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Zachary Cohen",
+   "episode_guid": "vsin-98635",
+   "episode_title": "Expert NFL Picks: Week 12 best bets, predictions, and player props from Zachary Cohen",
+   "published": "2026-11-26T18:55:35+00:00",
+   "kind": "official",
+   "market": "other",
+   "team": null,
+   "opponent": null,
+   "side": null,
+   "line": null,
+   "price": -135.0,
+   "units": 1.5,
+   "seconds": 1,
+   "quote": "49ers ML (-135 - 1.5 units)",
+   "reason": "https://vsin.com/nfl/expert-nfl-picks-week-12-best-bets-predictions-and-player-props-from-zachary-cohen/",
+   "description": "49ers ML (-135 - 1.5 units)",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "nfl"
+ ]
+}

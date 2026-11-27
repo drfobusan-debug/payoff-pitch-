@@ -1,0 +1,60 @@
+{
+ "episode_guid": "vsin-98710",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "9067e68f5c34adaf72911b4da925f5fa0598b66d",
+ "picks": [
+  {
+   "pick_id": "6c08b0f2fd8d",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-98710",
+   "episode_title": "College Football Week 13 Picks: Nebraska vs. Iowa",
+   "published": "2026-11-26T17:28:06+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Iowa",
+   "opponent": "Nebraska",
+   "side": null,
+   "line": -4.5,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Iowa -4.5",
+   "reason": "https://vsin.com/college-football/college-football-week-13-picks-nebraska-vs-iowa/",
+   "description": "Iowa -4.5",
+   "league": "cfb",
+   "edge": "",
+   "fair_line": null
+  },
+  {
+   "pick_id": "db508395808a",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-98710",
+   "episode_title": "College Football Week 13 Picks: Nebraska vs. Iowa",
+   "published": "2026-11-26T17:28:06+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "West Virginia",
+   "opponent": null,
+   "side": null,
+   "line": 27.0,
+   "price": null,
+   "units": null,
+   "seconds": 1,
+   "quote": "West Virginia +27",
+   "reason": "https://vsin.com/college-football/college-football-week-13-picks-nebraska-vs-iowa/",
+   "description": "West Virginia +27",
+   "league": "cfb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cfb"
+ ]
+}

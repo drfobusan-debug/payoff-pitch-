@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-98236",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "f05a1acb97141816c9904a46b9a26c808ac244f9",
+ "picks": [
+  {
+   "pick_id": "903b624039dc",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-98236",
+   "episode_title": "College Football Week 13 Picks: TCU vs. Texas Tech",
+   "published": "2026-11-26T00:23:37+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Texas Tech",
+   "opponent": "TCU",
+   "side": null,
+   "line": -14.5,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Texas Tech -14.5",
+   "reason": "https://vsin.com/college-football/college-football-week-13-picks-tcu-vs-texas-tech/",
+   "description": "Texas Tech -14.5",
+   "league": "cfb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cfb"
+ ]
+}

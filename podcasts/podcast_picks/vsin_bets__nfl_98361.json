@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-98361",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "93ece2d4f9d45b67120a7ab74ee3ff1aaa052e43",
+ "picks": [
+  {
+   "pick_id": "0be5d97c9737",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Zachary Cohen",
+   "episode_guid": "vsin-98361",
+   "episode_title": "Eagles vs. Cowboys Predictions: Week 12 Thanksgiving odds, picks, and player props",
+   "published": "2026-11-24T00:21:00+00:00",
+   "kind": "official",
+   "market": "other",
+   "team": null,
+   "opponent": null,
+   "side": null,
+   "line": null,
+   "price": -115.0,
+   "units": null,
+   "seconds": 0,
+   "quote": "Eagles Team Total Over 18.5 (-115)",
+   "reason": "https://vsin.com/nfl/eagles-vs-cowboys-predictions-week-12-thanksgiving-odds-picks-and-player-props/",
+   "description": "Eagles Team Total Over 18.5 (-115)",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "nfl"
+ ]
+}

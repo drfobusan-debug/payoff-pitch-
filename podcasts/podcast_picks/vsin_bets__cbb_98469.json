@@ -1,0 +1,60 @@
+{
+ "episode_guid": "vsin-98469",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "2ebbdab5d3dd082de1adb5d9f85f716cc8134df0",
+ "picks": [
+  {
+   "pick_id": "f4ca092272de",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-98469",
+   "episode_title": "College Basketball Picks for Wednesday, November 25 from Adam Burke",
+   "published": "2026-11-25T16:15:27+00:00",
+   "kind": "official",
+   "market": "game_total",
+   "team": "Cal State Bakersfield Roadrunners",
+   "opponent": "Pepperdine Waves",
+   "side": "over",
+   "line": 160.0,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Over 160",
+   "reason": "https://vsin.com/college-basketball/college-basketball-picks-for-wednesday-november-25-from-adam-burke/",
+   "description": "Over 160",
+   "league": "cbb",
+   "edge": "",
+   "fair_line": null
+  },
+  {
+   "pick_id": "57cfcddeebe8",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-98469",
+   "episode_title": "College Basketball Picks for Wednesday, November 25 from Adam Burke",
+   "published": "2026-11-25T16:15:27+00:00",
+   "kind": "official",
+   "market": "other",
+   "team": null,
+   "opponent": null,
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "seconds": 1,
+   "quote": "Pacific -4.5, Under 133",
+   "reason": "https://vsin.com/college-basketball/college-basketball-picks-for-wednesday-november-25-from-adam-burke/",
+   "description": "Pacific -4.5, Under 133",
+   "league": "cbb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cbb"
+ ]
+}

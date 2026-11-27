@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-98377",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "c66abbf8f3f17c706c9be5708933f53e75792b39",
+ "picks": [
+  {
+   "pick_id": "33316610f26b",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-98377",
+   "episode_title": "Duke vs. UConn Basketball Prediction: Wednesday, November 25, 2026",
+   "published": "2026-11-25T01:24:00+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Duke",
+   "opponent": "UConn",
+   "side": null,
+   "line": 2.5,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Duke +2.5",
+   "reason": "https://vsin.com/college-basketball/duke-vs-uconn-basketball-prediction-wednesday-november-25-2026/",
+   "description": "Duke +2.5",
+   "league": "cbb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cbb"
+ ]
+}

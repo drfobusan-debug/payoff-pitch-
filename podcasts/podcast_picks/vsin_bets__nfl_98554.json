@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-98554",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "e3d6e59435f974264dd99bdb09243e8a1053d858",
+ "picks": [
+  {
+   "pick_id": "bd80b2f23faa",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Zachary Cohen",
+   "episode_guid": "vsin-98554",
+   "episode_title": "Broncos vs. Steelers Predictions: Week 12 Black Friday odds, picks, and player props",
+   "published": "2026-11-26T00:20:00+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Broncos",
+   "opponent": "Steelers",
+   "side": null,
+   "line": -3.5,
+   "price": -105.0,
+   "units": null,
+   "seconds": 0,
+   "quote": "Broncos -3.5 (-105)",
+   "reason": "https://vsin.com/nfl/broncos-vs-steelers-predictions-week-12-black-friday-odds-picks-and-player-props/",
+   "description": "Broncos -3.5 (-105)",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "nfl"
+ ]
+}

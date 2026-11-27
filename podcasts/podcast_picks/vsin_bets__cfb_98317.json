@@ -1,0 +1,60 @@
+{
+ "episode_guid": "vsin-98317",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "824c0454e068e8727fd902cd7aa478f430ff58f7",
+ "picks": [
+  {
+   "pick_id": "04cfca2bbd4d",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Steve Makinen",
+   "episode_guid": "vsin-98317",
+   "episode_title": "Steve Makinen: College Football Week 13 Best Bets, Predictions and Picks",
+   "published": "2026-11-25T01:25:32+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Miami Ohio",
+   "opponent": "Western Michigan",
+   "side": null,
+   "line": 6.5,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Give me Miami Ohio +6.5 to challenge Western Michigan on Tuesday night",
+   "reason": "https://vsin.com/college-football/steve-makinen-college-football-week-13-best-bets-predictions-and-picks-2/",
+   "description": "Give me Miami Ohio +6.5 to challenge Western Michigan on Tuesday night",
+   "league": "cfb",
+   "edge": "",
+   "fair_line": null
+  },
+  {
+   "pick_id": "3d2c69cda943",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Steve Makinen",
+   "episode_guid": "vsin-98317",
+   "episode_title": "Steve Makinen: College Football Week 13 Best Bets, Predictions and Picks",
+   "published": "2026-11-25T01:25:32+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Texas Tech",
+   "opponent": "TCU",
+   "side": null,
+   "line": -14.0,
+   "price": null,
+   "units": null,
+   "seconds": 1,
+   "quote": "Give me Texas Tech -14 to get it done versus rival TCU",
+   "reason": "https://vsin.com/college-football/steve-makinen-college-football-week-13-best-bets-predictions-and-picks-2/",
+   "description": "Give me Texas Tech -14 to get it done versus rival TCU",
+   "league": "cfb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cfb"
+ ]
+}

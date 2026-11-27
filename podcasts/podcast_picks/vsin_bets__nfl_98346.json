@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-98346",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "60a0cf71bfbb4f0adfdacd4fb0d6770a27ac5e72",
+ "picks": [
+  {
+   "pick_id": "976a9aac40e3",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Zachary Cohen",
+   "episode_guid": "vsin-98346",
+   "episode_title": "Bears vs. Lions Predictions: Week 12 Thanksgiving odds, picks, and player props",
+   "published": "2026-11-24T00:23:19+00:00",
+   "kind": "official",
+   "market": "game_ml",
+   "team": "Bears",
+   "opponent": "Lions",
+   "side": null,
+   "line": null,
+   "price": -126.0,
+   "units": 1.5,
+   "seconds": 0,
+   "quote": "Bears ML (-126 - 1.5 units)",
+   "reason": "https://vsin.com/nfl/bears-vs-lions-predictions-week-12-thanksgiving-odds-picks-and-player-props/",
+   "description": "Bears ML (-126 - 1.5 units)",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "nfl"
+ ]
+}

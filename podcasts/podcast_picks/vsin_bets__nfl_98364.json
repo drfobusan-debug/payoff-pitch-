@@ -1,0 +1,60 @@
+{
+ "episode_guid": "vsin-98364",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "20ed3c57f9cb872554da81be535bb781f2b2f622",
+ "picks": [
+  {
+   "pick_id": "754b47616e7a",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Zachary Cohen",
+   "episode_guid": "vsin-98364",
+   "episode_title": "Chiefs vs. Bills Predictions: Week 12 Thanksgiving odds, picks, and player props",
+   "published": "2026-11-26T00:20:00+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Chiefs",
+   "opponent": "Bills",
+   "side": null,
+   "line": 3.0,
+   "price": -113.0,
+   "units": null,
+   "seconds": 0,
+   "quote": "Chiefs +3 (-113)",
+   "reason": "https://vsin.com/nfl/chiefs-vs-bills-predictions-week-12-thanksgiving-odds-picks-and-player-props/",
+   "description": "Chiefs +3 (-113)",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  },
+  {
+   "pick_id": "856195eb9c05",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Zachary Cohen",
+   "episode_guid": "vsin-98364",
+   "episode_title": "Chiefs vs. Bills Predictions: Week 12 Thanksgiving odds, picks, and player props",
+   "published": "2026-11-26T00:20:00+00:00",
+   "kind": "official",
+   "market": "game_ml",
+   "team": "Chiefs",
+   "opponent": "Bills",
+   "side": null,
+   "line": null,
+   "price": 135.0,
+   "units": 0.5,
+   "seconds": 1,
+   "quote": "Chiefs ML (+135 - 0.5 units)",
+   "reason": "https://vsin.com/nfl/chiefs-vs-bills-predictions-week-12-thanksgiving-odds-picks-and-player-props/",
+   "description": "Chiefs ML (+135 - 0.5 units)",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "nfl"
+ ]
+}

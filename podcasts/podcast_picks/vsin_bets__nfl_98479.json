@@ -1,0 +1,60 @@
+{
+ "episode_guid": "vsin-98479",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "cbef97bb83a7795aa5a3960de5b2f7c9ec6f82df",
+ "picks": [
+  {
+   "pick_id": "4e8521d4b56b",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-98479",
+   "episode_title": "NFL Survivor Pool Week 12 Picks",
+   "published": "2026-11-26T00:12:00+00:00",
+   "kind": "official",
+   "market": "other",
+   "team": null,
+   "opponent": null,
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Cowboys",
+   "reason": "https://vsin.com/nfl/nfl-survivor-pool-week-12-picks/",
+   "description": "Cowboys",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  },
+  {
+   "pick_id": "c1eb9a591d8c",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-98479",
+   "episode_title": "NFL Survivor Pool Week 12 Picks",
+   "published": "2026-11-26T00:12:00+00:00",
+   "kind": "official",
+   "market": "other",
+   "team": null,
+   "opponent": null,
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "seconds": 1,
+   "quote": "Giants",
+   "reason": "https://vsin.com/nfl/nfl-survivor-pool-week-12-picks/",
+   "description": "Giants",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "nfl"
+ ]
+}

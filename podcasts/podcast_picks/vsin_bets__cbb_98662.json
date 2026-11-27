@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-98662",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "4cfddd7c7e9fc5db2a07aee12c54a19a9adfb3e5",
+ "picks": [
+  {
+   "pick_id": "3d13fac4793f",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-98662",
+   "episode_title": "Baylor vs. Gonzaga Basketball Prediction: Thursday, November 26, 2026",
+   "published": "2026-11-26T00:27:42+00:00",
+   "kind": "official",
+   "market": "game_total",
+   "team": "Baylor",
+   "opponent": "Gonzaga",
+   "side": "under",
+   "line": 159.5,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Under 159.5",
+   "reason": "https://vsin.com/college-basketball/baylor-vs-gonzaga-basketball-prediction-thursday-november-26-2026/",
+   "description": "Under 159.5",
+   "league": "cbb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cbb"
+ ]
+}
