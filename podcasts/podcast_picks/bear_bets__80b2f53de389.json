@@ -1,0 +1,75 @@
+{
+ "episode_guid": "9a4b7b7c-458f-11f1-b7a3-678fc3fbef6c",
+ "model": "gpt-4o-mini",
+ "prompt_version": "picks-v2",
+ "transcript_sha": "e7416d29fca44f01ee11b9b562589c4d34ed0b86",
+ "picks": [
+  {
+   "pick_id": "f4a976cf8f9b",
+   "show": "bear_bets",
+   "show_name": "Bear Bets (FOX Sports)",
+   "host": "Sammy Panayotovich",
+   "episode_guid": "9a4b7b7c-458f-11f1-b7a3-678fc3fbef6c",
+   "episode_title": "Ohio State vs. Michigan Chaos, Trev Alberts\u2019 Lawsuit & Big Ten Title Race",
+   "published": "2026-11-27T21:15:00-05:00",
+   "kind": "lean",
+   "market": "game_ats",
+   "team": "Indiana",
+   "opponent": "Purdue",
+   "side": null,
+   "line": 24.0,
+   "price": null,
+   "units": null,
+   "seconds": 1398,
+   "quote": "they are a 23 and a half point favorite against Purdue.",
+   "reason": "Indiana is heavily favored but there are concerns about their performance against Iowa.",
+   "description": "Indiana -24",
+   "league": "cfb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [
+  {
+   "league": "cfb",
+   "kind": "lean",
+   "host": null,
+   "team": "UCLA",
+   "opponent": "USC",
+   "market": "game_ml",
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "stamp": "[12:12]",
+   "quote": "I don't think UCLA is out of this game by any means. It would not surprise me if they won tomorrow against the Trojans.",
+   "edge": "UCLA has been creative in getting turnovers and field position, which could help them against USC's vulnerable defense.",
+   "fair_line": null,
+   "reason": "UCLA has a chance to win if they can capitalize on turnovers and play fundamentally sound football.",
+   "description": "UCLA to win against USC",
+   "why": "bad stamp"
+  },
+  {
+   "league": "cfb",
+   "kind": "official",
+   "host": null,
+   "team": "Oregon",
+   "opponent": "Washington",
+   "market": "game_ats",
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "stamp": "[19:01]",
+   "quote": "I just don't think Oregon stubs their toe in this fashion because now all of a sudden they got a mulligan on the rest of the season.",
+   "edge": "Oregon has simplified their offense and is healthy at receiver, making them a dangerous team.",
+   "fair_line": null,
+   "reason": "Oregon's recent performance and health make them a strong contender against Washington.",
+   "description": "Oregon to cover against Washington",
+   "why": "bad stamp"
+  }
+ ],
+ "leagues": [
+  "cfb"
+ ]
+}
