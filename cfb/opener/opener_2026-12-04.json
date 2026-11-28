@@ -1,0 +1,86 @@
+{
+  "San Diego Stat @ Boise State|game_ats|Boise State": {
+    "american": -111.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -15.5,
+    "no_vig_prob": 0.5081410717535444
+  },
+  "San Diego Stat @ Boise State|game_ats|San Diego Stat": {
+    "american": -101.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 15.5,
+    "no_vig_prob": 0.49185892824645555
+  },
+  "San Diego Stat @ Boise State|game_ml|Boise State": {
+    "american": -700.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.8472573579433219
+  },
+  "San Diego Stat @ Boise State|game_ml|San Diego Stat": {
+    "american": 575.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.15274264205667806
+  },
+  "San Diego Stat @ Boise State|game_total|Over": {
+    "american": -108.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 58.0,
+    "no_vig_prob": 0.5016170501770669
+  },
+  "San Diego Stat @ Boise State|game_total|Under": {
+    "american": -105.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 58.0,
+    "no_vig_prob": 0.49838294982293296
+  },
+  "Texas Tech @ Utah|game_ats|Texas Tech": {
+    "american": 100.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 2.5,
+    "no_vig_prob": 0.49167872422890796
+  },
+  "Texas Tech @ Utah|game_ats|Utah": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": -2.5,
+    "no_vig_prob": 0.508321275771092
+  },
+  "Texas Tech @ Utah|game_ml|Texas Tech": {
+    "american": 125.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.44024071335702925
+  },
+  "Texas Tech @ Utah|game_ml|Utah": {
+    "american": -135.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": null,
+    "no_vig_prob": 0.5597592866429708
+  },
+  "Texas Tech @ Utah|game_total|Over": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 59.5,
+    "no_vig_prob": 0.5
+  },
+  "Texas Tech @ Utah|game_total|Under": {
+    "american": -110.0,
+    "captured_at": "",
+    "kickoff_utc": "",
+    "line": 59.5,
+    "no_vig_prob": 0.5
+  }
+}
